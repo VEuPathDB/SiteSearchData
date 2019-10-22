@@ -3,8 +3,9 @@
   <import file="${projectsDir}/WDK/build.xml" />
 
 
-  <target name="SiteSearchData-Installation" depends="WDK-Installation, SiteSearchData/Model-Installation">
-
+  <target name="SiteSearchData-Installation" depends="WDK-Installation, 
+                                                      SiteSearchData/Model-Installation,
+                                                      SiteSearchData-MavenInstallation">
 
     <ant target="defaultProjectInstall">
       <property name="project" value="SiteSearchData" />
@@ -17,6 +18,13 @@
       <property name="project" value="SiteSearchData" />
       <property name="component" value="Model" />
     </ant>
+  </target>
+
+  <target name="SiteSearchData-MavenInstallation">
+    <ant target="mavenBuildProject">
+      <property name="project" value="SiteSearchData" />
+    </ant>
+    <property name="alreadyBuilt" value="true" />
   </target>
 
 </project>

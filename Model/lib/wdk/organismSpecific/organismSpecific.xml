@@ -30,7 +30,7 @@
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
                 scopes=""
-                implementation="org.eupathdb.common.model.report.SolrLoaderReporter"/>
+                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="EstQueries.Bfmv">
         <columnAttribute name="dbest_name" displayName="Library"/>
