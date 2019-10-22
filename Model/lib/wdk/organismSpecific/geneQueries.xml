@@ -1,0 +1,818 @@
+<wdkModel>
+
+  <querySet name="GeneAttributes" queryType="attribute" isCacheable="false">
+
+    <sqlQuery name="GeneAlias">
+      <column name="source_id"/>
+      <column name="old_source_id"/>
+      <sql>
+        <![CDATA[
+                 SELECT a.gene AS source_id, 
+                 ga.project_id,
+                 a.ID as old_source_id, ga.project_id AS old_project_id
+                 FROM ApidbTuning.GeneId a, apidbtuning.geneattributes ga
+                 WHERE a.unique_mapping = 1   
+                 and a.gene = ga.source_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Bfmv">
+      <column name="source_id" ignoreCase="true"/>
+      <column name="strain" ignoreCase="true"/>
+      <column name="product" ignoreCase="true"/>
+      <column name="name" ignoreCase="true"/>
+      <column name="gene_type" ignoreCase="true"/>
+      <column name="sequence_id" ignoreCase="true"/>
+      <column name="organism_full"  sortingColumn="organism_full"/>
+      <column name="organism_text"  sortingColumn="organism_full"/><!-- CHECK-->
+      <column name="genus_species"  sortingColumn="organism_full"/>
+      <sql>
+        <![CDATA[
+                 SELECT bfmv.project_id
+                 , lower(bfmv.project_id) as lc_project_id
+                 , bfmv.project_id as project
+                 , bfmv.source_id
+                 , start_min
+                 , end_max
+                 , trim(to_char(bfmv.start_min,'999,999,999')) as start_min_text
+                 , trim(to_char(bfmv.end_max,'999,999,999')) as end_max_text
+                 , bfmv.strand_plus_minus
+                 , bfmv.product
+                 , bfmv.name
+                 , gene_type
+                 , bfmv.exon_count
+                 , bfmv.transcript_count
+                 , bfmv.representative_transcript
+                 --TODO  , representative_transcript
+                 , DECODE(bfmv.is_deprecated, 0, 'No', 1, 'Yes') AS is_deprecated
+                 , bfmv.context_start
+                 , bfmv.context_end
+                 , bfmv.zoom_context_start
+                 , bfmv.zoom_context_end
+                 , bfmv.start_min - greatest(200, round((end_max - start_min) / 2)) as tight_zoom_context_start
+                 , bfmv.end_max + greatest(200, round((end_max - start_min) / 2)) as tight_zoom_context_end
+                 , ortholog_number
+                 , paralog_number
+                 , bfmv.orthomcl_name as orthomcl_name
+                 , CASE WHEN (bfmv.orthomcl_name LIKE 'OG5%' AND bfmv.orthomcl_name NOT LIKE '%|%')
+                 THEN '<a href="http://orthomcl.org/cgi-bin/OrthoMclWeb.cgi?rm=sequenceList&groupac=' ||
+                 orthomcl_name || '">' || orthomcl_name || '</a>'
+                 ELSE orthomcl_name END AS orthomcl_link
+                 , UPPER(bfmv.source_id) AS cyc_gene_id
+                 , bfmv.total_hts_snps
+                 , bfmv.hts_nonsynonymous_snps
+                 , bfmv.hts_synonymous_snps
+                 , bfmv.hts_noncoding_snps
+                 , bfmv.hts_stop_codon_snps
+                 , bfmv.hts_nonsyn_syn_ratio
+                 , uniprot_id
+                 , uniprot_id_internal
+                 , entrez_id
+                 , decode(is_pseudo,0,'No',1,'Yes') as is_pseudo
+                 , decode(is_pseudo,0,'gene',1,'pseudogene') as pseudo_string
+                 , CASE WHEN bfmv.previous_ids is not null THEN 'Previous IDs: '||bfmv.previous_ids||'<br>' ELSE '' END as previous_ids
+                 , bfmv.sequence_id
+                 , bfmv.organism as organism_full
+                 , genus_species
+                 , strain
+                 , bfmv.ncbi_tax_id
+                 , bfmv.so_id
+                 , bfmv.so_term_name
+                 , bfmv.so_term_definition
+                 , bfmv.so_version
+                 , bfmv.anticodon
+                 , bfmv.external_db_name
+                 , bfmv.external_db_version
+                 , SUBSTR(bfmv.organism, 1, 1) || '. ' ||
+                 SUBSTR(bfmv.organism, INSTR(bfmv.organism, ' ', 1, 1) +1) as organism_text
+                 , CASE WHEN chromosome_order_num is not null THEN to_char(chromosome)
+                 WHEN sequence_type in ('apicoplast_chromosome','mitochondrial_chromosome') THEN sequence_type
+                 ELSE 'Not Assigned'
+                 END as chromosome
+                 , chromosome_order_num
+                 , '@WEBAPP_BASE_URL@/user-comments/add?stableId='||bfmv.source_id
+                 ||'&commentTargetId=gene'
+                 ||'&externalDbName='||bfmv.external_db_name
+                 ||'&externalDbVersion='||bfmv.external_db_version
+                 ||'&organism='||genus_species
+                 ||'&locations='||bfmv.start_min||'-'||bfmv.end_max
+                 ||'&contig='||bfmv.sequence_id
+                 ||'&strand='||bfmv.strand_plus_minus
+                 as user_comment_link_url
+                 , CASE WHEN (bfmv.strain_count > 1) THEN 'Yes' ELSE 'No' END AS show_strains
+                 from ApidbTuning.GeneAttributes bfmv
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+
+  <querySet name="GeneTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="ProteinSourceIDs">
+      <column name="source_id"/>
+      <column name="protein_source_id"/>
+      <sql>
+        <![CDATA[
+                 select ta.gene_source_id as source_id,ta.project_id, ta.protein_source_id
+                 FROM APIDBTUNING.TRANSCRIPTATTRIBUTES ta
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="GeneTranscripts">
+      <column name="source_id"/>
+      <column name="transcript_id"/>
+      <column name="exon_count"/>
+      <column name="length"/>
+      <column name="protein_length"/>
+      <sql>
+        <!-- transcripts must be ordered alphabetically, as expected by client -->
+        <![CDATA[
+                 select gene_source_id as source_id
+                 , source_id as transcript_id
+                 , project_id as project_id
+                 , exon_count
+                 , length
+                 , protein_length
+                 --, so_term_name
+                 --, transcript_product
+                 from apidbtuning.transcriptattributes 
+                 order by source_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="ECNumbers" isCacheable="false" >
+      <column name="source_id"/>
+      <column name="transcript_ids"/>
+      <column name="ec_number"/>
+      <column name="ec_description"/>
+      <column name="ec_source"/>
+      <column name="expasy_url"/>
+
+      <sql>
+        <![CDATA[
+                 SELECT
+                 ta.gene_source_id AS source_id
+                 , ta.project_id
+                 , listagg(ta.source_id, ', ') within GROUP(ORDER BY ta.source_id) AS transcript_ids
+                 , ec.ec_number
+                 , ec.description AS ec_description
+                 , DECODE(asec.evidence_code, 'OrthoMCLDerived', 'computationally inferred from orthology', 'gb', 'GenBank', 'Hagai', 'MPMP', evidence_code) AS ec_source
+                 ,                    'http://enzyme.expasy.org/cgi-bin/enzyme/enzyme-search-ec?field1='
+                 ||ec.ec_number_1
+                 || decode(ec.ec_number_2, null, null,
+                 chr(38) || 'field2='||ec.ec_number_2)
+                 || decode(ec.ec_number_3, null, null,
+                 chr(38) || 'field3='||ec.ec_number_3)
+                 || decode(ec.ec_number_4, null, null,
+                 chr(38) || 'field4='||ec.ec_number_4)
+                 as expasy_url
+                 FROM
+                 apidbtuning.transcriptattributes ta
+                 , sres.enzymeclass ec
+                 , dots.aasequenceenzymeclass asec
+                 WHERE
+                 ta.aa_sequence_id = asec.aa_sequence_id
+                 AND asec.enzyme_class_id = ec.enzyme_class_id
+                 group by
+                 ta.gene_source_id
+                 , ta.project_id
+                 , ec.ec_number
+                 , ec.description
+                 , asec.evidence_code
+                 , ec.ec_number_1
+                 , ec.ec_number_2
+                 , ec.ec_number_3
+                 , ec.ec_number_4
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+    <!-- GO terms -->  
+    <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+
+    <sqlQuery name="GOTerms" isCacheable="false" >
+      <column name="source_id"/>
+      <column name="transcript_ids"/>
+      <column name="go_id"/>
+      <column name="is_not"/>
+      <column name="go_term_name"/>
+      <column name="ontology"/>
+      <column name="source"/>
+      <column name="evidence_code"/>
+      <column name="reference"/>
+      <column name="evidence_code_parameter"/>
+      <column name="sort_key"/>
+      <sql>
+        <![CDATA[
+                 select source_id, project_id, go_id,  transcript_ids, is_not, go_term_name,
+                 ontology, source, evidence_code, reference, evidence_code_parameter, sort_key
+                 from apidbTuning.GeneGoTable
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="InterPro" isCacheable="false">
+      <column name="source_id"/>
+      <column name="transcript_ids"/>
+      <column name="interpro_name"/>
+      <column name="interpro_family_id"/>
+      <column name="interpro_primary_id"/>
+      <column name="interpro_secondary_id"/>
+      <column name="interpro_desc"/>
+      <column name="interpro_start_min"/>
+      <column name="interpro_end_min"/>
+      <column name="interpro_e_value"/>
+      <sql>
+        <![CDATA[
+                 select
+                 listagg(ta.source_id, ', ') within group (order by ta.source_id) as transcript_ids
+                 , ta.gene_source_id as source_id
+                 , ta.project_id
+                 , xd1.name AS interpro_name
+                 , dr.primary_identifier AS interpro_primary_id
+                 , dr.secondary_identifier AS interpro_secondary_id
+                 , dr.remark AS interpro_desc
+                 , al.start_min AS interpro_start_min
+                 , al.end_min AS interpro_end_min
+                 , CASE
+                 WHEN df.e_value = 0
+                 THEN '0'
+                 ELSE TO_CHAR(df.e_value, '9.9EEEE')
+                 END AS interpro_e_value
+                 , df2.source_id AS interpro_family_id
+                 FROM
+                 ApidbTuning.TranscriptAttributes ta
+                 , dots.AaLocation al
+                 , sres.ExternalDatabaseRelease xdr1
+                 , sres.ExternalDatabase xd1
+                 , sres.ExternalDatabaseRelease xdr3
+                 , sres.ExternalDatabase xd3
+                 , sres.DbRef dr
+                 , dots.DbRefAaFeature draf
+                 , dots.DomainFeature df
+                 , dots.DomainFeature df2
+                 WHERE
+                 xd3.name IN('InterproscanData_RSRC', 'INTERPRO')
+                 AND ta.aa_sequence_id = df.aa_sequence_id
+                 AND df.aa_feature_id = draf.aa_feature_id
+                 AND df.aa_feature_id = al.aa_feature_id
+                 AND draf.db_ref_id = dr.db_ref_id
+                 AND dr.external_database_release_id = xdr1.external_database_release_id
+                 AND xdr1.external_database_id = xd1.external_database_id
+                 AND df.external_database_release_id = xdr3.external_database_release_id
+                 AND xdr3.external_database_id = xd3.external_database_id
+                 and df.parent_id = df2.aa_feature_id (+)
+                 group by ta.project_id, ta.gene_source_id, xd1.name, dr.primary_identifier, dr.secondary_identifier, dr.remark, al.start_min, al.end_min, df.e_value, df2.source_id
+                 order by
+                 transcript_ids
+                 , interpro_name
+                 , interpro_start_min
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Alias" isCacheable="false">
+      <column name="source_id"/>
+      <column name="alias"/>
+      <column name="database_name"/>
+      <column name="id_type"/>
+      <sql>
+        <![CDATA[
+                 SELECT DISTINCT
+                 UPPER(REPLACE(gi.id, ';current=false', '')) AS ALIAS
+                 , gi.database_name
+                 , CASE
+                 WHEN gi.database_name LIKE '%synonym%'
+                 THEN 'synonym'
+                 WHEN gi.database_name LIKE '%primary_genome%'
+                 THEN 'name'
+                 WHEN gi.database_name LIKE '%PreviousGeneIDs%'
+                 THEN 'previous ID'
+                 WHEN gi.database_name LIKE '%aliases%'
+                 THEN 'alias'
+                 ELSE 'alternate ID'
+                 END AS id_type
+                 , gi.gene AS source_id
+                 , ga.project_id
+                 FROM
+                 apidbTuning.GeneId gi, apidbtuning.geneattributes ga
+                 WHERE
+                 gi.gene = ga.source_id AND
+                 REGEXP_LIKE(gi.id, '(\D)')
+                 AND gi.database_name NOT LIKE '%gene2Uniprot_RSRC'
+                 AND gi.union_member != 'same ID'
+                 ORDER BY
+                 id_type asc
+                 , alias asc
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+    <!-- Strains -->  
+    <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+
+    <sqlQuery name="Strains" isCacheable="false">
+      <column name="source_id"/>
+      <column name="strain_source_id"/>
+      <column name="strain_transcript_id"/>
+      <column name="strain"/>
+      <column name="gene_type"/>
+      <column name="product"/>
+      <column name="exon_count"/>
+      <column name="protein_length"/>
+      <column name="signalp_scores"/>
+      <column name="tm_count"/>
+      <column name="proteomics"/>
+      <column name="phenotype"/>
+      <column name="user_comment"/>
+      <sql>
+        <![CDATA[
+                 SELECT ga.source_id, 
+                 tb.gene_source_id AS strain_source_id,
+                 tb.source_id AS strain_transcript_id,
+                 tb.project_id,
+                 tb.strain,
+                 tb.gene_type,
+                 tb.gene_product as product, 
+                 tb.exon_count, 
+                 tb.protein_length,
+                 CASE WHEN tb.signalp_scores IS NULL THEN 'No' ELSE 'Yes' END AS signalp_scores,
+                 tb.tm_count,
+                 CASE WHEN ms.aa_sequence_id IS NULL THEN 'No' ELSE 'Yes' END AS proteomics,
+                 CASE WHEN (p1.na_feature_id IS NULL AND p2.na_feature_id IS NULL
+                 AND p3.na_feature_id IS NULL) THEN 'No' ELSE 'Yes' END AS phenotype,
+                 CASE WHEN c.stable_id IS NULL THEN 'No' ELSE 'Yes' END AS user_comment
+                 FROM apidbTuning.GeneAttributes ga,
+                 apidbTuning.TranscriptAttributes tb,
+                 (SELECT DISTINCT aa_sequence_id FROM apidb.MassSpecSummary) ms,
+                 (SELECT DISTINCT na_feature_id FROM apidb.phenotypemodel) p1, --fung,tryp
+                 (SELECT DISTINCT na_feature_id FROM apidb.nafeaturephenotypemodel) p2, --plasmo
+                 (SELECT DISTINCT na_feature_id FROM apidb.crisprphenotype) p3, -- toxo 
+                 (SELECT DISTINCT stable_id, cmnts.project_name
+                 FROM @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ cmnts
+                 WHERE cmnts.comment_target_id = 'gene'
+                 AND cmnts.review_status_id != 'rejected'
+                 AND cmnts.is_visible = 1
+                 ) c
+                 WHERE tb.gene_id = ga.gene_id
+                 AND tb.project_id = c.project_name(+)
+                 AND tb.aa_sequence_id = ms.aa_sequence_id(+)
+                 AND tb.source_id = c.stable_id(+)
+                 AND tb.gene_na_feature_id = p1.na_feature_id(+)
+                 AND tb.gene_na_feature_id = p2.na_feature_id(+)
+                 AND tb.gene_na_feature_id = p3.na_feature_id(+)
+                 ORDER BY tb.organism, tb.source_id, tb.strain
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="BlastP" isCacheable="false">
+      <column name="transcript_id"/>
+      <column name="source_id"/>
+      <column name="blastp_feature_id"/>
+      <column name="blastp_name"/>
+      <column name="blastp_parent_id"/>
+      <column name="blastp_score"/>
+      <column name="blastp_start"/>
+      <column name="blastp_end"/>
+      <column name="blastp_description"/>
+      <column name="blastp_expect_value"/>
+      <column name="blastp_percent_identity"/>
+      <column name="blastp_percent_positive"/>
+
+      <sql>
+        <![CDATA[
+                 select source_id as transcript_id, gene_source_id as source_id, project_id, 
+                 similarity_id AS blastp_feature_id,
+                 source_id AS blastp_name, query_id AS blastp_parent_id,
+                 score AS blastp_score,
+                 min_query_start AS blastp_start, max_query_end AS blastp_end,
+                 'E() = ' || pvalue_mant || 'e' || pvalue_exp || ', ' || round(100 * number_identical / total_match_length) || '% identity, ' || description AS blastp_description,
+                 case when pvalue_mant = 0 then '0' else pvalue_mant || 'e' || pvalue_exp end AS blastp_expect_value,
+                 round(100 * number_identical / total_match_length) AS blastp_percent_identity,
+                 round(100 * number_positive / total_match_length) AS blastp_percent_positive
+                 from ApidbTuning.Blastp
+                 order by pvalue_exp, pvalue_mant
+        ]]>
+      </sql>
+    </sqlQuery>
+    <sqlQuery name="Notes"
+              isCacheable="false" clobRow="true">
+
+      <column name="source_id"/>
+      <column name="transcript_ids"/>
+      <column name="comment_string"/>
+      <column name="comment_date"/>
+      <sql>
+        <![CDATA[
+                 select dbms_lob.substr(nfc.comment_string,4000,1) as comment_string, nf.gene_source_id as source_id, nf.project_id, 
+                 listagg(nf.source_id, ', ') within GROUP(ORDER BY  nf.source_id) AS transcript_ids,
+                 to_char(nfc.comment_date, 'yyyy-mm-dd') as comment_date
+                 from dots.NaFeatureComment nfc, ApidbTuning.TranscriptAttributes nf
+                 where (nf.na_feature_id = nfc.na_feature_id
+                 OR nf.gene_na_feature_id = nfc.na_feature_id)
+                 group by nf.gene_source_id, nf.project_id, dbms_lob.substr(nfc.comment_string,4000,1),nfc.comment_date
+                 order by nfc.comment_date
+        ]]>
+      </sql>
+    </sqlQuery>
+    <sqlQuery name="MetabolicPathways"
+              isCacheable="false">
+
+      <column name="source_id"/>
+      <column name="pathway_id"/>
+      <column name="pathway_name"/>
+      <column name="activity"/>
+
+      <sql>
+        <![CDATA[
+                 SELECT DISTINCT
+                 dr.primary_identifier AS pathway_id
+                 , TRIM(REPLACE(DECODE(dr.lowercase_secondary_identifier, NULL, dr.primary_identifier, dr.lowercase_secondary_identifier), CHR(191), '')) AS
+                 pathway_name
+                 , dr.remark AS activity
+                 , gf.source_id
+                 , gf.project_id
+                 FROM
+                 apidbtuning.geneattributes gf
+                 , dots.DbRefNaFeature drnf
+                 , sres.DbRef dr
+                 , sres.ExternalDatabaseRelease edr
+                 , sres.ExternalDatabase ed
+                 WHERE
+                 gf.na_feature_id = drnf.na_feature_id
+                 AND drnf.db_ref_id = dr.db_ref_id
+                 AND dr.external_database_release_id = edr.external_database_release_id
+                 AND edr.external_database_id = ed.external_database_id
+                 AND ed.name IN('pfal3D7_dbxref_simple_gene2HagaiPathway_RSRC', 'tgonME49_dbxref_protein2Pathways_Feng_RSRC')
+                 ORDER BY
+                 dr.primary_identifier
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    
+    <sqlQuery name="MetabolicPathwaysSres" 
+              isCacheable="false">
+      <column name="source_id"/>
+      <column name="pathway_source_id"/>
+      <column name="pathway_name"/>
+      <column name="reactions"/>
+      <column name="enzyme"/>
+      <column name="expasy_url"/>
+      <column name="pathway_source"/> 
+      <column name="exact_match"/>
+
+      <sql>
+        <![CDATA[
+                 SELECT pg.gene_source_id AS source_id
+                 , pg.project_id
+                 , pg.pathway_source_id
+                 , pg.pathway_name
+                 , pg.reactions
+                 , pg.enzyme
+                 , pg.expasy_url
+                 , pg.pathway_source
+                 , pg.exact_match
+                 FROM apidbtuning.pathwaysgenetable pg
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    
+    <sqlQuery name="Epitopes"
+              isCacheable="false">
+
+      <column name="source_id"/>
+      <column name="transcript_id"/>
+      <column name="iedb_id"/>
+      <column name="location"/>
+      <column name="sequence"/>
+      <column name="name"/>
+      <column name="confidence"/>
+      <sql>
+        <![CDATA[
+                 SELECT
+                 es.iedb_id
+                 , es.location
+                 , TO_CHAR(es.sequence) AS sequence
+                 , es.name
+                 , es.confidence
+                 , ta.source_id as transcript_id
+                 , ta.gene_source_id as source_id
+                 , ta.project_id
+                 FROM
+                 ApidbTuning.EpitopeSummary es
+                 , ApidbTuning.transcriptAttributes ta
+                 WHERE
+                 es.source_id = ta.source_id
+                 ORDER BY
+                 DECODE(es.confidence, 'Low', 1, 'Medium', 2, 'High', 3, 4) DESC
+                 , es.location
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="MassSpec" 
+              isCacheable="false">
+
+      <column name="transcript_ids"/>
+      <column name="source_id"/>
+      <column name="experiment"/>
+      <column name="sample"/>
+      <column name="sequence_count"/>
+      <column name="spectrum_count"/>
+      <column name="data_source"/>
+      <sql>
+        <![CDATA[
+                 select ms.*, ga.project_id
+                 from apidbtuning.geneattributes ga, 
+                 (
+                 SELECT
+                 listagg(source_id, ', ') within GROUP(ORDER BY source_id) AS transcript_ids
+                 , gene_source_id as source_id
+                 , experiment
+                 , sample_display_name AS sample
+                 , external_database_name AS data_source
+                 , spectrum_count
+                 , sequence_count
+                 FROM
+                 apidbtuning.mstranscriptsummary
+                 GROUP BY
+                 gene_source_id
+                 , experiment
+                 , sample_display_name
+                 , external_database_name
+                 , spectrum_count
+                 , sequence_count
+                 ) ms
+                 where ms.source_id = ga.source_id
+                 ORDER BY
+                 ms.source_id
+                 , ms.experiment
+                 , ms.sample
+        ]]>
+      </sql>       
+    </sqlQuery>
+    
+    <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+    <!-- Phospho Mass spec -->  
+    <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+
+    <sqlQuery name="MassSpecMod" 
+              isCacheable="false"> 
+      <column name="source_id"/>
+      <column name="transcript_ids"/>
+      <column name="modification_site"/>
+      <column name="term_name"/>
+      <column name="experiment"/>
+      <column name="sample"/>
+      <column name="residue"/>
+      <sql>
+        <![CDATA[
+                 select ps.*, ga.project_id
+                 from apidbtuning.geneattributes ga, 
+                 (
+                 select   listagg(source_id, ', ') within group(order by source_id) as transcript_ids
+                 , gene_source_id as source_id
+                 , modification_site
+                 , experiment
+                 , sample
+                 , sum_spectrum_count
+                 , replace(replace(replace(term_name, '-', ' '), '_', ' '), 'binding site', 'ubiquitin binding site') as term_name
+                 , residue
+                 , distinct_peptides
+                 from (
+                 SELECT mss.source_id,
+                 mss.gene_source_id,
+                 mss.residue_location + 1 as modification_site,
+                 mss.experiment,
+                 mss.sample_display as sample,
+                 sum(mss.spectrum_count) as sum_spectrum_count,
+                 mss.modification_type as term_name,
+                 mss.residue,
+                 count(*) as distinct_peptides
+                 from  apidbtuning.msmodifiedpeptidesummary mss
+                 group by mss.experiment, mss.sample_display, mss.residue_location, mss.source_id, mss.gene_source_id,mss.modification_type, mss.residue
+                 )
+                 group by gene_source_id, modification_site, experiment, sample, sum_spectrum_count, term_name, residue, distinct_peptides
+                 ) ps
+                 where ps.source_id = ga.source_id
+                 order by ps.source_id,ps.residue, ps.experiment, ps.sample
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="PreferredProducts" isCacheable="false" >
+      <column name="source_id"/>
+      <column name="transcript_ids"/>
+      <column name="product"/>
+      <sql>
+        <![CDATA[
+
+
+WITH evids AS (
+SELECT DISTINCT gaiec.go_evidence_code_id, ot.name
+FROM  dots.goassocinstevidcode gaiec, sres.ontologyterm ot
+WHERE ot.ontology_term_id = gaiec.go_evidence_code_id)
+SELECT
+ta.gene_source_id AS source_id
+, tp.product
+, ta.project_id
+, LISTAGG(source_id, ', ') WITHIN GROUP(ORDER BY source_id) AS transcript_ids
+, LISTAGG(publication, ', ') WITHIN GROUP(ORDER BY source_id) AS reference
+, e.name AS evidence_code
+, tp.with_from AS evidence_code_parameter
+FROM
+apidb.transcriptproduct tp
+, apidbtuning.transcriptattributes ta
+, evids e
+WHERE
+ta.na_feature_id = tp.na_feature_id
+AND tp.is_preferred = 1
+AND tp.evidence_code = e.go_evidence_code_id(+)
+GROUP BY
+gene_source_id
+, ta.project_id
+, tp.product
+, tp.is_preferred
+, e.name
+, tp.with_from
+        ]]>
+      </sql>
+    </sqlQuery> 
+
+
+    <sqlQuery name="Y2hInteractions" isCacheable="false">
+
+      <column name="source_id"/>
+      <column name="other_source_id"/>
+      <column name="other_gene_source_id"/>
+      <column name="bait_start"/>
+      <column name="bait_end"/>
+      <column name="prey_start"/>
+      <column name="prey_end"/>
+      <column name="times_observed" />
+      <column name="number_of_searches"/>
+      <column name="prey_number_of_baits"/>
+      <column name="bait_number_of_preys"/>
+      <column name="bait_or_prey"/>
+      <sql>
+        <![CDATA[
+                 SELECT
+                 bf.source_id
+                 , pf.source_id AS other_source_id
+                 , bait_start
+                 , bait_end
+                 , prey_start
+                 , prey_end
+                 , times_observed
+                 , number_of_searches
+                 , NULL AS prey_number_of_baits
+                 , bait_number_of_preys
+                 , 'bait' AS bait_or_prey
+                 , bf.project_id
+                 from
+                 ApidbTuning.geneAttributes bf
+                 , ApidbTuning.geneAttributes pf
+                 , apidb.GeneInteraction gi
+                 WHERE
+                 bf.na_feature_id = gi.bait_gene_feature_id
+                 AND gi.prey_gene_feature_id = pf.na_feature_id
+                 UNION
+                 SELECT
+                 pf.source_id
+                 , bf.source_id AS other_source_id
+                 , bait_start
+                 , bait_end
+                 , prey_start
+                 , prey_end
+                 , times_observed
+                 , number_of_searches
+                 , prey_number_of_baits
+                 , NULL AS bait_number_of_preys
+                 , 'prey' AS bait_or_prey
+                 , pf.project_id
+                 FROM
+                 apidbtuning.geneattributes bf
+                 , ApidbTuning.GeneAttributes pf
+                 , apidb.GeneInteraction gi
+                 WHERE
+                 bf.na_feature_id = gi.bait_gene_feature_id
+                 AND gi.prey_gene_feature_id = pf.na_feature_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+
+    <sqlQuery name="gene_dbrefs" 
+              isCacheable="false">
+      <column name="source_id"/>
+      <column name="dataset"/>
+      <column name="link_url"/>
+      <column name="ext_id"/>
+
+      <sql>
+        <![CDATA[
+                 select distinct * from (
+                 SELECT 
+                 edd.dataset_presenter_display_name AS dataset
+                 , ga.source_id
+                 , ga.project_id
+                 , db.primary_identifier AS ext_id
+                 , REPLACE(edr.id_url, 'EXTERNAL_ID_HERE', db.primary_identifier) AS link_url
+                 FROM
+                 sres.dbref db
+                 , DOTS.dbrefnafeature dbna
+                 , apidbtuning.ExternalDbDatasetPresenter edd
+                 , sres.externaldatabaserelease edr
+                 , ApidbTuning.geneAttributes ga
+                 WHERE
+                 db.external_database_release_id = edd.external_database_release_id
+                 AND edr.external_database_release_id = edd.external_database_release_id
+                 AND dbna.db_ref_id = db.db_ref_id
+                 AND ga.na_feature_id = dbna.na_feature_id
+                 AND lower(edd.dataset_presenter_name) NOT LIKE '%nrdb%'
+                 AND lower(edd.dataset_presenter_name) NOT LIKE '%nafeature_aliases%'
+                 AND edd.dataset_presenter_name NOT LIKE '%dbxref_simple_gene2HagaiPathway%'
+                 AND lower(edd.dataset_presenter_name) NOT LIKE '%pubmed%'
+                 UNION
+                 SELECT 
+                 edd.dataset_presenter_display_name AS dataset
+                 , ta.gene_source_id
+                 , ta.project_id
+                 , db.primary_identifier AS ext_id
+                 , REPLACE(edr.id_url, 'EXTERNAL_ID_HERE', db.primary_identifier) AS link_url
+                 FROM
+                 sres.dbref db
+                 , DOTS.dbrefnafeature dbna
+                 , apidbtuning.ExternalDbDatasetPresenter edd
+                 , sres.externaldatabaserelease edr
+                 , ApidbTuning.transcriptAttributes ta
+                 WHERE
+                 db.external_database_release_id = edd.external_database_release_id
+                 AND edr.external_database_release_id = edd.external_database_release_id
+                 AND dbna.db_ref_id = db.db_ref_id
+                 AND ta.na_feature_id = dbna.na_feature_id
+                 AND lower(edd.dataset_presenter_name) NOT LIKE '%nrdb%'
+                 AND lower(edd.dataset_presenter_name) NOT LIKE '%nafeature_aliases%'
+                 AND edd.dataset_presenter_name NOT LIKE '%dbxref_simple_gene2HagaiPathway%'
+                 AND lower(edd.dataset_presenter_name) NOT LIKE '%pubmed%'
+                 )
+                 ORDER BY dataset
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="PdbSimilarities"
+              isCacheable="false">
+      
+      <column name="source_id"/>
+      <column name="transcript_id"/>
+      <column name="pdb_chain"/>
+      <column name="pdb_id"/>
+      <column name="pvalue_mant"/>
+      <column name="pvalue_exp"/>
+      <column name="taxon"/>
+      <column name="pdb_title"/>
+      <column name="pdb_url"/>
+      <column name="percent_identity"/>
+      <column name="percent_plasmo_coverage"/>
+      <sql>
+        <![CDATA[
+                 SELECT ps.pdb_chain, ps.pdb_title, ps.pdb_id, ps.pvalue_mant,
+                 ps.pvalue_exp, ps.taxon, ps.percent_identity,
+                 ps.percent_plasmo_coverage, 
+                 'http://www.rcsb.org/pdb/cgi/explore.cgi?pdbId=' || ps.pdb_id as pdb_url,
+                 ta.source_id as transcript_id, ta.gene_source_id as source_id, ta.project_id
+                 FROM ApidbTuning.PdbSimilarity ps, ApidbTuning.TranscriptAttributes ta
+                 WHERE ps.source_id = ta.source_id
+                 ORDER BY ps.score DESC
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="PubMed">
+      <column name="source_id"/>
+      <column name="pubmed_id"/>
+      <column name="doi"/>
+      <column name="title"/>
+      <column name="authors"/>
+      <sql>
+        <![CDATA[
+                 select distinct gene_source_id as source_id,  project_id, pubmed_id, doi, title, authors
+                 from ApidbTuning.GenePubmed
+        ]]>
+      </sql>
+    </sqlQuery>
+
+
+
+  </querySet>
+</wdkModel>
