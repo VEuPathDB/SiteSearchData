@@ -1,8 +1,8 @@
 <wdkModel>
 
-  <questionSet name="Questions">
+  <questionSet name="Questions" displayName="dontcare">
 
-    <question name="GenesByTaxonGene"
+    <question name="GenesByTaxonGene" displayName="dontcare"
          queryRef="GeneIdGene.GenesByTaxonGene"
          recordClassRef="organismSpecific.gene">
     </question>
@@ -50,7 +50,7 @@
     <!-- ###########################  Gene Record  ##################################### -->
     <!-- ############################################################################### -->
 
-    <recordClass name="gene">
+    <recordClass name="gene" urlName="gene">
 
       <primaryKey aliasQueryRef="GeneAttributes.GeneAlias">
         <columnRef>source_id</columnRef>
