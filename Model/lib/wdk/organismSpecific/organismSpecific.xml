@@ -1,0 +1,228 @@
+<wdkModel>
+
+  <questionSet name="Questions">
+
+    <question name="GenesByTaxonGene"
+         queryRef="GeneIdGene.GenesByTaxonGene"
+         recordClassRef="organismSpecific.gene">
+    </question>
+  </questionSet>
+
+    <recordClassSet name="organismSpecific">
+
+    <!-- ############################################################################### -->
+    <!-- ###########################  EST Record   ##################################### -->
+    <!-- ############################################################################### -->
+
+    <recordClass name="Est" urlName="est" displayName="EST">
+      <primaryKey aliasQueryRef="EstQueries.EstAlias">
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="EST Id">
+        <text>
+          <![CDATA[
+                   $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.common.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="EstQueries.Bfmv">
+        <columnAttribute name="dbest_name" displayName="Library"/>
+        <columnAttribute name="vector" displayName="Vector"/>
+        <columnAttribute name="stage"  displayName="Stage"/>
+      </attributeQueryRef>
+
+      <table name="ReferenceInfo" displayName="Reference" queryRef="EstQueries.Reference">
+        <columnAttribute name="author" displayName="Author" />
+        <columnAttribute name="affiliation" displayName="Affiliation"/>
+        <columnAttribute name="address" displayName="Address"/>
+      </table>
+    </recordClass>
+
+
+    <!-- ############################################################################### -->
+    <!-- ###########################  Gene Record  ##################################### -->
+    <!-- ############################################################################### -->
+
+    <recordClass name="gene">
+
+      <primaryKey aliasQueryRef="GeneAttributes.GeneAlias">
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key"
+                   displayName="Gene ID"
+                   attributeCategory="deep">
+        <text>
+          <![CDATA[
+                   $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"  displayName="solr json: choose from columns and/or tables" scopes=""
+                implementation="org.eupathdb.common.model.report.SolrLoaderReporter">
+      </reporter>
+
+      <attributeQueryRef ref="GeneAttributes.Bfmv">
+        <columnAttribute displayName="Genomic Sequence ID" name="sequence_id" />
+
+        <columnAttribute name="product" displayName="Product Description" help="Protein Product for this gene" >
+        </columnAttribute>
+
+        <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories" />
+
+        <columnAttribute name="name" displayName="Gene Name or Symbol"/>
+        
+        <columnAttribute name="organism_text" displayName="Organism" />
+        <columnAttribute name="organism_full" displayName="Organism" />
+        <columnAttribute name="genus_species" displayName="genus_species"  />
+        <columnAttribute name="strain" displayName="strain"  />
+      </attributeQueryRef>
+
+      <table name="GeneTranscripts"
+             displayName="Transcripts"
+             queryRef="GeneTables.GeneTranscripts">
+        <columnAttribute name="transcript_id" displayName="Transcript"/>
+      </table>
+
+      <table name="InterPro"
+             displayName="InterPro Domains"
+             queryRef="GeneTables.InterPro">
+        <columnAttribute displayName="Name" name="interpro_name"/>
+        <columnAttribute displayName="Interpro ID" name="interpro_family_id"/>
+        <columnAttribute displayName="Primary ID" name="interpro_primary_id"/>
+        <columnAttribute displayName="Secondary ID" name="interpro_secondary_id"/>
+        <columnAttribute displayName="Description" name="interpro_desc"/>
+      </table>
+
+      <table name="BlastP"
+             displayName="BlastP Hits"
+             queryRef="GeneTables.BlastP">
+        <columnAttribute displayName="Description" name="blastp_description"/>
+      </table>
+
+      <table name="Notes"
+             displayName="Notes from Annotator"
+             queryRef="GeneTables.Notes">
+        <columnAttribute displayName="Note" name="comment_string"/>
+      </table>
+
+      <table name="ECNumbers"
+             displayName="EC Numbers"
+             queryRef="GeneTables.ECNumbers">
+        <columnAttribute name="ec_number" displayName="EC Number" help="Enzyme Commission classification of enzyme based on the reactions they catalyze" truncateTo="1000" /> 
+        <columnAttribute name="ec_description" displayName="EC Description" help="Enzyme Commission classification description of this assignment"  truncateTo="1000"/>
+      </table>
+
+      <table name="MassSpec" displayName="Mass Spec.-based Expression Evidence"  
+             queryRef="GeneTables.MassSpec">
+        <columnAttribute name="experiment" displayName="Experiment"/>
+        <columnAttribute name="sample" displayName="Sample"/>
+        <columnAttribute name="data_source" displayName="Data Source" />
+      </table>
+
+      <table name="MassSpecMod" displayName="Post Translational Modifications" 
+             queryRef="GeneTables.MassSpecMod">
+        <columnAttribute name="experiment" displayName="Experiment"/>
+        <columnAttribute name="sample" displayName="Sample"/>
+        <columnAttribute name="term_name" displayName="Modification Type"/>
+      </table>
+
+      <table name="GOTerms"
+             displayName="GO Terms"
+             queryRef="GeneTables.GOTerms">
+        <columnAttribute name="go_id" displayName="GO ID" />
+        <columnAttribute name="is_not" displayName="Is Not" help="NOT is used to make an explicit note that the gene product is not associated with the GO term."/>
+        <columnAttribute name="go_term_name" displayName="GO Term Name"/>
+        <columnAttribute name="reference" displayName="Reference" help="The reference indicates the source, such as a publication or database record, that is cited as an authority for the association of GO term to the gene product."/>
+      </table>
+
+      <table name="Y2hInteractions"
+             displayName="Y2H Interactions"
+             queryRef="GeneTables.Y2hInteractions">
+        <columnAttribute name="other_source_id"   displayName="Interacts With"/>
+      </table>
+
+      <table name="MetabolicPathwaysMPMP"
+             displayName="Malaria Parasite Metabolic Pathways (MPMP)"
+             queryRef="GeneTables.MetabolicPathways">
+        <columnAttribute name="pathway_id" />
+        <columnAttribute name="pathway_name"  displayName="Pathway"/>
+      </table>
+
+      <table name="MetabolicPathways"
+             displayName="Metabolic Pathways"
+             queryRef="GeneTables.MetabolicPathwaysSres">
+        <columnAttribute name="pathway_source_id" />
+        <columnAttribute name="pathway_name"  displayName="Pathway"/>
+      </table>
+
+      <table name="Alias"
+             displayName="Names, Previous Identifiers, and Aliases"
+             queryRef="GeneTables.Alias">
+        <columnAttribute displayName="Name/ID/Alias" name="alias"/>
+        <columnAttribute displayName="Type" name="id_type"/>
+      </table>
+
+      <table name="Strains"
+             displayName="Strains summary"
+             queryRef="GeneTables.Strains">
+        <columnAttribute name="strain_source_id"  displayName="Gene ID"/>
+        <columnAttribute name="strain_transcript_id" displayName="Transcript ID"/>
+        <columnAttribute displayName="Strain" name="strain"/>
+        <columnAttribute displayName="Product" name="product"/>
+      </table>
+
+      <table name="PubMed"
+             displayName="PubMed"
+             queryRef="GeneTables.PubMed">
+        <columnAttribute displayName="PubMed ID" name="pubmed_id"  />
+        <columnAttribute displayName="doi" name="doi"  />
+        <columnAttribute displayName="Title" name="title"/>
+        <columnAttribute displayName="Authors" name="authors"/>
+      </table>
+
+      <table name="GeneLinkouts"
+             displayName="External Links"
+             queryRef="GeneTables.gene_dbrefs">
+        <columnAttribute name="ext_id" />
+      </table>
+
+      <table name="PdbSimilarities"
+             displayName="Similarities to Protein Data Bank (PDB) Chains"
+             queryRef="GeneTables.PdbSimilarities">
+        <columnAttribute name="pdb_chain"  displayName="PDB Structure"/>
+        <columnAttribute name="pdb_id" />
+        <columnAttribute name="pdb_title" displayName="PDB Molecular Description"/>
+      </table>
+
+      <table name="Epitopes"
+             displayName="Epitopes from IEDB"
+             queryRef="GeneTables.Epitopes">
+        <columnAttribute name="iedb_id"  displayName="Epitope"/>
+      </table>
+
+      <table name="PreferredProducts"
+             displayName="Annotated Product Descriptions"
+             queryRef="GeneTables.PreferredProducts">
+        <columnAttribute name="product" displayName="Product"/>
+        <columnAttribute name="reference" displayName="Reference" help="The reference indicates the source, such as a publication or database record, that is associated with the gene product description."/>
+      </table>
+
+    </recordClass>
+
+
+
+
+    
+
+  </recordClassSet>
+
+</wdkModel>

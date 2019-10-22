@@ -1,0 +1,31 @@
+<project name="ApiCommonModel" default="Installation" basedir=".">
+
+  <import file="${projectsDir}/WDK/build.xml" />
+
+
+  <target name="ApiCommonModel-Installation" depends="WDK-Installation,
+                                                      SiteSearchData-MavenInstallation">
+
+
+    <ant target="defaultProjectInstall">
+      <property name="project" value="SiteSearchData" />
+    </ant>
+
+  </target>
+
+  <target name="SiteSearchData-MavenInstallation">
+    <ant target="mavenBuildProject">
+      <property name="project" value="SiteSearchData" />
+    </ant>
+    <property name="alreadyBuilt" value="true" />
+  </target>
+
+  <target name="SiteSearchData/Model-Installation"
+          depends="ProjectTree">
+    <ant target="defaultComponentInstall">
+      <property name="project" value="SiteSearchData" />
+      <property name="component" value="Model" />
+    </ant>
+  </target>
+
+</project>

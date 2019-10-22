@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE xml [
+  <!ENTITY nbsp "&#160;">
+  <!ENTITY lt   "&#60;">
+  <!ENTITY gt   "&#62;">
+  ]>
+
+<wdkModel>
+
+  <modelName displayName="SiteSearch"
+             version="%%buildNumber%%" releaseDate="%%releaseDate%%" buildNumber="%%buildNumber%%" />
+
+  <!-- shared -->
+  <import file="organismSpecific/organismSpecific.xml"/>
+
+  <!-- Genes -->
+  <import file="organismSpecific/geneQueries.xml"/>
+
+  <!-- Popsets -->
+
+  <!-- Genomic Sequences -->
+
+  <!-- ESTs -->
+  <import file="organismSpecific/estQueries.xml"/>
+
+  <!-- Pathways -->
+
+  <!-- PubChem Compounds -->
+
+  <!-- Organism record - genome data type and gene metrics -->
+
+  <ontology name="test" pluginClass="org.gusdb.wdk.model.ontology.TestOntologyPlugin"/>
+
+</wdkModel>
