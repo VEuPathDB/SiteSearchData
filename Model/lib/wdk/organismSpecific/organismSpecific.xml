@@ -3,7 +3,7 @@
   <questionSet name="Questions" displayName="dontcare">
 
     <question name="GenesByTaxonGene" displayName="dontcare"
-         queryRef="GeneIdGene.GenesByTaxonGene"
+         queryRef="GeneIdQueries.GenesByTaxonGene"
          recordClassRef="organismSpecific.gene">
     </question>
   </questionSet>
@@ -67,8 +67,7 @@
       </idAttribute>
 
       <reporter name="solrjson"  displayName="solr json: choose from columns and/or tables" scopes=""
-                implementation="org.eupathdb.common.model.report.SolrLoaderReporter">
-      </reporter>
+                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="GeneAttributes.Bfmv">
         <columnAttribute displayName="Genomic Sequence ID" name="sequence_id" />
