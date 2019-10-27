@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+
+# importing the requests library 
+import requests
+import json
+import argparse
+import shutil
+import sys
+import os.path
+import time
+
+def parseAndValidateArgs():
+    help = """Read a WDK model dedicated to producing JSON files for solr.  Runs WDK reports for a specified group of record classes to produce those files.
+
+Input: URL for a WDK service to call, and details specifying which reports to run
+Output: a .tar file containing one or more Solr compatible JSON files, one per included record class
+
+The WDK model resident in the provided WDK service is expected to be dedicated to creating these reports.  It must conform to:
+  - Record classes are divided into groups. The group is indicated as a prefix in the record class's urlName.  EG: 'organism-gene'
+  - Each must have exactly one search.  
+  - That search must have either zero or one parameters.
+  - If it has one, the name and value will be supplied here on the command line.
+  - Each record class must support the solrjson reporter.  
+  - All tables and attributes will be included in the report for the record class.  
+
+The reports will be tarred up, given a name of the form 'GROUPNAME-timestamp.tgz' and placed in the specifided targetDir."""
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
+    parser.add_argument("groupName", help="The name of this record class group.  Used as prefix in record class names and in the output file name.")
+    parser.add_argument("wdkServiceUrl", help="Base url of WDK service that will run reports")
+    parser.add_argument("targetDir", help="Directory in which to create a temporary directory named GROUPNAME and where to put the final output .tar file")
+    parser.add_argument("--paramName", default=None, help="Optional name of param to include in report's search")
+    parser.add_argument("--paramValue", default=None, help="Optional value of param to include in report's search")
+    args = parser.parse_args()
+
+    validateTargetDir(args.targetDir)
+    validateParam(args.paramName, args.ParamValue)
+    
+    return args.groupName, args.wdkServiceUrl, args.targetDir, args.paramName, args.paramValue
+
+def error(msg):
+        sys.stderr.write(msg)
+        sys.exit(1)
+    
+def validateTargetDir(targetDir):
+    if not os.path.exists(targetDir) or not os.path.isdir(targetDir):
+        error("targetDir 'targetDir' does not exist or is not a directory")
+
+def validateParam(paramName, paramValue):
+    if ((paramName != None and paramName == None) or (paramName != None and paramName == None)):
+        error("Error:  arguments --paramName and --paramValue must both be provided, or neither provided")
+
+def createWorkingDir(targetDir, groupName):
+    timestamp = int(time.time())
+    newDirPath = targetDir + "/" + groupName + '_' + timestamp
+    try:
+        os.mkdir(newDirPath)
+    except OSError:
+        error("Error: could not create directory " + 'newDirPath')
+    return newDirPath
+
+def getRecordTypeNames(wdkServiceUrl, filterString):
+    recordTypesUrl = wdkServiceUrl + '/record-types'
+#    response = requests.get(recordTypesUrl)
+#    types = json.JSONDecoder().decode(response.json())
+    types =  json.JSONDecoder().decode('["transcript","gene","popsetSequence","sample","genomic-sequence","genomic-segment","snp","snp-chip","est","orf","pathway","compound","organism","blast-est-ontology","blast-orf-ontology","file","build","dataset-release-notes","dataset"]')
+    return filter(lambda recordType: filterString in recordType, types)
+    
+def getRecordType(wdkServiceUrl, recordTypeName):
+    recordTypeUrl = wdkServiceUrl + '/record-type/' + recordTypeName
+#    response = requests.get(recordTypeUrl)
+#    recordType = json.JSONDecoder().decode(response.json())
+    f = open("/mnt/c/Users/Steve/SvnSource/branches/strategy-loading/SiteSearchData/Model/bin/estRecordType.txt", "r")
+    recordType = json.JSONDecoder().decode(f.read())
+    print(recordType['nativeDisplayName'])
+    return recordType
+
+def getSearchUrlName(recordType, recordTypeName, paramName):
+    if not len(recordType['searches']) == 1:
+        error("RecordType " + recordTypeName + " has more than a single search")
+    search = recordType['searches'][0]
+    
+
+def runReportToFile(wdkServiceUrl, workingDir, groupName, recordTypeName, searchName, params, recordType):
+    reportsUrl = wdkServiceUrl + 'record-types/' + rtn + '/searches/' + searchName + '/reports/'
+    targetFilename = targetDir + "/" + groupName
+    with requests.get(url, stream=True) as r:
+        with open(local_filename, 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+    return local_filename
+
+
+###########################################################################################################
+
+groupName, wdkServiceUrl, targetDir, paramName, paramValue = parseAndValidateArgs()
+
+workingDir = createWorkingDir(targetDir, groupName)
+        
+for recordTypeName in getRecordTypeNames(wdkServiceUrl, groupName):
+    recordType = getRecordType(recordTypeName)
+    searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName) 
+    runReportToFile(wdkServiceUrl, workingDir, groupName, recordTypeName, searchUrlName, params, recordType)
+
+    
+
