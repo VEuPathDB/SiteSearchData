@@ -25,6 +25,5 @@
 
   <!-- Organism-->
 
-  <ontology name="test" pluginClass="org.gusdb.wdk.model.ontology.TestOntologyPlugin"/>
 
 </wdkModel>
