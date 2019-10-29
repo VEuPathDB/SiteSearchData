@@ -11,7 +11,7 @@
   <modelName displayName="SiteSearch"
              version="%%buildNumber%%" releaseDate="%%releaseDate%%" buildNumber="%%buildNumber%%" />
 
-  <import file="organismSpecific/organismSpecific.xml"/>
+  <import file="organismSpecific/organismSpecificRecords.xml"/>
 
   <!-- Gene -->
   <import file="organismSpecific/geneQueries.xml"/>
