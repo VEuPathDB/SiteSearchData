@@ -8,13 +8,13 @@
     </question>
   </questionSet>
 
-    <recordClassSet name="organismSpecific">
+  <recordClassSet name="organismSpecific">
 
     <!-- ############################################################################### -->
     <!-- ###########################  EST Record   ##################################### -->
     <!-- ############################################################################### -->
 
-    <recordClass name="Est" urlName="est" displayName="EST">
+    <recordClass name="Est" urlName="organism-est" displayName="EST">
       <primaryKey aliasQueryRef="EstQueries.EstAlias">
         <columnRef>source_id</columnRef>
       </primaryKey>
@@ -50,7 +50,7 @@
     <!-- ###########################  Gene Record  ##################################### -->
     <!-- ############################################################################### -->
 
-    <recordClass name="gene" urlName="gene">
+    <recordClass name="gene" urlName="organism-gene">
 
       <primaryKey aliasQueryRef="GeneAttributes.GeneAlias">
         <columnRef>source_id</columnRef>
