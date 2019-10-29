@@ -7,9 +7,7 @@
             <sql>
               <![CDATA[
                 SELECT source_id, 
-                       project_id,
                        source_id as old_source_id,
-                       project_id AS old_project_id
                 FROM ApidbTuning.EstAttributes
               ]]>
             </sql>
@@ -37,7 +35,7 @@
            </sql>
         </sqlQuery>
 
-                <sqlQuery name="Reference" excludeProjects="EuPathDB">
+        <sqlQuery name="Reference" excludeProjects="EuPathDB">
             <column name="source_id" />
             <column name="author" />
             <column name="affiliation" />

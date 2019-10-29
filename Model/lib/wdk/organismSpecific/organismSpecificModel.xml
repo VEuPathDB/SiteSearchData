@@ -11,24 +11,19 @@
   <modelName displayName="SiteSearch"
              version="%%buildNumber%%" releaseDate="%%releaseDate%%" buildNumber="%%buildNumber%%" />
 
-  <!-- shared -->
   <import file="organismSpecific/organismSpecific.xml"/>
 
-  <!-- Genes -->
+  <!-- Gene -->
   <import file="organismSpecific/geneQueries.xml"/>
 
-  <!-- Popsets -->
-
-  <!-- Genomic Sequences -->
-
-  <!-- ESTs -->
+  <!-- EST -->
   <import file="organismSpecific/estQueries.xml"/>
+  
+  <!-- Popset Isolate -->
 
-  <!-- Pathways -->
+  <!-- Genomic Sequence -->
 
-  <!-- PubChem Compounds -->
-
-  <!-- Organism record - genome data type and gene metrics -->
+  <!-- Organism-->
 
   <ontology name="test" pluginClass="org.gusdb.wdk.model.ontology.TestOntologyPlugin"/>
 
