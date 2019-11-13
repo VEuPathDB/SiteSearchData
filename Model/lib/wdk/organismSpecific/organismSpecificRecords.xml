@@ -2,10 +2,16 @@
 
   <questionSet name="Questions" displayName="dontcare">
 
-    <question name="GenesByTaxonGene" displayName="dontcare"
-         queryRef="GeneIdQueries.GenesByTaxonGene"
+    <question name="GenesByOrganism" displayName="dontcare"
+         queryRef="GeneIdQueries.GenesByOrganism"
          recordClassRef="organismSpecific.gene">
     </question>
+    
+    <question name="EstsByOrganism" displayName="dontcare"
+         queryRef="EstIdQueries.EstsByOrganism"
+         recordClassRef="organismSpecific.est">
+    </question>
+
   </questionSet>
 
   <recordClassSet name="organismSpecific">
@@ -14,8 +20,8 @@
     <!-- ###########################  EST Record   ##################################### -->
     <!-- ############################################################################### -->
 
-    <recordClass name="Est" urlName="organism-est" displayName="EST">
-      <primaryKey aliasQueryRef="EstQueries.EstAlias">
+    <recordClass name="est" urlName="organism-est" displayName="EST">
+      <primaryKey aliasQueryRef="EstTableQueries.EstAlias">
         <columnRef>source_id</columnRef>
       </primaryKey>
 
@@ -41,7 +47,6 @@
       <table name="ReferenceInfo" displayName="Reference" queryRef="EstQueries.Reference">
         <columnAttribute name="author" displayName="Author" />
         <columnAttribute name="affiliation" displayName="Affiliation"/>
-        <columnAttribute name="address" displayName="Address"/>
       </table>
     </recordClass>
 
