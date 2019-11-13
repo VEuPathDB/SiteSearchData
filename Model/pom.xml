@@ -21,12 +21,32 @@
 
     <dependency>
       <groupId>org.gusdb</groupId>
+      <artifactId>fgputil-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.gusdb</groupId>
       <artifactId>wdk-model</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.gusdb</groupId>
+      <artifactId>wdk-service</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.containers</groupId>
+      <artifactId>jersey-container-grizzly2-http</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
     </dependency>
 
     <dependency>
