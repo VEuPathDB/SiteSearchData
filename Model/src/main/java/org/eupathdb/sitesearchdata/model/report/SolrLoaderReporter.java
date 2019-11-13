@@ -4,6 +4,8 @@ import static org.gusdb.fgputil.iterator.IteratorUtil.toStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.gusdb.fgputil.json.JsonWriter;
@@ -15,6 +17,8 @@ import org.gusdb.wdk.model.answer.stream.RecordStream;
 import org.gusdb.wdk.model.answer.stream.RecordStreamFactory;
 import org.gusdb.wdk.model.record.RecordInstance;
 import org.gusdb.wdk.model.record.TableValue;
+import org.gusdb.wdk.model.report.Reporter;
+import org.gusdb.wdk.model.report.ReporterConfigException;
 import org.gusdb.wdk.model.report.reporter.AnswerDetailsReporter;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,20 +27,48 @@ import org.json.JSONObject;
  * Provides records returned by the answer value in the following JSON format:
  * [
  *   {
- *     id: ["pk1", "pk2", "pk3"],
- *     tableNameOne: "a clob holding tab delimited table values",
- *     tableNameTwo: "a clob holding tab delimited table values",
- *     attributeNameOne: "attribute value"
+ *     "document-type": "gene",
+ *     "batch-type": "organism",
+ *     "batch-name": "Plasmodium falciparum 3D7",
+ *     "batch-timestamp": 123985030253
+ *     "batch-id": "9fj438f02435658843"
+ *     "primaryKey": ["pk1", "pk2", "pk3"],
+ *     "TABLE__orthologs": [cell1, cell2...],
+ *     "TABLE__aliases": [cell1, cell2...],
+ *     "product": "attribute value"
  *     etc.
  *   }
  * ]
  * 
- * @author rdoherty
+ * we use the TABLE__ prefix to indicate to the solr schema that it is multivalued
+ * 
+ * Configuration includes these values beyond the standard json reporter config:
+ * 
+ * 
+ * @author rdoherty, sfischer
  */
 public class SolrLoaderReporter extends AnswerDetailsReporter {
 
+  private String _batchType; // eg "organism"
+  private int _batchTimestamp;
+  private String _batchId;
+  private String _batchName; // eg, "plasmodium falciparum 3d7"
+  
   public SolrLoaderReporter(AnswerValue answerValue) {
     super(answerValue);
+  }
+  
+  @Override
+  public Reporter configure(JSONObject config) throws ReporterConfigException, WdkModelException {
+    List<String> configKeys = Arrays.asList("batch-type","batch-id","batch-name","batch-timestamp");
+    if (!config.keySet().containsAll(configKeys))
+        throw new ReporterConfigException("Config must include " + configKeys.toString());
+    _batchName = config.getString("batch-name");
+    _batchId = config.getString("batch-id");
+    _batchType = config.getString("batch-type");
+    _batchTimestamp = config.getInt("batch-timestamp");
+
+    return super.configure(config);
   }
 
   @Override
@@ -48,7 +80,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
             _baseAnswer, _attributes.values(), _tables.values())) {
       writer.array();
       for (RecordInstance record : records) {
-        writer.value(formatRecord(record, _attributes.keySet(), _tables.keySet()));
+        writer.value(formatRecord(record, _attributes.keySet(), _tables.keySet(), _batchType, _batchId, _batchName, _batchTimestamp));
       }
       writer.endArray();
     }
@@ -58,11 +90,15 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   }
 
   private static JSONObject formatRecord(RecordInstance record,
-      Set<String> attributeNames, Set<String> tableNames) throws WdkModelException {
+      Set<String> attributeNames, Set<String> tableNames, String batchType, String batchId, String batchName, int batchTimestamp) throws WdkModelException {
     try {
       var obj = new JSONObject()
-          .put(JsonKeys.ID, record.getPrimaryKey().getValues().values());
-      obj.put("recordType", record.getRecordClass().getUrlSegment());
+          .put(JsonKeys.PRIMARY_KEY, record.getPrimaryKey().getValues().values());
+      obj.put("document-type", record.getRecordClass().getUrlSegment());
+      obj.put("batch-type", batchType);
+      obj.put("batch-id", batchId);
+      obj.put("batch-name", batchName);
+      obj.put("batch-timestamp", batchTimestamp);
       for (String attributeName: attributeNames) {
         obj.put(attributeName, record.getAttributeValue(attributeName).getValue());
       }
