@@ -13,10 +13,8 @@
 
   <import file="organismSpecific/organismSpecific.xml"/>
 
-  <!-- Gene -->
   <import file="organismSpecific/geneQueries.xml"/>
 
-  <!-- EST -->
   <import file="organismSpecific/estQueries.xml"/>
   
   <!-- Popset Isolate -->
@@ -24,7 +22,5 @@
   <!-- Genomic Sequence -->
 
   <!-- Organism-->
-
-  <ontology name="test" pluginClass="org.gusdb.wdk.model.ontology.TestOntologyPlugin"/>
 
 </wdkModel>

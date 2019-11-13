@@ -1,15 +1,15 @@
 <wdkModel>
 
   <querySet name="GeneIdQueries" queryType="id" isCacheable="true">
-    <sqlQuery name="GenesByTaxonGene">
+    
+    <sqlQuery name="GenesByOrganism">
       <paramRef ref="geneParams.organism"/>
       <column name="source_id"/>
       <sql>
         <![CDATA[
-                 SELECT ga.source_id, ga.project_id
+                 SELECT ga.source_id
                  FROM ApidbTuning.GeneAttributes ga
                  WHERE ga.taxon_id in ($$organism$$)
-                 ORDER BY ga.source_id
         ]]>
       </sql>
     </sqlQuery>
@@ -48,9 +48,6 @@
     <flatVocabParam name="organism"
                     queryRef="GeneParamQueries.organismsWithGenes"
                     prompt="Organism"
-                    displayType="treeBox"
-                    multiPick="true"
-                    suppressNode="false"
                     quote="false">
     </flatVocabParam>
   </paramSet>
