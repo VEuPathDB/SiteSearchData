@@ -21,7 +21,17 @@
       </dependency>
       <dependency>
         <groupId>org.gusdb</groupId>
+        <artifactId>fgputil-server</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gusdb</groupId>
         <artifactId>wdk-model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gusdb</groupId>
+        <artifactId>wdk-service</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>
