@@ -4,13 +4,11 @@
 
 
   <target name="SiteSearchData-Installation" depends="WDK-Installation, 
-                                                      SiteSearchData/Model-Installation,
-                                                      SiteSearchData-MavenInstallation">
-
+                                                      SiteSearchData-MavenInstallation,
+                                                      SiteSearchData/Model-Installation">
     <ant target="defaultProjectInstall">
       <property name="project" value="SiteSearchData" />
     </ant>
-
   </target>
 
   <target name="SiteSearchData/Model-Installation">
