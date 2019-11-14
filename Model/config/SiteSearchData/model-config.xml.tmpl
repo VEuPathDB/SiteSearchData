@@ -45,8 +45,7 @@
             showConnectionsDuration="600"
             userDbLink="@devn.LOGIN_COMMENT"
             acctDbLink="@acctdbn.profile"
-            maxPkColumnWidth="150"
-            driverInitClass="org.eupathdb.common.db.EuPathDbDriverInitializer"/>
+            maxPkColumnWidth="150"/>
 
     <!-- USER Databases: -->
     <!-- apicommdevS: localhost:5030/apicommd.uga.edu -->
@@ -63,8 +62,7 @@
             showConnections="false"
             showConnectionsInterval="10"
             showConnectionsDuration="600"
-            userSchema="userlogins5."
-            driverInitClass="org.eupathdb.common.db.EuPathDbDriverInitializer"/>
+            userSchema="userlogins5."/>
 
     <accountDb login="rdoherty"
             password="********"
@@ -77,8 +75,7 @@
             showConnections="false"
             showConnectionsInterval="10"
             showConnectionsDuration="600"
-            accountSchema="useraccounts."
-            driverInitClass="org.eupathdb.common.db.EuPathDbDriverInitializer">
+            accountSchema="useraccounts.">
       <userProperty name="firstName" displayName="First Name" dbKey="first_name" required="true"/>
       <userProperty name="middleName" displayName="Middle Name" dbKey="middle_name"/>
       <userProperty name="lastName" displayName="Last Name" dbKey="last_name" required="true"/>
