@@ -9,15 +9,17 @@
 <wdkModel>
 
   <modelName displayName="SiteSearch"
-             version="%%buildNumber%%" releaseDate="%%releaseDate%%" buildNumber="%%buildNumber%%" />
+             version="%%buildNumber%%"
+             releaseDate="%%releaseDate%%"
+             buildNumber="%%buildNumber%%" />
 
-  <import file="organismSpecific/organismSpecific.xml"/>
+  <import file="organismSpecificRecords.xml"/>
 
   <!-- Gene -->
-  <import file="organismSpecific/geneQueries.xml"/>
+  <import file="geneQueries.xml"/>
 
   <!-- EST -->
-  <import file="organismSpecific/estQueries.xml"/>
+  <import file="estQueries.xml"/>
   
   <!-- Popset Isolate -->
 
