@@ -38,13 +38,13 @@
                 scopes=""
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
-      <attributeQueryRef ref="EstQueries.Bfmv">
+      <attributeQueryRef ref="EstAttributeQueries.Bfmv">
         <columnAttribute name="dbest_name" displayName="Library"/>
         <columnAttribute name="vector" displayName="Vector"/>
         <columnAttribute name="stage"  displayName="Stage"/>
       </attributeQueryRef>
 
-      <table name="ReferenceInfo" displayName="Reference" queryRef="EstQueries.Reference">
+      <table name="ReferenceInfo" displayName="Reference" queryRef="EstTableQueries.Reference">
         <columnAttribute name="author" displayName="Author" />
         <columnAttribute name="affiliation" displayName="Affiliation"/>
       </table>
