@@ -19,10 +19,12 @@
     <sqlQuery name="organisms">
             <column name="internal" />
             <column name="term" />
-            <column name="display" />
             <sql>
-    SELECT distinct ea.taxon_name as term, ea.taxon_id as internal, ea.taxon_name as display
-    FROM ApidbTuning.EstAttributes ea
+        <![CDATA[
+		SELECT distinct ea.organism AS internal, 
+                         ea.organism AS term
+                FROM   ApidbTuning.estAttributes ea
+        ]]>
             </sql>
        </sqlQuery>
 
