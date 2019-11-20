@@ -2,28 +2,35 @@
 
   <querySet name="EstIdQueries" queryType="id" isCacheable="true">
     
-    <sqlQuery name="EstsByOrganism">
-      <paramRef ref="estParams.organism"/>
+    <sqlQuery name="EstsByOrganismAbbrev">
+      <paramRef ref="estParams.organismAbbrev"/>
       <column name="source_id"/>
       <sql>
         <![CDATA[
-                 SELECT est.source_id
-                 FROM ApidbTuning.EstAttributes ea
-                 WHERE ea.taxon_id in ($$organism$$)
+select ea.source_id
+from apidbtuning.estattributes ea,
+     apidbtuning.taxonspecies ts,
+     sres.taxonname tn,
+     apidb.organism o
+where ea.organism = tn.name
+and tn.taxon_id = ts.SPECIES_TAXON_ID
+and ts.taxon_id = o.taxon_id
+and o.IS_REFERENCE_STRAIN = 1
+and o.ABBREV = '$$organismAbbrev$$'
         ]]>
       </sql>
     </sqlQuery>
   </querySet>
 
   <querySet name="EstParamQueries" queryType="vocab"  isCacheable="true">
-    <sqlQuery name="organisms">
+    <sqlQuery name="organismAbbrevs">
             <column name="internal" />
             <column name="term" />
             <sql>
         <![CDATA[
-		SELECT distinct ea.organism AS internal, 
-                         ea.organism AS term
-                FROM   ApidbTuning.estAttributes ea
+		SELECT distinct o.abbrev AS internal, 
+                         o.abbrev AS term
+                         FROM apidb.organism o
         ]]>
             </sql>
        </sqlQuery>
@@ -31,10 +38,10 @@
   </querySet>
 
   <paramSet name="estParams"> 
-    <flatVocabParam name="organism"
-                    queryRef="EstParamQueries.organisms"
-                    prompt="Organism"
-                    quote="false">
+    <flatVocabParam name="organismAbbrev"
+                    queryRef="EstParamQueries.organismAbbrevs"
+                    prompt="Organism abbrev"
+                    quote="true">
     </flatVocabParam>
   </paramSet>
 
