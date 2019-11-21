@@ -9,15 +9,24 @@
         <![CDATA[
                  SELECT ga.source_id
                  FROM ApidbTuning.GeneAttributes ga, apidb.organism o
-                 WHERE gattr.taxon_id = o.taxon_id
-                 AND o.abbrev = $organismAbbrev
+                 WHERE ga.taxon_id = o.taxon_id
+                 AND o.abbrev = $$organismAbbrev$$
         ]]>
       </sql>
     </sqlQuery>
   </querySet>
 
+  <paramSet name="geneParams"> 
+    <flatVocabParam name="organismAbbrev"
+                    queryRef="GeneParamQueries.organismAbbrevs"
+                    multiPick="false"
+                    prompt="OrganismAbbrev"
+                    quote="true">
+    </flatVocabParam>
+  </paramSet>
+
   <querySet name="GeneParamQueries" queryType="vocab"  isCacheable="true">
-    <sqlQuery name="organismsAbbrev" isCacheable="true">
+    <sqlQuery name="organismAbbrevs" isCacheable="true">
       <column name="internal"/>
       <column name="term"/>
       <sql>
@@ -31,15 +40,6 @@
     </sqlQuery>
 
   </querySet>
-
-  <paramSet name="geneParams"> 
-    <flatVocabParam name="organismAbbrev"
-                    queryRef="GeneParamQueries.organismAbbrev"
-                    multipick="false"
-                    prompt="OrganismAbbrev"
-                    quote="true">
-    </flatVocabParam>
-  </paramSet>
 
   <querySet name="GeneAttributes" queryType="attribute" isCacheable="false">
 
@@ -132,15 +132,6 @@
                  ELSE 'Not Assigned'
                  END as chromosome
                  , chromosome_order_num
-                 , '@WEBAPP_BASE_URL@/user-comments/add?stableId='||bfmv.source_id
-                 ||'&commentTargetId=gene'
-                 ||'&externalDbName='||bfmv.external_db_name
-                 ||'&externalDbVersion='||bfmv.external_db_version
-                 ||'&organism='||genus_species
-                 ||'&locations='||bfmv.start_min||'-'||bfmv.end_max
-                 ||'&contig='||bfmv.sequence_id
-                 ||'&strand='||bfmv.strand_plus_minus
-                 as user_comment_link_url
                  , CASE WHEN (bfmv.strain_count > 1) THEN 'Yes' ELSE 'No' END AS show_strains
                  from ApidbTuning.GeneAttributes bfmv
         ]]>
@@ -354,64 +345,6 @@
       </sql>
     </sqlQuery>
 
-    <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
-    <!-- Strains -->  
-    <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
-
-    <sqlQuery name="Strains" isCacheable="false">
-      <column name="source_id"/>
-      <column name="strain_source_id"/>
-      <column name="strain_transcript_id"/>
-      <column name="strain"/>
-      <column name="gene_type"/>
-      <column name="product"/>
-      <column name="exon_count"/>
-      <column name="protein_length"/>
-      <column name="signalp_scores"/>
-      <column name="tm_count"/>
-      <column name="proteomics"/>
-      <column name="phenotype"/>
-      <column name="user_comment"/>
-      <sql>
-        <![CDATA[
-                 SELECT ga.source_id, 
-                 tb.gene_source_id AS strain_source_id,
-                 tb.source_id AS strain_transcript_id,
-                 tb.project_id,
-                 tb.strain,
-                 tb.gene_type,
-                 tb.gene_product as product, 
-                 tb.exon_count, 
-                 tb.protein_length,
-                 CASE WHEN tb.signalp_scores IS NULL THEN 'No' ELSE 'Yes' END AS signalp_scores,
-                 tb.tm_count,
-                 CASE WHEN ms.aa_sequence_id IS NULL THEN 'No' ELSE 'Yes' END AS proteomics,
-                 CASE WHEN (p1.na_feature_id IS NULL AND p2.na_feature_id IS NULL
-                 AND p3.na_feature_id IS NULL) THEN 'No' ELSE 'Yes' END AS phenotype,
-                 CASE WHEN c.stable_id IS NULL THEN 'No' ELSE 'Yes' END AS user_comment
-                 FROM apidbTuning.GeneAttributes ga,
-                 apidbTuning.TranscriptAttributes tb,
-                 (SELECT DISTINCT aa_sequence_id FROM apidb.MassSpecSummary) ms,
-                 (SELECT DISTINCT na_feature_id FROM apidb.phenotypemodel) p1, --fung,tryp
-                 (SELECT DISTINCT na_feature_id FROM apidb.nafeaturephenotypemodel) p2, --plasmo
-                 (SELECT DISTINCT na_feature_id FROM apidb.crisprphenotype) p3, -- toxo 
-                 (SELECT DISTINCT stable_id, cmnts.project_name
-                 FROM @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ cmnts
-                 WHERE cmnts.comment_target_id = 'gene'
-                 AND cmnts.review_status_id != 'rejected'
-                 AND cmnts.is_visible = 1
-                 ) c
-                 WHERE tb.gene_id = ga.gene_id
-                 AND tb.project_id = c.project_name(+)
-                 AND tb.aa_sequence_id = ms.aa_sequence_id(+)
-                 AND tb.source_id = c.stable_id(+)
-                 AND tb.gene_na_feature_id = p1.na_feature_id(+)
-                 AND tb.gene_na_feature_id = p2.na_feature_id(+)
-                 AND tb.gene_na_feature_id = p3.na_feature_id(+)
-                 ORDER BY tb.organism, tb.source_id, tb.strain
-        ]]>
-      </sql>
-    </sqlQuery>
 
     <sqlQuery name="BlastP" isCacheable="false">
       <column name="transcript_id"/>

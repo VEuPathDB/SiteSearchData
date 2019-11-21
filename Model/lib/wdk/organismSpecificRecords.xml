@@ -3,12 +3,12 @@
   <questionSet name="Questions" displayName="dontcare">
 
     <question name="GenesByOrganism" displayName="dontcare"
-         queryRef="GeneIdQueries.GenesByOrganism"
+         queryRef="GeneIdQueries.GenesByOrganismAbbrev"
          recordClassRef="organismSpecific.gene">
     </question>
     
     <question name="EstsByOrganism" displayName="dontcare"
-         queryRef="EstIdQueries.EstsByOrganism"
+         queryRef="EstIdQueries.EstsByOrganismAbbrev"
          recordClassRef="organismSpecific.est">
     </question>
 
@@ -173,15 +173,6 @@
              queryRef="GeneTables.Alias">
         <columnAttribute displayName="Name/ID/Alias" name="alias"/>
         <columnAttribute displayName="Type" name="id_type"/>
-      </table>
-
-      <table name="Strains"
-             displayName="Strains summary"
-             queryRef="GeneTables.Strains">
-        <columnAttribute name="strain_source_id"  displayName="Gene ID"/>
-        <columnAttribute name="strain_transcript_id" displayName="Transcript ID"/>
-        <columnAttribute displayName="Strain" name="strain"/>
-        <columnAttribute displayName="Product" name="product"/>
       </table>
 
       <table name="PubMed"

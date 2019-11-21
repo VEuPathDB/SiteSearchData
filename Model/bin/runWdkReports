@@ -9,6 +9,7 @@ import sys
 import os.path
 import time
 import tarfile
+import datetime
 
 REPORTNAME = 'solrjson'
 
@@ -82,7 +83,6 @@ def getRecordType(wdkServiceUrl, recordTypeName):
     recordTypeUrl = wdkServiceUrl + '/record-types/' + recordTypeName
     response = httpGet(recordTypeUrl, {})
     recordType = response.json()
-    print(recordType['nativeDisplayName'])
     return recordType
 
 def validateSearchParam(paramName, searchName, searchParamNames):
@@ -145,7 +145,7 @@ def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
     batch['batch-name'] = batchName
     batch['batch-timestamp'] = batchTimestamp
     batch['batch-id'] = batchId
-    batchJson = json.dumps(reportConfig)
+    batchJson = json.dumps(batch)
     with open(outputDir + "/batch.json", "w") as text_file:
         text_file.write(batchJson)
     
@@ -162,16 +162,14 @@ outputDir = createWorkingDir(parentDir, batchId)
 # for each record type, find the single question in the model, and run it with the solrjson reporter
 for recordTypeName in getRecordTypeNames(wdkServiceUrl, batchName):
     recordType = getRecordType(wdkServiceUrl, recordTypeName)
+    print(str(datetime.datetime.now()) + " Processing record type: " + recordType['nativeDisplayName'])
     searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName) 
     runReportToFile(wdkServiceUrl, outputDir, recordTypeName, searchUrlName, paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
 
 # write meta file about this batch
+print(str(datetime.datetime.now()) + " writing batch.json")
 writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
-
-
-#createTarFile(tempWorkingDir , tempWorkingDir + '.tar.gz')
-#tar.close()
-#shutil.rmtree(tempWorkingDir)
+print(str(datetime.datetime.now()) + " done")
     
 
     

@@ -16,7 +16,7 @@ where ea.organism = tn.name
 and tn.taxon_id = ts.SPECIES_TAXON_ID
 and ts.taxon_id = o.taxon_id
 and o.IS_REFERENCE_STRAIN = 1
-and o.ABBREV = '$$organismAbbrev$$'
+and o.ABBREV = $$organismAbbrev$$
         ]]>
       </sql>
     </sqlQuery>
@@ -40,6 +40,7 @@ and o.ABBREV = '$$organismAbbrev$$'
   <paramSet name="estParams"> 
     <flatVocabParam name="organismAbbrev"
                     queryRef="EstParamQueries.organismAbbrevs"
+                    multiPick="false"
                     prompt="Organism abbrev"
                     quote="true">
     </flatVocabParam>
