@@ -127,11 +127,11 @@ def runReportToFile(wdkServiceUrl, workingDir, recordTypeName, searchName, param
     reportUrl = wdkServiceUrl + '/record-types/' + recordTypeName + '/searches/' + searchName + '/reports/' + REPORTNAME + '?'
     urlParams = composeUrlParams(paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
     targetFilename = workingDir + "/" + recordTypeName
-    with requests.get(url=reportUrl, params=urlParams, stream=True) as r:
-        if (r.status_code != 200):
-            error("Received " + str(r.status_code) + " status from HTTP GET to " + reportUrl + " with parameters: " + str(urlParams))
-        with open(targetFilename, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
+    with requests.get(url=reportUrl, params=urlParams, stream=True) as response:
+        if (response.status_code != 200):
+            error("Received " + str(response.status_code) + " status from HTTP GET to " + reportUrl + " with parameters: " + str(urlParams))
+        with open(targetFilename, 'wb') as file:
+            shutil.copyfileobj(response.raw, file)
 
 def createTarFile(path, tar_name):
     with tarfile.open(tar_name, "w:gz") as tar_handle:
@@ -139,7 +139,16 @@ def createTarFile(path, tar_name):
             for file in files:
                 tar_handle.add(os.path.join(root, file))
 
-
+def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir):
+    batch = {}
+    batch['batch-type'] = batchType
+    batch['batch-name'] = batchName
+    batch['batch-timestamp'] = batchTimestamp
+    batch['batch-id'] = batchId
+    batchJson = json.dumps(reportConfig)
+    with open(outputDir + "/batch.json", "w") as text_file:
+        text_file.write(batchJson)
+    
 
 ###########################################################################################################
 
@@ -149,11 +158,16 @@ batchTimestamp = int(time.time())
 batchId = batchType + "_" + batchName + "_" + str(batchTimestamp)
 
 outputDir = createWorkingDir(parentDir, batchId)
-        
+
+# for each record type, find the single question in the model, and run it with the solrjson reporter
 for recordTypeName in getRecordTypeNames(wdkServiceUrl, batchName):
     recordType = getRecordType(wdkServiceUrl, recordTypeName)
     searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName) 
     runReportToFile(wdkServiceUrl, outputDir, recordTypeName, searchUrlName, paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
+
+# write meta file about this batch
+writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
+
 
 #createTarFile(tempWorkingDir , tempWorkingDir + '.tar.gz')
 #tar.close()
