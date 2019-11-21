@@ -126,7 +126,7 @@ def composeUrlParams(paramName, paramValue, recordType, batchType, batchName, ba
 def runReportToFile(wdkServiceUrl, workingDir, recordTypeName, searchName, paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId):
     reportUrl = wdkServiceUrl + '/record-types/' + recordTypeName + '/searches/' + searchName + '/reports/' + REPORTNAME + '?'
     urlParams = composeUrlParams(paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
-    targetFilename = workingDir + "/" + recordTypeName
+    targetFilename = workingDir + "/" + recordTypeName + ".json"
     with requests.get(url=reportUrl, params=urlParams, stream=True) as response:
         if (response.status_code != 200):
             error("Received " + str(response.status_code) + " status from HTTP GET to " + reportUrl + " with parameters: " + str(urlParams))
