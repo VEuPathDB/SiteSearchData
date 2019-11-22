@@ -4,9 +4,12 @@ import static org.gusdb.fgputil.iterator.IteratorUtil.toStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.gusdb.fgputil.json.JsonWriter;
 import org.gusdb.wdk.core.api.JsonKeys;
@@ -28,11 +31,12 @@ import org.json.JSONObject;
  * [
  *   {
  *     "document-type": "gene",
- *     "batch-type": "organism",
- *     "batch-name": "Plasmodium falciparum 3D7",
- *     "batch-timestamp": 123985030253
- *     "batch-id": "9fj438f02435658843"
  *     "primaryKey": ["pk1", "pk2", "pk3"],
+ *     "id": "gene__pk1__pk1__pk3",
+ *     "batch-type": "organism",
+ *     "batch-name": "pfal3D7",
+ *     "batch-timestamp": 123985030253
+ *     "batch-id": "organism__pfal3D7__123985030253"
  *     "TABLE__orthologs": [cell1, cell2...],
  *     "TABLE__aliases": [cell1, cell2...],
  *     "product": "attribute value"
@@ -92,9 +96,16 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   private static JSONObject formatRecord(RecordInstance record,
       Set<String> attributeNames, Set<String> tableNames, String batchType, String batchId, String batchName, int batchTimestamp) throws WdkModelException {
     try {
-      var obj = new JSONObject()
-          .put(JsonKeys.PRIMARY_KEY, record.getPrimaryKey().getValues().values());
-      obj.put("document-type", record.getRecordClass().getUrlSegment());
+      Collection<String> pkValues = record.getPrimaryKey().getValues().values();
+      String urlSegment = record.getRecordClass().getUrlSegment();
+      Collection<String> idValues = new ArrayList<String>(pkValues);
+      idValues.add(urlSegment);
+      String idValuesString = idValues.stream().collect(Collectors.joining("__"));
+      
+      var obj = new JSONObject();
+      obj.put("document-type", urlSegment);
+      obj.put(JsonKeys.PRIMARY_KEY, pkValues);
+      obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       obj.put("batch-type", batchType);
       obj.put("batch-id", batchId);
       obj.put("batch-name", batchName);
