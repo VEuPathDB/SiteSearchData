@@ -145,6 +145,7 @@ def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
     batch['batch-name'] = batchName
     batch['batch-timestamp'] = batchTimestamp
     batch['batch-id'] = batchId
+    batch['id'] = batch['batch-id']
     batchJson = json.dumps(batch)
     with open(outputDir + "/batch.json", "w") as text_file:
         text_file.write(batchJson)
