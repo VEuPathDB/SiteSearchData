@@ -98,8 +98,9 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     try {
       Collection<String> pkValues = record.getPrimaryKey().getValues().values();
       String urlSegment = record.getRecordClass().getUrlSegment();
-      Collection<String> idValues = new ArrayList<String>(pkValues);
+      Collection<String> idValues = new ArrayList<String>();
       idValues.add(urlSegment);
+      idValues.addAll(pkValues);
       String idValuesString = idValues.stream().collect(Collectors.joining("__"));
       
       var obj = new JSONObject();
