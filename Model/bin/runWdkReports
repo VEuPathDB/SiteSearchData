@@ -149,6 +149,13 @@ def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
     batchJson = json.dumps(batch)
     with open(outputDir + "/batch.json", "w") as text_file:
         text_file.write(batchJson)
+
+def checkRecordTypeBatch(recordType, batchType):
+    print(str(recordType['properties']))
+    if ('properties' in recordType and 'batch' in recordType['properties']):
+        return recordType['properties']['batch'][0] == batchType
+    else:
+        error("Record type '" + recordType['urlSegment'] + "' does not contain a 'batch' property")
     
 
 ###########################################################################################################
@@ -163,9 +170,10 @@ outputDir = createWorkingDir(parentDir, batchId)
 # for each record type, find the single question in the model, and run it with the solrjson reporter
 for recordTypeName in getRecordTypeNames(wdkServiceUrl, batchName):
     recordType = getRecordType(wdkServiceUrl, recordTypeName)
-    print(str(datetime.datetime.now()) + " Processing record type: " + recordType['nativeDisplayName'])
-    searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName) 
-    runReportToFile(wdkServiceUrl, outputDir, recordTypeName, searchUrlName, paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
+    if (checkRecordTypeBatch(recordType, batchType)): 
+        print(str(datetime.datetime.now()) + " Processing record type: " + recordType['nativeDisplayName'])
+        searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName) 
+        runReportToFile(wdkServiceUrl, outputDir, recordTypeName, searchUrlName, paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
 
 # write meta file about this batch
 print(str(datetime.datetime.now()) + " writing batch.json")
