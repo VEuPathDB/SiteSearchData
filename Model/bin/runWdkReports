@@ -151,7 +151,6 @@ def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
         text_file.write(batchJson)
 
 def checkRecordTypeBatch(recordType, batchType):
-    print(str(recordType['properties']))
     if ('properties' in recordType and 'batch' in recordType['properties']):
         return recordType['properties']['batch'][0] == batchType
     else:
