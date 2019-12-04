@@ -12,6 +12,7 @@ import tarfile
 import datetime
 
 REPORTNAME = 'solrjson'
+TARGETDIRPREFIX = 'solr-json-batch_'
 
 def parseAndValidateArgs():
     help = """Read a WDK model dedicated to producing  JSON files for solr.  Runs WDK a report for each record type in the model to produce those files.  Also produces a JSON file containing meta information about this batch of files.
@@ -67,7 +68,7 @@ def validateParam(paramName, paramValue):
         error("Error:  arguments --paramName and --paramValue must both be provided, or neither provided")
 
 def createWorkingDir(parentDir, batchId):
-    newDirPath = parentDir + "/" + batchId
+    newDirPath = parentDir + "/" + TARGETDIRPREFIX + batchId
     try:
         os.mkdir(newDirPath)
     except OSError:
