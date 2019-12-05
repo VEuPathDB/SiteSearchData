@@ -13,7 +13,7 @@
              releaseDate="%%releaseDate%%"
              buildNumber="%%buildNumber%%" />
 
-  <import file="organismSpecificRecords.xml"/>
+  <import file="siteSearchRecords.xml"/>
 
   <import file="geneQueries.xml"/>
 
