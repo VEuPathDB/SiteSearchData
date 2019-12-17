@@ -37,9 +37,9 @@ import org.json.JSONObject;
  *     "batch-name": "pfal3D7",
  *     "batch-timestamp": 123985030253
  *     "batch-id": "organism__pfal3D7__123985030253"
- *     "TABLE__orthologs": [cell1, cell2...],
- *     "TABLE__aliases": [cell1, cell2...],
- *     "product": "attribute value"
+ *     "MULTITEXT__orthologs": [cell1, cell2...],
+ *     "MUTLITEXT__aliases": [cell1, cell2...],
+ *     "TEXT__product": "attribute value"
  *     etc.
  *   }
  * ]
@@ -57,6 +57,9 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   private int _batchTimestamp;
   private String _batchId;
   private String _batchName; // eg, "plasmodium falciparum 3d7"
+
+  public static final String TEXT_PREFIX = "TEXT__";
+  public static final String MULTITEXT_PREFIX = "MULTITEXT__";
   
   public SolrLoaderReporter(AnswerValue answerValue) {
     super(answerValue);
@@ -112,10 +115,10 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
       for (String attributeName: attributeNames) {
-        obj.put(attributeName, record.getAttributeValue(attributeName).getValue());
+        obj.put(TEXT_PREFIX + attributeName, record.getAttributeValue(attributeName).getValue());
       }
       for (String tableName: tableNames) {
-        obj.put(tableName, aggregateTableValueJson(record.getTableValue(tableName)));
+        obj.put(MULTITEXT_PREFIX + tableName, aggregateTableValueJson(record.getTableValue(tableName)));
       }
       return obj;
     }
