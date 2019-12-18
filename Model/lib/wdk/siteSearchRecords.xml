@@ -3,28 +3,141 @@
   <questionSet name="Questions" displayName="dontcare">
 
     <question name="GenesByOrganism" displayName="dontcare"
-         queryRef="GeneIdQueries.GenesByOrganismAbbrev"
-         recordClassRef="organismSpecific.gene">
+              queryRef="GeneIdQueries.GenesByOrganismAbbrev"
+              recordClassRef="recordClasses.gene">
     </question>
     
     <question name="EstsByOrganism" displayName="dontcare"
-         queryRef="EstIdQueries.EstsByOrganismAbbrev"
-         recordClassRef="organismSpecific.est">
+              queryRef="EstIdQueries.EstsByOrganismAbbrev"
+              recordClassRef="recordClasses.est">
+    </question>
+
+    <question name="Pathways" displayName="dontcare"
+              queryRef="PathwayIdQueries.AllPathways"
+              recordClassRef="recordClasses.pathway">
+    </question>
+
+    <question name="Compounds" displayName="dontcare"
+              queryRef="CompoundIdQueries.AllCompounds"
+              recordClassRef="recordClasses.compound">
     </question>
 
   </questionSet>
 
-  <recordClassSet name="organismSpecific">
+  <recordClassSet name="recordClasses">
 
+    <!-- ############################################################################### -->
+    <!-- ###########################  Pathway Record   ##################################### -->
+    <!-- ############################################################################### -->
+
+    <recordClass name="pathway" urlName="pathway" displayName="Metabolic Pathway">
+      <propertyList name="batch">
+        <value>pathway</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="PathwayAttributes.PathwayAlias">
+        <columnRef>pathway_source</columnRef>
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Pathway Id">
+        <text>
+          <![CDATA[
+                   $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+
+    </recordClass>
+    
+    <!-- ############################################################################### -->
+    <!-- ###########################  Compound Record   ##################################### -->
+    <!-- ############################################################################### -->
+
+    <recordClass name="compound" urlName="compound" displayName="Compound">
+      <propertyList name="batch">
+        <value>compound</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="CompoundAttributes.CompoundAlias">
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="ChEBI ID">
+        <text>
+          <![CDATA[
+                   $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="CompoundAttributes.Bfmv">
+        <columnAttribute name="definition" displayName="Definition" />
+        <columnAttribute name="formula" displayName="Molecular Formula" />
+        <columnAttribute name="compound_name" displayName="Compound Name" />
+        <columnAttribute name="secondary_ids"  displayName="Secondary ChEBI IDs" />  <!-- THIS SHOULD BE IN A MULTI-ROW TABLE? -->
+      </attributeQueryRef>
+
+      <attributeQueryRef ref="CompoundAttributes.Synonyms" >
+	<columnAttribute name="synonyms" displayName="Synonyms" internal="true" />
+      </attributeQueryRef>  
+
+      <table name="Properties" displayName="Compound Properties"
+	     queryRef="CompoundTables.Properties">
+        <columnAttribute name="value" displayName="Value" />
+        <propertyList name="includeInDumper"><value>true</value></propertyList>
+      </table>
+
+      <table name="IupacNames" displayName="IUPAC Names"
+	     queryRef="CompoundTables.IupacNames">
+	    <columnAttribute name="value" displayName="Value" />
+        <propertyList name="includeInDumper"><value>true</value></propertyList>
+      </table>
+
+      <table name="Synonyms" displayName="Compound Synonyms"
+	     queryRef="CompoundTables.Synonyms">
+	    <columnAttribute name="value" displayName="Value" />
+        <propertyList name="includeInDumper"><value>true</value></propertyList>
+      </table>
+
+      <table name="CompoundsMetabolicPathways"
+	     displayName="Metabolic Pathway Reactions"
+	     queryRef="CompoundTables.CompoundsFromMetabolicPathways">
+    
+        <columnAttribute displayName="EC Number" name="enzyme" inReportMaker="true" internal="true"/> 
+        <columnAttribute displayName="Substrates" name="substrates_text" inReportMaker="true" internal="true"/>
+        <columnAttribute displayName="Products" name="products_text" inReportMaker="true" internal="true"/>
+      </table>
+
+      <table name="PathwaysFromCompounds"
+        displayName="Metabolic Pathways"
+        queryRef="CompoundTables.PathwaysFromCompounds">
+
+        <columnAttribute name="pathway_source_id" internal="true"/>
+        <columnAttribute name="pathway_name" internal="true" displayName="Pathway"/>
+      </table>
+       
+    </recordClass>
+    
     <!-- ############################################################################### -->
     <!-- ###########################  EST Record   ##################################### -->
     <!-- ############################################################################### -->
 
     <recordClass name="est" urlName="organism-est" displayName="EST">
       <propertyList name="batch">
-          <value>organism</value>
+        <value>organism</value>
       </propertyList>
-        
+      
       <primaryKey aliasQueryRef="EstTableQueries.EstAlias">
         <columnRef>source_id</columnRef>
       </primaryKey>
@@ -62,9 +175,9 @@
     <recordClass name="gene" urlName="organism-gene">
 
       <propertyList name="batch">
-          <value>organism</value>
+        <value>organism</value>
       </propertyList>
-        
+      
       <primaryKey aliasQueryRef="GeneAttributes.GeneAlias">
         <columnRef>source_id</columnRef>
       </primaryKey>
@@ -220,11 +333,6 @@
       </table>
 
     </recordClass>
-
-
-
-
-    
 
   </recordClassSet>
 

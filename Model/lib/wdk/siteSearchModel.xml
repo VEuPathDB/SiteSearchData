@@ -18,6 +18,10 @@
   <import file="geneQueries.xml"/>
 
   <import file="estQueries.xml"/>
+
+  <import file="pathwayQueries.xml"/>
+
+  <import file="compoundQueries.xml"/>
   
   <!-- Popset Isolate -->
 
