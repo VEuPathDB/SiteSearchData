@@ -56,16 +56,7 @@ and o.ABBREV = $$organismAbbrev$$
             <column name="stage"  ignoreCase="true"/>
             <sql>
             <![CDATA[
-           SELECT bfmv.source_id, bfmv.project_id, lower(bfmv.project_id) as project_id_lc, bfmv.primer, bfmv.a_count,  bfmv.c_count, 
-                  bfmv.g_count, bfmv.t_count, bfmv.other_count, bfmv.length, 
-                  bfmv.dbest_name, bfmv.vector, bfmv.stage,
-                  CASE bfmv.organism when 'Giardia intestinalis' THEN 'Giardia lamblia' else bfmv.organism END as organism_text,
-                  bfmv.ncbi_tax_id,
-                  '<i>' || SUBSTR(bfmv.organism, 1, 1) || '.' ||
-                  REGEXP_REPLACE(SUBSTR(CASE bfmv.organism when 'Giardia intestinalis' THEN 'Giardia lamblia' else bfmv.organism END, INSTR(bfmv.organism, ' ')), '[[:space:]]+',
-                                 chr(38) || 'nbsp;') || '</i>'
-                    AS formatted_organism,
-                  bfmv.external_db_name
+            SELECT bfmv.source_id, bfmv.dbest_name, bfmv.vector, bfmv.stage
             FROM  ApidbTuning.EstAttributes bfmv
             ]]>
            </sql>
@@ -93,17 +84,15 @@ and o.ABBREV = $$organismAbbrev$$
             <column name="affiliation" />
             <sql>
             <![CDATA[
-            SELECT e.accession as source_id, ea.project_id,
+            SELECT e.accession as source_id,
                    CASE WHEN (c.name IS NOT NULL) THEN c.name ELSE c.last END AS author,
-                   c.address1 as affiliation,
-                   c.address2 as address
-            FROM dots.est e, sres.contact c, 
-                 dots.externalnasequence ens, sres.ontologyTerm ot, apidbtuning.estattributes ea
+                   c.address1 as affiliation
+            FROM dots.est e, sres.contact c,
+                 dots.externalnasequence ens, sres.ontologyTerm ot
             WHERE e.contact_id = c.contact_id
-            and  e.accession = ea.source_id
-            and ens.na_sequence_id = e.na_sequence_id
-            and ens.sequence_ontology_id = ot.ontology_term_id
-            and ot.name = 'EST'
+              AND ens.na_sequence_id = e.na_sequence_id
+              AND ens.sequence_ontology_id = ot.ontology_term_id
+              AND ot.name = 'EST'
             ]]>
             </sql>
         </sqlQuery>
