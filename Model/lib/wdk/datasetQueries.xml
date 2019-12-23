@@ -3,15 +3,13 @@
   <querySet name="DatasetIdQueries" queryType="id" isCacheable="true">
     
     <sqlQuery name="AllDatasets">
-      <column name="source_id"/>
-      <sql>
-        <![CDATA[
-                 SELECT ga.source_id
-                 FROM ApidbTuning.GeneAttributes ga, apidb.organism o
-                 WHERE ga.taxon_id = o.taxon_id
-                 AND o.abbrev = $$organismAbbrev$$
-        ]]>
-      </sql>
+        <column name="dataset_id"/>
+        <sql>
+          <![CDATA[
+            select dataset_presenter_id as dataset_id
+            from apidbTuning.DatasetPresenter
+          ]]>
+       </sql>
     </sqlQuery>
   </querySet>
 
