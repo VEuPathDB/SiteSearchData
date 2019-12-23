@@ -22,6 +22,8 @@
   <import file="pathwayQueries.xml"/>
 
   <import file="compoundQueries.xml"/>
+
+  <import file="datasetQueries.xml"/>
   
   <!-- Popset Isolate -->
 
