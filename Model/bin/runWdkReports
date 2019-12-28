@@ -102,7 +102,7 @@ def validateSearchParam(paramName, searchName, searchParamNames):
 def getSearchUrlName(recordType, recordTypeName, paramName):
     filteredQuestions = list(filter(lambda search: 'InternalQuestions' not in search['fullName'], recordType['searches']))
     if not len(filteredQuestions) == 1:
-        error("RecordType " + recordTypeName + " has either no search or more than a single search")
+        error("RecordType " + recordTypeName + " has more than a single search")
     search = filteredQuestions[0]
     paramNames = search['paramNames']
     validateSearchParam(paramName, search['urlSegment'], paramNames)
@@ -147,7 +147,8 @@ def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
     batch['batch-timestamp'] = batchTimestamp
     batch['batch-id'] = batchId
     batch['id'] = batch['batch-id']
-    batchJson = json.dumps(batch)
+    batches = [batch]
+    batchJson = json.dumps(batches)
     with open(outputDir + "/batch.json", "w") as text_file:
         text_file.write(batchJson)
 
