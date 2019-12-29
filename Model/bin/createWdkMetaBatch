@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
-# importing the requests library 
-import requests
 import json
 import argparse
-import shutil
 import sys
-import os.path
+import os
 import time
-import tarfile
 import datetime
+
+sys.path.append(os.environ['GUS_HOME'] + "/lib/python")
+
+import SiteSearchData.Model.BatchReportUtils as utils
 
 TARGETDIRPREFIX = 'solr-json-batch_'
 BATCHTYPE = 'wdkmeta'
@@ -31,66 +31,10 @@ Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'.
     parser.add_argument("wdkServiceUrl", help="Base url of WDK service to read from")
     parser.add_argument("parentDir", help="Directory in which to put the directory of output files")
     args = parser.parse_args()
-    validateWebServiceUrl(args.wdkServiceUrl)
-    validateParentDir(args.parentDir)
+    utils.validateWebServiceUrl(args.wdkServiceUrl)
+    utils.validateParentDir(args.parentDir)
     return args.wdkServiceUrl, args.parentDir
 
-#################################################################################
-############################# factor into shared module #########################
-#################################################################################
-
-def error(msg):
-        sys.stderr.write("ERROR: " + msg + "\n")
-        sys.exit(1)
-
-def httpGet(url, params):
-    response = requests.get(url=url, params=params)
-    if (response.status_code != 200):
-        error("Received " + str(response.status_code) + " status from HTTP GET to " + url + " with parameters: " + str(params))
-    return response
-             
-def validateWebServiceUrl(wdkServiceUrl):
-     httpGet(wdkServiceUrl, {})
-
-def validateParentDir(parentDir):
-    if not os.path.exists(parentDir) or not os.path.isdir(parentDir):
-        error("parentDir '" + parentDir + "' does not exist or is not a directory")
-
-def createWorkingDir(parentDir, batchId):
-    newDirPath = parentDir + "/" + TARGETDIRPREFIX + batchId
-    try:
-        os.mkdir(newDirPath)
-    except OSError:
-        error("Could not create directory " + 'newDirPath')
-    return newDirPath
-
-def getRecordTypeNames(wdkServiceUrl):
-    recordTypesUrl = wdkServiceUrl + '/record-types'
-    response = httpGet(recordTypesUrl, {})
-    return response.json()
-    
-def getRecordType(wdkServiceUrl, recordTypeName):
-    recordTypeUrl = wdkServiceUrl + '/record-types/' + recordTypeName
-    response = httpGet(recordTypeUrl, {})
-    recordType = response.json()
-    return recordType
-
-def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir):
-    batch = {}
-    batch['batch-type'] = batchType
-    batch['batch-name'] = batchName
-    batch['document-type'] = "batch-meta"
-    batch['batch-timestamp'] = batchTimestamp
-    batch['batch-id'] = batchId
-    batch['id'] = batch['batch-id']
-    batches = [batch]
-    batchJson = json.dumps(batches)
-    with open(outputDir + "/batch.json", "w") as text_file:
-        text_file.write(batchJson)
-
-############################################################################################
-################### END OF methods to factor into module
-############################################################################################
     
 
 ###########################################################################################################
@@ -100,13 +44,13 @@ wdkServiceUrl, parentDir = parseAndValidateArgs()
 batchTimestamp = int(time.time())
 batchId = BATCHTYPE + "_" + BATCHNAME + "_" + str(batchTimestamp)
 
-outputDir = createWorkingDir(parentDir, batchId)
+outputDir = utils.createWorkingDir(parentDir, batchId)
 targetFilename = outputDir + "/" + BATCHTYPE + ".json"
 
 outputSearches = []
 
-for recordTypeName in getRecordTypeNames(wdkServiceUrl):
-    recordType = getRecordType(wdkServiceUrl, recordTypeName)
+for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
+    recordType = utils.getRecordType(wdkServiceUrl, recordTypeName)
     filteredSearches = list(filter(lambda search: 'InternalQuestions' not in search['fullName'], recordType['searches']))
     for search in filteredSearches:
         outputSearch = {}
@@ -116,18 +60,21 @@ for recordTypeName in getRecordTypeNames(wdkServiceUrl):
         outputSearch['batch-id'] = batchId
         outputSearch['document-type'] = SEARCHDOCTYPE
         outputSearch['id'] = search['urlSegment']
-        outputSearch['displayName'] = search['displayName']
-        outputSearch['description'] = search['description']
+        if 'displayName' in search:
+            outputSearch['displayName'] = search['displayName']
+        if 'description' in search:
+            outputSearch['description'] = search['description']
         outputSearch['record-type'] = recordTypeName
         outputSearches.append(outputSearch)
 
 searchJson = json.dumps(outputSearches)
+print(str(datetime.datetime.now()) + " writing " + targetFilename)
 with open(targetFilename, "w") as text_file:
     text_file.write(searchJson)
 
 # write meta file about this batch
 print(str(datetime.datetime.now()) + " writing batch.json")
-writeBatchJsonFile(BATCHTYPE, BATCHNAME, batchTimestamp, batchId, outputDir)
+utils.writeBatchJsonFile(BATCHTYPE, BATCHNAME, batchTimestamp, batchId, outputDir)
 print(str(datetime.datetime.now()) + " done")
     
 
