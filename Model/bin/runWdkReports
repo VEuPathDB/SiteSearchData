@@ -7,9 +7,14 @@ import argparse
 import shutil
 import sys
 import os.path
+import os
 import time
 import tarfile
 import datetime
+
+sys.path.append(os.environ['GUS_HOME'] + "/lib/python")
+
+import SiteSearchData.Model.BatchReportUtils as utils
 
 REPORTNAME = 'solrjson'
 TARGETDIRPREFIX = 'solr-json-batch_'
@@ -41,50 +46,15 @@ Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'.
     parser.add_argument("--paramName", default=None, help="Optional name of param to include in report's search")
     parser.add_argument("--paramValue", default=None, help="Optional value of param to include in report's search")
     args = parser.parse_args()
-    validateWebServiceUrl(args.wdkServiceUrl)
-    validateParentDir(args.parentDir)
+    utils.validateWebServiceUrl(args.wdkServiceUrl)
+    utils.validateParentDir(args.parentDir)
     validateParam(args.paramName, args.paramValue)
     return args.batchType, args.batchName, args.wdkServiceUrl, args.parentDir, args.paramName, args.paramValue
 
-def error(msg):
-        sys.stderr.write("ERROR: " + msg + "\n")
-        sys.exit(1)
-
-def httpGet(url, params):
-    response = requests.get(url=url, params=params)
-    if (response.status_code != 200):
-        error("Received " + str(response.status_code) + " status from HTTP GET to " + url + " with parameters: " + str(params))
-    return response
-             
-def validateWebServiceUrl(wdkServiceUrl):
-     httpGet(wdkServiceUrl, {})
-
-def validateParentDir(parentDir):
-    if not os.path.exists(parentDir) or not os.path.isdir(parentDir):
-        error("parentDir '" + parentDir + "' does not exist or is not a directory")
 
 def validateParam(paramName, paramValue):
     if ((paramName != None and paramName == None) or (paramName != None and paramName == None)):
         error("Error:  arguments --paramName and --paramValue must both be provided, or neither provided")
-
-def createWorkingDir(parentDir, batchId):
-    newDirPath = parentDir + "/" + TARGETDIRPREFIX + batchId
-    try:
-        os.mkdir(newDirPath)
-    except OSError:
-        error("Could not create directory " + 'newDirPath')
-    return newDirPath
-
-def getRecordTypeNames(wdkServiceUrl, filterString):
-    recordTypesUrl = wdkServiceUrl + '/record-types'
-    response = httpGet(recordTypesUrl, {})
-    return response.json()
-    
-def getRecordType(wdkServiceUrl, recordTypeName):
-    recordTypeUrl = wdkServiceUrl + '/record-types/' + recordTypeName
-    response = httpGet(recordTypeUrl, {})
-    recordType = response.json()
-    return recordType
 
 def validateSearchParam(paramName, searchName, searchParamNames):
     msgPrefix = "Search " + searchName
@@ -140,18 +110,6 @@ def createTarFile(path, tar_name):
             for file in files:
                 tar_handle.add(os.path.join(root, file))
 
-def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir):
-    batch = {}
-    batch['batch-type'] = batchType
-    batch['batch-name'] = batchName
-    batch['batch-timestamp'] = batchTimestamp
-    batch['batch-id'] = batchId
-    batch['id'] = batch['batch-id']
-    batches = [batch]
-    batchJson = json.dumps(batches)
-    with open(outputDir + "/batch.json", "w") as text_file:
-        text_file.write(batchJson)
-
 def checkRecordTypeBatch(recordType, batchType):
     if ('properties' in recordType and 'batch' in recordType['properties']):
         return recordType['properties']['batch'][0] == batchType
@@ -166,11 +124,11 @@ batchType, batchName, wdkServiceUrl, parentDir, paramName, paramValue = parseAnd
 batchTimestamp = int(time.time())
 batchId = batchType + "_" + batchName + "_" + str(batchTimestamp)
 
-outputDir = createWorkingDir(parentDir, batchId)
+outputDir = utils.createWorkingDir(parentDir, batchId)
 
 # for each record type, find the single question in the model, and run it with the solrjson reporter
-for recordTypeName in getRecordTypeNames(wdkServiceUrl, batchName):
-    recordType = getRecordType(wdkServiceUrl, recordTypeName)
+for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
+    recordType = utils.getRecordType(wdkServiceUrl, recordTypeName)
     if (checkRecordTypeBatch(recordType, batchType)): 
         print(str(datetime.datetime.now()) + " Processing record type: " + recordType['nativeDisplayName'])
         searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName) 
@@ -178,7 +136,7 @@ for recordTypeName in getRecordTypeNames(wdkServiceUrl, batchName):
 
 # write meta file about this batch
 print(str(datetime.datetime.now()) + " writing batch.json")
-writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
+utils.writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
 print(str(datetime.datetime.now()) + " done")
     
 
