@@ -278,7 +278,6 @@
              displayName="GO Terms"
              queryRef="GeneTables.GOTerms">
         <columnAttribute name="go_id" displayName="GO ID" />
-        <columnAttribute name="is_not" displayName="Is Not" help="NOT is used to make an explicit note that the gene product is not associated with the GO term."/>
         <columnAttribute name="go_term_name" displayName="GO Term Name"/>
         <columnAttribute name="reference" displayName="Reference" help="The reference indicates the source, such as a publication or database record, that is cited as an authority for the association of GO term to the gene product."/>
       </table>
