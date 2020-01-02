@@ -22,6 +22,11 @@
               recordClassRef="recordClasses.compound">
     </question>
 
+    <question name="Datasets" displayName="dontcare"
+              queryRef="DatasetIdQueries.AllDatasets"
+              recordClassRef="recordClasses.dataset">
+    </question>
+
   </questionSet>
 
   <recordClassSet name="recordClasses">
@@ -114,33 +119,33 @@
 
       <table name="IupacNames" displayName="IUPAC Names"
 	     queryRef="CompoundTables.IupacNames">
-	    <columnAttribute name="value" displayName="Value" />
+	<columnAttribute name="value" displayName="Value" />
         <propertyList name="includeInDumper"><value>true</value></propertyList>
       </table>
 
       <table name="Synonyms" displayName="Compound Synonyms"
 	     queryRef="CompoundTables.Synonyms">
-	    <columnAttribute name="value" displayName="Value" />
+	<columnAttribute name="value" displayName="Value" />
         <propertyList name="includeInDumper"><value>true</value></propertyList>
       </table>
 
       <table name="CompoundsMetabolicPathways"
 	     displayName="Metabolic Pathway Reactions"
 	     queryRef="CompoundTables.CompoundsFromMetabolicPathways">
-    
+        
         <columnAttribute displayName="EC Number" name="enzyme" inReportMaker="true" internal="true"/> 
         <columnAttribute displayName="Substrates" name="substrates_text" inReportMaker="true" internal="true"/>
         <columnAttribute displayName="Products" name="products_text" inReportMaker="true" internal="true"/>
       </table>
 
       <table name="PathwaysFromCompounds"
-        displayName="Metabolic Pathways"
-        queryRef="CompoundTables.PathwaysFromCompounds">
+             displayName="Metabolic Pathways"
+             queryRef="CompoundTables.PathwaysFromCompounds">
 
         <columnAttribute name="pathway_source_id" internal="true"/>
         <columnAttribute name="pathway_name" internal="true" displayName="Pathway"/>
       </table>
-       
+      
     </recordClass>
     
     <!-- ############################################################################### -->
@@ -342,9 +347,63 @@
              displayName="Annotated Product Descriptions"
              queryRef="GeneTables.PreferredProducts">
         <columnAttribute name="product" displayName="Product"/>
-        <columnAttribute name="reference" displayName="Reference" help="The reference indicates the source, such as a publication or database record, that is associated with the gene product description."/>
+        <columnAttribute name="reference" displayName="Reference"/>
       </table>
 
+    </recordClass>
+
+    <!-- ############################################################################### -->
+    <!-- ###########################  Dataset Record   ################################# -->
+    <!-- ############################################################################### -->
+
+    <recordClass name="dataset" urlName="dataset" displayName="Dataset">
+      <propertyList name="batch">
+        <value>dataset</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>dataset_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Data Set">
+        <text>
+          <![CDATA[ $$display_name$$ ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="DatasetAttributes.NewCategory" >
+        <columnAttribute name="newcategory" displayName="Category"/>
+      </attributeQueryRef>
+
+      <attributeQueryRef ref="DatasetAttributes.All">
+        <columnAttribute name="display_name" displayName="Dataset Name"/>
+        <columnAttribute name="description" displayName="Description"/>
+        <columnAttribute name="acknowledgement" />
+        <columnAttribute name="type"/>
+        <columnAttribute name="summary" displayName="Summary"/>
+      </attributeQueryRef>
+
+      <table name="Contacts"
+             displayName="Principal Investigator and Collaborators"
+             queryRef="DatasetTables.Contacts">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="contact_name" displayName="Investigator"/>
+        <columnAttribute name="affiliation" displayName="Affiliation"/>
+      </table>
+
+      <table name="Publications"
+             displayName="Associated Publications"
+             queryRef="DatasetTables.Publications">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="pmid" displayName="Pubmed ID"/>
+        <columnAttribute name="citation"/>
+      </table>  
+      
     </recordClass>
 
   </recordClassSet>

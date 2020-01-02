@@ -1,0 +1,113 @@
+<wdkModel>
+
+  <querySet name="DatasetIdQueries" queryType="id" isCacheable="true">
+    
+    <sqlQuery name="AllDatasets">
+        <column name="dataset_id"/>
+        <sql>
+          <![CDATA[
+            select dataset_presenter_id as dataset_id
+            from apidbTuning.DatasetPresenter
+          ]]>
+       </sql>
+    </sqlQuery>
+  </querySet>
+
+  <querySet name="DatasetAttributes" queryType="attribute" isCacheable="false">
+
+    <sqlQuery name="All"  isCacheable="false">
+      <column name="dataset_id"/>
+      <column name="display_name" ignoreCase="true"/>
+      <column name="description"/>
+      <column name="summary"/>
+      <column name="acknowledgement"/> 
+      <column name="type"/>
+      <sql>
+        <![CDATA[
+                 select dsp.dataset_presenter_id as dataset_id,
+                 dsp.name as dataset_name, dsp.dataset_name_pattern,
+                 dsp.display_name, ds.version,
+                 dsp.short_display_name, dsp.description,
+                 nvl(dsp.summary, dsp.description) as summary,
+                 dsp.protocol, dsp.usage, dsp.caveat, dsp.acknowledgement,
+                 dsp.release_policy, dsp.type,
+                 dsp.is_species_scope, 
+                 dsp.build_number_introduced,
+                 nvl(history.eupath_release, introduced.eupath_release) as eupath_release,
+                 pubs.pmids
+                 from apidbTuning.DatasetPresenter dsp, apidb.datasource ds,
+                 (select dataset_presenter_id,
+                 listagg('<a href="https://www.ncbi.nlm.nih.gov/pubmed/' || pmid || '">' || pmid || '</a>', ', ') within group (order by pmid) as pmids
+                 from ApidbTuning.DatasetPublication
+                 group by dataset_presenter_id) pubs,
+                 (select dataset_presenter_id,
+                 project || ' ' || release_number || ' / ' || release_date as eupath_release
+                 from (select dh.dataset_presenter_id, dh.build_number, ebd.release_date,
+                 ebd.release_number, ebd.project,
+                 row_number() over (partition by dh.dataset_presenter_id
+                 order by ebd.release_number desc) rn
+                 from apidbTuning.DatasetHistory dh, apidbTuning.EupathBuildDates ebd
+                 where dh.build_number = ebd.build_number
+                 and ebd.project = '@PROJECT_ID@')
+                 where rn = 1) history,
+                 (select build_number,
+                 project || ' ' || release_number || ' / ' || release_date as eupath_release
+                 from apidbTuning.EupathBuildDates
+                 where project = '@PROJECT_ID@') introduced
+                 where dsp.dataset_presenter_id = history.dataset_presenter_id(+)
+                 and dsp.build_number_introduced = introduced.build_number(+)
+                 and dsp.dataset_presenter_id = pubs.dataset_presenter_id(+)
+	         and ds.name (+) = dsp.name
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="NewCategory" isCacheable="false">
+      <column name="newcategory"/>
+      <column name="dataset_id"/>
+      <sql>
+        <![CDATA[
+                 select dsp.dataset_presenter_id as dataset_id, 
+                 nvl(dsp.display_category, dsp.category) as newcategory
+                 from ApidbTuning.DatasetPresenter dsp
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="DatasetTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="Contacts"  isCacheable='false'>
+      <column name="dataset_name"/>
+      <column name="dataset_id"/>
+      <column name="contact_name"/>
+      <column name="affiliation"/>
+      <sql>
+        <![CDATA[
+                 select dsp.name as dataset_name, dsp.dataset_presenter_id as dataset_id,
+                 dsc.name as contact_name, dsc.affiliation
+                 from ApidbTuning.DatasetPresenter dsp, ApidbTuning.DatasetContact dsc
+                 where dsp.dataset_presenter_id = dsc.dataset_presenter_id
+                 order by dsc.is_primary_contact desc, dsc.dataset_contact_id asc
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Publications"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="pmid"/>
+      <column name="citation"/>
+      <sql>
+        <![CDATA[
+                 select dataset_presenter_id as dataset_id, pmid, citation
+                 from ApidbTuning.DatasetPublication
+                 where pmid is not null
+                 order by dataset_publication_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+</wdkModel>

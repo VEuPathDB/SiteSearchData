@@ -1,0 +1,35 @@
+## Loading data into Solr
+### Using batch_loader.py
+First, open the script and change the configuration variables at the top as necessary.
+
+To load files into Solr:
+```
+./batch_loader.py --index file_1 file2 file3
+```
+To delete whole batches from the index:
+```
+./batch_loader.py --delete-batch batch_id_1 batch_id_2 batch_id_3
+```
+To delete individual documents based on their unique keys:
+```
+./batch_loader.py --delete-doc unique_key_1 unique_key_2 unique_key_3
+```
+`batch_loader.py` automatically commits your changes after submitting them, so there's no need to send an extra commit command.
+
+### Using curl
+To load (index) a file named `data.json` into a core named `test-core` in a Solr instance running at `localhost` on port `8080`, do
+```
+curl http://localhost:8080/solr/test-core/update -H "Content-Type: text/json" --data-binary @data.json
+```
+The response on success should look something like
+```
+{
+  "responseHeader":{
+    "status":0,
+    "QTime":28136}}
+```
+At this point the change has not yet been committed, so follow with a commit command:
+```
+curl http://localhost:8080/solr/test-core/update -H 'Content-type:text/xml; charset=utf-8' --data '<commit></commit>'
+```
+The commit command can also be combined with the update command by specifiying `commit=true` in the URL as a query parameter.
