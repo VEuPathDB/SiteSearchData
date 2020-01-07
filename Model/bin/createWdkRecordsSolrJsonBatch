@@ -54,25 +54,25 @@ Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'.
 
 def validateParam(paramName, paramValue):
     if ((paramName != None and paramName == None) or (paramName != None and paramName == None)):
-        error("Error:  arguments --paramName and --paramValue must both be provided, or neither provided")
+        utils.error("Error:  arguments --paramName and --paramValue must both be provided, or neither provided")
 
 def validateSearchParam(paramName, searchName, searchParamNames):
     msgPrefix = "Search " + searchName
     if len(searchParamNames) > 1:
-        error(msgPrefix + " has more than a single parameter")
+        utils.error(msgPrefix + " has more than a single parameter")
     elif len(searchParamNames) == 0:
         if paramName is not None:
-            error(msgPrefix + " does not have a parameter with name '" + paramName)
+            utils.error(msgPrefix + " does not have a parameter with name '" + paramName)
     else:
         if paramName is None:
-            error(msgPrefix + " requires parameter " + searchParamNames[0])
+            utils.error(msgPrefix + " requires parameter " + searchParamNames[0])
         elif paramName != searchParamNames[0]:
-            error(msgPrefix + " does not have a paramter with name " + paramName)
+            utils.error(msgPrefix + " does not have a paramter with name " + paramName)
 
 def getSearchUrlName(recordType, recordTypeName, paramName):
     filteredQuestions = list(filter(lambda search: 'InternalQuestions' not in search['fullName'], recordType['searches']))
     if not len(filteredQuestions) == 1:
-        error("RecordType " + recordTypeName + " has more than a single search")
+        utils.error("RecordType " + recordTypeName + " has more than a single search")
     search = filteredQuestions[0]
     paramNames = search['paramNames']
     validateSearchParam(paramName, search['urlSegment'], paramNames)
@@ -100,7 +100,7 @@ def runReportToFile(wdkServiceUrl, workingDir, recordTypeName, searchName, param
     targetFilename = workingDir + "/" + recordTypeName + ".json"
     with requests.get(url=reportUrl, params=urlParams, stream=True) as response:
         if (response.status_code != 200):
-            error("Received " + str(response.status_code) + " status from HTTP GET to " + reportUrl + " with parameters: " + str(urlParams))
+            utils.error("Received " + str(response.status_code) + " status from HTTP GET to " + reportUrl + " with parameters: " + str(urlParams))
         with open(targetFilename, 'wb') as file:
             shutil.copyfileobj(response.raw, file)
 
@@ -114,7 +114,7 @@ def checkRecordTypeBatch(recordType, batchType):
     if ('properties' in recordType and 'batch' in recordType['properties']):
         return recordType['properties']['batch'][0] == batchType
     else:
-        error("Record type '" + recordType['urlSegment'] + "' does not contain a 'batch' property")
+        utils.error("Record type '" + recordType['urlSegment'] + "' does not contain a 'batch' property")
     
 
 ###########################################################################################################

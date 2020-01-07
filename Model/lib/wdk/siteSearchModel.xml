@@ -25,10 +25,10 @@
 
   <import file="datasetQueries.xml"/>
   
+  <import file="organismQueries.xml"/>
+  
   <!-- Popset Isolate -->
 
   <!-- Genomic Sequence -->
-
-  <!-- Organism-->
 
 </wdkModel>
