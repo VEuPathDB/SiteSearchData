@@ -27,10 +27,57 @@
               recordClassRef="recordClasses.dataset">
     </question>
 
+    <question name="Organisms" displayName="dontcare"
+              queryRef="OrganismIdQueries.OrganismsByOrganismAbbrev"
+              recordClassRef="recordClasses.organism">
+    </question>
+
   </questionSet>
 
   <recordClassSet name="recordClasses">
 
+    <!-- ############################################################################### -->
+    <!-- ###########################  Organism Record   ##################################### -->
+    <!-- ############################################################################### -->
+
+    <recordClass name="organism" urlName="organism" displayName="Organism">
+      <propertyList name="batch">
+        <value>organism</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="OrganismAttributes.OrganismAlias">
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Organism ID">
+        <text>
+          <![CDATA[
+                   $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="OrganismAttributes.organismAttrs">
+        <columnAttribute name="species" displayName="Species"/>
+        <columnAttribute name="organism_full" displayName="Organism"/>
+       <columnAttribute name="data_source" displayName="Data source"/>
+
+      </attributeQueryRef>
+
+      <table name="GenomeSequencingAndAnnotationAttribution"
+             displayName="Genome Sequencing and Annotation"
+             queryRef="OrganismTables.GenomeSequencingAndAnnotation">
+        <columnAttribute displayName="Description" name="description"/>
+
+      </table>
+
+    </recordClass>
+    
     <!-- ############################################################################### -->
     <!-- ###########################  Pathway Record   ##################################### -->
     <!-- ############################################################################### -->
