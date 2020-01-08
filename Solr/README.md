@@ -1,18 +1,28 @@
 ## Loading data into Solr
 ### Using batch_loader.py
-First, open the script and change the configuration variables at the top as necessary.
+First, open the script and change the configuration variables at the top as necessary. Alternatively, use the `--solr-url` option to provide the Solr URL manually.
 
-To load files into Solr:
+To load a batch from a directory into Solr:
 ```
-./batch_loader.py --index file_1 file2 file3
+./batch_loader.py index --batch-dir dir_path
 ```
-To delete whole batches from the index:
+The directory should have a `batch.json` file and data files ending in `.json`.
+
+To load individual files into Solr:
 ```
-./batch_loader.py --delete-batch batch_id_1 batch_id_2 batch_id_3
+./batch_loader.py index --file file_1 file2 file3
+```
+To delete a batch given its batch-type and batch-name:
+```
+./batch-loader.py delete --batch-type-name batch_type batch_name
+```
+To delete batches based on their batch-ids:
+```
+./batch_loader.py delete --batch-id batch_id_1 batch_id_2 batch_id_3
 ```
 To delete individual documents based on their unique keys:
 ```
-./batch_loader.py --delete-doc unique_key_1 unique_key_2 unique_key_3
+./batch_loader.py delete --doc-key unique_key_1 unique_key_2 unique_key_3
 ```
 `batch_loader.py` automatically commits your changes after submitting them, so there's no need to send an extra commit command.
 
