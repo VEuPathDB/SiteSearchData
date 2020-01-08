@@ -7,9 +7,9 @@
       <column name="source_id"/>
       <sql>
         <![CDATA[
-          select oa.source_id
-          from apidbTuning.SequenceAttributes sa, apidb.Organism o
-          where sa.component_taxon_id = o.taxon_id
+          select sa.source_id
+          from apidbTuning.GenomicSeqAttributes sa, apidb.Organism o
+          where sa.taxon_id = o.taxon_id
             and o.abbrev = $$organismAbbrev$$
         ]]>
       </sql>
@@ -31,9 +31,9 @@
 
   </querySet>
 
-  <paramSet name="organismParams"> 
+  <paramSet name="sequenceParams"> 
     <flatVocabParam name="organismAbbrev"
-                    queryRef="OrganismParamQueries.organismAbbrevs"
+                    queryRef="SequenceParamQueries.organismAbbrevs"
                     multiPick="false"
                     prompt="Organism abbrev"
                     quote="true">

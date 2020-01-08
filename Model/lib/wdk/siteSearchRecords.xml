@@ -32,6 +32,11 @@
               recordClassRef="recordClasses.organism">
     </question>
 
+    <question name="Sequences" displayName="dontcare"
+              queryRef="SequenceIdQueries.SequencesByOrganismAbbrev"
+              recordClassRef="recordClasses.sequence">
+    </question>
+
   </questionSet>
 
   <recordClassSet name="recordClasses">
@@ -75,6 +80,49 @@
         <columnAttribute displayName="Description" name="description"/>
 
       </table>
+
+    </recordClass>
+    
+    <!-- ############################################################################### -->
+    <!-- ###########################  Sequence Record   ##################################### -->
+    <!-- ############################################################################### -->
+
+    <recordClass name="sequence" urlName="sequence" displayName="Genomic sequence">
+      <propertyList name="batch">
+        <value>organism</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="SequenceAttributes.SequenceAlias">
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Sequence ID">
+        <text>
+          <![CDATA[
+                   $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="SequenceAttributes.Bfmv">
+        <columnAttribute name="description" displayName="Description"/>
+        <columnAttribute name="organism_full" displayName="Organism" inReportMaker="false"/>
+        <columnAttribute name="genbank_accession" displayName="GenBank"/>
+        <columnAttribute name="sequence_type" displayName="Sequence Type" />
+      </attributeQueryRef>
+
+      <table name="Aliases"
+             displayName="Previous Identifiers and Aliases"
+             queryRef="SequenceTables.Aliases">
+        <columnAttribute name="seq_id" displayName="Sequence ID"/>
+      </table>
+
+
 
     </recordClass>
     
