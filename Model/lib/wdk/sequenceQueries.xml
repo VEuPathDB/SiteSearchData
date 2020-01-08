@@ -1,0 +1,130 @@
+<wdkModel>
+
+  <querySet name="SequenceIdQueries" queryType="id" isCacheable="true">
+    
+    <sqlQuery name="SequencesByOrganismAbbrev">
+      <paramRef ref="organismParams.organismAbbrev"/>
+      <column name="source_id"/>
+      <sql>
+        <![CDATA[
+          select oa.source_id
+          from apidbTuning.SequenceAttributes sa, apidb.Organism o
+          where sa.component_taxon_id = o.taxon_id
+            and o.abbrev = $$organismAbbrev$$
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+  <querySet name="SequenceParamQueries" queryType="vocab"  isCacheable="true">
+    <sqlQuery name="organismAbbrevs">
+            <column name="internal" />
+            <column name="term" />
+            <sql>
+        <![CDATA[
+		SELECT distinct o.abbrev AS internal, 
+                         o.abbrev AS term
+                         FROM apidb.organism o
+        ]]>
+            </sql>
+       </sqlQuery>
+
+  </querySet>
+
+  <paramSet name="organismParams"> 
+    <flatVocabParam name="organismAbbrev"
+                    queryRef="OrganismParamQueries.organismAbbrevs"
+                    multiPick="false"
+                    prompt="Organism abbrev"
+                    quote="true">
+    </flatVocabParam>
+  </paramSet>
+
+  <querySet name="SequenceAttributes" queryType="attribute" isCacheable="false">
+        <sqlQuery name="SequenceAlias" doNotTest="true">
+            <column name="source_id"/>
+            <column name="old_source_id"/>
+            <sql>
+              <![CDATA[
+                SELECT distinct a.sequence as source_id, 
+                       sa.project_id,
+                       a.ID as old_source_id, sa.project_id AS old_project_id
+                FROM ApidbTuning.GenomicSequenceId a, apidbtuning.genomicseqattributes sa
+                WHERE a.sequence = sa.source_id
+              ]]>
+            </sql>
+
+        </sqlQuery>
+
+        <sqlQuery name="Bfmv">
+            <column name="description"/>
+            <column name="source_id" ignoreCase="true"/>
+            <column name="organism_full" ignoreCase="true"/>
+            <column name="genbank_accession" ignoreCase="true"/>
+            <column name="sequence_type" />
+            <sql excludeProjects="EuPathDB">
+            <![CDATA[
+                     SELECT bfmv.source_id, bfmv.project_id, lower(bfmv.project_id) as lc_project_id,
+                     bfmv.a_count, bfmv.c_count, bfmv.g_count, bfmv.t_count, bfmv.other_count,
+                    bfmv.length, bfmv.at_percent, bfmv.organism as organism_full, bfmv.is_top_level,
+                    trim(to_char(bfmv.length,'999,999,999')) as formatted_length,
+                    '<i>' || SUBSTR(bfmv.organism, 1, 1) || '.' ||
+                    REGEXP_REPLACE(SUBSTR(bfmv.organism, INSTR(bfmv.organism, ' ')), '[[:space:]]+',
+                                   chr(38) || 'nbsp;') || '</i>'
+                      AS formatted_organism,
+                    bfmv.ncbi_tax_id, 
+                    bfmv.genbank_accession, bfmv.database_name,
+                    bfmv.database_version as externalDbVersion, database_name as externalDbName,
+                    CASE WHEN bfmv.chromosome_order_num is null 
+                      THEN 'Not Assigned' ELSE bfmv.chromosome END as chromosome,
+                    CASE WHEN bfmv.chromosome_order_num is null 
+                      THEN 'Not Assigned' 
+                      ELSE to_char(bfmv.chromosome_order_num) END as chromosome_order_num,
+                    CASE WHEN (bfmv.sequence_description) IS NOT NULL 
+                        THEN bfmv.sequence_description
+                      WHEN (chromosome IS NOT NULL) 
+                        THEN organism||' - Chromosome '||chromosome_order_num
+                    ELSE organism END AS description,
+                    bfmv.source_id as secondary_identifier,
+                    DECODE(
+                    substr(bfmv.organism, 
+                           instr(ltrim(bfmv.organism), ' ', 1, 1)+1, 
+                           instr(ltrim(bfmv.organism)||' ', ' ', 1, 2) - instr(bfmv.organism, ' ', 1, 1) -1
+                          ),
+                          'parvum', 'cparvum', 'hominis') as cyc_db,
+                   bfmv.sequence_type, bfmv.has_msa
+                   , '<a href="/common/downloads/Current_Release/' || bfmv.name_for_filenames || '/">Data files</a>' as download_link
+                   , '@WEBAPP_BASE_URL@/user-comments/add?stableId='||bfmv.source_id
+                   ||'&commentTargetId=genome'
+                   ||'&externalDbName='||bfmv.database_name
+                   ||'&externalDbVersion='||bfmv.database_version
+                   as user_comment_link_url
+                   FROM ApidbTuning.GenomicSeqAttributes bfmv
+             ]]>
+           </sql>
+        </sqlQuery>
+
+
+  </querySet>
+
+  <querySet name="SequenceTables" queryType="table" isCacheable="false">
+
+        <sqlQuery name="Aliases"
+               isCacheable="false">
+
+            <column name="source_id" />
+            <column name="seq_id" />
+
+            <sql>
+            <![CDATA[
+            select si.sequence as source_id, sa.project_id, si.id as seq_id
+            from ApidbTuning.GenomicSequenceId si, apidbtuning.genomicseqattributes sa
+            where lower(si.sequence) != lower(si.id)
+             and si.sequence = sa.source_id
+             ]]>
+           </sql>
+        </sqlQuery>
+    
+  </querySet>
+
+</wdkModel>
