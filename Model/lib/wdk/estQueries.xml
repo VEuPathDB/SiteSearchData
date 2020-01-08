@@ -24,16 +24,16 @@ and o.ABBREV = $$organismAbbrev$$
 
   <querySet name="EstParamQueries" queryType="vocab"  isCacheable="true">
     <sqlQuery name="organismAbbrevs">
-            <column name="internal" />
-            <column name="term" />
-            <sql>
+      <column name="internal" />
+      <column name="term" />
+      <sql>
         <![CDATA[
-		SELECT distinct o.abbrev AS internal, 
-                         o.abbrev AS term
-                         FROM apidb.organism o
+          SELECT distinct o.abbrev AS internal, 
+                          o.abbrev AS term
+          FROM apidb.organism o
         ]]>
-            </sql>
-       </sqlQuery>
+      </sql>
+    </sqlQuery>
 
   </querySet>
 
@@ -50,55 +50,52 @@ and o.ABBREV = $$organismAbbrev$$
   <querySet name="EstAttributeQueries" queryType="table" isCacheable="false">
 
     <sqlQuery name="Bfmv">
-            <column name="source_id"/>
-            <column name="dbest_name"  ignoreCase="true"/>
-            <column name="vector"  ignoreCase="true"/>
-            <column name="stage"  ignoreCase="true"/>
-            <sql>
-            <![CDATA[
-            SELECT bfmv.source_id, bfmv.dbest_name, bfmv.vector, bfmv.stage
-            FROM  ApidbTuning.EstAttributes bfmv
-            ]]>
-           </sql>
-        </sqlQuery>
+      <column name="source_id"/>
+      <column name="dbest_name"  ignoreCase="true"/>
+      <column name="vector"  ignoreCase="true"/>
+      <column name="stage"  ignoreCase="true"/>
+      <sql>
+        <![CDATA[
+          select bfmv.source_id, bfmv.dbest_name, bfmv.vector, bfmv.stage
+          from apidbTuning.EstAttributes bfmv
+        ]]>
+      </sql>
+    </sqlQuery>
 
   </querySet>
   
   <querySet name="EstTableQueries" queryType="table" isCacheable="false">
 
     <sqlQuery name="EstAlias" doNotTest="true">
-            <column name="source_id"/>
-            <column name="old_source_id"/>
-            <sql>
-              <![CDATA[
-                SELECT source_id, 
-                       source_id as old_source_id,
-                FROM ApidbTuning.EstAttributes
-              ]]>
-            </sql>
-        </sqlQuery>
+      <column name="source_id"/>
+      <column name="old_source_id"/>
+      <sql>
+        <![CDATA[
+          select source_id, source_id as old_source_id,
+          from ApidbTuning.EstAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
 
-        <sqlQuery name="Reference" excludeProjects="EuPathDB">
-            <column name="source_id" />
-            <column name="author" />
-            <column name="affiliation" />
-            <sql>
-            <![CDATA[
-            SELECT e.accession as source_id,
-                   CASE WHEN (c.name IS NOT NULL) THEN c.name ELSE c.last END AS author,
-                   c.address1 as affiliation
-            FROM dots.est e, sres.contact c,
-                 dots.externalnasequence ens, sres.ontologyTerm ot
-            WHERE e.contact_id = c.contact_id
-              AND ens.na_sequence_id = e.na_sequence_id
-              AND ens.sequence_ontology_id = ot.ontology_term_id
-              AND ot.name = 'EST'
-            ]]>
-            </sql>
-        </sqlQuery>
+    <sqlQuery name="Reference" excludeProjects="EuPathDB">
+      <column name="source_id" />
+      <column name="author" />
+      <column name="affiliation" />
+      <sql>
+        <![CDATA[
+          select e.accession as source_id,
+                 case when (c.name is not null) then c.name else c.last end as author,
+                 c.address1 as affiliation
+          from dots.Est e, sres.Contact c,
+               dots.ExternalNaSequence ens, sres.OntologyTerm ot
+          where e.contact_id = c.contact_id
+            and ens.na_sequence_id = e.na_sequence_id
+            and ens.sequence_ontology_id = ot.ontology_term_id
+            and ot.name = 'EST'
+        ]]>
+      </sql>
+    </sqlQuery>
 
-        
-    </querySet>
-
+  </querySet>
 
 </wdkModel>
