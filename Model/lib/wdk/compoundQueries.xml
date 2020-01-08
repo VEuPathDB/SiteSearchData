@@ -6,8 +6,8 @@
       <column name="source_id"/>
       <sql>
         <![CDATA[
-            SELECT source_id 
-	    FROM ApidbTuning.CompoundAttributes
+            select source_id 
+	    from apidbTuning.CompoundAttributes
         ]]>
       </sql>
     </sqlQuery>
@@ -15,130 +15,119 @@
 
   <querySet name="CompoundAttributes" queryType="attribute" isCacheable="false">
 
-            <sqlQuery name="CompoundAlias" doNotTest="true">
-            <column name="source_id"/>
-            <column name="old_source_id"/>
-            <sql>
-              <![CDATA[
-                SELECT source_id, 
-                       source_id as old_source_id
-                FROM ApidbTuning.CompoundAttributes 
-              ]]>
-            </sql>
-        </sqlQuery>
+    <sqlQuery name="CompoundAlias" doNotTest="true">
+      <column name="source_id"/>
+      <column name="old_source_id"/>
+      <sql>
+        <![CDATA[
+          select source_id, source_id as old_source_id
+          from apidbTuning.CompoundAttributes 
+        ]]>
+      </sql>
+    </sqlQuery>
 
-        <sqlQuery name="Bfmv">
-            <column name="source_id"  />
-	    <column name="compound_name"/>
-            <column name="definition" />
-            <column name="formula" />
-            <column name="secondary_ids"/>
-           <sql>
-            <![CDATA[
-	         SELECT source_id,
-		    compound_name, definition, secondary_ids, other_names,
-		    CASE WHEN source_id IS NULL THEN '-' 
-	            ELSE '<a href="https://www.ebi.ac.uk/chebi/searchId.do?chebiId=' || source_id || '">' ||  source_id || '</a>' 
-	            END AS compound_link,
-		    formula
-                FROM ApidbTuning.CompoundAttributes
-	    ]]>
-           </sql>
-	</sqlQuery>
+    <sqlQuery name="Bfmv">
+      <column name="source_id"/>
+      <column name="compound_name"/>
+      <column name="other_names"/>
+      <column name="definition"/>
+      <column name="formula"/>
+      <column name="secondary_ids"/>
+      <sql>
+        <![CDATA[
+          select source_id, compound_name, definition, secondary_ids,
+                 other_names, formula
+          from apidbTuning.CompoundAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
 
-	<sqlQuery name="Synonyms">
-	  <column name="source_id"/>
-	  <column name="synonyms"/>
-	  <sql>
-	    <![CDATA[
-              SELECT ca.source_id, 
-                   apidb.tab_to_string(set(CAST(COLLECT(n.name) AS apidb.varchartab)),', ') as synonyms
-               FROM ApidbTuning.CompoundAttributes ca, chebi.names n
-               WHERE ca.ID = n.compound_id(+)
-               GROUP BY ca.source_id
-	    ]]>
-	  </sql>
-	</sqlQuery>
+    <sqlQuery name="Synonyms">
+      <column name="source_id"/>
+      <column name="synonyms"/>
+      <sql>
+        <![CDATA[
+          select ca.source_id, 
+                 apidb.tab_to_string(set(cast(collect(n.name) as apidb.varchartab)),', ') as synonyms
+          from apidbTuning.CompoundAttributes ca, chebi.names n
+          where ca.id = n.compound_id(+)
+          group by ca.source_id
+        ]]>
+      </sql>
+    </sqlQuery>
 
   </querySet>
   
   <querySet name="CompoundTables" queryType="table" isCacheable="false">
 
-     <sqlQuery name="Properties">
-            <column name="source_id"  />
-            <column name="value"  />
-           <sql>
-            <![CDATA[
-	       SELECT * FROM (
-  	         SELECT ca.source_id, struct.type,
-	            to_char(struct.structure) AS value 
-	         FROM ApidbTuning.CompoundAttributes ca, chebi.structures struct
-	         WHERE ca.id = struct.compound_id
-	         AND struct.dimension = '1D'
-	         UNION
-	         SELECT ca.source_id, cd.type,
-	           CASE WHEN cd.type='FORMULA' 
-	           THEN REGEXP_REPLACE(cd.chemical_data,'(\d)','<sub>\1</sub>')
-		   ELSE chemical_data END AS value
-	         FROM ApidbTuning.CompoundAttributes ca, chebi.chemical_data cd
-	         WHERE ca.id = cd.compound_id
-	       ) ORDER BY type
-            ]]>
-            </sql>
+    <sqlQuery name="Properties">
+      <column name="source_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+            select ca.source_id, struct.type, to_char(struct.structure) as value 
+            from apidbTuning.CompoundAttributes ca, chebi.structures struct
+            where ca.id = struct.compound_id
+              and struct.dimension = '1D'
+          union
+            select ca.source_id, cd.type,
+                   case
+                     when cd.type='FORMULA' 
+                       then REGEXP_REPLACE(cd.chemical_data,'(\d)','<sub>\1</sub>')
+                     else chemical_data
+                   end as value
+            from apidbTuning.CompoundAttributes ca, chebi.chemical_data cd
+            where ca.id = cd.compound_id
+        ]]>
+      </sql>
     </sqlQuery>
 
     <sqlQuery name="IupacNames">
-            <column name="source_id"  />
-            <column name="value"  />
-           <sql>
-            <![CDATA[
-              SELECT ca.source_id, n.name AS value
-              FROM ApidbTuning.CompoundAttributes ca, chebi.names n
-              WHERE ca.ID = n.compound_id
-              AND n.type='IUPAC NAME'
-              ORDER by lower(n.name)
-            ]]>
-            </sql>
+      <column name="source_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select ca.source_id, n.name as value
+          from apidbTuning.CompoundAttributes ca, chebi.names n
+          where ca.id = n.compound_id
+            and n.type='IUPAC NAME'
+        ]]>
+      </sql>
     </sqlQuery>
 
     <sqlQuery name="Definition">
-            <column name="source_id"  />
-            <column name="definition"  />
-           <sql>
-            <![CDATA[
-            SELECT  source_id, definition
-	    FROM ApidbTuning.CompoundAttributes
-            ]]>
-            </sql>
+      <column name="source_id"/>
+      <column name="definition"/>
+      <sql>
+        <![CDATA[
+          SELECT source_id, definition
+	    FROM apidbTuning.CompoundAttributes
+        ]]>
+      </sql>
     </sqlQuery>
 
 
     <sqlQuery name="SecondaryIds">
-            <column name="source_id"  />
-            <column name="secondary_ids"  />
-           <sql>
-            <![CDATA[
-            SELECT  source_id, secondary_ids
-	        FROM ApidbTuning.CompoundAttributes
-            ]]>
-            </sql>
+      <column name="source_id"/>
+      <column name="secondary_ids"/>
+      <sql>
+        <![CDATA[
+          select source_id, secondary_ids
+          from apidbTuning.CompoundAttributes
+        ]]>
+      </sql>
     </sqlQuery>
 
     <sqlQuery name="Synonyms">
-            <column name="source_id"  />
-            <column name="value"  />
-           <sql>
-            <![CDATA[
-            SELECT ca.source_id
-            , cid.source
-            , cid.id AS value
-            FROM apidbtuning.compoundAttributes ca
-            , apidbtuning.compoundId cid
-            WHERE ca.source_id = cid.compound
-            AND cid.type ='synonym'
-	        ORDER BY lower(cid.id)
-            ]]>
-            </sql>
+      <column name="source_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select cid.compound as source_id, cid.id as value
+          from apidbTuning.CompoundId cid
+          where cid.type ='synonym'
+        ]]>
+      </sql>
     </sqlQuery>
 
     <sqlQuery name="CompoundsFromMetabolicPathways">
@@ -147,65 +136,35 @@
       <column name="substrates_text"/>
       <column name="products_text"/>
       <sql>
-    <!--TODO use internal genes by ec number query when fixed-->
-	    <![CDATA[
-            select distinct pc.CHEBI_ACCESSION as source_id
-            , pa.PATHWAY_SOURCE
-            , pr.REACTION_SOURCE_ID
-            , pr.REACTION_URL
-            , pr.EXPASY_HTML
-            , pr.ENZYME
-            , pr.EXPASY_URL
-            , pr.EQUATION_HTML
-            , pr.SUBSTRATES_TEXT
-            , pr.PRODUCTS_TEXT
-            , count (pa.pathway_id) as pathways
-            from apidbtuning.pathwaycompounds pc
-            , apidbtuning.pathwayreactions pr
-            , apidbtuning.pathwayattributes pa
-            where pc.reaction_id = pr.reaction_id
-            and pc.PATHWAY_ID = pa.PATHWAY_ID
-            and pc.EXT_DB_NAME = pr.EXT_DB_NAME
-            and pc.EXT_DB_VERSION = pr.EXT_DB_VERSION
-            group by pc.chebi_accession, pa.pathway_source, pr.reaction_source_id, pr.reaction_url, pr.expasy_html
-            , pr.enzyme, pr.expasy_url, pr.equation_html, pr.substrates_text, pr.products_text
-            order by pathways desc
-	    ]]>
-	  </sql>
+        <![CDATA[
+           select distinct pc.chebi_accession as source_id, pr.enzyme,
+                           pr.substrates_text, pr.products_text
+           from apidbTuning.PathwayCompounds pc, apidbTuning.PathwayReactions pr
+           where pc.reaction_id = pr.reaction_id
+             and pc.ext_db_name = pr.ext_db_name
+             and pc.ext_db_version = pr.ext_db_version
+        ]]>
+      </sql>
     </sqlQuery>
 
     <sqlQuery name="PathwaysFromCompounds">
-        <column name="source_id"/>
-        <column name="pathway_source_id"/>
-        <column name="pathway_name"/>
-        <sql>
-            <![CDATA[
-                select distinct
-                 source_id
-                , pathway_source_id
-                , pathway_name
-                , count (reaction_source_id) as reactions
-                , pathway_source
-                from (
-                select distinct
-                  pc.CHEBI_ACCESSION as source_id
-                , pa.SOURCE_ID as pathway_source_id
-                , pa.NAME as pathway_name
-                , pa.PATHWAY_SOURCE
-                , pr.REACTION_SOURCE_ID
-                from
-                apidbtuning.pathwaycompounds pc
-                , apidbtuning.pathwayreactions pr
-                , apidbtuning.pathwayattributes pa
-                where pc.PATHWAY_ID = pa.PATHWAY_ID
-                and pr.REACTION_ID = pc.REACTION_ID
-                )
-                where source_id is not null
-                group by source_id, pathway_source_id, pathway_name, pathway_source
-                order by reactions desc
-            ]]>
-        </sql>
-    </sqlQuery>   
+      <column name="source_id"/>
+      <column name="pathway_source_id"/>
+      <column name="pathway_name"/>
+      <sql>
+        <![CDATA[
+          select distinct pc.chebi_accession as source_id,
+                          pa.source_id as pathway_source_id,
+                          pa.name as pathway_name, pa.pathway_source,
+                          pr.reaction_source_id
+          from apidbTuning.pathwaycompounds pc, apidbTuning.pathwayreactions pr,
+               apidbTuning.pathwayattributes pa
+          where pc.pathway_id = pa.pathway_id
+            and pr.reaction_id = pc.reaction_id
+            and pc.chebi_accession is not null
+        ]]>
+      </sql>
+    </sqlQuery>
         
   </querySet>
 
