@@ -27,8 +27,8 @@
   
   <import file="organismQueries.xml"/>
   
+  <import file="sequenceQueries.xml"/>
+  
   <!-- Popset Isolate -->
-
-  <!-- Genomic Sequence -->
 
 </wdkModel>
