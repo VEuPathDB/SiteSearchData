@@ -99,10 +99,11 @@ def run(kwargs):
 def index(solr_url, batch_dir=None, file_paths=None, production=False):
     update_url = solr_url + '/update'
     select_url = solr_url + '/select'
-    batch_json_path = batch_dir + '/batch.json'
     action_taken = False
 
     if batch_dir:
+        batch_json_path = batch_dir + '/batch.json'
+
         try:
             with open(batch_json_path) as batch_json_file:
                 batch_json = json.load(batch_json_file)[0]
