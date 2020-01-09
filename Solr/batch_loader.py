@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import traceback
 import requests
 
 # Configuration
@@ -81,14 +82,14 @@ def run(kwargs):
 
         # If we encouter an error, attempt to roll back
         except Exception as e:
-            print(e)
+            print(traceback.format_exc())
 
             try:
                 rollback(update_url)
                 print('An error occurred and changes were rolled back.')
 
             except Exception as e:
-                print(e)
+                print(traceback.format_exc())
                 print('An error occurred, but rollback failed. Changes could still be staged in Solr.')
 
             finally:
