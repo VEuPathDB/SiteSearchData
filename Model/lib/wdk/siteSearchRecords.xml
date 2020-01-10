@@ -471,16 +471,12 @@
                 scopes=""
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
-      <attributeQueryRef ref="DatasetAttributes.NewCategory" >
-        <columnAttribute name="newcategory" displayName="Category"/>
-      </attributeQueryRef>
-
       <attributeQueryRef ref="DatasetAttributes.All">
         <columnAttribute name="display_name" displayName="Dataset Name"/>
         <columnAttribute name="description" displayName="Description"/>
         <columnAttribute name="acknowledgement" />
-        <columnAttribute name="type"/>
         <columnAttribute name="summary" displayName="Summary"/>
+        <columnAttribute name="newcategory" displayName="Category"/>
       </attributeQueryRef>
 
       <table name="Contacts"
