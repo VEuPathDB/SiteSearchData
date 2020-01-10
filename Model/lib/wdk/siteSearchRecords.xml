@@ -87,7 +87,7 @@
     <!-- ###########################  Sequence Record   ##################################### -->
     <!-- ############################################################################### -->
 
-    <recordClass name="sequence" urlName="sequence" displayName="Genomic sequence">
+    <recordClass name="sequence" urlName="genomic-sequence" displayName="Genomic sequence">
       <propertyList name="batch">
         <value>organism</value>
       </propertyList>
@@ -247,7 +247,7 @@
     <!-- ###########################  EST Record   ##################################### -->
     <!-- ############################################################################### -->
 
-    <recordClass name="est" urlName="organism-est" displayName="EST">
+    <recordClass name="est" urlName="est" displayName="EST">
       <propertyList name="batch">
         <value>organism</value>
       </propertyList>
@@ -286,7 +286,7 @@
     <!-- ###########################  Gene Record  ##################################### -->
     <!-- ############################################################################### -->
 
-    <recordClass name="gene" urlName="organism-gene">
+    <recordClass name="gene" urlName="gene">
 
       <propertyList name="batch">
         <value>organism</value>
