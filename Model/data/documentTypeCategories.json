@@ -2,6 +2,9 @@
 {
   "id": "documentTypeCategories",
   "document-type": "documentTypeCategories",
+  "batch-type": "documentTypeCategories",
+  "batch-name": "all",
+  "batch-timestamp": "0",
   "jsonBlob": 
 "[
   { \"name\": \"Genome\",
