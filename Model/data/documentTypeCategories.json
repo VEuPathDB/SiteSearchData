@@ -1,25 +1,32 @@
 [
-  { "name": "Genome",
-    "documentTypes": [
-      { "id": "gene",
-        "displayName": "Gene",
-        "displayNamePlural": "Genes",
-        "wdkSearchUrlName": "GenesByText"
+{
+  "id": "documentTypeCategories",
+  "document-type": "documentTypeCategories",
+  "jsonBlob": 
+"[
+  { \"name\": \"Genome\",
+    \"documentTypes\": [
+      { \"id\": \"gene\",
+        \"displayName\": \"Gene\",
+        \"displayNamePlural\": \"Genes\",
+        \"wdkSearchUrlName\": \"GenesByText\"
       },
-      { "id": "genomic-sequence",
-        "displayName": "Genomic sequence",
-        "displayNamePlural": "Genomic sequences",
-        "wdkSearchUrlName": "GenomicSeqByText"
+      { \"id\": \"genomic-sequence\",
+        \"displayName\": \"Genomic sequence\",
+        \"displayNamePlural\": \"Genomic sequences\",
+        \"wdkSearchUrlName\": \"GenomicSeqByText\"
       }
     ]
   },
-  { "name": "Organism",
-    "documentTypes": [
-      { "id": "organism",
-        "displayName": "Organism",
-        "displayNamePlural": "Organisms",
-        "wdkSearchUrlName": "OrganismsByText"
+  { \"name\": \"Organism\",
+    \"documentTypes\": [
+      { \"id\": \"organism\",
+        \"displayName\": \"Organism\",
+        \"displayNamePlural\": \"Organisms\",
+        \"wdkSearchUrlName\": \"OrganismsByText\"
       }
     ]
   }
+]"
+}
 ]
