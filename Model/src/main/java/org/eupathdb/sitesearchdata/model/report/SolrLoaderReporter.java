@@ -58,8 +58,8 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   private String _batchId;
   private String _batchName; // eg, "plasmodium falciparum 3d7"
 
-  public static final String TEXT_PREFIX = "TEXT__";
-  public static final String MULTITEXT_PREFIX = "MULTITEXT__";
+  public static final String ATTR_PREFIX = "ATTR__";
+  public static final String TABLE_PREFIX = "TABLE__";
   
   public SolrLoaderReporter(AnswerValue answerValue) {
     super(answerValue);
@@ -115,10 +115,10 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
       for (String attributeName: attributeNames) {
-        obj.put(TEXT_PREFIX + attributeName, record.getAttributeValue(attributeName).getValue());
+        obj.put(ATTR_PREFIX + "_" + urlSegment + "_" + attributeName, record.getAttributeValue(attributeName).getValue());
       }
       for (String tableName: tableNames) {
-        obj.put(MULTITEXT_PREFIX + tableName, aggregateTableValueJson(record.getTableValue(tableName)));
+        obj.put(TABLE_PREFIX + "_" + urlSegment + "_" + tableName, aggregateTableValueJson(record.getTableValue(tableName)));
       }
       return obj;
     }
