@@ -1,13 +1,14 @@
 <wdkModel>
 
   <querySet name="PathwayIdQueries" queryType="id" isCacheable="true">
-    
+
     <sqlQuery name="AllPathways">
       <column name="source_id"/>
       <column name="pathway_source"/>
       <sql>
         <![CDATA[
-           select source_id, pathway_source from apidbtuning.pathwayattributes
+          select source_id, pathway_source
+          from apidbTuning.pathwayattributes
         ]]>
       </sql>
     </sqlQuery>
@@ -22,11 +23,10 @@
       <column name="old_pathway_source"/>
       <sql>
         <![CDATA[
-                 SELECT source_id, 
-                 pathway_source,
+          select source_id, pathway_source,
                  source_id as old_source_id,
                  pathway_source as old_pathway_source
-                 FROM ApidbTuning.PathwayAttributes 
+          from apidbTuning.PathwayAttributes
         ]]>
       </sql>
     </sqlQuery>
@@ -37,15 +37,8 @@
       <column name="name"  />
       <sql>
         <![CDATA[
-		 SELECT pa.source_id
-                 , pa.name
-                 , pa.total_enzyme_count
-                 , pa.total_compound_count
-                 , pa.url
-                 , pa.pathway_source
-                 , pa.external_db_name
-                 , pa.external_db_version
-                 FROM  ApiDBTuning.PathwayAttributes pa
+          select pa.source_id, pa.pathway_source, pa.name
+          from apidbTuning.PathwayAttributes pa
         ]]>
       </sql>
     </sqlQuery>
@@ -56,40 +49,22 @@
     <sqlQuery name="CompoundsFromMetabolicPathways" >
       <column name="source_id"/>
       <column name="pathway_source"/>
-      <column name="enzyme"/>
       <column name="enzyme_description"/>
       <column name="substrates_text"/>
-      <column name="products_text"/>            
+      <column name="products_text"/>
       <sql>
         <![CDATA[
-                 SELECT DISTINCT pa.SOURCE_ID
-                 , pa.PATHWAY_SOURCE
-                 , pr.REACTION_SOURCE_ID
-                 , pr.REACTION_URL
-                 , pr.ENZYME
-                 , pr.ENZYME_DESCRIPTION
-                 , pr.EXPASY_URL
-                 , pr.EXPASY_HTML
-                 , pr.EQUATION_HTML as equation
-                 , decode (pr.IS_REVERSIBLE, '1', 'Y', '0', 'N') as reversible
-                 , pr.SUBSTRATES_TEXT
-                 , pr.PRODUCTS_TEXT
-                 , pn.GENE_COUNT
-                 FROM
-                 apidbtuning.pathwayattributes pa
-                 , apidbtuning.pathwaycompounds pc
-                 , apidbtuning.pathwayreactions pr
-                 , apidbtuning.pathwaynodes pn
-                 WHERE pc.pathway_id = pa.PATHWAY_ID
-                 AND pn.SOURCE_ID = pa.SOURCE_ID
-                 AND pr.REACTION_ID = pc.REACTION_ID
-                 AND pr.EXT_DB_NAME = pc.EXT_DB_NAME
-                 AND pr.ENZYME = pn.DISPLAY_LABEL
-                 ORDER BY pr.ENZYME
+          select distinct pa.source_id, pa.pathway_source,
+                          pr.enzyme_description, pr.substrates_text, pr.products_text
+          from apidbTuning.PathwayAttributes pa, apidbTuning.PathwayCompounds pc,
+               apidbTuning.PathwayReactions pr
+          where pc.pathway_id = pa.pathway_id
+            and pr.reaction_id = pc.reaction_id
+            and pr.ext_db_name = pc.ext_db_name
         ]]>
       </sql>
     </sqlQuery>
-        
+
   </querySet>
 
 </wdkModel>

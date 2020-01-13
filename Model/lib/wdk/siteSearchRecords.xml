@@ -159,7 +159,6 @@
       <table name="CompoundsMetabolicPathways"
              displayName="Metabolic Pathway Reactions"
              queryRef="PathwayTables.CompoundsFromMetabolicPathways" >
-        <columnAttribute displayName="EC Number" name="enzyme" inReportMaker="true" internal="true"/>
         <columnAttribute displayName="Enzyme Description" name="enzyme_description" inReportMaker="true"/>
         <columnAttribute displayName="Substrates" name="substrates_text" inReportMaker="true" internal="true"/>
         <columnAttribute displayName="Products" name="products_text" inReportMaker="true" internal="true"/>
@@ -227,7 +226,6 @@
 	     displayName="Metabolic Pathway Reactions"
 	     queryRef="CompoundTables.CompoundsFromMetabolicPathways">
         
-        <columnAttribute displayName="EC Number" name="enzyme" inReportMaker="true" internal="true"/> 
         <columnAttribute displayName="Substrates" name="substrates_text" inReportMaker="true" internal="true"/>
         <columnAttribute displayName="Products" name="products_text" inReportMaker="true" internal="true"/>
       </table>
