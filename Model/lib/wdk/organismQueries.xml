@@ -1,7 +1,7 @@
 <wdkModel>
 
   <querySet name="OrganismIdQueries" queryType="id" isCacheable="true">
-    
+
     <sqlQuery name="OrganismsByOrganismAbbrev">
       <paramRef ref="organismParams.organismAbbrev"/>
       <column name="source_id"/>
@@ -18,20 +18,18 @@
 
   <querySet name="OrganismParamQueries" queryType="vocab"  isCacheable="true">
     <sqlQuery name="organismAbbrevs">
-            <column name="internal" />
-            <column name="term" />
-            <sql>
+      <column name="internal"/>
+      <column name="term"/>
+      <sql>
         <![CDATA[
-		SELECT distinct o.abbrev AS internal, 
-                         o.abbrev AS term
-                         FROM apidb.organism o
+          select distinct abbrev AS internal, abbrev AS term
+          from apidb.Organism
         ]]>
-            </sql>
-       </sqlQuery>
-
+      </sql>
+    </sqlQuery>
   </querySet>
 
-  <paramSet name="organismParams"> 
+  <paramSet name="organismParams">
     <flatVocabParam name="organismAbbrev"
                     queryRef="OrganismParamQueries.organismAbbrevs"
                     multiPick="false"
@@ -44,77 +42,27 @@
 
     <sqlQuery name="OrganismAlias" doNotTest="true">
       <column name="source_id"/>
-      <column name="project_id"/>
       <column name="old_source_id"/>
-      <column name="old_project_id"/>
       <sql>
         <![CDATA[
-                 SELECT source_id, 
-                 source_id as old_source_id,
-                 FROM ApidbTuning.OrganismAttributes 
+          select source_id, source_id as old_source_id
+          from apidbTuning.OrganismAttributes
         ]]>
       </sql>
     </sqlQuery>
 
     <sqlQuery name="organismAttrs">
-      <column name="source_id" ignoreCase="true"/> 
+      <column name="source_id" ignoreCase="true"/>
       <column name="data_source" ignoreCase="true"/>
       <column name="species" ignoreCase="true"/>
       <column name="organism_full"/>
       <sql>
         <![CDATA[
-                 SELECT source_id,
-                 project_id,
-                 oa.species,
-                 oa.strain,
-                 oa.is_reference_strain,
-                 oa.name_for_filenames,
-                 '<a href="/common/downloads/Current_Release/' || oa.name_for_filenames || '/">Data files</a>' as download_link,
-                 organism_name,
-                 organism_name AS organism_full,
-                 oa.megabps,
-                 decode(genome_source, 'gb', 'GenBank', 'jkissinger', 'Kissinger Lab', genome_source) as data_source,
-                 nullif(oa.ncbi_tax_id, 0) as ncbi_tax_id,
-                 database_version,
-                 --oa.strain_abbrev as strain,
-                 oa.contigCount,
-                 oa.supercontigCount,
-                 oa.chromosomeCount,
-                 nullif(oa.genecount, 0) as genecount,
-                 oa.genecount as genecount_number, 
-                 oa.pseudogenecount,
-                 oa.codinggenecount,
-                 oa.othergenecount,
-                 nullif(oa.arraygenecount,0) as arraygenecount,
-                 nullif(oa.ecnumbercount,0) as ecnumbercount,
-                 nullif(oa.popsetcount,0) as popsetcount,
-                 nullif(oa.rnaseqcount,0) as rnaseqcount,
-                 nullif(oa.snpcount, 0) as snpcount,
-                 nullif(oa.chipchipgenecount,0) as chipchipgenecount,
-                 nullif(oa.rtpcrcount,0) as rtpcrcount,
-                 nullif(oa.estcount,0) as estcount,
-                 nullif(oa.orthologcount, 0) as orthologcount,
-                 nullif(oa.gocount,0) as gocount,
-                 nullif(oa.tfbscount,0) as tfbscount,
-                 nullif(oa.proteomicscount,0) as proteomicscount,
-                 nullif(oa.communitycount,0) as communitycount,
-                 decode(oa.isOrganellar, 0, 'none','yes') as isOrganellar_flag,
-                 decode(oa.arraygenecount, 0, 'none','yes') as array_flag,
-                 decode(oa.chipchipgenecount, 0, 'none','yes') as chipchip_flag,
-                 decode(oa.rnaseqcount, 0, 'none','yes') as rnaseq_flag,
-                 decode(oa.estcount, 0, 'none','yes') as est_flag,
-                 decode(oa.snpcount, 0, 'none','yes') as snp_flag,
-                 decode(oa.ecnumbercount, 0, 'none','yes') as ec_flag,
-                 decode(oa.gocount, 0, 'none','yes') as go_flag,
-                 decode(oa.rtpcrcount, 0, 'none','yes') as rtpcr_flag,
-                 decode(oa.orthologcount, 0, 'none','yes') as ortholog_flag,
-                 decode(oa.communitycount, 0, 'none','yes') as community_flag,
-                 decode(oa.tfbscount, 0, 'none','yes') as tfbs_flag,
-                 decode(oa.hasHTSIsolate, 0, 'none','yes') as hasHTSIsolate_flag,
-                 decode(oa.hasPopset, 0, 'none','yes') as hasPopset_flag,
-                 decode(oa.proteomicscount, 0, 'none','yes') as proteomics_flag,
-                 oa.is_annotated_genome
-                 FROM   apidbtuning.organismAttributes oa
+          select source_id, species, organism_name AS organism_full,
+                 decode(genome_source, 'gb', 'GenBank',
+                        'jkissinger', 'Kissinger Lab', genome_source)
+                   as data_source
+          from apidbTuning.organismAttributes
         ]]>
       </sql>
     </sqlQuery>
@@ -128,15 +76,16 @@
       <column name="description"/>
       <sql>
         <![CDATA[
-                 select oa.source_id, oa.project_id, dsp.description
-                 from apidbtuning.datasetpresenter dsp, apidbtuning.datasetnametaxon dnt, APIDBTUNING.organismattributes oa
-                 where dsp.type = 'genome'
-                 and dsp.dataset_presenter_id = dnt.dataset_presenter_id
-                 and oa.component_taxon_id = dnt.taxon_id
+          select oa.source_id, dsp.description
+          from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetNameTaxon dnt,
+               apidbTuning.OrganismAttributes oa
+          where dsp.type = 'genome'
+            and dsp.dataset_presenter_id = dnt.dataset_presenter_id
+            and oa.component_taxon_id = dnt.taxon_id
         ]]>
       </sql>
     </sqlQuery>
-    
+
   </querySet>
 
 </wdkModel>
