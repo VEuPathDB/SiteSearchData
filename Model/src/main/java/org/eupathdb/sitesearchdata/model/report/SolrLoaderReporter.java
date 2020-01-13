@@ -115,10 +115,10 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
       for (String attributeName: attributeNames) {
-        obj.put(ATTR_PREFIX + "_" + urlSegment + "_" + attributeName, record.getAttributeValue(attributeName).getValue());
+        obj.put(ATTR_PREFIX + urlSegment + "_" + attributeName, record.getAttributeValue(attributeName).getValue());
       }
       for (String tableName: tableNames) {
-        obj.put(TABLE_PREFIX + "_" + urlSegment + "_" + tableName, aggregateTableValueJson(record.getTableValue(tableName)));
+        obj.put(TABLE_PREFIX + urlSegment + "_" + tableName, aggregateTableValueJson(record.getTableValue(tableName)));
       }
       return obj;
     }
