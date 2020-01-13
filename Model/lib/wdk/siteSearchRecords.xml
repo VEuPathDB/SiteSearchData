@@ -113,7 +113,6 @@
         <columnAttribute name="description" displayName="Description"/>
         <columnAttribute name="organism_full" displayName="Organism" inReportMaker="false"/>
         <columnAttribute name="genbank_accession" displayName="GenBank"/>
-        <columnAttribute name="sequence_type" displayName="Sequence Type" />
       </attributeQueryRef>
 
       <table name="Aliases"
