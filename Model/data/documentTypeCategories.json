@@ -5,7 +5,7 @@
   "batch-type": "documentTypeCategories",
   "batch-name": "all",
   "batch-timestamp": "0",
-  "jsonBlob": 
+  "json-blob": 
 "[
   { \"name\": \"Genome\",
     \"documentTypes\": [
@@ -28,6 +28,44 @@
         \"displayNamePlural\": \"Organisms\",
         \"wdkSearchUrlName\": \"OrganismsByText\"
       }
+    ]
+  },
+  { \"name\": \"Transcriptomics\",
+    \"documentTypes\": [
+      { \"id\": \"est\",
+        \"displayName\": \"EST\",
+        \"displayNamePlural\": \"ESTs\",
+        \"wdkSearchUrlName\": \"EstsByText\"
+      }
+    ]
+  },
+  { \"name\": \"Metabolism\",
+    \"documentTypes\": [
+      { \"id\": \"pathway\",
+        \"displayName\": \"Metabolic pathway\",
+        \"displayNamePlural\": \"Metabolic pathways\",
+        \"wdkSearchUrlName\": \"PathwaysByText\"
+      },
+      { \"id\": \"compound\",
+        \"displayName\": \"Compound\",
+        \"displayNamePlural\": \"Compounds\",
+        \"wdkSearchUrlName\": \"CompoundsByText\"
+      }
+    ]
+  },
+  { \"name\": \"Data access\",
+    \"documentTypes\": [
+      { \"id\": \"dataset\",
+        \"displayName\": \"Dataset\",
+        \"displayNamePlural\": \"Datasets\",
+        \"wdkSearchUrlName\": \"DatasetsByText\"
+      },
+      { \"id\": \"search\",
+        \"displayName\": \"Search\",
+        \"displayNamePlural\": \"Searches\",
+        \"fields\": [\"ATTR__search_displayName\", \"ATTR__search_description\"]
+      }
+
     ]
   }
 ]"
