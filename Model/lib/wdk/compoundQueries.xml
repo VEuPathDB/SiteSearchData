@@ -66,7 +66,7 @@
       <sql>
         <![CDATA[
             select ca.source_id, struct.type, to_char(struct.structure) as value 
-            from apidbTuning.CompoundAttributes ca, chebi.structures struct
+            from apidbTuning.CompoundAttributes ca, chebi.Structures struct
             where ca.id = struct.compound_id
               and struct.dimension = '1D'
           union
@@ -157,8 +157,8 @@
                           pa.source_id as pathway_source_id,
                           pa.name as pathway_name, pa.pathway_source,
                           pr.reaction_source_id
-          from apidbTuning.pathwaycompounds pc, apidbTuning.pathwayreactions pr,
-               apidbTuning.pathwayattributes pa
+          from apidbTuning.PathwayCompounds pc, apidbTuning.PathwayReactions pr,
+               apidbTuning.PathwayAttributes pa
           where pc.pathway_id = pa.pathway_id
             and pr.reaction_id = pc.reaction_id
             and pc.chebi_accession is not null

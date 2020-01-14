@@ -62,7 +62,7 @@
                  decode(genome_source, 'gb', 'GenBank',
                         'jkissinger', 'Kissinger Lab', genome_source)
                    as data_source
-          from apidbTuning.organismAttributes
+          from apidbTuning.OrganismAttributes
         ]]>
       </sql>
     </sqlQuery>
