@@ -14,7 +14,7 @@ import SiteSearchData.Model.BatchReportUtils as utils
 TARGETDIRPREFIX = 'solr-json-batch_'
 BATCHTYPE = 'documentCategories'
 BATCHNAME = 'all'
-DOCTYPE = 'documentCategories'
+DOCTYPE = 'document-categories'
 INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/documentTypeCategories.json"
 
 def parseAndValidateArgs():
