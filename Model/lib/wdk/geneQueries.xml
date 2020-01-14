@@ -65,13 +65,13 @@
       <column name="genus_species"  sortingColumn="organism_full"/>
       <sql>
         <![CDATA[
-          select bfmv.source_id, bfmv.product, bfmv.name, gene_type,
-                 bfmv.sequence_id, bfmv.organism as organism_full,
+          select source_id, product, name, gene_type,
+                 sequence_id, organism as organism_full,
                  genus_species, strain,
-                 substr(bfmv.organism, 1, 1) || '. '
-                   || substr(bfmv.organism, instr(bfmv.organism, ' ', 1, 1) +1)
+                 substr(organism, 1, 1) || '. '
+                   || substr(organism, instr(organism, ' ', 1, 1) +1)
                    as organism_text
-          from apidbTuning.GeneAttributes bfmv
+          from apidbTuning.GeneAttributes
         ]]>
       </sql>
     </sqlQuery>
@@ -87,7 +87,7 @@
       <sql>
         <![CDATA[
           select ta.gene_source_id as source_id, ta.protein_source_id
-          from apidbtuning.TranscriptAttributes ta
+          from apidbTuning.TranscriptAttributes ta
         ]]>
       </sql>
     </sqlQuery>

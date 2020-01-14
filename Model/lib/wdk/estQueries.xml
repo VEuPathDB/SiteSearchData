@@ -7,16 +7,16 @@
       <column name="source_id"/>
       <sql>
         <![CDATA[
-select ea.source_id
-from apidbtuning.estattributes ea,
-     apidbtuning.taxonspecies ts,
-     sres.taxonname tn,
-     apidb.organism o
-where ea.organism = tn.name
-and tn.taxon_id = ts.SPECIES_TAXON_ID
-and ts.taxon_id = o.taxon_id
-and o.IS_REFERENCE_STRAIN = 1
-and o.ABBREV = $$organismAbbrev$$
+          select ea.source_id
+          from apidbTuning.EstAttributes ea,
+               apidbTuning.TaxonSpecies ts,
+               sres.TaxonName tn,
+               apidb.Organism o
+          where ea.organism = tn.name
+            and tn.taxon_id = ts.species_taxon_id
+            and ts.taxon_id = o.taxon_id
+            and o.is_reference_strain = 1
+            and o.abbrev = $$organismAbbrev$$
         ]]>
       </sql>
     </sqlQuery>
@@ -28,9 +28,8 @@ and o.ABBREV = $$organismAbbrev$$
       <column name="term" />
       <sql>
         <![CDATA[
-          SELECT distinct o.abbrev AS internal, 
-                          o.abbrev AS term
-          FROM apidb.organism o
+          select distinct abbrev as internal, abbrev as term
+          from apidb.Organism
         ]]>
       </sql>
     </sqlQuery>
@@ -56,8 +55,8 @@ and o.ABBREV = $$organismAbbrev$$
       <column name="stage"  ignoreCase="true"/>
       <sql>
         <![CDATA[
-          select bfmv.source_id, bfmv.dbest_name, bfmv.vector, bfmv.stage
-          from apidbTuning.EstAttributes bfmv
+          select source_id, dbest_name, vector, stage
+          from apidbTuning.EstAttributes
         ]]>
       </sql>
     </sqlQuery>
@@ -71,8 +70,8 @@ and o.ABBREV = $$organismAbbrev$$
       <column name="old_source_id"/>
       <sql>
         <![CDATA[
-          select source_id, source_id as old_source_id,
-          from ApidbTuning.EstAttributes
+          select source_id, source_id as old_source_id
+          from apidbTuning.EstAttributes
         ]]>
       </sql>
     </sqlQuery>
