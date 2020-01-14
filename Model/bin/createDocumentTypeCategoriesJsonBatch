@@ -12,7 +12,7 @@ sys.path.append(os.environ['GUS_HOME'] + "/lib/python")
 import SiteSearchData.Model.BatchReportUtils as utils
 
 TARGETDIRPREFIX = 'solr-json-batch_'
-BATCHTYPE = 'documentCategories'
+BATCHTYPE = 'document-categories'
 BATCHNAME = 'all'
 DOCTYPE = 'document-categories'
 INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/documentTypeCategories.json"
@@ -57,12 +57,14 @@ try:
         output['document-type'] = DOCTYPE
         output['id'] = DOCTYPE
         output['json-blob'] = jsonString
+        outputArray = []
+        outputArray = [output]
 except IOError:
     utils.error("Can't open input file " + INPUT_FILE)
 except:
     utils.error("Looks like input file " + INPUT_FILE + " is not valid json")
     
-outputJson = json.dumps(output)
+outputJson = json.dumps(outputArray)
 print(str(datetime.datetime.now()) + " writing " + targetFilename)
 with open(targetFilename, "w") as text_file:
     text_file.write(outputJson)
