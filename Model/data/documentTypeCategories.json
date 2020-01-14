@@ -1,73 +1,64 @@
 [
-{
-  "id": "documentTypeCategories",
-  "document-type": "documentTypeCategories",
-  "batch-type": "documentTypeCategories",
-  "batch-name": "all",
-  "batch-timestamp": "0",
-  "json-blob": 
-"[
-  { \"name\": \"Genome\",
-    \"documentTypes\": [
-      { \"id\": \"gene\",
-        \"displayName\": \"Gene\",
-        \"displayNamePlural\": \"Genes\",
-        \"wdkSearchUrlName\": \"GenesByText\"
+  { "name": "Genome",
+    "documentTypes": [
+      { "id": "gene",
+        "displayName": "Gene",
+        "displayNamePlural": "Genes",
+        "wdkSearchUrlName": "GenesByText"
       },
-      { \"id\": \"genomic-sequence\",
-        \"displayName\": \"Genomic sequence\",
-        \"displayNamePlural\": \"Genomic sequences\",
-        \"wdkSearchUrlName\": \"GenomicSeqByText\"
+      { "id": "genomic-sequence",
+        "displayName": "Genomic sequence",
+        "displayNamePlural": "Genomic sequences",
+        "wdkSearchUrlName": "GenomicSeqByText"
       }
     ]
   },
-  { \"name\": \"Organism\",
-    \"documentTypes\": [
-      { \"id\": \"organism\",
-        \"displayName\": \"Organism\",
-        \"displayNamePlural\": \"Organisms\",
-        \"wdkSearchUrlName\": \"OrganismsByText\"
+  { "name": "Organism",
+    "documentTypes": [
+      { "id": "organism",
+        "displayName": "Organism",
+        "displayNamePlural": "Organisms",
+        "wdkSearchUrlName": "OrganismsByText"
       }
     ]
   },
-  { \"name\": \"Transcriptomics\",
-    \"documentTypes\": [
-      { \"id\": \"est\",
-        \"displayName\": \"EST\",
-        \"displayNamePlural\": \"ESTs\",
-        \"wdkSearchUrlName\": \"EstsByText\"
+  { "name": "Transcriptomics",
+    "documentTypes": [
+      { "id": "est",
+        "displayName": "EST",
+        "displayNamePlural": "ESTs",
+        "wdkSearchUrlName": "EstsByText"
       }
     ]
   },
-  { \"name\": \"Metabolism\",
-    \"documentTypes\": [
-      { \"id\": \"pathway\",
-        \"displayName\": \"Metabolic pathway\",
-        \"displayNamePlural\": \"Metabolic pathways\",
-        \"wdkSearchUrlName\": \"PathwaysByText\"
+  { "name": "Metabolism",
+    "documentTypes": [
+      { "id": "pathway",
+        "displayName": "Metabolic pathway",
+        "displayNamePlural": "Metabolic pathways",
+        "wdkSearchUrlName": "PathwaysByText"
       },
-      { \"id\": \"compound\",
-        \"displayName\": \"Compound\",
-        \"displayNamePlural\": \"Compounds\",
-        \"wdkSearchUrlName\": \"CompoundsByText\"
+      { "id": "compound",
+        "displayName": "Compound",
+        "displayNamePlural": "Compounds",
+        "wdkSearchUrlName": "CompoundsByText"
       }
     ]
   },
-  { \"name\": \"Data access\",
-    \"documentTypes\": [
-      { \"id\": \"dataset\",
-        \"displayName\": \"Dataset\",
-        \"displayNamePlural\": \"Datasets\",
-        \"wdkSearchUrlName\": \"DatasetsByText\"
+  { "name": "Data access",
+    "documentTypes": [
+      { "id": "dataset",
+        "displayName": "Dataset",
+        "displayNamePlural": "Datasets",
+        "wdkSearchUrlName": "DatasetsByText"
       },
-      { \"id\": \"search\",
-        \"displayName\": \"Search\",
-        \"displayNamePlural\": \"Searches\",
-        \"fields\": [\"ATTR__search_displayName\", \"ATTR__search_description\"]
+      { "id": "search",
+        "displayName": "Search",
+        "displayNamePlural": "Searches",
+        "fields": ["ATTR__search_displayName", "ATTR__search_description"]
       }
 
     ]
   }
-]"
-}
 ]
+
