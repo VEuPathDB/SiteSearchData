@@ -55,7 +55,6 @@
       { "id": "search",
         "displayName": "Search",
         "displayNamePlural": "Searches",
-        "fields": ["ATTR__search_displayName", "ATTR__search_description"]
       }
 
     ]
