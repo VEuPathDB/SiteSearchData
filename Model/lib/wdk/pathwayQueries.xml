@@ -8,7 +8,7 @@
       <sql>
         <![CDATA[
           select source_id, pathway_source
-          from apidbTuning.pathwayattributes
+          from apidbTuning.PathwayAttributes
         ]]>
       </sql>
     </sqlQuery>
