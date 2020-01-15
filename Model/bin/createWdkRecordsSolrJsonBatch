@@ -9,7 +9,6 @@ import sys
 import os.path
 import os
 import time
-import tarfile
 import datetime
 
 sys.path.append(os.environ['GUS_HOME'] + "/lib/python")
@@ -20,7 +19,7 @@ REPORTNAME = 'solrjson'
 TARGETDIRPREFIX = 'solr-json-batch_'
 
 def parseAndValidateArgs():
-    help = """Read a WDK model dedicated to producing  JSON files for solr.  Runs WDK a report for each record type in the model to produce those files.  Also produces a JSON file containing meta information about this batch of files.
+    help = """Read the SiteSearchData WDK model dedicated to producing JSON files for solr.  Runs a WDK report for each record type in that model to produce those solr-ready json files.  Also produces a JSON file containing meta information about this batch of files.
 
 Input: URL for a WDK service to call
 Output: a directory containing one or more Solr compatible JSON files, one per included record type, and a batch.json file with meta information.
@@ -103,12 +102,6 @@ def runReportToFile(wdkServiceUrl, workingDir, recordTypeName, searchName, param
             utils.error("Received " + str(response.status_code) + " status from HTTP GET to " + reportUrl + " with parameters: " + str(urlParams))
         with open(targetFilename, 'wb') as file:
             shutil.copyfileobj(response.raw, file)
-
-def createTarFile(path, tar_name):
-    with tarfile.open(tar_name, "w:gz") as tar_handle:
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                tar_handle.add(os.path.join(root, file))
 
 def checkRecordTypeBatch(recordType, batchType):
     if ('properties' in recordType and 'batch' in recordType['properties']):
