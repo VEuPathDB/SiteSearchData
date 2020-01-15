@@ -1,0 +1,13 @@
+[{ "id": "search",
+  "fields": [
+    {"name":"TEXT__search_displayName",
+     "isSummary": true,
+     "boost": 1
+    },
+    {"name":"TEXT__search_description",
+     "isSummary": true,
+     "boost": 1
+    }
+  ]
+ }
+]
