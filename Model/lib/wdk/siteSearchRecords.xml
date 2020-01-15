@@ -69,7 +69,11 @@
 
       <attributeQueryRef ref="OrganismAttributes.organismAttrs">
         <columnAttribute name="species" displayName="Species"/>
-        <columnAttribute name="organism_full" displayName="Organism"/>
+        <columnAttribute name="organism_full" displayName="Organism">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
        <columnAttribute name="data_source" displayName="Data source"/>
 
       </attributeQueryRef>
@@ -110,8 +114,16 @@
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="SequenceAttributes.Bfmv">
-        <columnAttribute name="description" displayName="Description"/>
-        <columnAttribute name="organism_full" displayName="Organism" inReportMaker="false"/>
+        <columnAttribute name="description" displayName="Description">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="organism_full" displayName="Organism" inReportMaker="false">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="genbank_accession" displayName="GenBank"/>
       </attributeQueryRef>
 
@@ -153,7 +165,11 @@
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="PathwayAttributes.Bfmv">
-        <columnAttribute name="name" displayName="Pathway"/>
+        <columnAttribute name="name" displayName="Pathway">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
       </attributeQueryRef>
 
       <table name="CompoundsMetabolicPathways"
@@ -194,9 +210,17 @@
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="CompoundAttributes.Bfmv">
-        <columnAttribute name="definition" displayName="Definition" />
+        <columnAttribute name="definition" displayName="Definition" >
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="formula" displayName="Molecular Formula" />
-        <columnAttribute name="compound_name" displayName="Compound Name" />
+        <columnAttribute name="compound_name" displayName="Compound Name" >
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="secondary_ids"  displayName="Secondary ChEBI IDs" />  <!-- THIS SHOULD BE IN A MULTI-ROW TABLE? -->
       </attributeQueryRef>
 
@@ -267,7 +291,11 @@
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="EstAttributeQueries.Bfmv">
-        <columnAttribute name="dbest_name" displayName="Library"/>
+        <columnAttribute name="dbest_name" displayName="Library">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="vector" displayName="Vector"/>
         <columnAttribute name="stage"  displayName="Stage"/>
       </attributeQueryRef>
@@ -310,6 +338,9 @@
         <columnAttribute displayName="Genomic Sequence ID" name="sequence_id" />
 
         <columnAttribute name="product" displayName="Product Description" help="Protein Product for this gene" >
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
         </columnAttribute>
 
         <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories" />
@@ -317,7 +348,11 @@
         <columnAttribute name="name" displayName="Gene Name or Symbol"/>
         
         <columnAttribute name="organism_text" displayName="Organism" />
-        <columnAttribute name="organism_full" displayName="Organism" />
+        <columnAttribute name="organism_full" displayName="Organism" >
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="genus_species" displayName="genus_species"  />
         <columnAttribute name="strain" displayName="strain"  />
       </attributeQueryRef>
@@ -469,10 +504,18 @@
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="DatasetAttributes.All">
-        <columnAttribute name="display_name" displayName="Dataset Name"/>
+        <columnAttribute name="display_name" displayName="Dataset Name">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="description" displayName="Description"/>
         <columnAttribute name="acknowledgement" />
-        <columnAttribute name="summary" displayName="Summary"/>
+        <columnAttribute name="summary" displayName="Summary">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="newcategory" displayName="Category"/>
       </attributeQueryRef>
 
