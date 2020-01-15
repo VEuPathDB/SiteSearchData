@@ -11,7 +11,7 @@
   <modelName displayName="SiteSearch"
              version="%%buildNumber%%"
              releaseDate="%%releaseDate%%"
-             buildNumber="%%buildNumber%%" />
+             buildNumber="%%buildNumber%%"/>
 
   <import file="siteSearchRecords.xml"/>
 
@@ -24,11 +24,11 @@
   <import file="compoundQueries.xml"/>
 
   <import file="datasetQueries.xml"/>
-  
+
   <import file="organismQueries.xml"/>
-  
+
   <import file="sequenceQueries.xml"/>
-  
+
   <!-- Popset Isolate -->
 
 </wdkModel>

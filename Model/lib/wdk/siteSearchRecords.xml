@@ -6,7 +6,7 @@
               queryRef="GeneIdQueries.GenesByOrganismAbbrev"
               recordClassRef="recordClasses.gene">
     </question>
-    
+
     <question name="EstsByOrganism" displayName="dontcare"
               queryRef="EstIdQueries.EstsByOrganismAbbrev"
               recordClassRef="recordClasses.est">
@@ -41,9 +41,9 @@
 
   <recordClassSet name="recordClasses">
 
-    <!-- ############################################################################### -->
-    <!-- ###########################  Organism Record   ##################################### -->
-    <!-- ############################################################################### -->
+    <!-- ################################################################### -->
+    <!-- ########################  Organism Record  ######################## -->
+    <!-- ################################################################### -->
 
     <recordClass name="organism" urlName="organism" displayName="Organism">
       <propertyList name="batch">
@@ -74,7 +74,7 @@
             <value>true</value>
           </propertyList>
         </columnAttribute>
-       <columnAttribute name="data_source" displayName="Data source"/>
+        <columnAttribute name="data_source" displayName="Data source"/>
 
       </attributeQueryRef>
 
@@ -86,10 +86,10 @@
       </table>
 
     </recordClass>
-    
-    <!-- ############################################################################### -->
-    <!-- ###########################  Sequence Record   ##################################### -->
-    <!-- ############################################################################### -->
+
+    <!-- ################################################################### -->
+    <!-- ########################  Sequence Record  ######################## -->
+    <!-- ################################################################### -->
 
     <recordClass name="sequence" urlName="genomic-sequence" displayName="Genomic sequence">
       <propertyList name="batch">
@@ -136,10 +136,10 @@
 
 
     </recordClass>
-    
-    <!-- ############################################################################### -->
-    <!-- ###########################  Pathway Record   ##################################### -->
-    <!-- ############################################################################### -->
+
+    <!-- ################################################################### -->
+    <!-- ########################  Pathway Record  ######################### -->
+    <!-- ################################################################### -->
 
     <recordClass name="pathway" urlName="pathway" displayName="Metabolic Pathway">
       <propertyList name="batch">
@@ -182,10 +182,10 @@
 
 
     </recordClass>
-    
-    <!-- ############################################################################### -->
-    <!-- ###########################  Compound Record   ##################################### -->
-    <!-- ############################################################################### -->
+
+    <!-- ################################################################### -->
+    <!-- ########################  Compound Record  ######################## -->
+    <!-- ################################################################### -->
 
     <recordClass name="compound" urlName="compound" displayName="Compound">
       <propertyList name="batch">
@@ -215,41 +215,41 @@
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="formula" displayName="Molecular Formula" />
+        <columnAttribute name="formula" displayName="Molecular Formula"/>
         <columnAttribute name="compound_name" displayName="Compound Name" >
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="secondary_ids"  displayName="Secondary ChEBI IDs" />  <!-- THIS SHOULD BE IN A MULTI-ROW TABLE? -->
+        <columnAttribute name="secondary_ids"  displayName="Secondary ChEBI IDs"/>  <!-- THIS SHOULD BE IN A MULTI-ROW TABLE? -->
       </attributeQueryRef>
 
       <attributeQueryRef ref="CompoundAttributes.Synonyms" >
-	<columnAttribute name="synonyms" displayName="Synonyms" internal="true" />
-      </attributeQueryRef>  
+        <columnAttribute name="synonyms" displayName="Synonyms" internal="true"/>
+      </attributeQueryRef>
 
       <table name="Properties" displayName="Compound Properties"
-	     queryRef="CompoundTables.Properties">
-        <columnAttribute name="value" displayName="Value" />
+             queryRef="CompoundTables.Properties">
+        <columnAttribute name="value" displayName="Value"/>
         <propertyList name="includeInDumper"><value>true</value></propertyList>
       </table>
 
       <table name="IupacNames" displayName="IUPAC Names"
-	     queryRef="CompoundTables.IupacNames">
-	<columnAttribute name="value" displayName="Value" />
+             queryRef="CompoundTables.IupacNames">
+        <columnAttribute name="value" displayName="Value"/>
         <propertyList name="includeInDumper"><value>true</value></propertyList>
       </table>
 
       <table name="Synonyms" displayName="Compound Synonyms"
-	     queryRef="CompoundTables.Synonyms">
-	<columnAttribute name="value" displayName="Value" />
+             queryRef="CompoundTables.Synonyms">
+        <columnAttribute name="value" displayName="Value"/>
         <propertyList name="includeInDumper"><value>true</value></propertyList>
       </table>
 
       <table name="CompoundsMetabolicPathways"
-	     displayName="Metabolic Pathway Reactions"
-	     queryRef="CompoundTables.CompoundsFromMetabolicPathways">
-        
+             displayName="Metabolic Pathway Reactions"
+             queryRef="CompoundTables.CompoundsFromMetabolicPathways">
+
         <columnAttribute displayName="Substrates" name="substrates_text" inReportMaker="true" internal="true"/>
         <columnAttribute displayName="Products" name="products_text" inReportMaker="true" internal="true"/>
       </table>
@@ -261,18 +261,18 @@
         <columnAttribute name="pathway_source_id" internal="true"/>
         <columnAttribute name="pathway_name" internal="true" displayName="Pathway"/>
       </table>
-      
+
     </recordClass>
-    
-    <!-- ############################################################################### -->
-    <!-- ###########################  EST Record   ##################################### -->
-    <!-- ############################################################################### -->
+
+    <!-- ################################################################### -->
+    <!-- ###########################  EST Record  ########################## -->
+    <!-- ################################################################### -->
 
     <recordClass name="est" urlName="est" displayName="EST">
       <propertyList name="batch">
         <value>organism</value>
       </propertyList>
-      
+
       <primaryKey aliasQueryRef="EstTableQueries.EstAlias">
         <columnRef>source_id</columnRef>
       </primaryKey>
@@ -301,22 +301,21 @@
       </attributeQueryRef>
 
       <table name="ReferenceInfo" displayName="Reference" queryRef="EstTableQueries.Reference">
-        <columnAttribute name="author" displayName="Author" />
+        <columnAttribute name="author" displayName="Author"/>
         <columnAttribute name="affiliation" displayName="Affiliation"/>
       </table>
     </recordClass>
 
-
-    <!-- ############################################################################### -->
-    <!-- ###########################  Gene Record  ##################################### -->
-    <!-- ############################################################################### -->
+    <!-- ################################################################### -->
+    <!-- ##########################  Gene Record  ########################## -->
+    <!-- ################################################################### -->
 
     <recordClass name="gene" urlName="gene">
 
       <propertyList name="batch">
         <value>organism</value>
       </propertyList>
-      
+
       <primaryKey aliasQueryRef="GeneAttributes.GeneAlias">
         <columnRef>source_id</columnRef>
       </primaryKey>
@@ -335,7 +334,7 @@
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="GeneAttributes.Bfmv">
-        <columnAttribute displayName="Genomic Sequence ID" name="sequence_id" />
+        <columnAttribute displayName="Genomic Sequence ID" name="sequence_id"/>
 
         <columnAttribute name="product" displayName="Product Description" help="Protein Product for this gene" >
           <propertyList name="isSummary">
@@ -343,18 +342,16 @@
           </propertyList>
         </columnAttribute>
 
-        <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories" />
-
+        <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories"/>
         <columnAttribute name="name" displayName="Gene Name or Symbol"/>
-        
-        <columnAttribute name="organism_text" displayName="Organism" />
+        <columnAttribute name="organism_text" displayName="Organism"/>
         <columnAttribute name="organism_full" displayName="Organism" >
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="genus_species" displayName="genus_species"  />
-        <columnAttribute name="strain" displayName="strain"  />
+        <columnAttribute name="genus_species" displayName="genus_species"/>
+        <columnAttribute name="strain" displayName="strain"/>
       </attributeQueryRef>
 
       <table name="GeneTranscripts"
@@ -388,18 +385,18 @@
       <table name="ECNumbers"
              displayName="EC Numbers"
              queryRef="GeneTables.ECNumbers">
-        <columnAttribute name="ec_number" displayName="EC Number" help="Enzyme Commission classification of enzyme based on the reactions they catalyze" truncateTo="1000" /> 
+        <columnAttribute name="ec_number" displayName="EC Number" help="Enzyme Commission classification of enzyme based on the reactions they catalyze" truncateTo="1000"/>
         <columnAttribute name="ec_description" displayName="EC Description" help="Enzyme Commission classification description of this assignment"  truncateTo="1000"/>
       </table>
 
-      <table name="MassSpec" displayName="Mass Spec.-based Expression Evidence"  
+      <table name="MassSpec" displayName="Mass Spec.-based Expression Evidence"
              queryRef="GeneTables.MassSpec">
         <columnAttribute name="experiment" displayName="Experiment"/>
         <columnAttribute name="sample" displayName="Sample"/>
-        <columnAttribute name="data_source" displayName="Data Source" />
+        <columnAttribute name="data_source" displayName="Data Source"/>
       </table>
 
-      <table name="MassSpecMod" displayName="Post Translational Modifications" 
+      <table name="MassSpecMod" displayName="Post Translational Modifications"
              queryRef="GeneTables.MassSpecMod">
         <columnAttribute name="experiment" displayName="Experiment"/>
         <columnAttribute name="sample" displayName="Sample"/>
@@ -409,7 +406,7 @@
       <table name="GOTerms"
              displayName="GO Terms"
              queryRef="GeneTables.GOTerms">
-        <columnAttribute name="go_id" displayName="GO ID" />
+        <columnAttribute name="go_id" displayName="GO ID"/>
         <columnAttribute name="go_term_name" displayName="GO Term Name"/>
         <columnAttribute name="reference" displayName="Reference" help="The reference indicates the source, such as a publication or database record, that is cited as an authority for the association of GO term to the gene product."/>
       </table>
@@ -423,14 +420,14 @@
       <table name="MetabolicPathwaysMPMP"
              displayName="Malaria Parasite Metabolic Pathways (MPMP)"
              queryRef="GeneTables.MetabolicPathways">
-        <columnAttribute name="pathway_id" />
+        <columnAttribute name="pathway_id"/>
         <columnAttribute name="pathway_name"  displayName="Pathway"/>
       </table>
 
       <table name="MetabolicPathways"
              displayName="Metabolic Pathways"
              queryRef="GeneTables.MetabolicPathwaysSres">
-        <columnAttribute name="pathway_source_id" />
+        <columnAttribute name="pathway_source_id"/>
         <columnAttribute name="pathway_name"  displayName="Pathway"/>
       </table>
 
@@ -444,8 +441,8 @@
       <table name="PubMed"
              displayName="PubMed"
              queryRef="GeneTables.PubMed">
-        <columnAttribute displayName="PubMed ID" name="pubmed_id"  />
-        <columnAttribute displayName="doi" name="doi"  />
+        <columnAttribute displayName="PubMed ID" name="pubmed_id"/>
+        <columnAttribute displayName="doi" name="doi"/>
         <columnAttribute displayName="Title" name="title"/>
         <columnAttribute displayName="Authors" name="authors"/>
       </table>
@@ -453,14 +450,14 @@
       <table name="GeneLinkouts"
              displayName="External Links"
              queryRef="GeneTables.gene_dbrefs">
-        <columnAttribute name="ext_id" />
+        <columnAttribute name="ext_id"/>
       </table>
 
       <table name="PdbSimilarities"
              displayName="Similarities to Protein Data Bank (PDB) Chains"
              queryRef="GeneTables.PdbSimilarities">
         <columnAttribute name="pdb_chain"  displayName="PDB Structure"/>
-        <columnAttribute name="pdb_id" />
+        <columnAttribute name="pdb_id"/>
         <columnAttribute name="pdb_title" displayName="PDB Molecular Description"/>
       </table>
 
@@ -479,9 +476,9 @@
 
     </recordClass>
 
-    <!-- ############################################################################### -->
-    <!-- ###########################  Dataset Record   ################################# -->
-    <!-- ############################################################################### -->
+    <!-- ################################################################### -->
+    <!-- #########################  Dataset Record  ######################## -->
+    <!-- ################################################################### -->
 
     <recordClass name="dataset" urlName="dataset" displayName="Dataset">
       <propertyList name="batch">
@@ -510,7 +507,7 @@
           </propertyList>
         </columnAttribute>
         <columnAttribute name="description" displayName="Description"/>
-        <columnAttribute name="acknowledgement" />
+        <columnAttribute name="acknowledgement"/>
         <columnAttribute name="summary" displayName="Summary">
           <propertyList name="isSummary">
             <value>true</value>
@@ -533,8 +530,8 @@
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="pmid" displayName="Pubmed ID"/>
         <columnAttribute name="citation"/>
-      </table>  
-      
+      </table>
+
     </recordClass>
 
   </recordClassSet>
