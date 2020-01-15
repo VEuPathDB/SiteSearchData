@@ -1,4 +1,4 @@
-[{ "id": "search",
+[{ "document-type": "search",
   "fields": [
     {"name":"TEXT__search_displayName",
      "isSummary": true,
