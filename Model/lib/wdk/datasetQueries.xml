@@ -18,7 +18,7 @@
       <column name="display_name" ignoreCase="true"/>
       <column name="description"/>
       <column name="summary"/>
-      <column name="acknowledgement"/> 
+      <column name="acknowledgement"/>
       <column name="newcategory"/>
       <sql>
         <![CDATA[

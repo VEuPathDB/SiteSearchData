@@ -1,7 +1,7 @@
 <wdkModel>
 
   <querySet name="SequenceIdQueries" queryType="id" isCacheable="true">
-    
+
     <sqlQuery name="SequencesByOrganismAbbrev">
       <paramRef ref="organismParams.organismAbbrev"/>
       <column name="source_id"/>
@@ -18,11 +18,11 @@
 
   <querySet name="SequenceParamQueries" queryType="vocab"  isCacheable="true">
     <sqlQuery name="organismAbbrevs">
-      <column name="internal" />
-      <column name="term" />
+      <column name="internal"/>
+      <column name="term"/>
       <sql>
         <![CDATA[
-          SELECT distinct o.abbrev as internal, 
+          SELECT distinct o.abbrev as internal,
                           o.abbrev as term
           from apidb.organism o
         ]]>
@@ -31,7 +31,7 @@
 
   </querySet>
 
-  <paramSet name="sequenceParams"> 
+  <paramSet name="sequenceParams">
     <flatVocabParam name="organismAbbrev"
                     queryRef="SequenceParamQueries.organismAbbrevs"
                     multiPick="false"
@@ -62,9 +62,9 @@
         <![CDATA[
           select source_id, organism as organism_full, genbank_accession,
                  case
-                   when (sequence_description) is not null 
+                   when (sequence_description) is not null
                      then sequence_description
-                   when (chromosome is not null) 
+                   when (chromosome is not null)
                      then organism || ' - Chromosome ' || chromosome_order_num
                    else organism
                  end as description
@@ -79,8 +79,8 @@
 
     <sqlQuery name="Aliases"
               isCacheable="false">
-      <column name="source_id" />
-      <column name="seq_id" />
+      <column name="source_id"/>
+      <column name="seq_id"/>
       <sql>
         <![CDATA[
           select si.sequence as source_id, si.id as seq_id
@@ -88,7 +88,7 @@
         ]]>
       </sql>
     </sqlQuery>
-    
+
   </querySet>
 
 </wdkModel>
