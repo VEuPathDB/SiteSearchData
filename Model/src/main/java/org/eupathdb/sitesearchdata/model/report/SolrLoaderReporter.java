@@ -58,8 +58,8 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   private String _batchId;
   private String _batchName; // eg, "plasmodium falciparum 3d7"
 
-  public static final String ATTR_PREFIX = "ATTR__";
-  public static final String TABLE_PREFIX = "TABLE__";
+  public static final String ATTR_PREFIX = "TEXT__";
+  public static final String TABLE_PREFIX = "MULTITEXT__";
   
   public SolrLoaderReporter(AnswerValue answerValue) {
     super(answerValue);

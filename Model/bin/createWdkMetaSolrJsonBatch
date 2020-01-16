@@ -15,7 +15,7 @@ TARGETDIRPREFIX = 'solr-json-batch_'
 BATCHTYPE = 'wdkmeta'
 BATCHNAME = 'all'
 SEARCHDOCTYPE = 'search'
-ATTR_PREFIX = 'ATTR__'
+ATTR_PREFIX = 'TEXT__'
 
 def parseAndValidateArgs():
     help = """Read the WDK record-type endpoint from an application website (eg, UniDB) and create a solr-compatible JSON file with searchable meta information about the record types.  For now only includes information about searches.  Also produces a JSON file containing meta information about this batch of files.
