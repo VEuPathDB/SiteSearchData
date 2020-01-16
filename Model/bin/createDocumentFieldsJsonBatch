@@ -17,7 +17,8 @@ BATCHTYPE = 'document-fields'
 BATCHNAME = 'all'
 DOCTYPE = 'document-fields'
 INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/nonWdkDocumentFields.json"
-
+TEXT_PREFIX = "TEXT__"
+MULTITEXT_PREFIX = "MULTITEXT__"
 
 def parseAndValidateArgs():
     help = """Read the SiteSearchData WDK model as well as a nonWdkDocumentFields.json file to acquire information about all fields in all documents used in SiteSearch (solr).  Generate a solr loadable batch of json files, including a documentFields.json that describes the fields.
@@ -31,7 +32,6 @@ For each field we will report:
 
 Input: 
   URL for a SiteSearchData WDK service to call
-  path to nonWdkDocumentFields.json file describing document types that are not wdk records
 
 Output: a directory containing one or more Solr compatible JSON files, one per included record type, and a batch.json file with meta information.
 
@@ -42,21 +42,19 @@ Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'.
 """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
     parser.add_argument("wdkServiceUrl", help="Base url of SiteSearchData WDK service")
-    parser.add_argument("inputFilePath", help="Path to nonWdkDocumentFields.json file")
     parser.add_argument("parentDir", help="Directory in which to put the directory of output files")
 
     args = parser.parse_args()
     utils.validateWebServiceUrl(args.wdkServiceUrl)
     utils.validateParentDir(args.parentDir)
-    validateParam(args.paramName, args.paramValue)
-    return args.wdkServiceUrl, args.inputFilePath, args.parentDir
+    return args.wdkServiceUrl, args.parentDir
 
 # see if a wdk field (attr or table) is a summary field for site search
 def getFieldIsSummary(field):
     if ('properties' in field and 'isSummary' in field['properties']):
         return field['properties']['isSummary'][0] == "true"
     else:
-        return false
+        return False
 
 # get the solr scoring boost for a wdk field (attr or table)
 def getFieldBoostFactor(field):
@@ -76,7 +74,7 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
         attributes = recordType['attributes']
         for attribute in attributes:
             attrJson = {}
-            attrJson['name'] = attribute['name']
+            attrJson['name'] = TEXT_PREFIX + recordTypeName + "_" + attribute['name']
             attrJson['displayName'] = attribute['displayName']
             attrJson['isSummary'] = getFieldIsSummary(attribute)
             attrJson['boost'] = getFieldBoostFactor(attribute)
@@ -84,7 +82,7 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
             tables = recordType['tables']
         for table in tables:
             tableJson = {}
-            tableJson['name'] = table['name']
+            tableJson['name'] = MULTITEXT_PREFIX + recordTypeName + "_" + table['name']
             tableJson['displayName'] = table['displayName']
             tableJson['isSummary'] = getFieldIsSummary(table)
             tableJson['boost'] = getFieldBoostFactor(table)
@@ -94,10 +92,10 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
 
 ###########################################################################################################
 
-wdkServiceUrl, inputJsonFile, parentDir = parseAndValidateArgs()
+wdkServiceUrl, parentDir = parseAndValidateArgs()
 
 batchTimestamp = int(time.time())
-batchId = batchType + "_" + batchName + "_" + str(batchTimestamp)
+batchId = BATCHTYPE + "_" + BATCHNAME + "_" + str(batchTimestamp)
 
 outputDir = utils.createWorkingDir(parentDir, batchId)
 targetFilename = outputDir + "/" + BATCHTYPE + ".json"
@@ -105,7 +103,7 @@ targetFilename = outputDir + "/" + BATCHTYPE + ".json"
 try:
     with open(INPUT_FILE) as inputJsonFile:
         jsonFieldsArray = json.load(inputJsonFile)  # get fields for non-wdk documents from input file
-        jsonFieldsArray = jsonFieldsArray.concat(getWdkDocumentFieldsToJson(wdkServiceUrl))
+        jsonFieldsArray = jsonFieldsArray + getWdkDocumentFieldsJson(wdkServiceUrl)
         jsonString = json.dumps(jsonFieldsArray)
         output = {}
         output['batch-type'] = BATCHTYPE
@@ -119,18 +117,18 @@ try:
         outputArray = [output]
 except IOError:
     utils.error("Can't open input file " + INPUT_FILE)
-except:
-    utils.error("Looks like input file " + INPUT_FILE + " is not valid json")
+#except:
+#    utils.error("Looks like input file " + INPUT_FILE + " is not valid json")
 
     
-searchJson = json.dumps(outputSearches)
+searchJson = json.dumps(outputArray)
 print(str(datetime.datetime.now()) + " writing " + targetFilename)
 with open(targetFilename, "w") as text_file:
     text_file.write(searchJson)
 
 # write meta file about this batch
 print(str(datetime.datetime.now()) + " writing batch.json")
-utils.writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
+utils.writeBatchJsonFile(BATCHTYPE, BATCHNAME, batchTimestamp, batchId, outputDir)
 print(str(datetime.datetime.now()) + " done")
     
 
