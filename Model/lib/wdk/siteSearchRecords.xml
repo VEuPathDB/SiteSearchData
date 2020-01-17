@@ -28,7 +28,7 @@
     </question>
 
     <question name="Organisms" displayName="dontcare"
-              queryRef="OrganismIdQueries.OrganismsByOrganismAbbrev"
+              queryRef="OrganismIdQueries.Organisms"
               recordClassRef="recordClasses.organism">
     </question>
 
@@ -47,7 +47,7 @@
 
     <recordClass name="organism" urlName="organism" displayName="Organism">
       <propertyList name="batch">
-        <value>organism</value>
+        <value>dataset</value>
       </propertyList>
 
       <primaryKey aliasQueryRef="OrganismAttributes.OrganismAlias">
