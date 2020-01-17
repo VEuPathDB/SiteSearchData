@@ -7,23 +7,34 @@ import traceback
 import requests
 
 # Configuration
-HOST = 'http://localhost:8983'
-CORE = 'test-core'
 BATCH_ID_FIELD = 'batch-id'
 UNIQUE_KEY_FIELD = 'id'
 
 # TODO move these out to environment variables
-USER = ''
-PASS = ''
+USER = os.environ['SOLR_USER'] if ('SOLR_USER' in os.environ) else ''
+PASS = os.environ['SOLR_PASSWORD'] if ('SOLR_PASSWORD' in os.environ) else ''
 
 AUTH = (USER, PASS)
 
 # Parse the arguments
 def parse_args():
-    parser = argparse.ArgumentParser(description='Add, update, or remove batches or individual files from Solr\'s index. Configuration variables are located at the beginning of the script.')
 
-    parser.add_argument('--solr-url', help='The URL of the Solr instance, including core, but not including operation (ex: http://localhost:8080/solr/test-core). If not provided, the configuration variables at the beginning of the script will be used.')
-    parser.add_argument('--production', action='store_true', help='Make changes to the production core rather than the QA core (not currently functional).')
+    help="""
+Add, update, or remove batches or individual files from Solr's index.
+
+Commits on success.  Rolls back on failure.
+
+Examples:
+  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH
+  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search index --file FILE_1 FILE_2
+  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-type-name BATCH_TYPE BATCH_NAME
+  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 BATCH_ID_2
+  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --doc-key UNIQUE_KEY_1 UNIQUE_KEY_2
+
+"""
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
+
+    parser.add_argument('solr_url', help='The URL of the Solr instance, including core, but not including operation (ex: http://localhost:8080/solr/site_search).')
 
     subparsers = parser.add_subparsers(title='subcommands', help='Add a subcommand name followed by -h for specific help on it.')
 
@@ -52,10 +63,6 @@ def run(kwargs):
     # Remove and store arguments that don't get passed to func.
     func = kwargs['func']
     del kwargs['func']
-
-    # If the URL wasn't provided from the command line, build it from the config variables
-    if not kwargs['solr_url']:
-        kwargs['solr_url'] = HOST + '/solr/' + CORE
 
     update_url = kwargs['solr_url'] + '/update'
 
