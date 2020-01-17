@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+import os
+from pathlib import Path
+
+sys.path.append(os.environ['GUS_HOME'] + "/lib/python")
+
+import SiteSearchData.Model.BatchReportUtils as utils
+
+def parseAndValidateArgs():
+    help = """Load batches of documents into Solr. Find all batches to load by recursively looking in the input directory for batch directories with a name of the form:  solr-json-batch_BATCHTYPE_BATCHNAME_BATCHTIMESTAMP
+
+
+
+"""
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
+    parser.add_argument("solrUrl", help="url of SiteSearchData WDK service")
+    parser.add_argument("parentDir", help="Parent directory to recursively scan to find batch directories to load")
+
+    args = parser.parse_args()
+    utils.validateParentDir(args.parentDir)
+    return args.solrUrl, args.parentDir
+
+solrUrl, parentDir = parseAndValidateArgs()
+
+for batchDir in Path(parentDir).rglob('solr-json-batch_*'):
+    if not os.path.isdir(batchDir):
+        utils.error(batchDir + " is not a directory")
+    cmd = "siteSearchLoadBatch " + solrUrl + " index --batch-dir " + str(batchDir)
+    print("running command: " + cmd)
+    status = os.system(cmd)
+    if status != 0:
+        utils.error("Failed with status " + str(status) + " running command: " + cmd)
