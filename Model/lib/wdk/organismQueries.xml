@@ -2,15 +2,13 @@
 
   <querySet name="OrganismIdQueries" queryType="id" isCacheable="true">
 
-    <sqlQuery name="OrganismsByOrganismAbbrev">
-      <paramRef ref="organismParams.organismAbbrev"/>
+    <sqlQuery name="Organisms">
       <column name="source_id"/>
       <sql>
         <![CDATA[
           select oa.source_id
           from apidbTuning.OrganismAttributes oa, apidb.Organism o
           where oa.component_taxon_id = o.taxon_id
-            and o.abbrev = $$organismAbbrev$$
         ]]>
       </sql>
     </sqlQuery>
