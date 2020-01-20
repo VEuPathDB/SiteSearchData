@@ -12,13 +12,13 @@
               recordClassRef="recordClasses.est">
     </question>
 
-    <question name="Pathways" displayName="dontcare"
-              queryRef="PathwayIdQueries.AllPathways"
+    <question name="PathwaysByProject" displayName="dontcare"
+              queryRef="PathwayIdQueries.PathwaysByProject"
               recordClassRef="recordClasses.pathway">
     </question>
 
-    <question name="Compounds" displayName="dontcare"
-              queryRef="CompoundIdQueries.AllCompounds"
+    <question name="CompoundsByProject" displayName="dontcare"
+              queryRef="CompoundIdQueries.CompoundsByProject"
               recordClassRef="recordClasses.compound">
     </question>
 
@@ -28,7 +28,7 @@
     </question>
 
     <question name="Organisms" displayName="dontcare"
-              queryRef="OrganismIdQueries.OrganismsByOrganismAbbrev"
+              queryRef="OrganismIdQueries.AllOrganisms"
               recordClassRef="recordClasses.organism">
     </question>
 
@@ -47,7 +47,7 @@
 
     <recordClass name="organism" urlName="organism" displayName="Organism">
       <propertyList name="batch">
-        <value>organism</value>
+        <value>dataset</value>
       </propertyList>
 
       <primaryKey aliasQueryRef="OrganismAttributes.OrganismAlias">
@@ -370,16 +370,23 @@
         <columnAttribute displayName="Description" name="interpro_desc"/>
       </table>
 
-      <table name="BlastP"
-             displayName="BlastP Hits"
-             queryRef="GeneTables.BlastP">
-        <columnAttribute displayName="Description" name="blastp_description"/>
-      </table>
-
       <table name="Notes"
              displayName="Notes from Annotator"
              queryRef="GeneTables.Notes">
         <columnAttribute displayName="Note" name="comment_string"/>
+      </table>
+
+      <!-- needed for the user comment updater.  should eventually hide from end user -->
+      <table name="UserCommentIDs"
+             displayName="User Comment IDs"
+             queryRef="GeneTables.UserCommentIDs">
+        <columnAttribute displayName="Comment ID" name="comment_id"/>
+      </table>
+
+      <table name="UserCommentContent"
+             displayName="User Comments"
+             queryRef="GeneTables.UserCommentContent">
+        <columnAttribute displayName="Comment" name="content"/>
       </table>
 
       <table name="ECNumbers"

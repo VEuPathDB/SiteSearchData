@@ -2,7 +2,9 @@
 
   <querySet name="CompoundIdQueries" queryType="id" isCacheable="true">
 
-    <sqlQuery name="AllCompounds">
+    <!-- the project param is fake.  but we do need it declared so that the documents produced are labelled with it by the reporter -->
+    <sqlQuery name="CompoundsByProject">
+      <paramRef ref="compoundParams.project"/>
       <column name="source_id"/>
       <sql>
         <![CDATA[
@@ -12,6 +14,10 @@
       </sql>
     </sqlQuery>
   </querySet>
+
+  <paramSet name="compoundParams">
+    <stringParam name="project" prompt="dontcare" number="false"/>
+  </paramSet>
 
   <querySet name="CompoundAttributes" queryType="attribute" isCacheable="false">
 
