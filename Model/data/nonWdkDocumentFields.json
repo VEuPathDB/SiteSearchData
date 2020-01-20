@@ -1,5 +1,13 @@
 [{ "document-type": "search",
   "fields": [
+    {"name":"TEXT__search_record-type",
+     "isSummary": false,
+     "boost": 1
+    },
+    {"name":"TEXT__search_name",
+     "isSummary": false,
+     "boost": 1
+    },
     {"name":"TEXT__search_displayName",
      "isSummary": true,
      "boost": 1
