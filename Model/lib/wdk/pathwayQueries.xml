@@ -2,7 +2,9 @@
 
   <querySet name="PathwayIdQueries" queryType="id" isCacheable="true">
 
-    <sqlQuery name="AllPathways">
+    <!-- the project param is fake.  but we do need it declared so that the documents produced are labelled with it by the reporter -->
+    <sqlQuery name="PathwaysByProject">
+      <paramRef ref="pathwayParams.project"/>
       <column name="source_id"/>
       <column name="pathway_source"/>
       <sql>
@@ -13,6 +15,10 @@
       </sql>
     </sqlQuery>
   </querySet>
+
+  <paramSet name="pathwayParams">
+    <stringParam name="project" prompt="dontcare" number="false"/>
+  </paramSet>
 
   <querySet name="PathwayAttributes" queryType="attribute" isCacheable="false">
 
