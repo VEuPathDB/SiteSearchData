@@ -108,17 +108,22 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       
       var obj = new JSONObject();
       obj.put("document-type", urlSegment);
-      obj.put(TABLE_PREFIX + urlSegment + "_" + JsonKeys.PRIMARY_KEY, pkValues); // multi text field
+      obj.put("wdkPrimaryKey", pkValues); // multi string field. for forming record URLs
+      obj.put("wdkPrimaryKeyString", String.join(",", pkValues)); // joined string field for sorting
       obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       obj.put("batch-type", batchType);
       obj.put("batch-id", batchId);
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
       for (String attributeName: attributeNames) {
-        obj.put(ATTR_PREFIX + urlSegment + "_" + attributeName, record.getAttributeValue(attributeName).getValue());
+        String name = record.getRecordClass().getAttributeFieldMap().get(attributeName).isInternal()?
+              attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
+        obj.put(name, record.getAttributeValue(attributeName).getValue());
       }
       for (String tableName: tableNames) {
-        obj.put(TABLE_PREFIX + urlSegment + "_" + tableName, aggregateTableValueJson(record.getTableValue(tableName)));
+        String name = record.getRecordClass().getTableFieldMap().get(tableName).isInternal()?
+            tableName : TABLE_PREFIX + urlSegment + "_" + tableName;
+        obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
       }
       return obj;
     }

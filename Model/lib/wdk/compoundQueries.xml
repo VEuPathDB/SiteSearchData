@@ -28,6 +28,7 @@
 
     <sqlQuery name="Bfmv">
       <column name="source_id"/>
+      <column name="project"/>
       <column name="compound_name"/>
       <column name="other_names"/>
       <column name="definition"/>
@@ -36,7 +37,7 @@
       <sql>
         <![CDATA[
           select source_id, compound_name, definition, secondary_ids,
-                 other_names, formula
+                 other_names, formula, '@PROJECT_ID@' as project
           from apidbTuning.CompoundAttributes
         ]]>
       </sql>
