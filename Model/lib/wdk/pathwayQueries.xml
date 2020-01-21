@@ -33,11 +33,12 @@
 
     <sqlQuery name="Bfmv">
       <column name="source_id"/>
+      <column name="project"/>
       <column name="pathway_source"/>
       <column name="name"  />
       <sql>
         <![CDATA[
-          select pa.source_id, pa.pathway_source, pa.name
+          select pa.source_id, pa.pathway_source, pa.name, '@PROJECT_ID@' as project
           from apidbTuning.PathwayAttributes pa
         ]]>
       </sql>

@@ -60,13 +60,14 @@
       <column name="name" ignoreCase="true"/>
       <column name="gene_type" ignoreCase="true"/>
       <column name="sequence_id" ignoreCase="true"/>
-      <column name="organism_full"  sortingColumn="organism_full"/>
-      <column name="organism_text"  sortingColumn="organism_full"/><!-- CHECK-->
+      <column name="organism_full"/>
+      <column name="organism_text"/><!-- CHECK-->
+      <column name="organism"/>
       <column name="genus_species"  sortingColumn="organism_full"/>
       <sql>
         <![CDATA[
           select source_id, product, name, gene_type,
-                 sequence_id, organism as organism_full,
+                 sequence_id, organism as organism_full, organism,
                  genus_species, strain,
                  substr(organism, 1, 1) || '. '
                    || substr(organism, instr(organism, ' ', 1, 1) +1)
@@ -80,6 +81,36 @@
 
 
   <querySet name="GeneTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="UserCommentIDs">
+      <column name="source_id"/>
+      <column name="comment_id"/>
+      <sql>
+        <![CDATA[ 
+                 select tsc.source_id, tsc.comment_id
+                 from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc, @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
+                 where mc.comment_id = tsc.comment_id
+                 AND mc.review_status_id != 'rejected'
+                 AND mc.is_visible = 1
+                 order by tsc.comment_id                 
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="UserCommentContent">
+      <column name="source_id"/>
+      <column name="content"/>
+      <sql>
+        <![CDATA[
+                 select tsc.source_id, tsc.content
+                 from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc, @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
+                 where mc.comment_id = tsc.comment_id
+                 AND mc.review_status_id != 'rejected'
+                 AND mc.is_visible = 1
+                 order by tsc.comment_id                 
+        ]]>
+      </sql>
+    </sqlQuery>
 
     <sqlQuery name="ProteinSourceIDs">
       <column name="source_id"/>
