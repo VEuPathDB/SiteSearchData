@@ -86,13 +86,13 @@
       <column name="source_id"/>
       <column name="comment_id"/>
       <sql>
-        <![CDATA[ 
-                 select tsc.source_id, tsc.comment_id
-                 from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc, @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
-                 where mc.comment_id = tsc.comment_id
-                 AND mc.review_status_id != 'rejected'
-                 AND mc.is_visible = 1
-                 order by tsc.comment_id                 
+        <![CDATA[
+          select tsc.source_id, tsc.comment_id
+          from apidb.TextSearchableComment@COMMENT_DBLINK@ tsc,
+               @COMMENT_SCHEMA@MappedComment@COMMENT_DBLINK@ mc
+          where mc.comment_id = tsc.comment_id
+            and mc.review_status_id != 'rejected'
+            and mc.is_visible = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -102,12 +102,12 @@
       <column name="content"/>
       <sql>
         <![CDATA[
-                 select tsc.source_id, tsc.content
-                 from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc, @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
-                 where mc.comment_id = tsc.comment_id
-                 AND mc.review_status_id != 'rejected'
-                 AND mc.is_visible = 1
-                 order by tsc.comment_id                 
+          select tsc.source_id, tsc.content
+          from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc,
+               @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
+          where mc.comment_id = tsc.comment_id
+            and mc.review_status_id != 'rejected'
+            and mc.is_visible = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -139,7 +139,6 @@
 
     <sqlQuery name="ECNumbers" isCacheable="false" >
       <column name="source_id"/>
-      <column name="transcript_ids"/>
       <column name="ec_number"/>
       <column name="ec_description"/>
       <column name="ec_source"/>
@@ -149,8 +148,6 @@
         <![CDATA[
           select ta.gene_source_id AS source_id, ec.ec_number,
                  ec.description AS ec_description,
-                 listagg(ta.source_id, ', ') within group (order by ta.source_id)
-                   as transcript_ids,
                  decode(asec.evidence_code,
                         'OrthoMCLDerived', 'computationally inferred from orthology',
                         'gb', 'GenBank',
@@ -186,7 +183,6 @@
 
     <sqlQuery name="GOTerms" isCacheable="false" >
       <column name="source_id"/>
-      <column name="transcript_ids"/>
       <column name="go_id"/>
       <column name="go_term_name"/>
       <column name="ontology"/>
@@ -197,13 +193,10 @@
       <column name="sort_key"/>
       <sql>
         <![CDATA[
-          select source_id, go_id,  transcript_ids, go_term_name, ontology,
+          select source_id, go_id,  go_term_name, ontology,
                  source, evidence_code, reference, evidence_code_parameter
           from (--apidbTuning.GeneGoTable
                 select source_id, go_id,
-                       listagg(transcript_source_id, ', ')
-                         within group (order by transcript_source_id)
-                         as transcript_ids,
                        max(go_term_name) as go_term_name, ontology, source, evidence_code,
                        reference, evidence_code_parameter
                 from (select distinct ggt.gene_source_id as source_id,
@@ -262,7 +255,6 @@
 
     <sqlQuery name="InterPro" isCacheable="false">
       <column name="source_id"/>
-      <column name="transcript_ids"/>
       <column name="interpro_name"/>
       <column name="interpro_family_id"/>
       <column name="interpro_primary_id"/>
@@ -270,9 +262,7 @@
       <column name="interpro_desc"/>
       <sql>
         <![CDATA[
-          select listagg(ta.source_id, ', ') within group (order by ta.source_id)
-                   as transcript_ids,
-                 ta.gene_source_id as source_id, xd1.name AS interpro_name,
+          select ta.gene_source_id as source_id, xd1.name AS interpro_name,
                  dr.primary_identifier AS interpro_primary_id,
                  dr.secondary_identifier AS interpro_secondary_id,
                  dr.remark AS interpro_desc, df2.source_id AS interpro_family_id
@@ -351,17 +341,13 @@
               isCacheable="false" clobRow="true">
 
       <column name="source_id"/>
-      <column name="transcript_ids"/>
       <column name="comment_string"/>
       <sql>
         <![CDATA[
-          select nfc.comment_string, ci.source_id, ci.transcript_ids
+          select nfc.comment_string, ci.source_id
           from dots.NaFeatureComment nfc,
                (select nfc.na_feature_comment_id,
-                       ta.gene_source_id as source_id,
-                       listagg(ta.source_id, ', ')
-                         within group (order by  ta.source_id)
-                         as transcript_ids
+                       ta.gene_source_id as source_id
                 from dots.NaFeatureComment nfc, apidbTuning.TranscriptAttributes ta
                 where ta.gene_na_feature_id = nfc.na_feature_id
                    or ta.gene_na_feature_id = nfc.na_feature_id
@@ -441,89 +427,20 @@
     </sqlQuery>
 
 
-    <sqlQuery name="MassSpec"
-              isCacheable="false">
-
-      <column name="transcript_ids"/>
-      <column name="source_id"/>
-      <column name="experiment"/>
-      <column name="sample"/>
-      <column name="data_source"/>
-      <sql>
-        <![CDATA[
-          select listagg(source_id, ', ') within group (order by source_id) as transcript_ids,
-                 gene_source_id as source_id, experiment, sample_display_name as sample,
-                 external_database_name AS data_source
-          from apidbTuning.MsTranscriptSummary
-          group by gene_source_id, experiment, sample_display_name, external_database_name
-        ]]>
-      </sql>
-    </sqlQuery>
-
-    <!--+++++++++++++++++++-->
-    <!-- Phospho Mass spec -->
-    <!--+++++++++++++++++++-->
-
-    <sqlQuery name="MassSpecMod"
-              isCacheable="false">
-      <column name="source_id"/>
-      <column name="transcript_ids"/>
-      <column name="term_name"/>
-      <column name="experiment"/>
-      <column name="sample"/>
-      <sql>
-        <![CDATA[
-          select listagg(source_id, ', ') within group(order by source_id)
-                   as transcript_ids,
-                 gene_source_id as source_id, experiment, sample,
-                 replace(replace(replace(term_name, '-', ' '), '_', ' '),
-                         'binding site', 'ubiquitin binding site') as term_name
-          from (select distinct source_id, gene_source_id, experiment,
-                                sample_display as sample,
-                                modification_type as term_name
-                from  apidbTuning.MsModifiedPeptideSummary)
-          group by gene_source_id, experiment, sample, term_name
-        ]]>
-      </sql>
-    </sqlQuery>
 
     <sqlQuery name="PreferredProducts" isCacheable="false" >
       <column name="source_id"/>
-      <column name="transcript_ids"/>
       <column name="product"/>
       <column name="reference"/>
       <sql>
         <![CDATA[
           select ta.gene_source_id AS source_id, tp.product,
-                 listagg(source_id, ', ') within group(order by source_id)
-                   as transcript_ids,
                  listagg(publication, ', ') within group(order by source_id)
                    as reference
           from apidb.TranscriptProduct tp, apidbTuning.TranscriptAttributes ta
           where ta.na_feature_id = tp.na_feature_id
             and tp.is_preferred = 1
           group by gene_source_id, tp.product
-        ]]>
-      </sql>
-    </sqlQuery>
-
-
-    <sqlQuery name="Y2hInteractions" isCacheable="false">
-      <column name="source_id"/>
-      <column name="other_source_id"/>
-      <sql>
-        <![CDATA[
-            select bf.source_id, pf.source_id AS other_source_id
-            from apidbTuning.GeneAttributes bf, apidbTuning.GeneAttributes pf,
-                 apidb.GeneInteraction gi
-            where bf.na_feature_id = gi.bait_gene_feature_id
-              and gi.prey_gene_feature_id = pf.na_feature_id
-          union
-            select pf.source_id, bf.source_id AS other_source_id
-            from apidbTuning.GeneAttributes bf, apidbTuning.GeneAttributes pf,
-                 apidb.GeneInteraction gi
-            where bf.na_feature_id = gi.bait_gene_feature_id
-              and gi.prey_gene_feature_id = pf.na_feature_id
         ]]>
       </sql>
     </sqlQuery>
@@ -570,7 +487,6 @@
     <sqlQuery name="PdbSimilarities"
               isCacheable="false">
       <column name="source_id"/>
-      <column name="transcript_ids"/>
       <column name="pdb_chain"/>
       <column name="pdb_id"/>
       <column name="taxon"/>
@@ -578,8 +494,6 @@
       <sql>
         <![CDATA[
           select gene_source_id as source_id,
-                 listagg(source_id, ', ') within group(order by source_id)
-                   as transcript_ids,
                 pdb_chain, pdb_id, taxon, pdb_title
           from (select distinct ps.pdb_chain, ps.pdb_title, ps.pdb_id, ps.taxon,
                                 ta.source_id, ta.gene_source_id
