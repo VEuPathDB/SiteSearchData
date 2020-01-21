@@ -195,7 +195,7 @@
         <![CDATA[
           select source_id, go_id,  go_term_name, ontology,
                  source, evidence_code, reference, evidence_code_parameter
-          from (--apidbTuning.GeneGoTable
+          from (-- makeup of GeneGoTable tuning table
                 select source_id, go_id,
                        max(go_term_name) as go_term_name, ontology, source, evidence_code,
                        reference, evidence_code_parameter
@@ -205,7 +205,7 @@
                                       ggt.go_term_name, ggt.ontology, ggt.source,
                                       ggt.evidence_code, ggt.reference,
                                       ggt.evidence_code_parameter
-                      from (-- apidbTuning.GeneGoTerms
+                      from (-- makeup of GeneGoTerms tuning table
                             with root_term
                                  as (select ontology_term_id,
                                             cast(initcap(replace(name, '_', ' ')) as varchar2(20))
