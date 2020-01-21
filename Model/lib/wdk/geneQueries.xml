@@ -60,13 +60,14 @@
       <column name="name" ignoreCase="true"/>
       <column name="gene_type" ignoreCase="true"/>
       <column name="sequence_id" ignoreCase="true"/>
-      <column name="organism_full"  sortingColumn="organism_full"/>
-      <column name="organism_text"  sortingColumn="organism_full"/><!-- CHECK-->
+      <column name="organism_full"/>
+      <column name="organism_text"/><!-- CHECK-->
+      <column name="organism"/>
       <column name="genus_species"  sortingColumn="organism_full"/>
       <sql>
         <![CDATA[
           select source_id, product, name, gene_type,
-                 sequence_id, organism as organism_full,
+                 sequence_id, organism as organism_full, organism
                  genus_species, strain,
                  substr(organism, 1, 1) || '. '
                    || substr(organism, instr(organism, ' ', 1, 1) +1)
