@@ -2,12 +2,13 @@
 
   <querySet name="OrganismIdQueries" queryType="id" isCacheable="true">
 
-    <sqlQuery name="AllOrganisms">
+    <sqlQuery name="Organisms">
       <column name="source_id"/>
       <sql>
         <![CDATA[
           select oa.source_id
-          from apidbTuning.OrganismAttributes oa
+          from apidbTuning.OrganismAttributes oa, apidb.Organism o
+          where oa.component_taxon_id = o.taxon_id
         ]]>
       </sql>
     </sqlQuery>
