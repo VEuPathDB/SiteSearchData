@@ -12,13 +12,13 @@
               recordClassRef="recordClasses.est">
     </question>
 
-    <question name="PathwaysByProject" displayName="dontcare"
-              queryRef="PathwayIdQueries.PathwaysByProject"
+    <question name="Pathways" displayName="dontcare"
+              queryRef="PathwayIdQueries.AllPathways"
               recordClassRef="recordClasses.pathway">
     </question>
 
-    <question name="CompoundsByProject" displayName="dontcare"
-              queryRef="CompoundIdQueries.CompoundsByProject"
+    <question name="Compounds" displayName="dontcare"
+              queryRef="CompoundIdQueries.AllCompounds"
               recordClassRef="recordClasses.compound">
     </question>
 
@@ -47,7 +47,7 @@
 
     <recordClass name="organism" urlName="organism" displayName="Organism">
       <propertyList name="batch">
-        <value>dataset</value>
+        <value>dataset-presenter</value>
       </propertyList>
 
       <primaryKey aliasQueryRef="OrganismAttributes.OrganismAlias">
@@ -69,6 +69,7 @@
 
       <attributeQueryRef ref="OrganismAttributes.organismAttrs">
         <columnAttribute name="species" displayName="Species"/>
+        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism">
           <propertyList name="isSummary">
             <value>true</value>
@@ -119,7 +120,8 @@
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="organism_full" displayName="Organism" inReportMaker="false">
+        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
+        <columnAttribute name="organism_full" displayName="Organism">
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -165,6 +167,7 @@
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="PathwayAttributes.Bfmv">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="name" displayName="Pathway">
           <propertyList name="isSummary">
             <value>true</value>
@@ -175,9 +178,9 @@
       <table name="CompoundsMetabolicPathways"
              displayName="Metabolic Pathway Reactions"
              queryRef="PathwayTables.CompoundsFromMetabolicPathways" >
-        <columnAttribute displayName="Enzyme Description" name="enzyme_description" inReportMaker="true"/>
-        <columnAttribute displayName="Substrates" name="substrates_text" inReportMaker="true" internal="true"/>
-        <columnAttribute displayName="Products" name="products_text" inReportMaker="true" internal="true"/>
+        <columnAttribute displayName="Enzyme Description" name="enzyme_description"/>
+        <columnAttribute displayName="Substrates" name="substrates_text"/>
+        <columnAttribute displayName="Products" name="products_text"/>
       </table>
 
 
@@ -210,6 +213,7 @@
                 implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="CompoundAttributes.Bfmv">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="definition" displayName="Definition" >
           <propertyList name="isSummary">
             <value>true</value>
@@ -225,41 +229,36 @@
       </attributeQueryRef>
 
       <attributeQueryRef ref="CompoundAttributes.Synonyms" >
-        <columnAttribute name="synonyms" displayName="Synonyms" internal="true"/>
+        <columnAttribute name="synonyms" displayName="Synonyms"/>
       </attributeQueryRef>
 
       <table name="Properties" displayName="Compound Properties"
              queryRef="CompoundTables.Properties">
         <columnAttribute name="value" displayName="Value"/>
-        <propertyList name="includeInDumper"><value>true</value></propertyList>
       </table>
 
       <table name="IupacNames" displayName="IUPAC Names"
              queryRef="CompoundTables.IupacNames">
         <columnAttribute name="value" displayName="Value"/>
-        <propertyList name="includeInDumper"><value>true</value></propertyList>
       </table>
 
       <table name="Synonyms" displayName="Compound Synonyms"
              queryRef="CompoundTables.Synonyms">
         <columnAttribute name="value" displayName="Value"/>
-        <propertyList name="includeInDumper"><value>true</value></propertyList>
       </table>
 
       <table name="CompoundsMetabolicPathways"
              displayName="Metabolic Pathway Reactions"
              queryRef="CompoundTables.CompoundsFromMetabolicPathways">
 
-        <columnAttribute displayName="Substrates" name="substrates_text" inReportMaker="true" internal="true"/>
-        <columnAttribute displayName="Products" name="products_text" inReportMaker="true" internal="true"/>
+        <columnAttribute displayName="Substrates" name="substrates_text"/>
+        <columnAttribute displayName="Products" name="products_text"/>
       </table>
 
       <table name="PathwaysFromCompounds"
              displayName="Metabolic Pathways"
              queryRef="CompoundTables.PathwaysFromCompounds">
-
-        <columnAttribute name="pathway_source_id" internal="true"/>
-        <columnAttribute name="pathway_name" internal="true" displayName="Pathway"/>
+        <columnAttribute name="pathway_name" displayName="Pathway"/>
       </table>
 
     </recordClass>
@@ -345,6 +344,7 @@
         <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories"/>
         <columnAttribute name="name" displayName="Gene Name or Symbol"/>
         <columnAttribute name="organism_text" displayName="Organism"/>
+        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism" >
           <propertyList name="isSummary">
             <value>true</value>
@@ -376,8 +376,9 @@
         <columnAttribute displayName="Note" name="comment_string"/>
       </table>
 
-      <!-- needed for the user comment updater.  should eventually hide from end user -->
+      <!-- needed for the user comment updater. -->
       <table name="UserCommentIDs"
+             internal="true"
              displayName="User Comment IDs"
              queryRef="GeneTables.UserCommentIDs">
         <columnAttribute displayName="Comment ID" name="comment_id"/>
@@ -489,7 +490,7 @@
 
     <recordClass name="dataset" urlName="dataset" displayName="Dataset">
       <propertyList name="batch">
-        <value>dataset</value>
+        <value>dataset-presenter</value>
       </propertyList>
 
       <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
