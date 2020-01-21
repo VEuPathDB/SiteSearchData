@@ -156,10 +156,18 @@
       <idAttribute name="primary_key" displayName="Pathway Id">
         <text>
           <![CDATA[
-                   $$source_id$$
+               $$source_id$$
           ]]>
         </text>
       </idAttribute>
+
+      <textAttribute name="pathway_source_text" displayName="Pathway Source">
+        <text>
+          <![CDATA[
+               $$pathway_source$$
+          ]]>
+        </text>
+      </textAttribute>
 
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
@@ -168,7 +176,6 @@
 
       <attributeQueryRef ref="PathwayAttributes.Bfmv">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
-        <columnAttribute displayName="Source" name="pathway_source"/>
         <columnAttribute name="name" displayName="Pathway">
           <propertyList name="isSummary">
             <value>true</value>
