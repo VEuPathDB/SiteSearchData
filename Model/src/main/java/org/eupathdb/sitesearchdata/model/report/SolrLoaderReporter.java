@@ -108,7 +108,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       
       var obj = new JSONObject();
       obj.put("document-type", urlSegment);
-      obj.put("wdkPrimaryKey", pkValues); // multi string field. for forming record URLs
+      obj.put("primaryKey", pkValues); // multi string field. for forming record URLs
       obj.put("wdkPrimaryKeyString", String.join(",", pkValues)); // joined string field for sorting
       obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       obj.put("batch-type", batchType);
