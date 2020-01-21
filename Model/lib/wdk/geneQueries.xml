@@ -81,6 +81,36 @@
 
   <querySet name="GeneTables" queryType="table" isCacheable="false">
 
+    <sqlQuery name="UserCommentIDs">
+      <column name="source_id"/>
+      <column name="comment_id"/>
+      <sql>
+        <![CDATA[ 
+                 select tsc.source_id, tsc.comment_id
+                 from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc, @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
+                 and mc.comment_id = tsc.comment_id
+                 AND mc.review_status_id != 'rejected'
+                 AND mc.is_visible = 1
+                 order by tsc.comment_id                 
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="UserCommentContent">
+      <column name="source_id"/>
+      <column name="content"/>
+      <sql>
+        <![CDATA[
+                 select tsc.source_id, tsc.content
+                 from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc, @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
+                 and mc.comment_id = tsc.comment_id
+                 AND mc.review_status_id != 'rejected'
+                 AND mc.is_visible = 1
+                 order by tsc.comment_id                 
+        ]]>
+      </sql>
+    </sqlQuery>
+
     <sqlQuery name="ProteinSourceIDs">
       <column name="source_id"/>
       <column name="protein_source_id"/>

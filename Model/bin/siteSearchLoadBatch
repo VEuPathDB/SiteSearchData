@@ -10,16 +10,14 @@ import requests
 BATCH_ID_FIELD = 'batch-id'
 UNIQUE_KEY_FIELD = 'id'
 
-# TODO move these out to environment variables
+# Authentication
 USER = os.environ['SOLR_USER'] if ('SOLR_USER' in os.environ) else ''
 PASS = os.environ['SOLR_PASSWORD'] if ('SOLR_PASSWORD' in os.environ) else ''
-
 AUTH = (USER, PASS)
 
 # Parse the arguments
 def parse_args():
-
-    help="""
+    help = """
 Add, update, or remove batches or individual files from Solr's index.
 
 Commits on success.  Rolls back on failure.
@@ -30,8 +28,8 @@ Examples:
   loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-type-name BATCH_TYPE BATCH_NAME
   loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 BATCH_ID_2
   loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --doc-key UNIQUE_KEY_1 UNIQUE_KEY_2
-
 """
+
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
 
     parser.add_argument('solr_url', help='The URL of the Solr instance, including core, but not including operation (ex: http://localhost:8080/solr/site_search).')
@@ -157,18 +155,16 @@ def delete(solr_url, batch_type_name=None, batch_ids=None, doc_keys=None, produc
 
     if batch_type_name:
         batch_type, batch_name = batch_type_name
-
-        print("Deleting batch '{} {}'".format(batch_type, batch_name))
-        data = '<delete><query>batch-type:{} AND batch-name:{}</query></delete>'.format(batch_type, batch_name)
-        solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+        query_text = 'batch-type:{} AND batch-name:{}'.format(batch_type, batch_name)
+        batch_text = "'{} {}'".format(batch_type, batch_name)
+        delete_batch(query_text, url, batch_text)
         action_taken = True
 
     # If there is a del_batch_id, use it to delete the old batch
     if batch_ids:
         for batch_id in batch_ids:
-            print('Deleting batch ' + batch_id)
-            data = '<delete><query>{}:{}</query></delete>'.format(BATCH_ID_FIELD, batch_id)
-            solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+            query_text = '{}:{}'.format(BATCH_ID_FIELD, batch_id)
+            delete_batch(query_text, url, batch_id)
             action_taken = True
 
     # If there is a del_key, use it to delete documents
@@ -199,6 +195,18 @@ def index_file(path_like, url):
         print('Indexing file ' + f.name)
         data = f.read()
         solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/json'})
+
+# Delete a batch
+def delete_batch(query_text, url, batch_text):
+    # First, delete the batch-meta document
+    print('Deleting batch-meta document for batch ' + batch_text)
+    data = '<delete><query>{} AND document-type:batch-meta</query></delete>'.format(query_text)
+    solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+
+    # Then delete the data documents
+    print('Deleting batch ' + batch_text)
+    data = '<delete><query>{}</query></delete>'.format(query_text)
+    solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
 
 # Make a request to Solr, print its response, and raise an error if necessary
 def solr_request(method, url, data=None, auth=None, headers=None):
