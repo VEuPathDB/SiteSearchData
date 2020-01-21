@@ -28,7 +28,7 @@
     </question>
 
     <question name="Organisms" displayName="dontcare"
-              queryRef="OrganismIdQueries.AllOrganisms"
+              queryRef="OrganismIdQueries.Organisms"
               recordClassRef="recordClasses.organism">
     </question>
 
