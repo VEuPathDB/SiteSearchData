@@ -168,6 +168,7 @@
 
       <attributeQueryRef ref="PathwayAttributes.Bfmv">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute displayName="Source" name="pathway_source"/>
         <columnAttribute name="name" displayName="Pathway">
           <propertyList name="isSummary">
             <value>true</value>
