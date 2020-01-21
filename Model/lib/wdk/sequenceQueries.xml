@@ -61,7 +61,7 @@
       <column name="genbank_accession" ignoreCase="true"/>
       <sql excludeProjects="EuPathDB">
         <![CDATA[
-          select source_id, organism as organism_full, genbank_accession, organism
+          select source_id, organism as organism_full, genbank_accession, organism,
                  case
                    when (sequence_description) is not null
                      then sequence_description

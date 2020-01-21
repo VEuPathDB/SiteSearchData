@@ -34,7 +34,7 @@
       <column name="organism"/>
       <sql>
         <![CDATA[
-          select source_id, species, organism_name AS organism_full, organism_name AS organism
+          select source_id, species, organism_name AS organism_full, organism_name AS organism,
                  decode(genome_source, 'gb', 'GenBank',
                         'jkissinger', 'Kissinger Lab', genome_source)
                    as data_source

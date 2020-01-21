@@ -12,13 +12,13 @@
               recordClassRef="recordClasses.est">
     </question>
 
-    <question name="PathwaysByProject" displayName="dontcare"
-              queryRef="PathwayIdQueries.PathwaysByProject"
+    <question name="Pathways" displayName="dontcare"
+              queryRef="PathwayIdQueries.AllPathways"
               recordClassRef="recordClasses.pathway">
     </question>
 
-    <question name="CompoundsByProject" displayName="dontcare"
-              queryRef="CompoundIdQueries.CompoundsByProject"
+    <question name="Compounds" displayName="dontcare"
+              queryRef="CompoundIdQueries.AllCompounds"
               recordClassRef="recordClasses.compound">
     </question>
 
@@ -69,7 +69,7 @@
 
       <attributeQueryRef ref="OrganismAttributes.organismAttrs">
         <columnAttribute name="species" displayName="Species"/>
-        <columnAttribute name="organism" displayName="dontcare" internal="true">  <!-- special field for organism filtering -->
+        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism">
           <propertyList name="isSummary">
             <value>true</value>
@@ -102,9 +102,6 @@
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Sequence ID">
-        <propertyList name="boost">
-          <value>2</value>
-        </propertyList>
         <text>
           <![CDATA[
                    $$source_id$$
@@ -347,7 +344,7 @@
         <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories"/>
         <columnAttribute name="name" displayName="Gene Name or Symbol"/>
         <columnAttribute name="organism_text" displayName="Organism"/>
-        <columnAttribute name="organism" displayName="dontcare" internal="true">  <!-- special field for organism filtering -->
+        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism" >
           <propertyList name="isSummary">
             <value>true</value>

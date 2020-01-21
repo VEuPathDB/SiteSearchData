@@ -2,9 +2,7 @@
 
   <querySet name="PathwayIdQueries" queryType="id" isCacheable="true">
 
-    <!-- the project param is fake.  but we do need it declared so that the documents produced are labelled with it by the reporter -->
-    <sqlQuery name="PathwaysByProject">
-      <paramRef ref="pathwayParams.project"/>
+    <sqlQuery name="AllPathways">
       <column name="source_id"/>
       <column name="pathway_source"/>
       <sql>
@@ -15,10 +13,6 @@
       </sql>
     </sqlQuery>
   </querySet>
-
-  <paramSet name="pathwayParams">
-    <stringParam name="project" prompt="dontcare" number="false"/>
-  </paramSet>
 
   <querySet name="PathwayAttributes" queryType="attribute" isCacheable="false">
 
@@ -44,7 +38,7 @@
       <column name="name"  />
       <sql>
         <![CDATA[
-          select pa.source_id, pa.pathway_source, pa.namea, '@PROJECT_ID@' as project
+          select pa.source_id, pa.pathway_source, pa.name, '@PROJECT_ID@' as project
           from apidbTuning.PathwayAttributes pa
         ]]>
       </sql>
