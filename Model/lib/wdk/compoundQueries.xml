@@ -2,9 +2,7 @@
 
   <querySet name="CompoundIdQueries" queryType="id" isCacheable="true">
 
-    <!-- the project param is fake.  but we do need it declared so that the documents produced are labelled with it by the reporter -->
-    <sqlQuery name="CompoundsByProject">
-      <paramRef ref="compoundParams.project"/>
+    <sqlQuery name="AllCompounds">
       <column name="source_id"/>
       <sql>
         <![CDATA[
@@ -14,10 +12,6 @@
       </sql>
     </sqlQuery>
   </querySet>
-
-  <paramSet name="compoundParams">
-    <stringParam name="project" prompt="dontcare" number="false"/>
-  </paramSet>
 
   <querySet name="CompoundAttributes" queryType="attribute" isCacheable="false">
 
@@ -34,6 +28,7 @@
 
     <sqlQuery name="Bfmv">
       <column name="source_id"/>
+      <column name="project"/>
       <column name="compound_name"/>
       <column name="other_names"/>
       <column name="definition"/>
@@ -42,7 +37,7 @@
       <sql>
         <![CDATA[
           select source_id, compound_name, definition, secondary_ids,
-                 other_names, formula
+                 other_names, formula, '@PROJECT_ID@' as project
           from apidbTuning.CompoundAttributes
         ]]>
       </sql>
