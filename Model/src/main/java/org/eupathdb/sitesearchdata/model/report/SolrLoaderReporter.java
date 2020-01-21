@@ -116,12 +116,12 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
       for (String attributeName: attributeNames) {
-        String name = record.getAttributeFieldMap().get(attributeName).isInternal()?
+        String name = record.getRecordClass().getAttributeFieldMap().get(attributeName).isInternal()?
               attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
         obj.put(name, record.getAttributeValue(attributeName).getValue());
       }
       for (String tableName: tableNames) {
-        String name = record.getAttributeFieldMap().get(tableName).isInternal()?
+        String name = record.getRecordClass().getTableFieldMap().get(tableName).isInternal()?
             tableName : TABLE_PREFIX + urlSegment + "_" + tableName;
         obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
       }

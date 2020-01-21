@@ -67,7 +67,7 @@
       <sql>
         <![CDATA[
           select source_id, product, name, gene_type,
-                 sequence_id, organism as organism_full, organism
+                 sequence_id, organism as organism_full, organism,
                  genus_species, strain,
                  substr(organism, 1, 1) || '. '
                    || substr(organism, instr(organism, ' ', 1, 1) +1)
@@ -89,7 +89,7 @@
         <![CDATA[ 
                  select tsc.source_id, tsc.comment_id
                  from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc, @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
-                 and mc.comment_id = tsc.comment_id
+                 where mc.comment_id = tsc.comment_id
                  AND mc.review_status_id != 'rejected'
                  AND mc.is_visible = 1
                  order by tsc.comment_id                 
@@ -104,7 +104,7 @@
         <![CDATA[
                  select tsc.source_id, tsc.content
                  from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc, @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
-                 and mc.comment_id = tsc.comment_id
+                 where mc.comment_id = tsc.comment_id
                  AND mc.review_status_id != 'rejected'
                  AND mc.is_visible = 1
                  order by tsc.comment_id                 
