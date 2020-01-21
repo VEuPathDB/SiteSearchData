@@ -3,7 +3,7 @@
   <querySet name="SequenceIdQueries" queryType="id" isCacheable="true">
 
     <sqlQuery name="SequencesByOrganismAbbrev">
-      <paramRef ref="organismParams.organismAbbrev"/>
+      <paramRef ref="sequenceParams.organismAbbrev"/>
       <column name="source_id"/>
       <sql>
         <![CDATA[
