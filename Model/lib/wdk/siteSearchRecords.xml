@@ -405,32 +405,12 @@
         <columnAttribute name="ec_description" displayName="EC Description" help="Enzyme Commission classification description of this assignment"  truncateTo="1000"/>
       </table>
 
-      <table name="MassSpec" displayName="Mass Spec.-based Expression Evidence"
-             queryRef="GeneTables.MassSpec">
-        <columnAttribute name="experiment" displayName="Experiment"/>
-        <columnAttribute name="sample" displayName="Sample"/>
-        <columnAttribute name="data_source" displayName="Data Source"/>
-      </table>
-
-      <table name="MassSpecMod" displayName="Post Translational Modifications"
-             queryRef="GeneTables.MassSpecMod">
-        <columnAttribute name="experiment" displayName="Experiment"/>
-        <columnAttribute name="sample" displayName="Sample"/>
-        <columnAttribute name="term_name" displayName="Modification Type"/>
-      </table>
-
       <table name="GOTerms"
              displayName="GO Terms"
              queryRef="GeneTables.GOTerms">
         <columnAttribute name="go_id" displayName="GO ID"/>
         <columnAttribute name="go_term_name" displayName="GO Term Name"/>
         <columnAttribute name="reference" displayName="Reference" help="The reference indicates the source, such as a publication or database record, that is cited as an authority for the association of GO term to the gene product."/>
-      </table>
-
-      <table name="Y2hInteractions"
-             displayName="Y2H Interactions"
-             queryRef="GeneTables.Y2hInteractions">
-        <columnAttribute name="other_source_id"   displayName="Interacts With"/>
       </table>
 
       <table name="MetabolicPathwaysMPMP"
