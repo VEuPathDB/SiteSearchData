@@ -23,11 +23,11 @@ Add, update, or remove batches or individual files from Solr's index.
 Commits on success.  Rolls back on failure.
 
 Examples:
-  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH
-  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search index --file FILE_1 FILE_2
-  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-type-name BATCH_TYPE BATCH_NAME
-  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 BATCH_ID_2
-  loadSiteSearchBatch https://solr.local.apidb.org:8443/solr/site_search delete --doc-key UNIQUE_KEY_1 UNIQUE_KEY_2
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --file FILE_1 FILE_2
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-type-name BATCH_TYPE BATCH_NAME
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 BATCH_ID_2
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --doc-key UNIQUE_KEY_1 UNIQUE_KEY_2
 """
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
