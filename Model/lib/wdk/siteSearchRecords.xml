@@ -385,7 +385,7 @@
       </table>
 
       <!-- needed for the user comment updater. -->
-      <table name="UserCommentIDs"
+      <table name="userCommentIds"
              internal="true"
              displayName="User Comment IDs"
              queryRef="GeneTables.UserCommentIDs">

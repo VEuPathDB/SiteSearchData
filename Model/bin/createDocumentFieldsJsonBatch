@@ -83,7 +83,7 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
             document['fields'].append(attrJson)
             tables = recordType['tables']
         for table in tables:
-            if not attribute['isDisplayable']:  # internal table
+            if not table['isDisplayable']:  # internal table
                 break
             tableJson = {}
             tableJson['name'] = MULTITEXT_PREFIX + recordTypeName + "_" + table['name']
