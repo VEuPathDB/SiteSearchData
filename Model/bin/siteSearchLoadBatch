@@ -40,6 +40,7 @@ Examples:
     parser_index = subparsers.add_parser('index', help='Index files or batches into Solr.')
     parser_index.set_defaults(func=index)
     parser_index.add_argument('--batch-dir', help='Index a batch contained in the given directory. The directory should contain a batch.json file and the .json files containing the data. The JSON files should adhere to the requirements listed in the --file option. The data files will be loaded first, and batch.json last, indicating a successful load.')
+    parser_index.add_argument('--validate-only', action='store_true', help='Validate the batch provided with --batch-dir, but do not index it.')
     parser_index.add_argument('--file', nargs='+', metavar='FILE', dest='file_paths', help='Index individual files. Each file must be a JSON-formatted list of Solr documents, that is, a JSON array containing JSON objects.')
 
     # Delete subparser
@@ -101,55 +102,52 @@ def run(kwargs):
                 exit(1)
 
 # Index files or batches
-def index(solr_url, batch_dir=None, file_paths=None, production=False):
+def index(solr_url, batch_dir=None, file_paths=None, validate_only=False):
     update_url = solr_url + '/update'
     select_url = solr_url + '/select'
     action_taken = False
 
     if batch_dir:
-        batch_json_path = batch_dir + '/batch.json'
+        # Validate the batch
+        validate_batch(batch_dir)
 
-        try:
+        if not validate_only:
+            # Read batch.json
+            batch_json_path = batch_dir + '/batch.json'
             with open(batch_json_path) as batch_json_file:
                 batch_json = json.load(batch_json_file)[0]
-        except FileNotFoundError:
-            print('Error: batch.json not found in ' + batch_dir)
-            raise
 
-        batch_type = batch_json['batch-type']
-        batch_name = batch_json['batch-name']
-        batch_id = batch_json['batch-id']
+            batch_type = batch_json['batch-type']
+            batch_name = batch_json['batch-name']
+            batch_id = batch_json['batch-id']
 
-        # First check to see whether this exact batch with same version already exists in Solr
-        # We do this by looking for the batch-meta document
-        url = select_url + '?q=batch-id:{} AND document-type:batch-meta&rows=0'.format(batch_id)
-        print('Checking for the absence of batch-meta for batch {} in Solr'.format(batch_id))
-        response = solr_request('GET', url, auth=AUTH)
-
-        if response.json()['response']['numFound']:
-            print('Skipping batch {} - already loaded in Solr'.format(batch_id))
-        else:
-            # Then check to see whether Solr has ANY documents belonging to this batch
-            url = select_url + '?q=batch-type:{} AND batch-name:{}&rows=0'.format(batch_type, batch_name)
-            print("Checking for the absence of any batch '{} {}' documents in Solr".format(batch_type, batch_name))
+            # Check to see whether this exact batch with same version already exists in Solr
+            # We do this by looking for the batch-meta document
+            url = select_url + '?q=batch-id:{} AND document-type:batch-meta&rows=0'.format(batch_id)
+            print('Checking for the absence of batch-meta for batch {} in Solr'.format(batch_id))
             response = solr_request('GET', url, auth=AUTH)
 
             if response.json()['response']['numFound']:
-                print("Error: Documents with batch-type '{}' and batch-name '{}' already exist in Solr, but there is no batch-meta with a version number that matches the one you want to load. Delete the existing documents before loading this batch.".format(batch_type, batch_name))
-                exit(1)
+                print('Skipping batch {} - already loaded in Solr'.format(batch_id))
             else:
-                # Get all file objects in the directory
-                dir_files = [obj for obj in os.scandir(batch_dir) if obj.is_file()]
+                # Check to see whether Solr has ANY documents belonging to this batch
+                url = select_url + '?q=batch-type:{} AND batch-name:{}&rows=0'.format(batch_type, batch_name)
+                print("Checking for the absence of any batch '{} {}' documents in Solr".format(batch_type, batch_name))
+                response = solr_request('GET', url, auth=AUTH)
 
-                # Index all data files
-                for file_obj in dir_files:
-                    if file_obj.name.endswith('.json') and file_obj.name != 'batch.json':
-                        index_file(file_obj, update_url)
-                        action_taken = True
+                if response.json()['response']['numFound']:
+                    print("Error: Documents with batch-type '{}' and batch-name '{}' already exist in Solr, but there is no batch-meta with a version number that matches the one you want to load. Delete the existing documents before loading this batch.".format(batch_type, batch_name))
+                    exit(1)
+                else:
+                    # Index all data files
+                    for file_obj in dir_files:
+                        if file_obj.name.endswith('.json') and file_obj.name != 'batch.json':
+                            index_file(file_obj, update_url)
+                            action_taken = True
 
-                # Finally, index batch.json
-                index_file(batch_json_path, update_url)
-                action_taken = True
+                    # Finally, index batch.json
+                    index_file(batch_json_path, update_url)
+                    action_taken = True
 
     # If there are new files to index, index them
     if file_paths:
@@ -199,6 +197,52 @@ def rollback(url):
     except Exception as e:
         print('Error: Unable to roll back changes')
         raise
+
+# Validate a batch
+# This involves making sure that certain fields are identical in all documents in the batch
+def validate_batch(batch_dir):
+    print('Validating batch')
+
+    # Read batch.json
+    batch_json_path = batch_dir + '/batch.json'
+
+    try:
+        with open(batch_json_path) as batch_json_file:
+            batch_json = json.load(batch_json_file)[0]
+    except FileNotFoundError:
+        print('Error: batch.json not found in ' + batch_dir)
+        raise
+
+    # Get all file objects in the directory
+    dir_files = [obj for obj in os.scandir(batch_dir) if obj.is_file()]
+    # Define the fields that should be identical in all files
+    batch_meta_fields = ['batch-type', 'batch-name', 'batch-id', 'batch-timestamp']
+
+    # Validate each data file
+    for file_obj in dir_files:
+        if file_obj.name.endswith('.json') and file_obj.name != 'batch.json':
+            with open(file_obj) as f:
+                docs = json.load(f)
+                # The fields that didn't match, if any
+                mismatched_fields = []
+
+                # Validate each document
+                for doc in docs:
+                    for field in batch_meta_fields:
+                        if doc[field] != batch_json[field]:
+                            mismatched_fields.append(field)
+
+                    # If any fields didn't match, error out
+                    if mismatched_fields:
+                        error_str = "Document '{}' in file '{}' contains batch meta fields that don't match batch.json:\n".format(doc['id'], file_obj.name)
+                        str_list = []
+
+                        for field in mismatched_fields:
+                            str_list.append('  "{0}": "{1}" (data file) != "{0}": "{2}" (batch.json)'.format(field, doc[field], batch_json[field]))
+
+                        raise ValueError(error_str + '\n'.join(str_list))
+
+    print('Batch is valid')
 
 # Index a file
 def index_file(path_like, url):
