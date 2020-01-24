@@ -186,6 +186,7 @@
       <table name="CompoundsMetabolicPathways"
              displayName="Metabolic Pathway Reactions"
              queryRef="PathwayTables.CompoundsFromMetabolicPathways" >
+        <columnAttribute displayName="EC Number" name="ec_number"/>
         <columnAttribute displayName="Enzyme Description" name="enzyme_description"/>
         <columnAttribute displayName="Substrates" name="substrates_text"/>
         <columnAttribute displayName="Products" name="products_text"/>
