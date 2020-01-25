@@ -54,24 +54,20 @@
     </sqlQuery>
 
     <sqlQuery name="Bfmv">
-      <column name="source_id" ignoreCase="true"/>
-      <column name="strain" ignoreCase="true"/>
-      <column name="product" ignoreCase="true"/>
-      <column name="name" ignoreCase="true"/>
-      <column name="gene_type" ignoreCase="true"/>
-      <column name="sequence_id" ignoreCase="true"/>
+      <column name="source_id"/>
+      <column name="strain"/>
+      <column name="product"/>
+      <column name="name"/>
+      <column name="gene_type"/>
+      <column name="sequence_id"/>
       <column name="organism_full"/>
-      <column name="organism_text"/><!-- CHECK-->
       <column name="organism"/>
-      <column name="genus_species"  sortingColumn="organism_full"/>
+      <column name="genus_species"/>
       <sql>
         <![CDATA[
           select source_id, product, name, gene_type,
                  sequence_id, organism as organism_full, organism,
-                 genus_species, strain,
-                 substr(organism, 1, 1) || '. '
-                   || substr(organism, instr(organism, ' ', 1, 1) +1)
-                   as organism_text
+                 genus_species, strain
           from apidbTuning.GeneAttributes
         ]]>
       </sql>
