@@ -350,16 +350,15 @@
         </columnAttribute>
 
         <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories"/>
-        <columnAttribute name="name" displayName="Gene Name or Symbol"/>
-        <columnAttribute name="organism_text" displayName="Organism"/>
+        <columnAttribute name="name" displayName="Gene name or symbol"/>
         <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism" >
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="genus_species" displayName="genus_species"/>
-        <columnAttribute name="strain" displayName="strain"/>
+        <columnAttribute name="genus_species" displayName="Species"/>
+        <columnAttribute name="strain" displayName="Strain"/>
       </attributeQueryRef>
 
       <table name="GeneTranscripts"
@@ -369,7 +368,7 @@
       </table>
 
       <table name="InterPro"
-             displayName="InterPro Domains"
+             displayName="InterPro domains"
              queryRef="GeneTables.InterPro">
         <columnAttribute displayName="Name" name="interpro_name"/>
         <columnAttribute displayName="Interpro ID" name="interpro_family_id"/>
