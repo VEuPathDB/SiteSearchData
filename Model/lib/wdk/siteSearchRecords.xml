@@ -65,7 +65,7 @@
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
                 scopes=""
-                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="OrganismAttributes.organismAttrs">
         <columnAttribute name="species" displayName="Species"/>
@@ -112,7 +112,7 @@
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
                 scopes=""
-                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="SequenceAttributes.Bfmv">
         <columnAttribute name="description" displayName="Description">
@@ -172,7 +172,7 @@
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
                 scopes=""
-                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="PathwayAttributes.Bfmv">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
@@ -219,7 +219,7 @@
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
                 scopes=""
-                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="CompoundAttributes.Bfmv">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
@@ -296,7 +296,7 @@
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
                 scopes=""
-                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="EstAttributeQueries.Bfmv">
         <columnAttribute name="dbest_name" displayName="Library">
@@ -339,7 +339,7 @@
       </idAttribute>
 
       <reporter name="solrjson"  displayName="solr json: choose from columns and/or tables" scopes=""
-                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="GeneAttributes.Bfmv">
         <columnAttribute displayName="Genomic Sequence ID" name="sequence_id"/>
@@ -495,7 +495,7 @@
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
                 scopes=""
-                implementation="org.eupathdb.sitesearchdata.model.report.SolrLoaderReporter"/>
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="DatasetAttributes.All">
         <columnAttribute name="display_name" displayName="Dataset Name">
