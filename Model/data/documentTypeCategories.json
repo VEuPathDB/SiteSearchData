@@ -4,13 +4,13 @@
       { "id": "gene",
         "displayName": "Gene",
         "displayNamePlural": "Genes",
-        "wdkSearchUrlName": "GenesByText"
+        "wdkSearchUrlName": "GenesByText",
         "hasOrganismField": true
       },
       { "id": "genomic-sequence",
         "displayName": "Genomic sequence",
         "displayNamePlural": "Genomic sequences",
-        "wdkSearchUrlName": "GenomicSeqByText"
+        "wdkSearchUrlName": "GenomicSeqByText",
         "hasOrganismField": true
       }
     ]
@@ -20,7 +20,7 @@
       { "id": "organism",
         "displayName": "Organism",
         "displayNamePlural": "Organisms",
-        "wdkSearchUrlName": "OrganismsByText"
+        "wdkSearchUrlName": "OrganismsByText",
         "hasOrganismField": true
       }
     ]
@@ -30,7 +30,7 @@
       { "id": "est",
         "displayName": "EST",
         "displayNamePlural": "ESTs",
-        "wdkSearchUrlName": "EstsByText"
+        "wdkSearchUrlName": "EstsByText",
         "hasOrganismField": true
       }
     ]
@@ -40,13 +40,13 @@
       { "id": "pathway",
         "displayName": "Metabolic pathway",
         "displayNamePlural": "Metabolic pathways",
-        "wdkSearchUrlName": "PathwaysByText"
+        "wdkSearchUrlName": "PathwaysByText",
         "hasOrganismField": false
       },
       { "id": "compound",
         "displayName": "Compound",
         "displayNamePlural": "Compounds",
-        "wdkSearchUrlName": "CompoundsByText"
+        "wdkSearchUrlName": "CompoundsByText",
         "hasOrganismField": false
       }
     ]
@@ -56,7 +56,7 @@
       { "id": "dataset",
         "displayName": "Dataset",
         "displayNamePlural": "Datasets",
-        "wdkSearchUrlName": "DatasetsByText"
+        "wdkSearchUrlName": "DatasetsByText",
         "hasOrganismField": false
       },
       { "id": "search",
