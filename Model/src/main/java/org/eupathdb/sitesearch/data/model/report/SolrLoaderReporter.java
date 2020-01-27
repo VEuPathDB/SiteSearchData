@@ -1,4 +1,4 @@
-package org.eupathdb.sitesearchdata.model.report;
+package org.eupathdb.sitesearch.data.model.report;
 
 import static org.gusdb.fgputil.iterator.IteratorUtil.toStream;
 

@@ -50,13 +50,15 @@
     <sqlQuery name="CompoundsFromMetabolicPathways" >
       <column name="source_id"/>
       <column name="pathway_source"/>
+      <column name="ec_number"/>
       <column name="enzyme_description"/>
       <column name="substrates_text"/>
       <column name="products_text"/>
       <sql>
         <![CDATA[
           select distinct pa.source_id, pa.pathway_source,
-                          pr.enzyme_description, pr.substrates_text, pr.products_text
+                          pr.enzyme as ec_number, pr.enzyme_description,
+                          pr.substrates_text, pr.products_text
           from apidbTuning.PathwayAttributes pa, apidbTuning.PathwayCompounds pc,
                apidbTuning.PathwayReactions pr
           where pc.pathway_id = pa.pathway_id
