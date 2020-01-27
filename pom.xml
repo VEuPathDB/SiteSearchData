@@ -10,7 +10,6 @@
 
   <modules>
     <module>Model</module>
-    <module>CommentUpdater</module>
   </modules>
 
   <dependencyManagement>
