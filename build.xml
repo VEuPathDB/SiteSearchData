@@ -5,7 +5,8 @@
 
   <target name="SiteSearchData-Installation" depends="WDK-Installation, 
                                                       SiteSearchData-MavenInstallation,
-                                                      SiteSearchData/Model-Installation">
+                                                      SiteSearchData/Model-Installation,
+                                                      SiteSearchData/CommentUpdater-Installation">
     <ant target="defaultProjectInstall">
       <property name="project" value="SiteSearchData" />
     </ant>
@@ -15,6 +16,13 @@
     <ant target="defaultComponentInstall">
       <property name="project" value="SiteSearchData" />
       <property name="component" value="Model" />
+    </ant>
+  </target>
+
+  <target name="SiteSearchData/CommentUpdater-Installation">
+    <ant target="defaultComponentInstall">
+      <property name="project" value="SiteSearchData" />
+      <property name="component" value="CommentUpdater" />
     </ant>
   </target>
 
