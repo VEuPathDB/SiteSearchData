@@ -100,17 +100,17 @@ def run(kwargs):
                 print('No change')
 
         except Exception as e:
-            print(traceback.format_exc())
+            print(traceback.format_exc(), file=sys.stderr)
 
             # If changes have been staged, attempt to roll them back
             if hasattr(e, 'changes_staged') and e.changes_staged:
                 try:
                     rollback(update_url)
-                    print('An error occurred and changes were rolled back.')
+                    print('An error occurred and changes were rolled back.', file=sys.stderr)
 
                 except Exception as e:
                     print(traceback.format_exc())
-                    print('An error occurred, but rollback failed. Changes could still be staged in Solr.')
+                    print('An error occurred, but rollback failed. Changes could still be staged in Solr.', file=sys.stderr)
 
             sys.exit(1)
 
@@ -219,7 +219,7 @@ def rollback(url):
         print('Rollback successful')
 
     except Exception as e:
-        print('Error: Unable to roll back changes')
+        print('Error: Unable to roll back changes', file=sys.stderr)
         raise
 
 # Validate a batch
@@ -234,7 +234,7 @@ def validate_batch(batch_dir):
         with open(batch_json_path) as batch_json_file:
             batch_json = json.load(batch_json_file)[0]
     except FileNotFoundError:
-        print('Error: batch.json not found in ' + batch_dir)
+        print('Error: batch.json not found in ' + batch_dir, file=sys.stderr)
         raise
 
     # Get all file objects in the directory
@@ -303,9 +303,14 @@ def solr_request(method, url, data=None, auth=None, headers=None):
 
     request = requests.request(method, url, data=data, auth=auth, headers=headers)
 
-    print('Solr response:')
-    print(request.text)
-    request.raise_for_status()
+    try:
+        request.raise_for_status()
+        print('Solr response:')
+        print(request.text)
+    except requests.exceptions.HTTPError:
+        print('Solr response:', file=sys.stderr)
+        print(request.text, file=sys.stderr)
+        raise
 
     return request
 
