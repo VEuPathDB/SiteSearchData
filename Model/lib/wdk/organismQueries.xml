@@ -28,9 +28,9 @@
     </sqlQuery>
 
     <sqlQuery name="organismAttrs">
-      <column name="source_id" ignoreCase="true"/>
-      <column name="data_source" ignoreCase="true"/>
-      <column name="species" ignoreCase="true"/>
+      <column name="source_id"/>
+      <column name="data_source"/>
+      <column name="species"/>
       <column name="organism_full"/>
       <column name="organism"/>
       <sql>

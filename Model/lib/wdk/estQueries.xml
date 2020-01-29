@@ -50,9 +50,9 @@
 
     <sqlQuery name="Bfmv">
       <column name="source_id"/>
-      <column name="dbest_name"  ignoreCase="true"/>
-      <column name="vector"  ignoreCase="true"/>
-      <column name="stage"  ignoreCase="true"/>
+      <column name="dbest_name"/>
+      <column name="vector"/>
+      <column name="stage"/>
       <sql>
         <![CDATA[
           select source_id, dbest_name, vector, stage
