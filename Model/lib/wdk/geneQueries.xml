@@ -359,47 +359,34 @@
               isCacheable="false">
 
       <column name="source_id"/>
-      <column name="pathway_id"/>
-      <column name="pathway_name"/>
-      <column name="activity"/>
-
-      <sql>
-        <![CDATA[
-          select -- distinct
-                 ga.source_id, dr.primary_identifier AS pathway_id,
-                 trim(replace(decode(dr.lowercase_secondary_identifier,
-                                     null, dr.primary_identifier,
-                                     dr.lowercase_secondary_identifier),
-                              chr(191), ''))
-                   as pathway_name,
-                 dr.remark AS activity
-          from apidbTuning.GeneAttributes ga, dots.DbRefNaFeature drnf,  sres.DbRef dr,
-               sres.ExternalDatabaseRelease edr, sres.ExternalDatabase ed
-          where ga.na_feature_id = drnf.na_feature_id
-            and drnf.db_ref_id = dr.db_ref_id
-            and dr.external_database_release_id = edr.external_database_release_id
-            and edr.external_database_id = ed.external_database_id
---          and lower(ed.name) like '%pathway%'
-            and ed.name
-                in ('pfal3D7_dbxref_simple_gene2HagaiPathway_RSRC',
-                    'tgonME49_dbxref_protein2Pathways_Feng_RSRC')
-        ]]>
-      </sql>
-    </sqlQuery>
-
-
-    <sqlQuery name="MetabolicPathwaysSres" isCacheable="false">
-      <column name="source_id"/>
       <column name="pathway_source_id"/>
       <column name="pathway_name"/>
-      <column name="enzyme"/>
-      <column name="pathway_source"/>
 
       <sql>
         <![CDATA[
-          select pg.gene_source_id AS source_id, pg.pathway_source_id,
-                 pg.pathway_name, pg.enzyme, pg.pathway_source
-          from apidbTuning.PathwaysGeneTable pg
+            -- MetabolicPathwaysMPMP (plasmo)
+            select dr.primary_identifier as pathway_id,
+                   trim(replace(decode(dr.lowercase_secondary_identifier,
+                                       null, dr.primary_identifier,
+                                       dr.lowercase_secondary_identifier),
+                                chr(191), ''))
+                     as pathway_name,
+                   gf.source_id
+            from apidbTuning.GeneAttributes gf, dots.DbRefNaFeature drnf,
+                 sres.DbRef dr, sres.ExternalDatabaseRelease edr,
+                 sres.ExternalDatabase ed
+            where gf.na_feature_id = drnf.na_feature_id
+              and drnf.db_ref_id = dr.db_ref_id
+              and dr.external_database_release_id = edr.external_database_release_id
+              and edr.external_database_id = ed.external_database_id
+              and ed.name
+                  in ('pfal3D7_dbxref_simple_gene2HagaiPathway_RSRC',
+                      'tgonME49_dbxref_protein2Pathways_Feng_RSRC')
+          union
+            -- MetabolicPathwaysSres
+            select gene_source_id AS source_id, pathway_source_id,
+                   pathway_name
+            from apidbTuning.PathwaysGeneTable
         ]]>
       </sql>
     </sqlQuery>
@@ -421,7 +408,6 @@
         ]]>
       </sql>
     </sqlQuery>
-
 
 
     <sqlQuery name="PreferredProducts" isCacheable="false" >
