@@ -63,11 +63,12 @@
       <column name="organism_full"/>
       <column name="organism"/>
       <column name="genus_species"/>
+      <column name="orthomcl_name"/>
       <sql>
         <![CDATA[
           select source_id, product, name, gene_type,
                  sequence_id, organism as organism_full, organism,
-                 genus_species, strain
+                 genus_species, strain, orthomcl_name
           from apidbTuning.GeneAttributes
         ]]>
       </sql>

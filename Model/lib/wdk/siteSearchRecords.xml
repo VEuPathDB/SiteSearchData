@@ -192,7 +192,6 @@
         <columnAttribute displayName="Products" name="products_text"/>
       </table>
 
-
     </recordClass>
 
     <!-- ################################################################### -->
@@ -360,6 +359,7 @@
         </columnAttribute>
         <columnAttribute name="genus_species" displayName="Species"/>
         <columnAttribute name="strain" displayName="Strain"/>
+        <columnAttribute name="orthomcl_name" displayName="Ortholog Group"/>
       </attributeQueryRef>
 
       <table name="GeneTranscripts"
