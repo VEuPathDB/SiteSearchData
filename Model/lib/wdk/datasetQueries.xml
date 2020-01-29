@@ -15,7 +15,7 @@
   <querySet name="DatasetAttributes" queryType="attribute" isCacheable="false">
     <sqlQuery name="All"  isCacheable="false">
       <column name="dataset_id"/>
-      <column name="display_name" ignoreCase="true"/>
+      <column name="display_name"/>
       <column name="description"/>
       <column name="summary"/>
       <column name="acknowledgement"/>
