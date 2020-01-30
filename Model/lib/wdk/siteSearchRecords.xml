@@ -360,7 +360,11 @@
         </columnAttribute>
 
         <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories"/>
-        <columnAttribute name="name" displayName="Gene name or symbol"/>
+        <columnAttribute name="name" displayName="Gene name or symbol">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism" >
           <propertyList name="isSummary">
