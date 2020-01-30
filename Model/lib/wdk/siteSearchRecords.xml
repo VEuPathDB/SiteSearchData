@@ -192,6 +192,16 @@
         <columnAttribute displayName="Products" name="products_text"/>
       </table>
 
+      <table name="PathwayGenes"
+             displayName="Metabolic Pathway Genes"
+             queryRef="PathwayTables.PathwayGenes" >
+        <columnAttribute name="source_id"/>
+        <columnAttribute name="pathway_source"/>
+        <columnAttribute name="gene_source_id"/>
+        <columnAttribute name="name"/>
+        <columnAttribute name="product"/>
+      </table>
+
     </recordClass>
 
     <!-- ################################################################### -->
