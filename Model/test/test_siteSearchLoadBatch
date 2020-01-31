@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+
+import unittest
+import subprocess
+import json
+import os
+import argparse
+
+# Get user and pass from environment
+user = os.environ['SOLR_USER'] if ('SOLR_USER' in os.environ) else ''
+passwd = os.environ['SOLR_PASSWORD'] if ('SOLR_PASSWORD' in os.environ) else ''
+# Path to siteSearchLoadBatch - must be changed if script is moved relative to this file
+script_path = '../bin/siteSearchLoadBatch'
+curl_base_cmd = ['curl', '--user', user+':'+passwd]
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Perform unit testing on siteSearchLoadBatch.')
+    parser.add_argument('core_url', help='The URL of the core to use for testing. This core must contain no data.')
+    args = parser.parse_args()
+    return args
+
+
+def check_empty(core_url):
+    """
+    Check to see whether a core is empty. If it's not, error out.
+    """
+    cmd = curl_base_cmd + [core_url+'/select?q=*:*&rows=0']
+    process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+    if json.loads(process.stdout)['response']['numFound']:
+        raise ValueError('Solr core is not empty - testing requires an empty core. Aborting.')
+
+
+class ParameterizedTestCase(unittest.TestCase):
+    """
+    TestCase classes that want to be parameterized should
+        inherit from this class.
+    """
+    def __init__(self, core_url, methodName='runTest'):
+        super(ParameterizedTestCase, self).__init__(methodName)
+        self.core_url = core_url
+        self.script_base_cmd = [script_path, core_url]
+        self.select_all_cmd = curl_base_cmd + [core_url+'/select?q=*:*']
+
+    @staticmethod
+    def parameterize(testcase_class, core_url):
+        """
+        Create a suite containing all tests taken from the given
+            subclass, passing them parameters.
+        """
+        testloader = unittest.TestLoader()
+        testnames = testloader.getTestCaseNames(testcase_class)
+        suite = unittest.TestSuite()
+        for name in testnames:
+            suite.addTest(testcase_class(core_url, name))
+        return suite
+
+
+class TestSiteSearchLoadBatch(ParameterizedTestCase):
+    def setUp(self):
+        """
+        Setup tasks. Run before each individual test function.
+        """
+        # Check that the testing core is empty
+        check_empty(self.core_url)
+
+    def test_index_file_success(self):
+        """
+        Test that indexing a single file using '--file' works.
+        """
+        # Index file
+        file_path = 'test_data/input/index_file_success_in.json'
+        cmd = self.script_base_cmd + ['index', '--file', file_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Check Solr state
+        self.check_solr_state('test_data/output/index_file_success_out.json')
+
+    def test_index_batch_success(self):
+        """
+        Test that indexing a batch using '--batch-dir' works.
+        """
+        # Index batch
+        dir_path = 'test_data/input/index_batch_success'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Check Solr state
+        self.check_solr_state('test_data/output/index_batch_success_out.json')
+
+    def tearDown(self):
+        """
+        Tear-down tasks. Run after each individual test function.
+        """
+        # Delete all data from the core
+        cmd = curl_base_cmd + [self.core_url+'/update?commit=true', '--data', '<delete><query>*:*</query></delete>', '-H', 'Content-type:text/xml;charset=utf-8']
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+    def check_solr_state(self, correct_file):
+        """
+        Check that the state of Solr matches the state represented
+        by correct_file.
+        """
+        # Get all documents
+        process = subprocess.run(self.select_all_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        response_json = json.loads(process.stdout)['response']
+
+        # Remove nondeterministic '_version_' field added by Solr
+        for doc in response_json['docs']:
+            del doc['_version_']
+
+        # Grab the correct data
+        with open(correct_file) as f:
+            correct_json = json.load(f)
+
+        # Compare the two
+        self.assertEqual(response_json['numFound'], correct_json['numFound'])
+        self.assertCountEqual(response_json['docs'], correct_json['docs'])
+
+
+if __name__ == '__main__':
+    # Parse arguments
+    args = parse_args()
+
+    # Check that the testing core is empty
+    check_empty(args.core_url)
+
+    # Run tests
+    suite = unittest.TestSuite()
+    suite.addTest(ParameterizedTestCase.parameterize(TestSiteSearchLoadBatch, core_url=args.core_url))
+    unittest.TextTestRunner(verbosity=2).run(suite)
