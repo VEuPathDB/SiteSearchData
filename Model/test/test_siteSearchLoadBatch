@@ -38,7 +38,7 @@ class ParameterizedTestCase(unittest.TestCase):
         inherit from this class.
     """
     def __init__(self, core_url, methodName='runTest'):
-        super(ParameterizedTestCase, self).__init__(methodName)
+        super().__init__(methodName)
         self.core_url = core_url
         self.script_base_cmd = [script_path, core_url]
         self.select_all_cmd = curl_base_cmd + [core_url+'/select?q=*:*']
@@ -57,39 +57,16 @@ class ParameterizedTestCase(unittest.TestCase):
         return suite
 
 
-class TestSiteSearchLoadBatch(ParameterizedTestCase):
+class SiteSearchLoadBatchTestCase(ParameterizedTestCase):
+    def __init__(self, core_url, methodName='runTest'):
+       super().__init__(core_url, methodName)
+
     def setUp(self):
         """
         Setup tasks. Run before each individual test function.
         """
         # Check that the testing core is empty
         check_empty(self.core_url)
-
-    def test_index_file_success(self):
-        """
-        Test that indexing a single file using '--file' works.
-        """
-        # Index file
-        file_path = 'test_data/input/index_file_success_in.json'
-        cmd = self.script_base_cmd + ['index', '--file', file_path]
-        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEqual(process.returncode, 0, process.stderr)
-
-        # Check Solr state
-        self.check_solr_state('test_data/output/index_file_success_out.json')
-
-    def test_index_batch_success(self):
-        """
-        Test that indexing a batch using '--batch-dir' works.
-        """
-        # Index batch
-        dir_path = 'test_data/input/index_batch_success'
-        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
-        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEqual(process.returncode, 0, process.stderr)
-
-        # Check Solr state
-        self.check_solr_state('test_data/output/index_batch_success_out.json')
 
     def tearDown(self):
         """
@@ -121,6 +98,34 @@ class TestSiteSearchLoadBatch(ParameterizedTestCase):
         self.assertCountEqual(response_json['docs'], correct_json['docs'])
 
 
+class IndexTestCase(SiteSearchLoadBatchTestCase):
+    def test_file_success(self):
+        """
+        Test that indexing a single file using '--file' works.
+        """
+        # Index file
+        file_path = 'test_data/input/index_file_success_in.json'
+        cmd = self.script_base_cmd + ['index', '--file', file_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Check Solr state
+        self.check_solr_state('test_data/output/index_file_success_out.json')
+
+    def test_batch_success(self):
+        """
+        Test that indexing a batch using '--batch-dir' works.
+        """
+        # Index batch
+        dir_path = 'test_data/input/index_batch_success'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Check Solr state
+        self.check_solr_state('test_data/output/index_batch_success_out.json')
+
+
 if __name__ == '__main__':
     # Parse arguments
     args = parse_args()
@@ -130,5 +135,5 @@ if __name__ == '__main__':
 
     # Run tests
     suite = unittest.TestSuite()
-    suite.addTest(ParameterizedTestCase.parameterize(TestSiteSearchLoadBatch, core_url=args.core_url))
+    suite.addTest(ParameterizedTestCase.parameterize(IndexTestCase, core_url=args.core_url))
     unittest.TextTestRunner(verbosity=2).run(suite)
