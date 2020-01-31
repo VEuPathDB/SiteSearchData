@@ -1,0 +1,22 @@
+[
+    {
+        "batch-type": "dataset",
+        "batch-name": "batch-name",
+        "document-type": "dataset",
+        "batch-timestamp": 1000000001,
+        "batch-id": "dataset_batch-name_1000000001",
+        "id": "dataset_batch-name_1000000003",
+        "TEXT__field0": "value6",
+        "MULTITEXT__field1": ["value7", "value8"]
+    },
+    {
+        "batch-type": "dataset",
+        "batch-name": "batch-name",
+        "document-type": "dataset",
+        "batch-timestamp": 1000000001,
+        "batch-id": "dataset_batch-name_1000000001",
+        "id": "dataset_batch-name_1000000004",
+        "TEXT__field0": "value9",
+        "MULTITEXT__field1": ["value10", "value11"]
+    }
+]
