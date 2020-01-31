@@ -80,10 +80,9 @@
       </attributeQueryRef>
 
       <table name="GenomeSequencingAndAnnotationAttribution"
-             displayName="Genome Sequencing and Annotation"
+             displayName="Genome sequencing and annotation"
              queryRef="OrganismTables.GenomeSequencingAndAnnotation">
-        <columnAttribute displayName="Description" name="description"/>
-
+        <columnAttribute name="description"/>
       </table>
 
     </recordClass>
@@ -130,9 +129,9 @@
       </attributeQueryRef>
 
       <table name="Aliases"
-             displayName="Previous Identifiers and Aliases"
+             displayName="Previous IDs and aliases"
              queryRef="SequenceTables.Aliases">
-        <columnAttribute name="seq_id" displayName="Sequence ID"/>
+        <columnAttribute name="seq_id"/>
       </table>
 
 
@@ -143,7 +142,7 @@
     <!-- ########################  Pathway Record  ######################### -->
     <!-- ################################################################### -->
 
-    <recordClass name="pathway" urlName="pathway" displayName="Metabolic Pathway">
+    <recordClass name="pathway" urlName="pathway" displayName="Metabolic pathway">
       <propertyList name="batch">
         <value>pathway</value>
       </propertyList>
@@ -153,7 +152,7 @@
         <columnRef>source_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Pathway Id">
+      <idAttribute name="primary_key" displayName="Pathway ID">
         <text>
           <![CDATA[
                $$source_id$$
@@ -161,7 +160,7 @@
         </text>
       </idAttribute>
 
-      <textAttribute name="pathway_source_text" displayName="Pathway Source">
+      <textAttribute name="pathway_source_text" displayName="Pathway source">
         <text>
           <![CDATA[
                $$pathway_source$$
@@ -184,16 +183,16 @@
       </attributeQueryRef>
 
       <table name="CompoundsMetabolicPathways"
-             displayName="Metabolic Pathway Reactions"
+             displayName="Reactions"
              queryRef="PathwayTables.CompoundsFromMetabolicPathways" >
-        <columnAttribute displayName="EC Number" name="ec_number"/>
-        <columnAttribute displayName="Enzyme Description" name="enzyme_description"/>
-        <columnAttribute displayName="Substrates" name="substrates_text"/>
-        <columnAttribute displayName="Products" name="products_text"/>
+        <columnAttribute name="ec_number"/>
+        <columnAttribute name="enzyme_description"/>
+        <columnAttribute name="substrates_text"/>
+        <columnAttribute name="products_text"/>
       </table>
 
       <table name="PathwayGenes"
-             displayName="Metabolic Pathway Genes"
+             displayName="Genes"
              queryRef="PathwayTables.PathwayGenes" >
         <columnAttribute name="source_id"/>
         <columnAttribute name="pathway_source"/>
@@ -237,8 +236,8 @@
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="formula" displayName="Molecular Formula"/>
-        <columnAttribute name="compound_name" displayName="Compound Name" >
+        <columnAttribute name="formula" displayName="Molecular formula"/>
+        <columnAttribute name="compound_name" displayName="Name" >
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -250,33 +249,33 @@
         <columnAttribute name="synonyms" displayName="Synonyms"/>
       </attributeQueryRef>
 
-      <table name="Properties" displayName="Compound Properties"
+      <table name="Properties" displayName="Properties"
              queryRef="CompoundTables.Properties">
-        <columnAttribute name="value" displayName="Value"/>
+        <columnAttribute name="value"/>
       </table>
 
-      <table name="IupacNames" displayName="IUPAC Names"
+      <table name="IupacNames" displayName="IUPAC names"
              queryRef="CompoundTables.IupacNames">
-        <columnAttribute name="value" displayName="Value"/>
+        <columnAttribute name="value"/>
       </table>
 
-      <table name="Synonyms" displayName="Compound Synonyms"
+      <table name="Synonyms" displayName="Synonyms"
              queryRef="CompoundTables.Synonyms">
-        <columnAttribute name="value" displayName="Value"/>
+        <columnAttribute name="value"/>
       </table>
 
       <table name="CompoundsMetabolicPathways"
-             displayName="Metabolic Pathway Reactions"
+             displayName="Metabolic pathway reactions"
              queryRef="CompoundTables.CompoundsFromMetabolicPathways">
 
-        <columnAttribute displayName="Substrates" name="substrates_text"/>
-        <columnAttribute displayName="Products" name="products_text"/>
+        <columnAttribute name="substrates_text"/>
+        <columnAttribute name="products_text"/>
       </table>
 
       <table name="PathwaysFromCompounds"
-             displayName="Metabolic Pathways"
+             displayName="Metabolic pathways"
              queryRef="CompoundTables.PathwaysFromCompounds">
-        <columnAttribute name="pathway_name" displayName="Pathway"/>
+        <columnAttribute name="pathway_name"/>
       </table>
 
     </recordClass>
@@ -294,7 +293,7 @@
         <columnRef>source_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="EST Id">
+      <idAttribute name="primary_key" displayName="EST ID">
         <text>
           <![CDATA[
                    $$source_id$$
@@ -351,15 +350,15 @@
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="GeneAttributes.Bfmv">
-        <columnAttribute displayName="Genomic Sequence ID" name="sequence_id"/>
+        <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
 
-        <columnAttribute name="product" displayName="Product Description" help="Protein Product for this gene" >
+        <columnAttribute name="product" displayName="Product description" >
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
         </columnAttribute>
 
-        <columnAttribute name="gene_type" displayName="Gene Type" help="Gene Product Categories"/>
+        <columnAttribute name="gene_type" displayName="Gene type"/>
         <columnAttribute name="name" displayName="Gene name or symbol">
           <propertyList name="isSummary">
             <value>true</value>
@@ -373,95 +372,94 @@
         </columnAttribute>
         <columnAttribute name="genus_species" displayName="Species"/>
         <columnAttribute name="strain" displayName="Strain"/>
-        <columnAttribute name="orthomcl_name" displayName="Ortholog Group"/>
+        <columnAttribute name="orthomcl_name" displayName="Ortholog group"/>
       </attributeQueryRef>
 
       <table name="GeneTranscripts"
              displayName="Transcripts"
              queryRef="GeneTables.GeneTranscripts">
-        <columnAttribute name="transcript_id" displayName="Transcript"/>
+        <columnAttribute name="transcript_id"/>
       </table>
 
       <table name="InterPro"
              displayName="InterPro domains"
              queryRef="GeneTables.InterPro">
-        <columnAttribute displayName="Name" name="interpro_name"/>
-        <columnAttribute displayName="Interpro ID" name="interpro_family_id"/>
-        <columnAttribute displayName="Primary ID" name="interpro_primary_id"/>
-        <columnAttribute displayName="Secondary ID" name="interpro_secondary_id"/>
-        <columnAttribute displayName="Description" name="interpro_desc"/>
+        <columnAttribute name="interpro_name"/>
+        <columnAttribute name="interpro_family_id"/>
+        <columnAttribute name="interpro_primary_id"/>
+        <columnAttribute name="interpro_secondary_id"/>
+        <columnAttribute name="interpro_desc"/>
       </table>
 
       <table name="Notes"
-             displayName="Notes from Annotator"
+             displayName="Notes from snnotators"
              queryRef="GeneTables.Notes">
-        <columnAttribute displayName="Note" name="comment_string"/>
+        <columnAttribute name="comment_string"/>
       </table>
 
       <!-- needed for the user comment updater. -->
       <table name="userCommentIds"
              internal="true"
-             displayName="User Comment IDs"
              queryRef="GeneTables.UserCommentIDs">
         <columnAttribute displayName="Comment ID" name="comment_id"/>
       </table>
 
       <table name="UserCommentContent"
-             displayName="User Comments"
+             displayName="User comments"
              queryRef="GeneTables.UserCommentContent">
-        <columnAttribute displayName="Comment" name="content"/>
+        <columnAttribute name="content"/>
       </table>
 
       <table name="ECNumbers"
-             displayName="EC Numbers"
+             displayName="EC numbers"
              queryRef="GeneTables.ECNumbers">
-        <columnAttribute name="ec_number" displayName="EC Number" help="Enzyme Commission classification of enzyme based on the reactions they catalyze" truncateTo="1000"/>
-        <columnAttribute name="ec_description" displayName="EC Description" help="Enzyme Commission classification description of this assignment"  truncateTo="1000"/>
+        <columnAttribute name="ec_number"/>
+        <columnAttribute name="ec_description"/>
       </table>
 
       <table name="GOTerms"
-             displayName="GO Terms"
+             displayName="GO terms"
              queryRef="GeneTables.GOTerms">
-        <columnAttribute name="go_id" displayName="GO ID"/>
-        <columnAttribute name="go_term_name" displayName="GO Term Name"/>
-        <columnAttribute name="reference" displayName="Reference" help="The reference indicates the source, such as a publication or database record, that is cited as an authority for the association of GO term to the gene product."/>
+        <columnAttribute name="go_id"/>
+        <columnAttribute name="go_term_name"/>
+        <columnAttribute name="reference"/>
       </table>
 
       <table name="MetabolicPathways"
-             displayName="Metabolic Pathways"
+             displayName="Metabolic pathways"
              queryRef="GeneTables.MetabolicPathways">
-        <columnAttribute name="pathway_source_id" displayName="Pathway Source ID"/>
-        <columnAttribute name="pathway_name"  displayName="Pathway"/>
+        <columnAttribute name="pathway_source_id"/>
+        <columnAttribute name="pathway_name"/>
       </table>
 
       <table name="Alias"
-             displayName="Names, Previous Identifiers, and Aliases"
+             displayName="Names, IDs, and aliases"
              queryRef="GeneTables.Alias">
-        <columnAttribute displayName="Name/ID/Alias" name="alias"/>
-        <columnAttribute displayName="Type" name="id_type"/>
+        <columnAttribute name="alias"/>
+        <columnAttribute name="id_type"/>
       </table>
 
       <table name="PubMed"
              displayName="PubMed"
              queryRef="GeneTables.PubMed">
-        <columnAttribute displayName="PubMed ID" name="pubmed_id"/>
-        <columnAttribute displayName="doi" name="doi"/>
-        <columnAttribute displayName="Title" name="title"/>
-        <columnAttribute displayName="Authors" name="authors"/>
+        <columnAttribute name="pubmed_id"/>
+        <columnAttribute name="doi"/>
+        <columnAttribute name="title"/>
+        <columnAttribute name="authors"/>
       </table>
 
       <table name="GeneLinkouts"
-             displayName="External Links"
+             displayName="External links"
              queryRef="GeneTables.gene_dbrefs">
         <columnAttribute name="ext_id"/>
       </table>
 
       <table name="PdbSimilarities"
-             displayName="Similarities to Protein Data Bank (PDB) Chains"
+             displayName="PDB chains"
              queryRef="GeneTables.PdbSimilarities">
-        <columnAttribute name="pdb_chain"  displayName="PDB Structure"/>
+        <columnAttribute name="pdb_chain"/>
         <columnAttribute name="pdb_id"/>
-        <columnAttribute name="pdb_title" displayName="PDB Molecular Description"/>
+        <columnAttribute name="pdb_title"/>
       </table>
 
       <table name="Epitopes"
@@ -471,10 +469,10 @@
       </table>
 
       <table name="PreferredProducts"
-             displayName="Annotated Product Descriptions"
+             displayName="Annotated product descriptions"
              queryRef="GeneTables.PreferredProducts">
-        <columnAttribute name="product" displayName="Product"/>
-        <columnAttribute name="reference" displayName="Reference"/>
+        <columnAttribute name="product"/>
+        <columnAttribute name="reference"/>
       </table>
 
     </recordClass>
