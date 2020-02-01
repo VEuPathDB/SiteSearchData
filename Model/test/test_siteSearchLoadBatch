@@ -21,16 +21,25 @@ def parse_args():
     return args
 
 
-def check_empty(core_url):
+def core_is_empty(core_url, require=False):
     """
-    Check to see whether a core is empty. If it's not, error out.
+    Check to see whether a core is empty.
+
+    Args:
+        core_url (str): The URL to the core to check.
+        require (bool): If the core isn't empty, raise an error.
+
+    Returns:
+        bool: True if empty, False if not.
     """
     cmd = curl_base_cmd + [core_url+'/select?q=*:*&rows=0']
     process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    empty = not json.loads(process.stdout)['response']['numFound']
 
-    if json.loads(process.stdout)['response']['numFound']:
+    if require and not empty:
         raise ValueError('Solr core is not empty - testing requires an empty core. Aborting.')
 
+    return empty
 
 class ParameterizedTestCase(unittest.TestCase):
     """
@@ -38,7 +47,7 @@ class ParameterizedTestCase(unittest.TestCase):
         inherit from this class.
     """
     def __init__(self, core_url, methodName='runTest'):
-        super(ParameterizedTestCase, self).__init__(methodName)
+        super().__init__(methodName)
         self.core_url = core_url
         self.script_base_cmd = [script_path, core_url]
         self.select_all_cmd = curl_base_cmd + [core_url+'/select?q=*:*']
@@ -57,15 +66,66 @@ class ParameterizedTestCase(unittest.TestCase):
         return suite
 
 
-class TestSiteSearchLoadBatch(ParameterizedTestCase):
+class SiteSearchLoadBatchTestCase(ParameterizedTestCase):
+    def __init__(self, core_url, methodName='runTest'):
+       super().__init__(core_url, methodName)
+
     def setUp(self):
         """
         Setup tasks. Run before each individual test function.
         """
         # Check that the testing core is empty
-        check_empty(self.core_url)
+        core_is_empty(self.core_url, require=True)
 
-    def test_index_file_success(self):
+    def tearDown(self):
+        """
+        Tear-down tasks. Run after each individual test function.
+        """
+        # Delete all data from the core
+        cmd = curl_base_cmd + [self.core_url+'/update?commit=true', '--data', '<delete><query>*:*</query></delete>', '-H', 'Content-type:text/xml;charset=utf-8']
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+    def get_solr_state(self, versions=False):
+        """
+        Get all documents in Solr, removing '_version_' field by default.
+        Set versions to True to keep this field.
+        """
+        # Get all documents
+        process = subprocess.run(self.select_all_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        response_json = json.loads(process.stdout)['response']
+
+        # Remove nondeterministic '_version_' field added by Solr
+        # unless versions is True
+        if not versions:
+            for doc in response_json['docs']:
+                del doc['_version_']
+
+        return response_json
+
+    def check_solr_against(self, correct_file):
+        """
+        Check that the state of Solr matches the state represented
+        by correct_file.
+        """
+        current_json = self.get_solr_state()
+
+        # Grab the correct data
+        with open(correct_file) as f:
+            correct_json = json.load(f)
+
+        # Compare the two
+        self.assert_states_equal(current_json, correct_json)
+
+    def assert_states_equal(self, state_1, state_2):
+        """
+        Assert that two Solr state representations are equal.
+        """
+        self.assertEqual(state_1['numFound'], state_2['numFound'])
+        self.assertCountEqual(state_1['docs'], state_2['docs'])
+
+
+class IndexTestCase(SiteSearchLoadBatchTestCase):
+    def test_file_success(self):
         """
         Test that indexing a single file using '--file' works.
         """
@@ -76,59 +136,104 @@ class TestSiteSearchLoadBatch(ParameterizedTestCase):
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_state('test_data/output/index_file_success_out.json')
+        self.check_solr_against('test_data/output/index_file_success_out.json')
 
-    def test_index_batch_success(self):
+    def test_file_fail_json(self):
+        """
+        Test that indexing a file not containing a JSON array of objects fails.
+        """
+        # Index file
+        file_path = 'test_data/input/index_file_fail_json.json'
+        cmd = self.script_base_cmd + ['index', '--file', file_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(process.returncode, 0, process.stdout)
+
+        # Check that the core is still empty
+        self.assertTrue(core_is_empty(self.core_url))
+
+    def test_batch_success(self):
         """
         Test that indexing a batch using '--batch-dir' works.
         """
         # Index batch
-        dir_path = 'test_data/input/index_batch_success'
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000000'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_state('test_data/output/index_batch_success_out.json')
+        self.check_solr_against('test_data/output/index_batch_success_out.json')
 
-    def tearDown(self):
+    def test_batch_validate_only(self):
         """
-        Tear-down tasks. Run after each individual test function.
+        Test the '--validate-only' option.
         """
-        # Delete all data from the core
-        cmd = curl_base_cmd + [self.core_url+'/update?commit=true', '--data', '<delete><query>*:*</query></delete>', '-H', 'Content-type:text/xml;charset=utf-8']
-        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        # Validate batch
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000000'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--validate-only']
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
 
-    def check_solr_state(self, correct_file):
+        # Check that the core is still empty
+        self.assertTrue(core_is_empty(self.core_url))
+
+    def test_batch_already_exists(self):
         """
-        Check that the state of Solr matches the state represented
-        by correct_file.
+        Test that indexing a batch that already exists in Solr has no effect.
         """
-        # Get all documents
-        process = subprocess.run(self.select_all_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        response_json = json.loads(process.stdout)['response']
+        # Index batch
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000000'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
 
-        # Remove nondeterministic '_version_' field added by Solr
-        for doc in response_json['docs']:
-            del doc['_version_']
+        # Get state of Solr, including doc _version_ fields
+        first_state = self.get_solr_state(versions=True)
 
-        # Grab the correct data
-        with open(correct_file) as f:
-            correct_json = json.load(f)
+        # Try to index batch again
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
 
-        # Compare the two
-        self.assertEqual(response_json['numFound'], correct_json['numFound'])
-        self.assertCountEqual(response_json['docs'], correct_json['docs'])
+        # Check that Solr hasn't changed
+        # This relies on the fact that the _version_ fields will change
+        # on update even if we're uploading the same documents again
+        second_state = self.get_solr_state(versions=True)
+        self.assert_states_equal(first_state, second_state)
 
+    def test_batch_fail_batch_json(self):
+        """
+        Test that indexing with '--batch-dir' fails if batch.json is missing.
+        """
+        # Index batch
+        dir_path = 'test_data/input/index_batch_fail_batch_json'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(process.returncode, 0, process.stderr)
+
+        # Check that the core is still empty
+        self.assertTrue(core_is_empty(self.core_url))
+
+    def test_batch_fail_invalid(self):
+        """
+        Test that indexing with '--batch-dir' fails if the batch is invalid.
+        """
+        # Index batch
+        dir_path = 'test_data/input/index_batch_fail_invalid'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(process.returncode, 0, process.stderr)
+
+        # Check that the core is still empty
+        self.assertTrue(core_is_empty(self.core_url))
 
 if __name__ == '__main__':
     # Parse arguments
     args = parse_args()
 
     # Check that the testing core is empty
-    check_empty(args.core_url)
+    core_is_empty(args.core_url, require=True)
 
     # Run tests
     suite = unittest.TestSuite()
-    suite.addTest(ParameterizedTestCase.parameterize(TestSiteSearchLoadBatch, core_url=args.core_url))
+    suite.addTest(ParameterizedTestCase.parameterize(IndexTestCase, core_url=args.core_url))
     unittest.TextTestRunner(verbosity=2).run(suite)
