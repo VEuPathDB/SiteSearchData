@@ -67,6 +67,8 @@ for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
             outputSearch[ATTR_PREFIX + 'search_' + 'displayName'] = search['displayName']
         if 'description' in search:
             outputSearch[ATTR_PREFIX + 'search_' + 'description'] = search['description']
+        if 'summary' in search:
+            outputSearch[ATTR_PREFIX + 'search_' + 'summary'] = search['summary']
         outputSearch[ATTR_PREFIX + 'search_' + 'record-type'] = recordTypeName
         outputSearches.append(outputSearch)
 

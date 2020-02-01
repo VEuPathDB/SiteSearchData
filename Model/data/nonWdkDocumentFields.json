@@ -6,14 +6,18 @@
     },
     {"name":"TEXT__search_name",
      "isSummary": false,
-     "boost": 1
+     "boost": 1.5
     },
     {"name":"TEXT__search_displayName",
      "isSummary": true,
      "boost": 1
     },
-    {"name":"TEXT__search_description",
+    {"name":"TEXT__search_summary",
      "isSummary": true,
+     "boost": 1
+    },
+    {"name":"TEXT__search_description",
+     "isSummary": false,
      "boost": 1
     }
   ]
