@@ -1,3 +1,32 @@
+<!--
+    This is a special WDK model used to serve data to process that generates JSON files for Site Search.
+    
+    It follows very specific rules needed for successful production of that data.
+
+Each record class must:
+- have exactly one associated Question
+- have an urlName that exactly matches the urlName of the parallel record class in ApiCommonModel
+- include exactly one reporter, the SolrLoaderReporter
+- have a displayName using sentence case
+- have a <propertyList> with a "batch" property, indicating what type of batch that record class should be bundled with
+- should have only <attributeQueryRef>s and <table>s
+
+Each <attributeQueryRef> must:
+- always and only include name and displayName.
+- never have its name changed.  Doing so will invalidate strategies in the UserDB.  (They are used as parameter values)
+- the displayName should use sentence case
+- a few special attributes are labeled internal=true.  these serve special purposes in site search land, and are commented accordingly
+- may include a <propertyList> for "isSummary" indicating that this field is used in the UI to briefly describe this record
+- may include a <propertyList> for "boost" indicating a multiplier used to boost score of documents that match this field (default is 1)
+
+Each <table> must follow the same rules as attributeQueryRefs, plus:
+- the table's <columnAttribute>s should include only name.  (The user will never see their display name or help, etc)
+
+Each Question must:
+- have exactly zero or one parameters
+- not bother with help (it would never been seen), and its displayName is irrelevant
+
+ -->
 <wdkModel>
 
   <questionSet name="Questions" displayName="dontcare">
