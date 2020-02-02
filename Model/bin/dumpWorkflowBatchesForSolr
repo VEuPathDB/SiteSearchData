@@ -4,7 +4,6 @@ use lib "$ENV{GUS_HOME}/lib/perl";
 use Getopt::Long;
 use strict;
 use DBI;
-use WDK::Model::ModelConfig;
 
 my $BATCH_DIR_PREFIX = "solr-json-batch";
 
@@ -32,13 +31,13 @@ runReport("pathway", "all");
 runReport("compound", "all");
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
-  if ($organismCount++ > $numberOfOrganisms) {
-    print STDOUT "Reached $numberOfOrganisms organisms.  Quiting\n";
+  if ($numberOfOrganisms && $organismCount++ == $numberOfOrganisms) {
+    print STDOUT "Reached $numberOfOrganisms organisms.  Quitting\n";
     last;
   }
-  runReport("organism", $organismAbbrev);
+  runReport("organism", $organismAbbrev, $organismAbbrev);
 }
-print STDOUT "Done.";
+print STDOUT "Done.\n";
 exit 0;
 
 sub getOrganisms {
@@ -55,12 +54,14 @@ sub getOrganisms {
 }
 
 sub runReport {
-  my ($batchType, $batchName) = @_;
-  if (glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*")) {
+  my ($batchType, $batchName, $organismAbbrev) = @_;
+  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
+  if ($temp[0]) {
     print STDOUT "Batch $batchType $batchName already present in targetDir.  Skipping.\n";
     return;
   }
   my $cmd = "createWdkRecordsSolrJsonBatch $batchType $batchName $wdkServiceUrl $targetDir";
+  $cmd .= " --paramName organismAbbrev --paramValue $organismAbbrev" if $organismAbbrev;
   print STDOUT "Running $cmd\n";
   system($cmd) && die "Failed\n";
 }
@@ -71,7 +72,7 @@ sub getDbh {
   my $u  = $props->{databaseLogin};
   my $pw = $props->{databasePassword};
   my $dsn = $props->{dbiDsn};
-  DBI->connect($dsn, $u, $pw) ||  die "Couldn't connect to database: " . DBI->errstr;
+  $dbh = DBI->connect($dsn, $u, $pw) ||  die "Couldn't connect to database: " . DBI->errstr;
   $dbh->{RaiseError} = 1;
   return $dbh;
 }
@@ -91,7 +92,7 @@ sub getPropsFromGusConfigFile {
 
 sub usage {
 
-  print
+  die
 "Dump batches to be loaded into solr from data produced by the workflow.
 
 usage:  dumpWorkflowBatchesForSolr --project PlasmoDB --wdkServiceUrl --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
@@ -103,7 +104,7 @@ Dumps a hard-coded set of batches:
 
 Skips any batches already found in targetDir.
 
-Connects to the appDb found in $ENV[GUS_HOME]/config/gus.config, and queries it to find the list of organisms to dump.
+Connects to the appDb found in $ENV{GUS_HOME}/config/gus.config, and queries it to find the list of organisms to dump.
 
 Connects to a running SiteSearchModel wdk service to generate the reports.
 
