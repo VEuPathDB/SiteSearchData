@@ -1,0 +1,112 @@
+#!/usr/bin/perl
+
+use lib "$ENV{GUS_HOME}/lib/perl";
+use Getopt::Long;
+use strict;
+use DBI;
+use WDK::Model::ModelConfig;
+
+my $BATCH_DIR_PREFIX = "solr-json-batch";
+
+my $ORG_ABBREV_SQL = "select distinct o.abbrev AS internal from apidb.Organism o";
+
+
+my ($project, $wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
+&GetOptions("project=s" => \$project,
+            "targetDir=s" => \$targetDir,
+            "wdkServiceUrl=s" => \$wdkServiceUrl,
+            "numberOfOrganisms=i" => \$numberOfOrganisms,
+	    "verbose!" => \$verbose);
+
+$| = 1;
+
+&usage unless ($targetDir && $project && $wdkServiceUrl);
+
+die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
+
+my $props = getPropsFromGusConfigFile("$ENV{GUS_HOME}/config/gus.config");
+
+my $dbh = getDbh($props);
+
+runReport("pathway", "all");
+runReport("compound", "all");
+my $organismCount = 0;
+foreach my $organismAbbrev (getOrganisms($dbh)) {
+  if ($organismCount++ > $numberOfOrganisms) {
+    print STDOUT "Reached $numberOfOrganisms organisms.  Quiting\n";
+    last;
+  }
+  runReport("organism", $organismAbbrev);
+}
+print STDOUT "Done.";
+exit 0;
+
+sub getOrganisms {
+  my ($dbh) = @_;
+
+  my $sth = $dbh->prepare($ORG_ABBREV_SQL) || die "Couldn't prepare the SQL statement: " . $dbh->errstr;
+  $sth->execute ||  die "Failed to  execute statement: " . $sth->errstr;
+
+  my @orgs;
+  while (my @row = $sth->fetchrow_array()) {
+    push(@orgs, $row[0]);
+  }
+  return @orgs;
+}
+
+sub runReport {
+  my ($batchType, $batchName) = @_;
+  if (glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*")) {
+    print STDOUT "Batch $batchType $batchName already present in targetDir.  Skipping.\n";
+    return;
+  }
+  my $cmd = "createWdkRecordsSolrJsonBatch $batchType $batchName $wdkServiceUrl $targetDir";
+  print STDOUT "Running $cmd\n";
+  system($cmd) && die "Failed\n";
+}
+
+sub getDbh {
+  my ($props) = @_;
+
+  my $u  = $props->{databaseLogin};
+  my $pw = $props->{databasePassword};
+  my $dsn = $props->{dbiDsn};
+  DBI->connect($dsn, $u, $pw) ||  die "Couldn't connect to database: " . DBI->errstr;
+  $dbh->{RaiseError} = 1;
+  return $dbh;
+}
+
+sub getPropsFromGusConfigFile {
+  my ($gusConfigFile) = @_;
+  open(F, $gusConfigFile) || die "Error: can't open gus.config file '$gusConfigFile'\n";
+  my $props;
+  while(<F>) {
+    next if /^\s+$/;  # skip blank lines
+    next if /^\s+\#/; # skip comments
+    /(\w+)\=(\S+)/;
+    $props->{$1} = $2;
+  }
+  return $props;
+}
+
+sub usage {
+
+  print
+"Dump batches to be loaded into solr from data produced by the workflow.
+
+usage:  dumpWorkflowBatchesForSolr --project PlasmoDB --wdkServiceUrl --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
+
+Dumps a hard-coded set of batches:
+ - organisms (one batch per organism)
+ - pathways
+ - compounds
+
+Skips any batches already found in targetDir.
+
+Connects to the appDb found in $ENV[GUS_HOME]/config/gus.config, and queries it to find the list of organisms to dump.
+
+Connects to a running SiteSearchModel wdk service to generate the reports.
+
+Calls the createWdkRecordsSolrBatch command to do the work.
+";
+}
