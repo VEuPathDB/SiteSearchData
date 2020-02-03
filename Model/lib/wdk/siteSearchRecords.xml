@@ -66,6 +66,11 @@ Each Question must:
               recordClassRef="recordClasses.sequence">
     </question>
 
+    <question name="PopsetIsolates" displayName="dontcare"
+              queryRef="PopsetIds.PopsetByOrganismAbbrev"
+              recordClassRef="recordClasses.PopsetRecordClass">
+    </question>
+
   </questionSet>
 
   <recordClassSet name="recordClasses">
@@ -561,6 +566,49 @@ Each Question must:
         <columnAttribute name="pmid" displayName="Pubmed ID"/>
         <columnAttribute name="citation"/>
       </table>
+
+    </recordClass>
+
+    <!-- ################################################################### -->
+    <!-- #########################  Popset Record  ######################### -->
+    <!-- ################################################################### -->
+
+    <recordClass name="PopsetRecordClass" urlName="popsetSequence" displayName="Popset Isolate Sequence" shortDisplayName="PopSeq">
+      <propertyList name="batch">
+        <value>organism</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="PopsetAttributes.PopsetAlias">
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Popset ID">
+        <text>
+          <![CDATA[
+                   $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="PopsetAttributes.Attributes">
+        <columnAttribute name="organism" displayName="organism"/>
+        <columnAttribute name="description" displayName="Description"/>
+        <columnAttribute name="isolation_source" displayName="Isolation Source"/>
+        <columnAttribute name="curated_isolation_source" displayName="Curated Isolation Source"/>
+        <columnAttribute name="note" displayName="Note"/>
+        <columnAttribute name="gene_name" displayName="Gene Name"/>
+        <columnAttribute name="product" displayName="Product"/>
+        <columnAttribute name="geographic_location" displayName="Geographic Location"/>
+        <columnAttribute name="curated_geographic_location" displayName="Curated Geographic Location"/>
+        <columnAttribute name="specific_host" displayName="Host"/>
+        <columnAttribute name="popset" displayName="Popset"/>
+        <columnAttribute name="strain" displayName="Strain"/>
+      </attributeQueryRef>
 
     </recordClass>
 
