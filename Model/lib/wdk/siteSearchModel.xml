@@ -29,6 +29,6 @@
 
   <import file="sequenceQueries.xml"/>
 
-  <!-- Popset Isolate -->
+  <import file="popsetQueries.xml"/>
 
 </wdkModel>
