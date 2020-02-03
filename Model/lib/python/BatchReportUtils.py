@@ -21,7 +21,11 @@ def httpGet(url, params):
     return response
              
 def validateWebServiceUrl(wdkServiceUrl):
-     httpGet(wdkServiceUrl, {})
+    try:
+        requests.get(url=wdkServiceUrl, params={})
+    except:
+        error("It looks like you are not running the SiteSearchModel WDK service at url " + wdkServiceUrl)
+
 
 def validateParentDir(parentDir):
     if not os.path.exists(parentDir) or not os.path.isdir(parentDir):
