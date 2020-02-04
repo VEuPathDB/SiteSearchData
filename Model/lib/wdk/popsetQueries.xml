@@ -57,7 +57,6 @@
     <sqlQuery name="Attributes">
       <column name="source_id"/>
       <column name="organism"/>
-      <column name="organism_full"/>
       <column name="description"/>
       <column name="isolation_source"/>
       <column name="curated_isolation_source"/>
@@ -71,7 +70,7 @@
       <column name="strain"/>
       <sql>
         <![CDATA[
-          select source_id, organism, organism as organism_full, description,
+          select source_id, organism, description,
                  isolation_source, curated_isolation_source,
 		 note, gene_name, product,
                  geographic_location,curated_geographic_location, 
