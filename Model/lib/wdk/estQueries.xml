@@ -53,9 +53,10 @@
       <column name="dbest_name"/>
       <column name="vector"/>
       <column name="stage"/>
+      <column name="organism"/>
       <sql>
         <![CDATA[
-          select source_id, dbest_name, vector, stage
+          select source_id, dbest_name, vector, stage, organism
           from apidbTuning.EstAttributes
         ]]>
       </sql>
