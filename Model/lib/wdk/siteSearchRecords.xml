@@ -348,7 +348,12 @@ Each Question must:
         </columnAttribute>
         <columnAttribute name="vector" displayName="Vector"/>
         <columnAttribute name="stage"  displayName="Stage"/>
-        <columnAttribute name="organism"  displayName="Organism"/>
+        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
+        <columnAttribute name="organism_full" displayName="Organism" >
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
       </attributeQueryRef>
 
       <table name="ReferenceInfo" displayName="Reference" queryRef="EstTableQueries.Reference">
@@ -574,7 +579,7 @@ Each Question must:
     <!-- #########################  Popset Record  ######################### -->
     <!-- ################################################################### -->
 
-    <recordClass name="PopsetRecordClass" urlName="popsetSequence" displayName="Popset Isolate Sequence" shortDisplayName="PopSeq">
+    <recordClass name="PopsetRecordClass" urlName="popsetSequence" displayName="Popset isolate sequence">
       <propertyList name="batch">
         <value>organism</value>
       </propertyList>
@@ -597,15 +602,28 @@ Each Question must:
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="PopsetAttributes.Attributes">
-        <columnAttribute name="organism" displayName="organism"/>
-        <columnAttribute name="description" displayName="Description"/>
-        <columnAttribute name="isolation_source" displayName="Isolation Source"/>
-        <columnAttribute name="curated_isolation_source" displayName="Curated Isolation Source"/>
+        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
+        <columnAttribute name="organism_full" displayName="Organism" />
+        <columnAttribute name="description" displayName="Description">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="isolation_source" displayName="Isolation source"/>
+        <columnAttribute name="curated_isolation_source" displayName="Curated isolation source"/>
         <columnAttribute name="note" displayName="Note"/>
-        <columnAttribute name="gene_name" displayName="Gene Name"/>
-        <columnAttribute name="product" displayName="Product"/>
-        <columnAttribute name="geographic_location" displayName="Geographic Location"/>
-        <columnAttribute name="curated_geographic_location" displayName="Curated Geographic Location"/>
+        <columnAttribute name="gene_name" displayName="Gene name"/>
+        <columnAttribute name="product" displayName="Product">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="geographic_location" displayName="Geographic location">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="curated_geographic_location" displayName="Curated geographic location"/>
         <columnAttribute name="specific_host" displayName="Host"/>
         <columnAttribute name="popset" displayName="Popset"/>
         <columnAttribute name="strain" displayName="Strain"/>
