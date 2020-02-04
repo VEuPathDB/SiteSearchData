@@ -304,6 +304,10 @@ Each Question must:
 
         <columnAttribute name="substrates_text"/>
         <columnAttribute name="products_text"/>
+        <columnAttribute name="ec_number"/>
+        <columnAttribute name="enzyme_description"/>
+        <columnAttribute name="compound_source_id"/>
+        <columnAttribute name="chebi_accession"/>
       </table>
 
       <table name="PathwaysFromCompounds"
