@@ -348,6 +348,7 @@ Each Question must:
         </columnAttribute>
         <columnAttribute name="vector" displayName="Vector"/>
         <columnAttribute name="stage"  displayName="Stage"/>
+        <columnAttribute name="organism"  displayName="Organism"/>
       </attributeQueryRef>
 
       <table name="ReferenceInfo" displayName="Reference" queryRef="EstTableQueries.Reference">
