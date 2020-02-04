@@ -35,6 +35,16 @@
       }
     ]
   },
+  { "name": "Population biology",
+    "documentTypes": [
+      { "id": "popsetSequence",
+        "displayName": "Popset isolate sequence",
+        "displayNamePlural": "Popset isolate sequences",
+        "wdkSearchUrlName": "PopsetIsolatesByText",
+        "hasOrganismField": true
+      }
+    ]
+  },
   { "name": "Metabolism",
     "documentTypes": [
       { "id": "pathway",
