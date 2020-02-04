@@ -31,7 +31,7 @@
         "displayName": "EST",
         "displayNamePlural": "ESTs",
         "wdkSearchUrlName": "EstsByText",
-        "hasOrganismField": true
+        "hasOrganismField": false
       }
     ]
   },
@@ -41,7 +41,7 @@
         "displayName": "Popset isolate sequence",
         "displayNamePlural": "Popset isolate sequences",
         "wdkSearchUrlName": "PopsetIsolatesByText",
-        "hasOrganismField": true
+        "hasOrganismField": false
       }
     ]
   },
