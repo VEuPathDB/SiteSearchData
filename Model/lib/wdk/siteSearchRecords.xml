@@ -316,6 +316,13 @@ Each Question must:
         <columnAttribute name="pathway_name"/>
       </table>
 
+      <table name="Genes" displayName="Genes"
+             queryRef="CompoundTables.Genes">
+        <columnAttribute name="gene_source_id"/>
+        <columnAttribute name="product"/>
+        <columnAttribute name="gene_name"/>
+      </table>
+
     </recordClass>
 
     <!-- ################################################################### -->
