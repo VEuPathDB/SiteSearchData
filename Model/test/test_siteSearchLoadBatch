@@ -203,9 +203,9 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         second_state = self.get_solr_state(versions=True)
         self.assert_states_equal(first_state, second_state)
 
-    def test_batch_update_success(self):
+    def test_batch_replace_success(self):
         """
-        Test that updating a batch using '--batch-dir --update' works.
+        Test that updating a batch using '--batch-dir --replace' works.
         """
         # Index batch
         dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000000'
@@ -213,23 +213,23 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
-        # Update batch
+        # Replace batch
         dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000001'
-        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--update']
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--replace']
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
         self.check_solr_against('test_data/output/dataset_batch-name_1000000001.json')
 
-    def test_batch_update_fail_missing(self):
+    def test_batch_replace_fail_missing(self):
         """
-        Test that attempting to update a batch using '--batch-dir --update'
+        Test that attempting to replace a batch using '--batch-dir --replace'
         fails if the batch doesn't exist in Solr.
         """
-        # Attempt to update batch
+        # Attempt to replace batch
         dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000001'
-        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--update']
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--replace']
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(process.returncode, 0, process.stderr)
 
