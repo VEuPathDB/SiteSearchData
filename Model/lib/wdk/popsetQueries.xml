@@ -49,7 +49,7 @@
       <sql>
         <![CDATA[
           select source_id, source_id as old_source_id,
-          from ApidbTuning.PopsetAttributes 
+          from apidbTuning.PopsetAttributes 
         ]]>
       </sql>
     </sqlQuery>
