@@ -5,13 +5,13 @@ import subprocess
 import json
 import os
 import argparse
+import requests
 
 # Get user and pass from environment
 user = os.environ['SOLR_USER'] if ('SOLR_USER' in os.environ) else ''
 passwd = os.environ['SOLR_PASSWORD'] if ('SOLR_PASSWORD' in os.environ) else ''
 # Path to siteSearchLoadBatch - must be changed if script is moved relative to this file
 script_path = '../bin/siteSearchLoadBatch'
-curl_base_cmd = ['curl', '--user', user+':'+passwd]
 
 
 def parse_args():
@@ -32,14 +32,16 @@ def core_is_empty(core_url, require=False):
     Returns:
         bool: True if empty, False if not.
     """
-    cmd = curl_base_cmd + [core_url+'/select?q=*:*&rows=0']
-    process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    empty = not json.loads(process.stdout)['response']['numFound']
+    url = core_url + '/select?q=*:*&rows=0'
+    request = requests.get(url, auth=(user, passwd))
+    request.raise_for_status()
+    empty = not json.loads(request.text)['response']['numFound']
 
     if require and not empty:
         raise ValueError('Solr core is not empty - testing requires an empty core. Aborting.')
 
     return empty
+
 
 class ParameterizedTestCase(unittest.TestCase):
     """
@@ -50,7 +52,6 @@ class ParameterizedTestCase(unittest.TestCase):
         super().__init__(methodName)
         self.core_url = core_url
         self.script_base_cmd = [script_path, core_url]
-        self.select_all_cmd = curl_base_cmd + [core_url+'/select?q=*:*']
 
     @staticmethod
     def parameterize(testcase_class, core_url):
@@ -82,8 +83,8 @@ class SiteSearchLoadBatchTestCase(ParameterizedTestCase):
         Tear-down tasks. Run after each individual test function.
         """
         # Delete all data from the core
-        cmd = curl_base_cmd + [self.core_url+'/update?commit=true', '--data', '<delete><query>*:*</query></delete>', '-H', 'Content-type:text/xml;charset=utf-8']
-        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        url = self.core_url + '/update?commit=true'
+        requests.post(url, auth=(user, passwd), data='<delete><query>*:*</query></delete>', headers={'Content-Type': 'text/xml'}).raise_for_status()
 
     def get_solr_state(self, versions=False):
         """
@@ -91,8 +92,10 @@ class SiteSearchLoadBatchTestCase(ParameterizedTestCase):
         Set versions to True to keep this field.
         """
         # Get all documents
-        process = subprocess.run(self.select_all_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        response_json = json.loads(process.stdout)['response']
+        url = self.core_url + '/select?q=*:*'
+        request = requests.get(url, auth=(user, passwd))
+        request.raise_for_status()
+        response_json = json.loads(request.text)['response']
 
         # Remove nondeterministic '_version_' field added by Solr
         # unless versions is True
@@ -162,7 +165,7 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against('test_data/output/index_batch_success_out.json')
+        self.check_solr_against('test_data/output/dataset_batch-name_1000000000.json')
 
     def test_batch_validate_only(self):
         """
@@ -200,6 +203,39 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         second_state = self.get_solr_state(versions=True)
         self.assert_states_equal(first_state, second_state)
 
+    def test_batch_update_success(self):
+        """
+        Test that updating a batch using '--batch-dir --update' works.
+        """
+        # Index batch
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000000'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Update batch
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000001'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--update']
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Check Solr state
+        self.check_solr_against('test_data/output/dataset_batch-name_1000000001.json')
+
+    def test_batch_update_fail_missing(self):
+        """
+        Test that attempting to update a batch using '--batch-dir --update'
+        fails if the batch doesn't exist in Solr.
+        """
+        # Attempt to update batch
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000001'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--update']
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(process.returncode, 0, process.stderr)
+
+        # Check that the core is still empty
+        self.assertTrue(core_is_empty(self.core_url))
+
     def test_batch_fail_batch_json(self):
         """
         Test that indexing with '--batch-dir' fails if batch.json is missing.
@@ -225,6 +261,46 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
 
         # Check that the core is still empty
         self.assertTrue(core_is_empty(self.core_url))
+
+    def test_batch_fail_version_exists(self):
+        """
+        Test that attempting to index a batch with '--batch-dir' fails when
+        a different version of the batch is already loaded.
+        """
+        # Index batch
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000000'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Attempt to index different batch version
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000001'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path,]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(process.returncode, 0, process.stderr)
+
+        # Check Solr state
+        self.check_solr_against('test_data/output/dataset_batch-name_1000000000.json')
+
+    def test_batch_fail_batch_docs_exist(self):
+        """
+        Test that attempting to index a batch fails when documents from the
+        batch exist in Solr without a corresponding batch-meta document.
+        """
+        # Index file
+        dir_path = 'test_data/input/valid_batches/dataset_batch-name_1000000000'
+        file_path = dir_path + '/data_file_0.json'
+        cmd = self.script_base_cmd + ['index', '--file', file_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Attempt to index batch
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(process.returncode, 0, process.stderr)
+
+        # Check Solr state
+        self.check_solr_against('test_data/output/dataset_batch-name_1000000000_file_0.json')
 
 if __name__ == '__main__':
     # Parse arguments
