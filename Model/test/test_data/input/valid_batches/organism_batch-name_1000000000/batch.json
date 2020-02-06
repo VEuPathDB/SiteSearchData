@@ -1,0 +1,10 @@
+[
+    {
+        "batch-type": "organism",
+        "batch-name": "batch-name",
+        "document-type": "batch-meta",
+        "batch-timestamp": 1000000000,
+        "batch-id": "organism_batch-name_1000000000",
+        "id": "organism_batch-name_1000000000"
+    }
+]
