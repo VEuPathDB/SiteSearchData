@@ -270,10 +270,6 @@ Each Question must:
         <columnAttribute name="secondary_ids"  displayName="Secondary ChEBI IDs"/>  <!-- THIS SHOULD BE IN A MULTI-ROW TABLE? -->
       </attributeQueryRef>
 
-      <attributeQueryRef ref="CompoundAttributes.Synonyms" >
-        <columnAttribute name="synonyms" displayName="Synonyms"/>
-      </attributeQueryRef>
-
       <table name="Properties" displayName="Properties"
              queryRef="CompoundTables.Properties">
         <columnAttribute name="value"/>

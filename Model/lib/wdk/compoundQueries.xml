@@ -43,20 +43,6 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="Synonyms">
-      <column name="source_id"/>
-      <column name="synonyms"/>
-      <sql>
-        <![CDATA[
-          select ca.source_id,
-                 apidb.tab_to_string(set(cast(collect(n.name) as apidb.varchartab)),', ') as synonyms
-          from apidbTuning.CompoundAttributes ca, chebi.names n
-          where ca.id = n.compound_id(+)
-          group by ca.source_id
-        ]]>
-      </sql>
-    </sqlQuery>
-
   </querySet>
 
   <querySet name="CompoundTables" queryType="table" isCacheable="false">
