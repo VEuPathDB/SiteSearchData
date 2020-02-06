@@ -216,15 +216,6 @@ Each Question must:
         </columnAttribute>
       </attributeQueryRef>
 
-      <table name="CompoundsMetabolicPathways"
-             displayName="Reactions"
-             queryRef="PathwayTables.CompoundsFromMetabolicPathways" >
-        <columnAttribute name="ec_number"/>
-        <columnAttribute name="enzyme_description"/>
-        <columnAttribute name="substrates_text"/>
-        <columnAttribute name="products_text"/>
-      </table>
-
       <table name="PathwayGenes"
              displayName="Genes"
              queryRef="PathwayTables.PathwayGenes" >
@@ -301,13 +292,9 @@ Each Question must:
       <table name="CompoundsMetabolicPathways"
              displayName="Metabolic pathway reactions"
              queryRef="CompoundTables.CompoundsFromMetabolicPathways">
-
+        <columnAttribute name="ec_number"/>
         <columnAttribute name="substrates_text"/>
         <columnAttribute name="products_text"/>
-        <columnAttribute name="ec_number"/>
-        <columnAttribute name="enzyme_description"/>
-        <columnAttribute name="compound_source_id"/>
-        <columnAttribute name="chebi_accession"/>
       </table>
 
       <table name="PathwaysFromCompounds"
@@ -523,6 +510,15 @@ Each Question must:
              queryRef="GeneTables.PreferredProducts">
         <columnAttribute name="product"/>
         <columnAttribute name="reference"/>
+      </table>
+
+      <table name="Compounds"
+             displayName="Compounds"
+             queryRef="GeneTables.Compounds">
+        <columnAttribute name="compound_source_id"/>
+        <columnAttribute name="compound_name"/>
+        <columnAttribute name="other_names"/>
+        <columnAttribute name="iupac_name"/>
       </table>
 
     </recordClass>
