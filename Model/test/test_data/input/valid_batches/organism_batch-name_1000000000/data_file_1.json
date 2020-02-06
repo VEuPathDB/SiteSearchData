@@ -1,0 +1,22 @@
+[
+    {
+        "batch-type": "organism",
+        "batch-name": "batch-name",
+        "document-type": "organism",
+        "batch-timestamp": 1000000000,
+        "batch-id": "organism_batch-name_1000000000",
+        "id": "organism_batch-name_1000000003",
+        "TEXT__field0": "value6",
+        "MULTITEXT__field1": ["value7", "value8"]
+    },
+    {
+        "batch-type": "organism",
+        "batch-name": "batch-name",
+        "document-type": "organism",
+        "batch-timestamp": 1000000000,
+        "batch-id": "organism_batch-name_1000000000",
+        "id": "organism_batch-name_1000000004",
+        "TEXT__field0": "value9",
+        "MULTITEXT__field1": ["value10", "value11"]
+    }
+]
