@@ -9,7 +9,7 @@
      "boost": 1.5
     },
     {"name":"TEXT__search_displayName",
-     "isSummary": true,
+     "isSummary": false,
      "boost": 1
     },
     {"name":"TEXT__search_summary",
