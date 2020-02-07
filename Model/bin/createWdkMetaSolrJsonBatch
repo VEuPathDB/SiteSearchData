@@ -53,6 +53,7 @@ outputSearches = []
 for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
     recordType = utils.getRecordType(wdkServiceUrl, recordTypeName)
     filteredSearches = list(filter(lambda search: 'InternalQuestions' not in search['fullName'], recordType['searches']))
+    filteredSearches = list(filter(lambda search: 'byWeightFilter' not in search['urlName'], filteresSearches))
     for search in filteredSearches:
         outputSearch = {}
         outputSearch['batch-type'] = BATCHTYPE
@@ -65,6 +66,7 @@ for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
         outputSearch[ATTR_PREFIX + 'search_' + 'name'] = search['urlSegment']
         if 'displayName' in search:
             outputSearch[ATTR_PREFIX + 'search_' + 'displayName'] = search['displayName']
+            outputSearch['hyperlinkName'] = recordType['displayNamePlural'] + " by " + search['displayName']
         if 'description' in search:
             outputSearch[ATTR_PREFIX + 'search_' + 'description'] = search['description']
         if 'summary' in search:
