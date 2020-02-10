@@ -515,6 +515,7 @@ Each Question must:
         <columnAttribute name="compound_name"/>
         <columnAttribute name="other_names"/>
         <columnAttribute name="iupac_name"/>
+        <columnAttribute name="id"/>
       </table>
 
     </recordClass>
