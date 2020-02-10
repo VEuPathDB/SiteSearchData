@@ -5,7 +5,8 @@
         "displayName": "Gene",
         "displayNamePlural": "Genes",
         "wdkSearchUrlName": "GenesByText",
-        "hasOrganismField": true
+        "hasOrganismField": true,
+        "boost": 1.5
       },
       { "id": "genomic-sequence",
         "displayName": "Genomic sequence",
