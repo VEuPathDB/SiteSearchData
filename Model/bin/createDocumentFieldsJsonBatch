@@ -25,10 +25,11 @@ def parseAndValidateArgs():
 
 For each field we will report:
  - name
+ - isSubtitle (whether this field should be included in a summary display of this document in the UI, as a subtitle)
  - isSummary (whether this field should be included in a summary display of this document in the UI)
- - boostFactor (a multiplier indicating how to boost this field in solr scoring)
+ - boost (a multiplier indicating how to boost this field in solr scoring)
 
-(The isSummary and boostFactor values come from <property> elements in wdk attributes in the SiteSearchData model)
+(The isSummary, isSubtitle and boostFactor values come from <property> elements in wdk attributes in the SiteSearchData model)
 
 Input: 
   URL for a SiteSearchData WDK service to call
@@ -56,12 +57,26 @@ def getFieldIsSummary(field):
     else:
         return False
 
+# see if a wdk field (attr or table) is a subititle field for site search
+def getFieldIsSubtitle(field):
+    if ('properties' in field and 'isSubtitle' in field['properties']):
+        return field['properties']['isSubtitle'][0] == "true"
+    else:
+        return False
+
 # get the solr scoring boost for a wdk field (attr or table)
 def getFieldBoostFactor(field):
     if ('properties' in field and 'boost' in field['properties']):
         return int(field['properties']['boost'][0])
     else:
         return 1
+    
+# get the solr scoring boost for a wdk field (attr or table)
+def getFieldIncludeProjects(field):
+    if ('properties' in field and 'includeProjects' in field['properties']):
+        return field['properties']['includeProjects']
+    else:
+        return None
     
 def getWdkDocumentFieldsJson(wdkServiceUrl):
     wdkDocumentFields = []  # an array of description of documents
@@ -79,6 +94,9 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
             attrJson['name'] = TEXT_PREFIX + recordTypeName + "_" + attribute['name']
             attrJson['displayName'] = attribute['displayName']
             attrJson['isSummary'] = getFieldIsSummary(attribute)
+            if getFieldIncludeProjects(attribute) not None:
+                attrJson['includeProjects'] = getFieldIncludeProjects(attribute)
+            attrJson['isSubtitle'] = getFieldIsSubtitle(attribute)
             attrJson['boost'] = getFieldBoostFactor(attribute)
             document['fields'].append(attrJson)
             tables = recordType['tables']
