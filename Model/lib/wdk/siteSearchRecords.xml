@@ -210,7 +210,7 @@ Each Question must:
       <attributeQueryRef ref="PathwayAttributes.Bfmv">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="name" displayName="Pathway">
-          <propertyList name="isSummary">
+          <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
         </columnAttribute>
@@ -263,7 +263,7 @@ Each Question must:
         </columnAttribute>
         <columnAttribute name="formula" displayName="Molecular formula"/>
         <columnAttribute name="compound_name" displayName="Name" >
-          <propertyList name="isSummary">
+          <propertyList name="isSubtitley">
             <value>true</value>
           </propertyList>
         </columnAttribute>
@@ -386,7 +386,7 @@ Each Question must:
         <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
 
         <columnAttribute name="product" displayName="Product description" >
-          <propertyList name="isSummary">
+          <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
         </columnAttribute>
