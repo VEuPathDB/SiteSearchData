@@ -76,13 +76,17 @@ Examples:
 
     return args
 
-# A wrapper for running commands
-def run(kwargs):
-    # Remove and store arguments that don't get passed to func
-    func = kwargs['func']
-    del kwargs['func']
+def run(func, solr_url, **kwargs):
+    """
+    A wrapper for running commands.
 
-    update_url = kwargs['solr_url'] + '/update'
+    Args:
+        func (function): The function to run. One of index, delete, or
+            rollback.
+        solr_url (str): The URL to the Solr core to update.
+        kwargs: Arguments to pass to func.
+    """
+    update_url = solr_url + '/update'
 
     # If func is rollback, just do it
     if func is rollback:
@@ -92,7 +96,7 @@ def run(kwargs):
     else:
         try:
             # Run the command
-            changes_staged = func(**kwargs)
+            changes_staged = func(solr_url, **kwargs)
 
             if changes_staged:
                 # Commit the changes
@@ -117,8 +121,22 @@ def run(kwargs):
 
             sys.exit(1)
 
-# Index files or batches
 def index(solr_url, batch_dir=None, file_paths=None, replace=False, validate_only=False):
+    """Index files or batches.
+
+    Args:
+        solr_url (str): The URL to the Solr core to update.
+        batch_dir (str): Index a new batch located in this directory.
+        file_paths (list[path-like]): Index the files located at these
+            paths.
+        replace (bool): Replace the version of the batch in Solr with
+            the version provided in batch_dir.
+        validate_only (bool): Only validate the batch provided in
+            batch_dir - do not index it.
+
+    Returns:
+        bool: True if any changes were staged in Solr.
+    """
     update_url = solr_url + '/update'
     select_url = solr_url + '/select'
     changes_staged = False
@@ -195,8 +213,20 @@ def index(solr_url, batch_dir=None, file_paths=None, replace=False, validate_onl
 
     return changes_staged
 
-# Delete documents or batches
 def delete(solr_url, batch_type_name=None, batch_ids=None, doc_keys=None):
+    """Delete documents or batches.
+
+    Args:
+        solr_url (str): The URL to the Solr core to update.
+        batch_type_name (tuple[str]): Delete the batch with the given
+            type and name. The tuple should have two elements: the
+            batch type followed by the batch name.
+        batch_ids (list[str]): Delete the batches with these IDs.
+        doc_keys (list[str]): Delete the documents with these keys.
+
+    Returns:
+        bool: True if any changes were staged in Solr.
+    """
     url = solr_url + '/update'
     changes_staged = False
 
@@ -230,8 +260,13 @@ def delete(solr_url, batch_type_name=None, batch_ids=None, doc_keys=None):
 
     return changes_staged
 
-# Roll back changes
 def rollback(url):
+    """Roll back changes staged in Solr.
+
+    Args:
+        url (str): The URL to post the request to (including
+            "/update").
+    """
     print('Rolling back changes')
 
     try:
@@ -245,6 +280,14 @@ def rollback(url):
 # Validate a batch
 # This involves making sure that certain fields are identical in all documents in the batch
 def validate_batch(batch_dir):
+    """Validate a batch.
+
+    This involves making sure that certain fields are identical in all
+    documents in the batch.
+
+    Args:
+        batch_dir (str): The path to the batch.
+    """
     print('Validating batch')
 
     # Read batch.json
@@ -284,15 +327,27 @@ def validate_batch(batch_dir):
 
     print('Batch is valid')
 
-# Index a file
 def index_file(path_like, url):
+    """Index a file.
+
+    Args:
+        path_like (path-like): The path to the file.
+        url (str): The URL to post the request to (including
+            "/update").
+    """
     with open(path_like) as f:
         print('Indexing file ' + f.name)
         data = f.read()
         solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/json'})
 
-# Index a batch
 def index_batch(batch_dir, url):
+    """Index a batch.
+
+    Args:
+        batch_dir (str): The path to the batch.
+        url (str): The URL to post the request to (including
+            "/update").
+    """
     changes_staged = False
 
     try:
@@ -313,8 +368,17 @@ def index_batch(batch_dir, url):
         e.changes_staged = changes_staged
         raise
 
-# Delete a batch
 def delete_batch(query_text, url, batch_text):
+    """Delete a batch.
+
+    Args:
+        query_text (str): The Solr query that will be used to find the
+            matching batch.
+        url (str): The URL to post the request to (including
+            "/update").
+        batch_text (str): The text that will be printed to refer to the
+            batch.
+    """
     changes_staged = False
 
     try:
@@ -335,6 +399,11 @@ def delete_batch(query_text, url, batch_text):
 
 # Make a request to Solr, print its response, and raise an error if necessary
 def solr_request(method, url, data=None, auth=None, headers=None):
+    """Make a request to Solr.
+
+    This is a wrapper to requests.request. All params are passed to it.
+    """
+
     if data:
         data = data.encode('utf-8')
 
@@ -352,5 +421,12 @@ def solr_request(method, url, data=None, auth=None, headers=None):
     return request
 
 if __name__ == '__main__':
+    # Get arguments
     kwargs = vars(parse_args())
-    run(kwargs)
+
+    # Pop required args
+    func = kwargs.pop('func')
+    solr_url = kwargs.pop('solr_url')
+
+    # Run the function
+    run(func, solr_url, **kwargs)
