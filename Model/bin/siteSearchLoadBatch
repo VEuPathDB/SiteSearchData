@@ -231,23 +231,31 @@ def delete(solr_url, batch_type_name=None, batch_ids=None, doc_keys=None):
             batch_type, batch_name = batch_type_name
             query_text = 'batch-type:{} AND batch-name:{}'.format(batch_type, batch_name)
             batch_text = "'{} {}'".format(batch_type, batch_name)
-            delete_batch(query_text, solr_url, batch_text)
-            changes_staged = True
+
+            if delete_batch(query_text, solr_url, batch_text):
+                changes_staged = True
 
         # If there is a del_batch_id, use it to delete the old batch
         if batch_ids:
             for batch_id in batch_ids:
                 query_text = '{}:{}'.format(BATCH_ID_FIELD, batch_id)
-                delete_batch(query_text, solr_url, batch_id)
-                changes_staged = True
+
+                if delete_batch(query_text, solr_url, batch_id):
+                    changes_staged = True
 
         # If there is a del_key, use it to delete documents
         if doc_keys:
             for key in doc_keys:
-                print('Deleting document with key ' + key)
-                data = '<delete><query>{}:{}</query></delete>'.format(UNIQUE_KEY_FIELD, key)
-                solr_request('POST', solr_url + '/update', data=data, auth=AUTH, headers={'content-type':'application/xml'})
-                changes_staged = True
+                query_text = f'{UNIQUE_KEY_FIELD}:{key}'
+                print('Checking for matching document(s)')
+
+                if count_docs(query_text, solr_url):
+                    print('Deleting document with key ' + key)
+                    data = f'<delete><query>{query_text}</query></delete>'
+                    solr_request('POST', solr_url + '/update', data=data, auth=AUTH, headers={'content-type':'application/xml'})
+                    changes_staged = True
+                else:
+                    print(f'No document with key {key} found')
 
     except Exception as e:
         if not hasattr(e, 'changes_staged'):
@@ -370,25 +378,53 @@ def delete_batch(query_text, solr_url, batch_text):
         solr_url (str): The URL to the Solr core.
         batch_text (str): The text that will be printed to refer to the
             batch.
+
+    Returns:
+        bool: True if any changes were staged in Solr.
     """
     url = solr_url + '/update'
     changes_staged = False
 
     try:
-        # First, delete the batch-meta document
-        print('Deleting batch-meta document for batch ' + batch_text)
-        data = '<delete><query>{} AND document-type:batch-meta</query></delete>'.format(query_text)
-        solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
-        changes_staged = True
+        # First, check for the existence of matching batch documents
+        print(f'Checking for documents matching batch')
 
-        # Then delete the data documents
-        print('Deleting batch ' + batch_text)
-        data = '<delete><query>{}</query></delete>'.format(query_text)
-        solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+        if count_docs(query_text, solr_url):
+            # Then delete the batch-meta document
+            print('Deleting batch-meta document for batch ' + batch_text)
+            data = '<delete><query>{} AND document-type:batch-meta</query></delete>'.format(query_text)
+            solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+            changes_staged = True
+
+            # Then delete the data documents
+            print('Deleting batch ' + batch_text)
+            data = '<delete><query>{}</query></delete>'.format(query_text)
+            solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+
+        else:
+            print(f'No matching documents for batch {batch_text}')
 
     except Exception as e:
         e.changes_staged = changes_staged
         raise
+
+    return changes_staged
+
+def count_docs(query_text, solr_url):
+    """Counter the number of documents matching a query.
+
+    Args:
+        query_text (str): The query to use.
+        solr_url (str): The URL to the Solr core.
+
+    Returns:
+        int: The number of documents matching the query.
+    """
+    url = f'{solr_url}/select?rows=0&q={query_text}'
+    response = solr_request('GET', url, auth=AUTH)
+    count = response.json()['response']['numFound']
+
+    return count
 
 # Make a request to Solr, print its response, and raise an error if necessary
 def solr_request(method, url, data=None, auth=None, headers=None):
