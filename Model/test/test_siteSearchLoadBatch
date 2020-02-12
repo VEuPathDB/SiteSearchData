@@ -134,13 +134,13 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         Test that indexing a single file using '--file' works.
         """
         # Index file
-        file_path = test_dir_path + '/test_data/input/index_file_success_in.json'
+        file_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000/data_file_0.json'
         cmd = self.script_base_cmd + ['index', '--file', file_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/index_file_success_out.json')
+        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000_file_0.json')
 
     def test_file_fail_json(self):
         """
@@ -242,7 +242,7 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         Test that indexing with '--batch-dir' fails if batch.json is missing.
         """
         # Index batch
-        dir_path = test_dir_path + '/test_data/input/index_batch_fail_batch_json'
+        dir_path = test_dir_path + '/test_data/input/invalid_batches/index_batch_fail_batch_json'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(process.returncode, 0, process.stderr)
@@ -255,7 +255,7 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         Test that indexing with '--batch-dir' fails if the batch is invalid.
         """
         # Index batch
-        dir_path = test_dir_path + '/test_data/input/index_batch_fail_invalid'
+        dir_path = test_dir_path + '/test_data/input/invalid_batches/index_batch_fail_invalid'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(process.returncode, 0, process.stderr)

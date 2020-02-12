@@ -94,7 +94,7 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
             attrJson['name'] = TEXT_PREFIX + recordTypeName + "_" + attribute['name']
             attrJson['displayName'] = attribute['displayName']
             attrJson['isSummary'] = getFieldIsSummary(attribute)
-            if getFieldIncludeProjects(attribute) not None:
+            if getFieldIncludeProjects(attribute) is not None:
                 attrJson['includeProjects'] = getFieldIncludeProjects(attribute)
             attrJson['isSubtitle'] = getFieldIsSubtitle(attribute)
             attrJson['boost'] = getFieldBoostFactor(attribute)
@@ -107,6 +107,8 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
             tableJson['name'] = MULTITEXT_PREFIX + recordTypeName + "_" + table['name']
             tableJson['displayName'] = table['displayName']
             tableJson['isSummary'] = getFieldIsSummary(table)
+            if getFieldIncludeProjects(table) is not None:
+                tableJson['includeProjects'] = getFieldIncludeProjects(table)
             tableJson['boost'] = getFieldBoostFactor(table)
             document['fields'].append(tableJson)
         wdkDocumentFields.append(document)
