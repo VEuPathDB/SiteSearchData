@@ -17,10 +17,13 @@ Each <attributeQueryRef> must:
 - the displayName should use sentence case
 - a few special attributes are labeled internal=true.  these serve special purposes in site search land, and are commented accordingly
 - may include a <propertyList> for "isSummary" indicating that this field is used in the UI to briefly describe this record
+- may include a <propertyList> for "isSubtitle" indicating that this field is used in the UI to briefly describe this record, and displays as a subtitle
+- may include a <propertyList> for "includeProjects" indicating which projects to include this field in.  default is all, if absent
 - may include a <propertyList> for "boost" indicating a multiplier used to boost score of documents that match this field (default is 1)
 
 Each <table> must follow the same rules as attributeQueryRefs, plus:
 - the table's <columnAttribute>s should include only name.  (The user will never see their display name or help, etc)
+- property isSubtitle is not applicable, because tables can't sensibly be a subtitle
 
 Each Question must:
 - have exactly zero or one parameters
@@ -213,6 +216,9 @@ Each Question must:
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
           <propertyList name="boost">
             <value>1.5</value>
           </propertyList>
@@ -266,7 +272,10 @@ Each Question must:
         </columnAttribute>
         <columnAttribute name="formula" displayName="Molecular formula"/>
         <columnAttribute name="compound_name" displayName="Name" >
-          <propertyList name="isSubtitley">
+          <propertyList name="isSubtitle">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
           <propertyList name="boost">
@@ -393,6 +402,9 @@ Each Question must:
 
         <columnAttribute name="product" displayName="Product description" >
           <propertyList name="isSubtitle">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
           <propertyList name="boost">
