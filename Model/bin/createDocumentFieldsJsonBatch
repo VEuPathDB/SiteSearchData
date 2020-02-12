@@ -107,7 +107,7 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
             tableJson['name'] = MULTITEXT_PREFIX + recordTypeName + "_" + table['name']
             tableJson['displayName'] = table['displayName']
             tableJson['isSummary'] = getFieldIsSummary(table)
-            attrJson['isSubtitle'] = getFieldIsSubtitle(table)
+            tableJson['isSubtitle'] = getFieldIsSubtitle(table)
             tableJson['boost'] = getFieldBoostFactor(table)
             document['fields'].append(tableJson)
         wdkDocumentFields.append(document)
