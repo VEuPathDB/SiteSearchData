@@ -53,7 +53,7 @@ outputSearches = []
 for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
     recordType = utils.getRecordType(wdkServiceUrl, recordTypeName)
     filteredSearches = list(filter(lambda search: 'InternalQuestions' not in search['fullName'], recordType['searches']))
-    filteredSearches = list(filter(lambda search: 'byWeightFilter' not in search['urlName'], filteresSearches))
+    filteredSearches = list(filter(lambda search: 'byWeightFilter' not in search['urlSegment'], filteredSearches))
     for search in filteredSearches:
         outputSearch = {}
         outputSearch['batch-type'] = BATCHTYPE
