@@ -533,5 +533,45 @@
         ]]>
       </sql>
     </sqlQuery>
+
+       <sqlQuery name="RodMalPhenotype" isCacheable="false">
+            <column name="source_id"/>
+            <column name="rmgmid"/>
+            <column name="pubmed_id"/>
+            <column name="life_cycle_stage"/>
+            <column name="phenotype"/>
+	    <column name="mutation_description"/>
+            <sql>
+            <![CDATA[
+              with mut
+                   as (select distinct
+                                ga.source_id, pm.source_id as rmgmid, pm.pubmed_id,
+                                pm.modification_type as mod_type,
+                                pm.mutation_description, ot.name,
+                                dbms_lob.substr(pr.phenotype_post_composition, 4000, 1) as phenotype1,
+                                dbms_lob.substr(pr.phenotype_post_composition, 4000, 4001) as phenotype2,
+                                pm.has_multiple_mutations as multiple,
+                                na.na_feature_id as id, pm.phenotype_model_id
+                       from apidb.PhenotypeResult pr
+                              left outer join sres.OntologyTerm ot
+                                on pr.life_cycle_stage_term_id = ot.ontology_term_id,
+                            apidb.PhenotypeModel pm, dots.GeneFeature ga,
+                            apidb.NaFeaturePhenotypeModel na
+                       where pm.phenotype_model_id = pr.phenotype_model_id
+                         and na.phenotype_model_id = pm.phenotype_model_id
+                         and na.na_feature_id = ga.na_feature_id
+                      )
+              select m.source_id, m.rmgmid, m.pubmed_id, m.mod_type,
+                     m.mutation_description,
+                     listagg(m.name, ', ') within group (order by m.name) as life_cycle_stage,
+                     concat(to_clob(phenotype1), to_clob(phenotype2)) as phenotype
+              from mut m
+              group by m.source_id, m.rmgmid, m.pubmed_id, m.mod_type,
+                       m.mutation_description, m.phenotype1, m.phenotype2
+             ]]>
+            </sql>
+        </sqlQuery>
+
+
   </querySet>
 </wdkModel>
