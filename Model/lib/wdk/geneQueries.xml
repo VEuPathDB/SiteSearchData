@@ -608,5 +608,25 @@
             </sql>
         </sqlQuery>
 
+       <sqlQuery name="CellularLocalization" isCacheable="false">
+            <column name="source_id"/>
+            <column name="note"/>
+            <column name="image_type"/>
+            <sql>
+            <![CDATA[
+              select replace(img.note, 'GO term: ', '') as note,
+                     img.image_type, FeatureIdGeneId.source_id
+              from apidb.NaFeatureImage img,
+                   (  select na_feature_id, source_id
+                      from dots.GeneFeature
+                    union
+                      select t.na_feature_id, g.source_id
+                      from dots.GeneFeature g, dots.Transcript t
+                      where t.parent_id = g.na_feature_id) FeatureIdGeneId
+              where img.na_feature_id = FeatureIdGeneId.na_feature_id
+             ]]>
+            </sql>
+        </sqlQuery>
+
   </querySet>
 </wdkModel>
