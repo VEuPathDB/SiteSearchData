@@ -94,17 +94,6 @@
     </sqlQuery>
 
 
-    <sqlQuery name="SecondaryIds">
-      <column name="source_id"/>
-      <column name="secondary_ids"/>
-      <sql>
-        <![CDATA[
-          select source_id, secondary_ids
-          from apidbTuning.CompoundAttributes
-        ]]>
-      </sql>
-    </sqlQuery>
-
     <sqlQuery name="Synonyms">
       <column name="source_id"/>
       <column name="value"/>
@@ -193,6 +182,19 @@
             and pc.pathway_id = tp.pathway_id
             and ca.source_id = pc.chebi_accession
             and tp.gene_source_id = ga.source_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="SecondaryIds">
+      <column name="source_id"/>
+      <column name="child_id"/>
+      <sql>
+        <![CDATA[
+           select 'CHEBI:' || parent_id as source_id,
+                       chebi_accession as child_id
+                from chebi.Compounds
+                where parent_id is not null
         ]]>
       </sql>
     </sqlQuery>
