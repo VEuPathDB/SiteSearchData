@@ -572,6 +572,41 @@
             </sql>
         </sqlQuery>
 
+       <sqlQuery name="Phenotype" isCacheable="false">
+            <column name="source_id"/>
+            <column name="pubmed_id"/>
+            <column name="modification_type"/>
+            <column name="allele"/>
+            <column name="entity"/>
+            <column name="quality"/>
+            <column name="timing"/>
+            <column name="cycle_stage"/>
+            <column name="phenotype_post_composition"/>
+            <column name="phenotype_comment"/>
+            <column name="chebi_annotation_extension"/>
+            <sql>
+            <![CDATA[
+              select gf.source_id, pm.pubmed_id, pm.modification_type, pm.allele,
+                        oen.name as entity, opq.name as quality, pr.timing,
+                        ols.name as cycle_stage, phenotype_post_composition,
+                        phenotype_comment, pr.chebi_annotation_extension
+              from dots.GeneFeature gf, apidb.PhenotypeModel pm,
+                   apidb.PhenotypeResult pr, sres.OntologyTerm oen,
+                   sres.OntologyTerm opq, sres.OntologyTerm ols,
+                   (  select phenotype_model_id, na_feature_id
+                      from apidb.PhenotypeModel
+                    union
+                      select phenotype_model_id, na_feature_id
+                      from apidb.NaFeaturePhenotypeModel) pmodel_feature
+	      where gf.na_feature_id = pmodel_feature.na_feature_id
+              and pm.phenotype_model_id = pmodel_feature.phenotype_model_id
+              and pm.phenotype_model_id = pr.phenotype_model_id
+              and pr.phenotype_entity_term_id = oen.ontology_term_id (+)
+              and pr.phenotype_quality_term_id = opq.ontology_term_id (+)
+              and pr.life_cycle_stage_term_id = ols.ontology_term_id (+)
+             ]]>
+            </sql>
+        </sqlQuery>
 
   </querySet>
 </wdkModel>

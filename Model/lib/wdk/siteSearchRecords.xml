@@ -555,6 +555,21 @@ Each Question must:
 	<columnAttribute name="mutation_description"/>
       </table>
 
+      <table name="Phenotype"
+             displayName="Phenotype"
+             queryRef="GeneTables.Phenotype">
+        <columnAttribute name="pubmed_id"/>
+        <columnAttribute name="modification_type"/>
+        <columnAttribute name="allele"/>
+        <columnAttribute name="entity"/>
+        <columnAttribute name="quality"/>
+        <columnAttribute name="timing"/>
+        <columnAttribute name="cycle_stage"/>
+        <columnAttribute name="phenotype_post_composition"/>
+        <columnAttribute name="phenotype_comment"/>
+        <columnAttribute name="chebi_annotation_extension"/>
+      </table>
+
     </recordClass>
 
     <!-- ################################################################### -->
