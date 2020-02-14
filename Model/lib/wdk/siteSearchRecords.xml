@@ -322,6 +322,11 @@ Each Question must:
         <columnAttribute name="gene_name"/>
       </table>
  -->
+      <table name="SecondaryIds"
+             displayName="Secondary IDs"
+             queryRef="CompoundTables.SecondaryIds">
+        <columnAttribute name="child_id"/>
+      </table>
 
     </recordClass>
 
