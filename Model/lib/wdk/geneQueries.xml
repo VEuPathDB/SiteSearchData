@@ -534,99 +534,99 @@
       </sql>
     </sqlQuery>
 
-       <sqlQuery name="RodMalPhenotype" isCacheable="false">
-            <column name="source_id"/>
-            <column name="rmgmid"/>
-            <column name="pubmed_id"/>
-            <column name="life_cycle_stage"/>
-            <column name="phenotype"/>
-	    <column name="mutation_description"/>
-            <sql>
-            <![CDATA[
-              with mut
-                   as (select distinct
-                                ga.source_id, pm.source_id as rmgmid, pm.pubmed_id,
-                                pm.modification_type as mod_type,
-                                pm.mutation_description, ot.name,
-                                dbms_lob.substr(pr.phenotype_post_composition, 4000, 1) as phenotype1,
-                                dbms_lob.substr(pr.phenotype_post_composition, 4000, 4001) as phenotype2,
-                                pm.has_multiple_mutations as multiple,
-                                na.na_feature_id as id, pm.phenotype_model_id
-                       from apidb.PhenotypeResult pr
-                              left outer join sres.OntologyTerm ot
-                                on pr.life_cycle_stage_term_id = ot.ontology_term_id,
-                            apidb.PhenotypeModel pm, dots.GeneFeature ga,
-                            apidb.NaFeaturePhenotypeModel na
-                       where pm.phenotype_model_id = pr.phenotype_model_id
-                         and na.phenotype_model_id = pm.phenotype_model_id
-                         and na.na_feature_id = ga.na_feature_id
-                      )
-              select m.source_id, m.rmgmid, m.pubmed_id, m.mod_type,
-                     m.mutation_description,
-                     listagg(m.name, ', ') within group (order by m.name) as life_cycle_stage,
-                     concat(to_clob(phenotype1), to_clob(phenotype2)) as phenotype
-              from mut m
-              group by m.source_id, m.rmgmid, m.pubmed_id, m.mod_type,
-                       m.mutation_description, m.phenotype1, m.phenotype2
-             ]]>
-            </sql>
-        </sqlQuery>
+    <sqlQuery name="RodMalPhenotype" isCacheable="false">
+      <column name="source_id"/>
+      <column name="rmgmid"/>
+      <column name="pubmed_id"/>
+      <column name="life_cycle_stage"/>
+      <column name="phenotype"/>
+      <column name="mutation_description"/>
+      <sql>
+        <![CDATA[
+          with mut
+               as (select distinct
+                             ga.source_id, pm.source_id as rmgmid, pm.pubmed_id,
+                             pm.modification_type as mod_type,
+                             pm.mutation_description, ot.name,
+                             dbms_lob.substr(pr.phenotype_post_composition, 4000, 1) as phenotype1,
+                             dbms_lob.substr(pr.phenotype_post_composition, 4000, 4001) as phenotype2,
+                             pm.has_multiple_mutations as multiple,
+                             na.na_feature_id as id, pm.phenotype_model_id
+                   from apidb.PhenotypeResult pr
+                          left outer join sres.OntologyTerm ot
+                            on pr.life_cycle_stage_term_id = ot.ontology_term_id,
+                        apidb.PhenotypeModel pm, dots.GeneFeature ga,
+                        apidb.NaFeaturePhenotypeModel na
+                   where pm.phenotype_model_id = pr.phenotype_model_id
+                     and na.phenotype_model_id = pm.phenotype_model_id
+                     and na.na_feature_id = ga.na_feature_id
+                  )
+          select m.source_id, m.rmgmid, m.pubmed_id, m.mod_type,
+                 m.mutation_description,
+                 listagg(m.name, ', ') within group (order by m.name) as life_cycle_stage,
+                 concat(to_clob(phenotype1), to_clob(phenotype2)) as phenotype
+          from mut m
+          group by m.source_id, m.rmgmid, m.pubmed_id, m.mod_type,
+                   m.mutation_description, m.phenotype1, m.phenotype2
+        ]]>
+      </sql>
+    </sqlQuery>
 
-       <sqlQuery name="Phenotype" isCacheable="false">
-            <column name="source_id"/>
-            <column name="pubmed_id"/>
-            <column name="modification_type"/>
-            <column name="allele"/>
-            <column name="entity"/>
-            <column name="quality"/>
-            <column name="timing"/>
-            <column name="cycle_stage"/>
-            <column name="phenotype_post_composition"/>
-            <column name="phenotype_comment"/>
-            <column name="chebi_annotation_extension"/>
-            <sql>
-            <![CDATA[
-              select gf.source_id, pm.pubmed_id, pm.modification_type, pm.allele,
-                        oen.name as entity, opq.name as quality, pr.timing,
-                        ols.name as cycle_stage, phenotype_post_composition,
-                        phenotype_comment, pr.chebi_annotation_extension
-              from dots.GeneFeature gf, apidb.PhenotypeModel pm,
-                   apidb.PhenotypeResult pr, sres.OntologyTerm oen,
-                   sres.OntologyTerm opq, sres.OntologyTerm ols,
-                   (  select phenotype_model_id, na_feature_id
-                      from apidb.PhenotypeModel
-                    union
-                      select phenotype_model_id, na_feature_id
-                      from apidb.NaFeaturePhenotypeModel) pmodel_feature
+    <sqlQuery name="Phenotype" isCacheable="false">
+      <column name="source_id"/>
+      <column name="pubmed_id"/>
+      <column name="modification_type"/>
+      <column name="allele"/>
+      <column name="entity"/>
+      <column name="quality"/>
+      <column name="timing"/>
+      <column name="cycle_stage"/>
+      <column name="phenotype_post_composition"/>
+      <column name="phenotype_comment"/>
+      <column name="chebi_annotation_extension"/>
+      <sql>
+      <![CDATA[
+        select gf.source_id, pm.pubmed_id, pm.modification_type, pm.allele,
+                  oen.name as entity, opq.name as quality, pr.timing,
+                  ols.name as cycle_stage, phenotype_post_composition,
+                  phenotype_comment, pr.chebi_annotation_extension
+        from dots.GeneFeature gf, apidb.PhenotypeModel pm,
+             apidb.PhenotypeResult pr, sres.OntologyTerm oen,
+             sres.OntologyTerm opq, sres.OntologyTerm ols,
+             (  select phenotype_model_id, na_feature_id
+                from apidb.PhenotypeModel
+              union
+                select phenotype_model_id, na_feature_id
+                from apidb.NaFeaturePhenotypeModel) pmodel_feature
 	      where gf.na_feature_id = pmodel_feature.na_feature_id
-              and pm.phenotype_model_id = pmodel_feature.phenotype_model_id
-              and pm.phenotype_model_id = pr.phenotype_model_id
-              and pr.phenotype_entity_term_id = oen.ontology_term_id (+)
-              and pr.phenotype_quality_term_id = opq.ontology_term_id (+)
-              and pr.life_cycle_stage_term_id = ols.ontology_term_id (+)
-             ]]>
-            </sql>
-        </sqlQuery>
+        and pm.phenotype_model_id = pmodel_feature.phenotype_model_id
+        and pm.phenotype_model_id = pr.phenotype_model_id
+        and pr.phenotype_entity_term_id = oen.ontology_term_id (+)
+        and pr.phenotype_quality_term_id = opq.ontology_term_id (+)
+        and pr.life_cycle_stage_term_id = ols.ontology_term_id (+)
+       ]]>
+      </sql>
+  </sqlQuery>
 
-       <sqlQuery name="CellularLocalization" isCacheable="false">
-            <column name="source_id"/>
-            <column name="note"/>
-            <column name="image_type"/>
-            <sql>
-            <![CDATA[
-              select replace(img.note, 'GO term: ', '') as note,
-                     img.image_type, FeatureIdGeneId.source_id
-              from apidb.NaFeatureImage img,
-                   (  select na_feature_id, source_id
-                      from dots.GeneFeature
-                    union
-                      select t.na_feature_id, g.source_id
-                      from dots.GeneFeature g, dots.Transcript t
-                      where t.parent_id = g.na_feature_id) FeatureIdGeneId
-              where img.na_feature_id = FeatureIdGeneId.na_feature_id
-             ]]>
-            </sql>
-        </sqlQuery>
+ <sqlQuery name="CellularLocalization" isCacheable="false">
+      <column name="source_id"/>
+      <column name="note"/>
+      <column name="image_type"/>
+      <sql>
+      <![CDATA[
+        select replace(img.note, 'GO term: ', '') as note,
+               img.image_type, FeatureIdGeneId.source_id
+        from apidb.NaFeatureImage img,
+             (  select na_feature_id, source_id
+                from dots.GeneFeature
+              union
+                select t.na_feature_id, g.source_id
+                from dots.GeneFeature g, dots.Transcript t
+                where t.parent_id = g.na_feature_id) FeatureIdGeneId
+        where img.na_feature_id = FeatureIdGeneId.na_feature_id
+       ]]>
+      </sql>
+    </sqlQuery>
 
   </querySet>
 </wdkModel>
