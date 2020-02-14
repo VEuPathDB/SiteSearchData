@@ -570,6 +570,13 @@ Each Question must:
         <columnAttribute name="chebi_annotation_extension"/>
       </table>
 
+      <table name="CellularLocalization"
+             displayName="Cellular localization"
+             queryRef="GeneTables.CellularLocalization">
+        <columnAttribute name="note"/>
+        <columnAttribute name="image_type"/>
+      </table>
+
     </recordClass>
 
     <!-- ################################################################### -->
