@@ -294,7 +294,6 @@ Each Question must:
             <value>1.5</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="secondary_ids"  displayName="Secondary ChEBI IDs"/>  <!-- THIS SHOULD BE IN A MULTI-ROW TABLE? -->
       </attributeQueryRef>
 
       <table name="Properties" displayName="Properties"
