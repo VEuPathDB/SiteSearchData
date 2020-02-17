@@ -56,17 +56,24 @@
       <column name="products_text"/>
       <column name="compound_source_id"/>
       <column name="chebi_accession"/>
+      <column name="compound_other_id"/>
       <sql>
         <![CDATA[
           select distinct pa.source_id, pa.pathway_source,
                           pr.enzyme as ec_number, pr.enzyme_description,
                           pr.substrates_text, pr.products_text,
-                          pc.compound_source_id, pc.chebi_accession
+                          pc.compound_source_id, pc.chebi_accession,
+                          cid.id as compound_other_id
           from apidbTuning.PathwayAttributes pa, apidbTuning.PathwayCompounds pc,
-               apidbTuning.PathwayReactions pr
+               apidbTuning.PathwayReactions pr,
+               (select compound, id
+                from apidbTuning.CompoundId
+                where compound != id
+               ) cid
           where pc.pathway_id = pa.pathway_id
             and pr.reaction_id = pc.reaction_id
             and pr.ext_db_name = pc.ext_db_name
+            and pc.compound_source_id = cid.compound(+)
         ]]>
       </sql>
     </sqlQuery>
