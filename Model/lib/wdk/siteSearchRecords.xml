@@ -564,6 +564,9 @@ Each Question must:
       <table name="RodMalPhenotype"
              displayName="Rodent malaria phenotype"
              queryRef="GeneTables.RodMalPhenotype">
+        <propertyList name="includeProjects">
+          <value>PlasmoDB</value>
+        </propertyList>
         <columnAttribute name="rmgmid"/>
         <columnAttribute name="pubmed_id"/>
         <columnAttribute name="mod_type"/>
@@ -575,6 +578,10 @@ Each Question must:
       <table name="Phenotype"
              displayName="Phenotype"
              queryRef="GeneTables.Phenotype">
+        <propertyList name="includeProjects">
+          <value>FungiDB</value>
+          <value>TriTrypDB</value>
+        </propertyList>
         <columnAttribute name="pubmed_id"/>
         <columnAttribute name="modification_type"/>
         <columnAttribute name="allele"/>
@@ -590,6 +597,10 @@ Each Question must:
       <table name="CellularLocalization"
              displayName="Cellular localization"
              queryRef="GeneTables.CellularLocalization">
+        <propertyList name="includeProjects">
+          <value>GiardiaDB</value>
+          <value>TriTrypDB</value>
+        </propertyList>
         <columnAttribute name="note"/>
         <columnAttribute name="image_type"/>
       </table>
@@ -630,7 +641,7 @@ Each Question must:
           </propertyList>
         </columnAttribute>
         <columnAttribute name="description" displayName="Description"/>
-        <columnAttribute name="acknowledgement"/>
+        <columnAttribute name="acknowledgement" displayName="Acknowledgement"/>
         <columnAttribute name="summary" displayName="Summary">
           <propertyList name="isSummary">
             <value>true</value>
@@ -648,7 +659,7 @@ Each Question must:
       </table>
 
       <table name="Publications"
-             displayName="Associated Publications"
+             displayName="Associated publications"
              queryRef="DatasetTables.Publications">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="pmid" displayName="Pubmed ID"/>
