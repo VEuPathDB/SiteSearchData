@@ -235,6 +235,18 @@ Each Question must:
         <columnAttribute name="product"/>
       </table>
 
+      <table name="Compounds"
+             displayName="Compounds"
+             queryRef="PathwayTables.CompoundsFromMetabolicPathways">
+        <columnAttribute name="ec_number"/>
+        <columnAttribute name="enzyme_description"/>
+        <columnAttribute name="substrates_text"/>
+        <columnAttribute name="products_text"/>
+        <columnAttribute name="compound_source_id"/>
+        <columnAttribute name="chebi_accession"/>
+        <columnAttribute name="compound_other_id"/>
+      </table>
+
     </recordClass>
 
     <!-- ################################################################### -->
