@@ -67,7 +67,7 @@ def getFieldIsSubtitle(field):
 # get the solr scoring boost for a wdk field (attr or table)
 def getFieldBoostFactor(field):
     if ('properties' in field and 'boost' in field['properties']):
-        return int(field['properties']['boost'][0])
+        return float(field['properties']['boost'][0])
     else:
         return 1
     
