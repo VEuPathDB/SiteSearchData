@@ -30,6 +30,7 @@ my $dbh = getDbh($props);
 runMetaReports();
 runWdkReport("pathway", "all");
 runWdkReport("compound", "all");
+runWdkReport("dataset-presenter", "all");
 
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
