@@ -5,9 +5,7 @@ import json
 import sys
 import os.path
 import glob
-#import shutil
-#import time
-#import datetime
+from pathlib import Path
 
 TARGETDIRPREFIX = 'solr-json-batch_'
 
@@ -68,3 +66,4 @@ def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
     batchJson = json.dumps(batches)
     with open(outputDir + "/batch.json", "w") as text_file:
         text_file.write(batchJson)
+    Path(outputDir + "/DONE").touch()  # write flag indicating a complete batch
