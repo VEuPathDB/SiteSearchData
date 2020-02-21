@@ -38,6 +38,7 @@ Output files are placed in a new directory of name 'PARENTDIR/BATCH_ID'.
 
 parentDir = parseAndValidateArgs()
 
+checkForPreviousBatchDir(parentDir, BATCHTYPE, BATCHNAME)
 
 batchTimestamp = int(time.time())
 batchId = BATCHTYPE + "_" + BATCHNAME + "_" + str(batchTimestamp)
