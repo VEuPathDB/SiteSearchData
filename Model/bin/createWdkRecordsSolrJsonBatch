@@ -113,7 +113,7 @@ def checkRecordTypeBatch(recordType, batchType):
 ###########################################################################################################
 
 batchType, batchName, wdkServiceUrl, parentDir, paramName, paramValue = parseAndValidateArgs()
-checkForPreviousBatchDir(parentDir, batchType, batchName)
+utils.failIfPreviousBatchDir(parentDir, batchType, batchName)
 batchTimestamp = int(time.time())
 batchId = batchType + "_" + batchName + "_" + str(batchTimestamp)
 
