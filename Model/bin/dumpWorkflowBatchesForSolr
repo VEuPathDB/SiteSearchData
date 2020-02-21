@@ -56,34 +56,31 @@ sub getOrganisms {
   return @orgs;
 }
 
+sub checkPrevBatchDir {
+  my ($prevBatchDir, $batchType, $batchName) = @_;
+  die "Incomplete batch dir (no DONE file): $temp[0].  Please delete it first.\n" if (checkInvalidBatchDir($temp[0]));
+  print STDOUT "Batch '$batchType $batchName' already present in targetDir.  Skipping.\n";
+}
+
 sub runMetaReports {
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_wdkmeta_all*");
-  unless (@temp[0]) {
-    runCmd("createWdkMetaSolrJsonBatch $wdkServiceUrl $targetDir");
-  } else {
-    print STDOUT "Batch 'wdkmeta all' already present in targetDir.  Skipping.\n";
-  }
+  if ($temp[0]) { checkPrevBatchDir($temp[0], "wdkmeta", "all") }
+  else { runCmd("createWdkMetaSolrJsonBatch $wdkServiceUrl $targetDir"); }
 
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_document-categories_all*");
-  unless (@temp[0]) {
-    runCmd("createDocumentTypeCategoriesJsonBatch $targetDir");
-  } else {
-    print STDOUT "Batch 'document-categories all' already present in targetDir.  Skipping.\n";
-  }
+  if ($temp[0]) { checkPrevBatchDir($temp[0], "document-categories", "all") }
+  else { runCmd("createDocumentTypeCategoriesJsonBatch $targetDir"); }
 
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_document-fields_all*");
-  unless (@temp[0]) {
-    runCmd("createDocumentFieldsJsonBatch $wdkServiceUrl $targetDir");
-  } else {
-    print STDOUT "Batch 'document-fields all' already present in targetDir.  Skipping.\n";
-  }
+  if ($temp[0]) { checkPrevBatchDir($temp[0], "document-fields", "all") }
+  else { runCmd("createDocumentFieldsJsonBatch $wdkServiceUrl $targetDir"); }
 }
 
 sub runWdkReport {
   my ($batchType, $batchName, $organismAbbrev) = @_;
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
   if ($temp[0]) {
-    print STDOUT "Batch $batchType $batchName already present in targetDir.  Skipping.\n";
+    checkPrevBatchDir($temp[0], $batchType, $batchName);
     return;
   }
   my $cmd = "createWdkRecordsSolrJsonBatch $batchType $batchName $wdkServiceUrl $targetDir";
