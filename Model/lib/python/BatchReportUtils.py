@@ -12,9 +12,9 @@ import glob
 TARGETDIRPREFIX = 'solr-json-batch_'
 
 def failIfPreviousBatchDir(parentDir, batchType, batchName):
-    dirs = glob(parentDir + "/" + TARGETDIRPREFIX + batchType + "_" + batchName + "_")
+    dirs = glob.glob(parentDir + "/" + TARGETDIRPREFIX + batchType + "_" + batchName + "_*")
     if len(dirs) != 0:
-        error("A previous batch of this type exists in " + parentDir + ".  Delete it first")
+        error("A previous batch of this type exists in " + parentDir + ".  Please delete it first")
 
 def error(msg):
         sys.stderr.write("ERROR: " + msg + "\n")
