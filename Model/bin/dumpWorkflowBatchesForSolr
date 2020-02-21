@@ -27,15 +27,17 @@ my $props = getPropsFromGusConfigFile("$ENV{GUS_HOME}/config/gus.config");
 
 my $dbh = getDbh($props);
 
-runReport("pathway", "all");
-runReport("compound", "all");
+runMetaReports();
+runWdkReport("pathway", "all");
+runWdkReport("compound", "all");
+
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
   if ($numberOfOrganisms && $organismCount++ == $numberOfOrganisms) {
     print STDOUT "Reached $numberOfOrganisms organisms.  Quitting\n";
     last;
   }
-  runReport("organism", $organismAbbrev, $organismAbbrev);
+  runWdkReport("organism", $organismAbbrev, $organismAbbrev);
 }
 print STDOUT "Done.\n";
 exit 0;
@@ -53,7 +55,30 @@ sub getOrganisms {
   return @orgs;
 }
 
-sub runReport {
+sub runMetaReports {
+  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_wdkmeta_all*");
+  unless (@temp[0]) {
+    runCmd("createWdkMetaSolrJsonBatch $wdkServiceUrl $targetDir");
+  } else {
+    print STDOUT "Batch 'wdkmeta all' already present in targetDir.  Skipping.\n";
+  }
+
+  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_document-categories_all*");
+  unless (@temp[0]) {
+    runCmd("createDocumentTypeCategoriesJsonBatch $targetDir");
+  } else {
+    print STDOUT "Batch 'document-categories all' already present in targetDir.  Skipping.\n";
+  }
+
+  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_document-fields_all*");
+  unless (@temp[0]) {
+    runCmd("createDocumentFieldsJsonBatch $wdkServiceUrl $targetDir");
+  } else {
+    print STDOUT "Batch 'document-fields all' already present in targetDir.  Skipping.\n";
+  }
+}
+
+sub runWdkReport {
   my ($batchType, $batchName, $organismAbbrev) = @_;
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
   if ($temp[0]) {
@@ -62,6 +87,11 @@ sub runReport {
   }
   my $cmd = "createWdkRecordsSolrJsonBatch $batchType $batchName $wdkServiceUrl $targetDir";
   $cmd .= " --paramName organismAbbrev --paramValue $organismAbbrev" if $organismAbbrev;
+  runCmd($cmd);
+}
+
+sub runCmd {
+  my ($cmd) = @_;
   print STDOUT "Running $cmd\n";
   system($cmd) && die "Failed\n";
 }
