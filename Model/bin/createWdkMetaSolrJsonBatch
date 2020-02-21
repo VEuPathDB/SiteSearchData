@@ -41,7 +41,7 @@ Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'.
 ###########################################################################################################
 
 wdkServiceUrl, parentDir = parseAndValidateArgs()
-
+checkForPreviousBatchDir(parentDir, BATCHTYPE, BATCHNAME)
 batchTimestamp = int(time.time())
 batchId = BATCHTYPE + "_" + BATCHNAME + "_" + str(batchTimestamp)
 

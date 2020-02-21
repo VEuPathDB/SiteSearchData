@@ -118,6 +118,8 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
 
 wdkServiceUrl, parentDir = parseAndValidateArgs()
 
+checkForPreviousBatchDir(parentDir, BATCHTYPE, BATCHNAME)
+
 batchTimestamp = int(time.time())
 batchId = BATCHTYPE + "_" + BATCHNAME + "_" + str(batchTimestamp)
 
