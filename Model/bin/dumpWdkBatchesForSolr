@@ -9,9 +9,8 @@ my $BATCH_DIR_PREFIX = "solr-json-batch";
 
 my $ORG_ABBREV_SQL = "select distinct o.abbrev AS internal from apidb.Organism o";
 
-
-my ($project, $wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
-&GetOptions("project=s" => \$project,
+my ($metadata, $wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
+&GetOptions("metadata=b" => \$metadata,
             "targetDir=s" => \$targetDir,
             "wdkServiceUrl=s" => \$wdkServiceUrl,
             "numberOfOrganisms=i" => \$numberOfOrganisms,
@@ -19,26 +18,30 @@ my ($project, $wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
 
 $| = 1;
 
-&usage unless ($targetDir && $project && $wdkServiceUrl);
+&usage unless ($targetDir && $wdkServiceUrl);
 
 die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
+
+if ($metadata) {
+  runMetaReports();
+  return;
+}
 
 my $props = getPropsFromGusConfigFile("$ENV{GUS_HOME}/config/gus.config");
 
 my $dbh = getDbh($props);
 
-runMetaReports();
 runWdkReport("pathway", "all");
 runWdkReport("compound", "all");
 runWdkReport("dataset-presenter", "all");
 
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
-  if ($numberOfOrganisms && $organismCount++ == $numberOfOrganisms) {
+  if ($numberOfOrganisms && $organismCount == $numberOfOrganisms) {
     print STDOUT "Reached $numberOfOrganisms organisms.  Quitting\n";
     last;
   }
-  runWdkReport("organism", $organismAbbrev, $organismAbbrev);
+  $organismCount += runWdkReport("organism", $organismAbbrev, $organismAbbrev);
 }
 print STDOUT "Done.\n";
 exit 0;
@@ -85,11 +88,12 @@ sub runWdkReport {
   my ($batchType, $batchName, $organismAbbrev) = @_;
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
 
-  return if checkPrevBatchDir($temp[0], $batchType, $batchName);
+  return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
 
   my $cmd = "createWdkRecordsSolrJsonBatch $batchType $batchName $wdkServiceUrl $targetDir";
   $cmd .= " --paramName organismAbbrev --paramValue $organismAbbrev" if $organismAbbrev;
   runCmd($cmd);
+  return 1;
 }
 
 sub runCmd {
@@ -127,18 +131,27 @@ sub usage {
   die
 "Dump batches to be loaded into solr from data produced by the workflow.
 
-usage:  dumpWorkflowBatchesForSolr --project PlasmoDB --wdkServiceUrl --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
+usage:  dumpWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--metadata] [--numberOfOrganisms NUMBER] [--verbose]
 
-Dumps a hard-coded set of batches:
+Either dump wdk records as Solr compatible Json, or dump metadata for Solr.
+
+Dumps data in hard-coded set of batches:
+WDK records:
  - organisms (one batch per organism)
  - pathways
  - compounds
+ - datasets
+Metadata:
+ - wdkmeta (such as wdk Searches)
+ - document-types
+ - field-types
 
-Skips any batches already found in targetDir.
 
-Connects to the appDb found in $ENV{GUS_HOME}/config/gus.config, and queries it to find the list of organisms to dump.
+For WDK records, connects to the appDb found in $ENV{GUS_HOME}/config/gus.config, and queries it to find the list of organisms to dump.
 
-Connects to a running SiteSearchModel wdk service to generate the reports.
+Connects to a running SiteSearchData wdk service to generate the reports.
+
+If numberOfOrganisms provided, dump at most that many in this run (doesn't count skipped organisms).
 
 Calls the createWdkRecordsSolrBatch command to do the work.
 ";
