@@ -61,6 +61,19 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="Organisms"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="organism"/>
+      <sql>
+        <![CDATA[
+          select dnt.dataset_presenter_id as dataset_id, tn.name as organism
+          from apidbTuning.DatasetNameTaxon dnt, sres.TaxonName tn
+          where dnt.taxon_id = tn.taxon_id
+            and tn.name_class = 'scientific name'
+        ]]>
+      </sql>
+    </sqlQuery>
+
   </querySet>
 
 </wdkModel>
