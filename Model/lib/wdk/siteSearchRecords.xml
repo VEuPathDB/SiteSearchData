@@ -671,6 +671,13 @@ Each Question must:
         <columnAttribute name="citation"/>
       </table>
 
+      <table name="Organisms"
+             displayName="Organisms"
+             queryRef="DatasetTables.Organisms">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="organism"/>
+      </table>
+
     </recordClass>
 
     <!-- ################################################################### -->
