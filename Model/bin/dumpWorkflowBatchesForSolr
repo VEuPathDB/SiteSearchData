@@ -58,31 +58,35 @@ sub getOrganisms {
 
 sub checkPrevBatchDir {
   my ($prevBatchDir, $batchType, $batchName) = @_;
-  die "Incomplete batch dir (no DONE file): $temp[0].  Please delete it first.\n" if (checkInvalidBatchDir($temp[0]));
+
+  return 0 unless -e $prevBatchDir;
+
+  die "\nError: Incomplete batch dir (no DONE file): $prevBatchDir.  Please delete it first.\n" unless -e "$prevBatchDir/DONE";
+
   print STDOUT "Batch '$batchType $batchName' already present in targetDir.  Skipping.\n";
+  return 1;
 }
 
 sub runMetaReports {
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_wdkmeta_all*");
-  if ($temp[0]) { checkPrevBatchDir($temp[0], "wdkmeta", "all") }
-  else { runCmd("createWdkMetaSolrJsonBatch $wdkServiceUrl $targetDir"); }
+  runCmd("createWdkMetaSolrJsonBatch $wdkServiceUrl $targetDir")
+    unless checkPrevBatchDir($temp[0], "wdkmeta", "all");
 
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_document-categories_all*");
-  if ($temp[0]) { checkPrevBatchDir($temp[0], "document-categories", "all") }
-  else { runCmd("createDocumentTypeCategoriesJsonBatch $targetDir"); }
+  runCmd("createDocumentTypeCategoriesJsonBatch $targetDir")
+    unless checkPrevBatchDir($temp[0], "document-categories", "all");
 
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_document-fields_all*");
-  if ($temp[0]) { checkPrevBatchDir($temp[0], "document-fields", "all") }
-  else { runCmd("createDocumentFieldsJsonBatch $wdkServiceUrl $targetDir"); }
+  runCmd("createDocumentFieldsJsonBatch $wdkServiceUrl $targetDir")
+    unless checkPrevBatchDir($temp[0], "document-fields", "all")
 }
 
 sub runWdkReport {
   my ($batchType, $batchName, $organismAbbrev) = @_;
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
-  if ($temp[0]) {
-    checkPrevBatchDir($temp[0], $batchType, $batchName);
-    return;
-  }
+
+  return if checkPrevBatchDir($temp[0], $batchType, $batchName);
+
   my $cmd = "createWdkRecordsSolrJsonBatch $batchType $batchName $wdkServiceUrl $targetDir";
   $cmd .= " --paramName organismAbbrev --paramValue $organismAbbrev" if $organismAbbrev;
   runCmd($cmd);
