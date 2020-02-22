@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="GeneIdQueries" queryType="id" isCacheable="true">
+  <querySet name="GeneIdQueries" queryType="id" isCacheable="false">
     <sqlQuery name="GenesByOrganismAbbrev">
       <paramRef ref="geneParams.organismAbbrev"/>
       <column name="source_id"/>
@@ -24,8 +24,8 @@
     </flatVocabParam>
   </paramSet>
 
-  <querySet name="GeneParamQueries" queryType="vocab"  isCacheable="true">
-    <sqlQuery name="organismAbbrevs" isCacheable="true">
+  <querySet name="GeneParamQueries" queryType="vocab"  isCacheable="false">
+    <sqlQuery name="organismAbbrevs">
       <column name="internal"/>
       <column name="term"/>
       <sql>
@@ -55,20 +55,18 @@
 
     <sqlQuery name="Bfmv">
       <column name="source_id"/>
-      <column name="strain"/>
       <column name="product"/>
       <column name="name"/>
       <column name="gene_type"/>
       <column name="sequence_id"/>
       <column name="organism_full"/>
       <column name="organism"/>
-      <column name="genus_species"/>
       <column name="orthomcl_name"/>
       <sql>
         <![CDATA[
           select source_id, product, name, gene_type,
                  sequence_id, organism as organism_full, organism,
-                 genus_species, strain, orthomcl_name
+                 orthomcl_name
           from apidbTuning.GeneAttributes
         ]]>
       </sql>
@@ -134,7 +132,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="ECNumbers" isCacheable="false" >
+    <sqlQuery name="ECNumbers" >
       <column name="source_id"/>
       <column name="ec_number"/>
       <column name="ec_description"/>
@@ -178,7 +176,7 @@
     <!-- GO terms -->
     <!--++++++++++-->
 
-    <sqlQuery name="GOTerms" isCacheable="false" >
+    <sqlQuery name="GOTerms" >
       <column name="source_id"/>
       <column name="go_id"/>
       <column name="go_term_name"/>
@@ -250,7 +248,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="InterPro" isCacheable="false">
+    <sqlQuery name="InterPro">
       <column name="source_id"/>
       <column name="interpro_name"/>
       <column name="interpro_family_id"/>
@@ -285,7 +283,7 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="Alias" isCacheable="false">
+    <sqlQuery name="Alias">
       <column name="source_id"/>
       <column name="alias"/>
       <column name="database_name"/>
@@ -316,7 +314,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="BlastP" isCacheable="false">
+    <sqlQuery name="BlastP">
       <column name="transcript_id"/>
       <column name="source_id"/>
       <column name="blastp_description"/>
@@ -334,8 +332,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="Notes"
-              isCacheable="false" clobRow="true">
+    <sqlQuery name="Notes" clobRow="true">
 
       <column name="source_id"/>
       <column name="comment_string"/>
@@ -356,8 +353,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="MetabolicPathways"
-              isCacheable="false">
+    <sqlQuery name="MetabolicPathways">
 
       <column name="source_id"/>
       <column name="pathway_source"/>
@@ -374,7 +370,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="Epitopes" isCacheable="false">
+    <sqlQuery name="Epitopes">
 
       <column name="source_id"/>
       <column name="transcript_id"/>
@@ -392,7 +388,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="PreferredProducts" isCacheable="false" >
+    <sqlQuery name="PreferredProducts" >
       <column name="source_id"/>
       <column name="product"/>
       <column name="reference"/>
@@ -410,8 +406,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="gene_dbrefs"
-              isCacheable="false">
+    <sqlQuery name="gene_dbrefs">
       <column name="source_id"/>
       <column name="dataset"/>
       <column name="link_url"/>
@@ -448,8 +443,7 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="PdbSimilarities"
-              isCacheable="false">
+    <sqlQuery name="PdbSimilarities">
       <column name="source_id"/>
       <column name="pdb_chain"/>
       <column name="pdb_id"/>
@@ -476,7 +470,7 @@
       <column name="authors"/>
       <sql>
         <![CDATA[
-          select distinct gene_source_id as source_id,  pubmed_id, doi, title,
+          select distinct gene_source_id as source_id,  'PMID:' || pubmed_id as pubmed_id, doi, title,
                           authors
           from apidbTuning.GenePubmed
         ]]>
@@ -534,7 +528,7 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="RodMalPhenotype" isCacheable="false">
+    <sqlQuery name="RodMalPhenotype">
       <column name="source_id"/>
       <column name="rmgmid"/>
       <column name="pubmed_id"/>
@@ -572,7 +566,7 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="Phenotype" isCacheable="false">
+    <sqlQuery name="Phenotype">
       <column name="source_id"/>
       <column name="pubmed_id"/>
       <column name="modification_type"/>
@@ -608,7 +602,7 @@
       </sql>
   </sqlQuery>
 
- <sqlQuery name="CellularLocalization" isCacheable="false">
+ <sqlQuery name="CellularLocalization">
       <column name="source_id"/>
       <column name="note"/>
       <column name="image_type"/>

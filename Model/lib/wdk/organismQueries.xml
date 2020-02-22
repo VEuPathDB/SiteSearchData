@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="OrganismIdQueries" queryType="id" isCacheable="true">
+  <querySet name="OrganismIdQueries" queryType="id" isCacheable="false">
 
     <sqlQuery name="Organisms">
       <column name="source_id"/>
@@ -16,7 +16,7 @@
 
   <querySet name="OrganismAttributes" queryType="attribute" isCacheable="false">
 
-    <sqlQuery name="OrganismAlias" doNotTest="true">
+    <sqlQuery name="OrganismAlias">
       <column name="source_id"/>
       <column name="old_source_id"/>
       <sql>

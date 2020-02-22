@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="DatasetIdQueries" queryType="id" isCacheable="true">
+  <querySet name="DatasetIdQueries" queryType="id" isCacheable="false">
     <sqlQuery name="AllDatasets">
       <column name="dataset_id"/>
       <sql>
@@ -13,16 +13,17 @@
   </querySet>
 
   <querySet name="DatasetAttributes" queryType="attribute" isCacheable="false">
-    <sqlQuery name="All"  isCacheable="false">
+    <sqlQuery name="All">
       <column name="dataset_id"/>
       <column name="display_name"/>
+      <column name="project"/>
       <column name="description"/>
       <column name="summary"/>
       <column name="acknowledgement"/>
       <column name="newcategory"/>
       <sql>
         <![CDATA[
-          select dataset_presenter_id as dataset_id,
+          select dataset_presenter_id as dataset_id, '@PROJECT_ID@' as project
                  display_name, description, summary, acknowledgement,
                  nvl(display_category, category) as newcategory
           from apidbTuning.DatasetPresenter
@@ -34,7 +35,7 @@
 
   <querySet name="DatasetTables" queryType="table" isCacheable="false">
 
-    <sqlQuery name="Contacts"  isCacheable='false'>
+    <sqlQuery name="Contacts">
       <column name="dataset_id"/>
       <column name="contact_name"/>
       <column name="affiliation"/>
@@ -47,13 +48,13 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="Publications"  isCacheable='false'>
+    <sqlQuery name="Publications">
       <column name="dataset_id"/>
       <column name="pmid"/>
       <column name="citation"/>
       <sql>
         <![CDATA[
-          select dataset_presenter_id as dataset_id, pmid, citation
+          select dataset_presenter_id as dataset_id, 'PMID:' || pmid as pmid, citation
           from apidbTuning.DatasetPublication
           where pmid is not null
         ]]>
