@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="PopsetIds" queryType="id" isCacheable="true">
+  <querySet name="PopsetIds" queryType="id" isCacheable="false">
 
     <sqlQuery name="PopsetByOrganismAbbrev">
       <paramRef ref="popsetParams.organismAbbrev"/>
@@ -17,7 +17,7 @@
 
   </querySet>
 
-  <querySet name="PopsetParamQueries" queryType="vocab"  isCacheable="true">
+  <querySet name="PopsetParamQueries" queryType="vocab"  isCacheable="false">
     <sqlQuery name="organismAbbrevs">
       <column name="internal"/>
       <column name="term"/>
@@ -43,7 +43,7 @@
 
   <querySet name="PopsetAttributes" queryType="attribute" isCacheable="false">
 
-    <sqlQuery name="PopsetAlias" doNotTest="true">
+    <sqlQuery name="PopsetAlias">
       <column name="source_id"/>
       <column name="old_source_id"/>
       <sql>

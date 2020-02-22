@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="EstIdQueries" queryType="id" isCacheable="true">
+  <querySet name="EstIdQueries" queryType="id" isCacheable="false">
 
     <sqlQuery name="EstsByOrganismAbbrev">
       <paramRef ref="estParams.organismAbbrev"/>
@@ -22,7 +22,7 @@
     </sqlQuery>
   </querySet>
 
-  <querySet name="EstParamQueries" queryType="vocab"  isCacheable="true">
+  <querySet name="EstParamQueries" queryType="vocab"  isCacheable="false">
     <sqlQuery name="organismAbbrevs">
       <column name="internal"/>
       <column name="term"/>
@@ -66,7 +66,7 @@
 
   <querySet name="EstTableQueries" queryType="table" isCacheable="false">
 
-    <sqlQuery name="EstAlias" doNotTest="true">
+    <sqlQuery name="EstAlias">
       <column name="source_id"/>
       <column name="old_source_id"/>
       <sql>
@@ -77,7 +77,7 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="Reference" excludeProjects="EuPathDB">
+    <sqlQuery name="Reference">
       <column name="source_id"/>
       <column name="author"/>
       <column name="affiliation"/>
