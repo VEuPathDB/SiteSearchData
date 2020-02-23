@@ -317,15 +317,11 @@
     <sqlQuery name="BlastP">
       <column name="transcript_id"/>
       <column name="source_id"/>
-      <column name="blastp_description"/>
+      <column name="description"/>
 
       <sql>
         <![CDATA[
-          select source_id as transcript_id, gene_source_id as source_id,
-                 'E() = ' || pvalue_mant || 'e' || pvalue_exp || ', '
-                   || round(100 * number_identical / total_match_length)
-                   || '% identity, ' || description
-                   as blastp_description
+          select source_id as transcript_id, gene_source_id as source_id, description
           from apidbTuning.Blastp
         ]]>
       </sql>
