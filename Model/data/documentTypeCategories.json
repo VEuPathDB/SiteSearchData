@@ -65,8 +65,8 @@
   { "name": "Data access",
     "documentTypes": [
       { "id": "dataset",
-        "displayName": "Dataset",
-        "displayNamePlural": "Datasets",
+        "displayName": "Data set",
+        "displayNamePlural": "Data sets",
         "wdkSearchUrlName": "DatasetsByText",
         "hasOrganismField": false
       },
