@@ -369,18 +369,41 @@
     </sqlQuery>
 
 
-    <sqlQuery name="AllProducts" >
+    <sqlQuery name="Products" >
       <column name="source_id"/>
       <column name="product"/>
       <column name="reference"/>
       <sql>
         <![CDATA[
-          select ta.gene_source_id AS source_id, tp.product,
-                 listagg(publication, ', ') within group(order by source_id)
-                   as reference
-          from apidb.TranscriptProduct tp, apidbTuning.TranscriptAttributes ta
-          where ta.na_feature_id = tp.na_feature_id
-          group by gene_source_id, tp.product
+                select ta.gene_source_id as source_id,
+                       tp.product,
+                       listagg(tp.publication, ', ')
+                         within group(order by tp.publication) as reference
+                from apidbTuning.TranscriptAttributes ta, apidb.TranscriptProduct tp
+                where ta.na_feature_id = tp.na_feature_id
+                group by ta.gene_source_id, ta.source_id, tp.product
+              union
+                select gf.source_id,
+                       gfp.product,
+                       cast (null as varchar2(12)) as reference
+                from dots.GeneFeature gf, apidb.GeneFeatureProduct gfp
+                where gf.na_feature_id = gfp.na_feature_id
+                group by gf.source_id, gfp.product
+              union
+                select gf.source_id,
+                       t.product,
+                       cast (null as varchar2(12)) as reference
+                from dots.Transcript t, dots.GeneFeature gf
+                where t.parent_id = gf.na_feature_id
+                  and t.product is not null
+                group by gf.source_id, t.source_id, t.product
+              union
+                select gf.source_id,
+                       gf.product,
+                       cast (null as varchar2(12)) as reference
+                from dots.GeneFeature gf
+                where gf.product is not null
+                group by gf.source_id, gf.product
         ]]>
       </sql>
     </sqlQuery>
