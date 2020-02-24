@@ -549,7 +549,7 @@ Each Question must:
 
       <table name="AllProducts"
              displayName="All product descriptions"
-             queryRef="GeneTables.PreferredProducts">
+             queryRef="GeneTables.AllProducts">
         <columnAttribute name="product"/>
         <columnAttribute name="reference"/>
       </table>
