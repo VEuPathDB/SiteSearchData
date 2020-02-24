@@ -21,6 +21,9 @@ Each <attributeQueryRef> must:
 - never have its name changed.  Doing so will invalidate strategies in the UserDB.  (They are used as parameter values)
 - the displayName should use sentence case
 - may use a few special attributes are labeled internal=true.  these serve special purposes in site search land, and are commented accordingly
+  - project: for recordclasses that stored in solr separately per project (eg pathways)
+  - organism: for recordclasses that can be filtered on organism
+  - hyperlinkName: non-searchable attribute to use as text in the hyperlink for this recordclass in search results
 - may include a <propertyList> for "isSummary" indicating that this field is used in the UI to briefly describe this record
 - may include a <propertyList> for "isSubtitle" indicating that this field is used in the UI to briefly describe this record, and displays as a subtitle
 - may include a <propertyList> for "includeProjects" indicating which projects to include this field in.  default is all, if absent
@@ -29,6 +32,7 @@ Each <attributeQueryRef> must:
 Each <table> must follow the same rules as attributeQueryRefs, plus:
 - the table's <columnAttribute>s should include only name.  (The user will never see their display name or help, etc)
 - property isSubtitle is not applicable, because tables can't sensibly be a subtitle
+- only include text-searchable columns (no numbers, eg)
 
 Each Question must:
 - have exactly zero or one parameters
@@ -112,11 +116,8 @@ Each Question must:
       <attributeQueryRef ref="OrganismAttributes.organismAttrs">
         <columnAttribute name="species" displayName="Species"/>
         <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
-        <columnAttribute name="organism_full" displayName="Organism">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
+        <columnAttribute name="organism_full" displayName="Organism"/>
+        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="data_source" displayName="Data source"/>
 
       </attributeQueryRef>
@@ -423,7 +424,7 @@ Each Question must:
       <attributeQueryRef ref="GeneAttributes.Bfmv">
         <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
 
-        <columnAttribute name="product" displayName="Product description" >
+        <columnAttribute name="product" displayName="Preferred product description" >
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
@@ -546,8 +547,8 @@ Each Question must:
         <columnAttribute name="iedb_id"  displayName="Epitope"/>
       </table>
 
-      <table name="PreferredProducts"
-             displayName="Annotated product descriptions"
+      <table name="AllProducts"
+             displayName="All product descriptions"
              queryRef="GeneTables.PreferredProducts">
         <columnAttribute name="product"/>
         <columnAttribute name="reference"/>
@@ -635,10 +636,8 @@ Each Question must:
 
       <attributeQueryRef ref="DatasetAttributes.All">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="display_name" displayName="Name">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
           <propertyList name="boost">
             <value>1.5</value>
           </propertyList>
