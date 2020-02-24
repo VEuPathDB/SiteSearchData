@@ -33,9 +33,11 @@
       <column name="species"/>
       <column name="organism_full"/>
       <column name="organism"/>
+      <column name="hyperlinkName"/>
       <sql>
         <![CDATA[
-          select source_id, species, organism_name AS organism_full, organism_name AS organism,
+                 select source_id, species, organism_name AS organism_full, organism_name AS organism,
+                 organism_name AS hyperlinkName,
                  decode(genome_source, 'gb', 'GenBank',
                         'jkissinger', 'Kissinger Lab', genome_source)
                    as data_source
