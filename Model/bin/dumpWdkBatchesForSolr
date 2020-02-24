@@ -10,7 +10,7 @@ my $BATCH_DIR_PREFIX = "solr-json-batch";
 my $ORG_ABBREV_SQL = "select distinct o.abbrev AS internal from apidb.Organism o";
 
 my ($metadata, $wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
-&GetOptions("metadata=b" => \$metadata,
+&GetOptions("metadata" => \$metadata,
             "targetDir=s" => \$targetDir,
             "wdkServiceUrl=s" => \$wdkServiceUrl,
             "numberOfOrganisms=i" => \$numberOfOrganisms,
@@ -24,7 +24,7 @@ die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
 
 if ($metadata) {
   runMetaReports();
-  return;
+  exit 0;
 }
 
 my $props = getPropsFromGusConfigFile("$ENV{GUS_HOME}/config/gus.config");
