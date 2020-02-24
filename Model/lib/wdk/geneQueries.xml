@@ -313,21 +313,6 @@
       </sql>
     </sqlQuery>
 
-
-    <sqlQuery name="BlastP">
-      <column name="transcript_id"/>
-      <column name="source_id"/>
-      <column name="description"/>
-
-      <sql>
-        <![CDATA[
-          select source_id as transcript_id, gene_source_id as source_id, description
-          from apidbTuning.Blastp
-        ]]>
-      </sql>
-    </sqlQuery>
-
-
     <sqlQuery name="Notes" clobRow="true">
 
       <column name="source_id"/>
@@ -384,7 +369,7 @@
     </sqlQuery>
 
 
-    <sqlQuery name="PreferredProducts" >
+    <sqlQuery name="AllProducts" >
       <column name="source_id"/>
       <column name="product"/>
       <column name="reference"/>
@@ -395,7 +380,6 @@
                    as reference
           from apidb.TranscriptProduct tp, apidbTuning.TranscriptAttributes ta
           where ta.na_feature_id = tp.na_feature_id
-            and tp.is_preferred = 1
           group by gene_source_id, tp.product
         ]]>
       </sql>
