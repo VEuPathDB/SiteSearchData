@@ -5,6 +5,8 @@ import json
 import os
 import sys
 import traceback
+import time
+
 import requests
 
 # Configuration
@@ -338,6 +340,7 @@ def index_batch(batch_dir, solr_url):
         solr_url (str): The URL to the Solr core.
     """
     changes_staged = False
+    start_time = time.time()
 
     # Index all data files
     for obj in os.scandir(batch_dir):
@@ -350,7 +353,10 @@ def index_batch(batch_dir, solr_url):
 
     # Finally, index batch.json
     index_file(batch_json_file, solr_url)
+    end_time = time.time()
     changes_staged = True
+
+    print(f'Time to index batch: {(end_time - start_time):.2f}s')
 
 def delete_batch(query_text, solr_url, batch_text):
     """Delete a batch.
