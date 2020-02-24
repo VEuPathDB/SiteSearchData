@@ -23,7 +23,7 @@
       <column name="newcategory"/>
       <sql>
         <![CDATA[
-          select dataset_presenter_id as dataset_id, '@PROJECT_ID@' as project
+          select dataset_presenter_id as dataset_id, '@PROJECT_ID@' as project,
                  display_name, description, summary, acknowledgement,
                  nvl(display_category, category) as newcategory
           from apidbTuning.DatasetPresenter
