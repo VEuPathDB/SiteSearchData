@@ -537,9 +537,9 @@ Each Question must:
         <columnAttribute name="iedb_id"  displayName="Epitope"/>
       </table>
 
-      <table name="AllProducts"
+      <table name="Products"
              displayName="All product descriptions"
-             queryRef="GeneTables.PreferredProducts">
+             queryRef="GeneTables.Products">
         <columnAttribute name="product"/>
         <columnAttribute name="reference"/>
       </table>
