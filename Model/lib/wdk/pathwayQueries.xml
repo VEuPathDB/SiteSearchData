@@ -78,22 +78,6 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="PathwayGenes" >
-      <column name="source_id"/>
-      <column name="pathway_source"/>
-      <column name="gene_source_id"/>
-      <column name="name"/>
-      <column name="product"/>
-      <sql>
-        <![CDATA[
-          select distinct pathway_source, pathway_source_id as source_id,
-                          ga.source_id as gene_source_id, ga.name, ga.product
-          from apidbTuning.TranscriptPathway tp, apidbTuning.GeneAttributes ga
-          where tp.gene_source_id = ga.source_id
-        ]]>
-      </sql>
-    </sqlQuery>
-
   </querySet>
 
 </wdkModel>
