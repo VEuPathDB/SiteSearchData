@@ -231,16 +231,6 @@ Each Question must:
         </columnAttribute>
       </attributeQueryRef>
 
-      <table name="PathwayGenes"
-             displayName="Genes"
-             queryRef="PathwayTables.PathwayGenes" >
-        <columnAttribute name="source_id"/>
-        <columnAttribute name="pathway_source"/>
-        <columnAttribute name="gene_source_id"/>
-        <columnAttribute name="name"/>
-        <columnAttribute name="product"/>
-      </table>
-
       <table name="Compounds"
              displayName="Compounds"
              queryRef="PathwayTables.CompoundsFromMetabolicPathways">
