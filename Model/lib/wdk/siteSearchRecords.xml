@@ -418,11 +418,11 @@ Each Question must:
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
+          <propertyList name="isSearchable"> <!-- instead search the Products table -->
+            <value>false</value>
+          </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
-          </propertyList>
-          <propertyList name="boost">
-            <value>1.5</value>
           </propertyList>
         </columnAttribute>
 
@@ -540,6 +540,16 @@ Each Question must:
       <table name="Products"
              displayName="All product descriptions"
              queryRef="GeneTables.Products">
+          <propertyList name="boost">
+            <value>1.5</value>
+          </propertyList>
+        <columnAttribute name="product"/>
+        <columnAttribute name="reference"/>
+      </table>
+
+      <table name="AlternateProducts"
+             displayName="All product descriptions"
+             queryRef="GeneTables.AlternateProducts">
         <columnAttribute name="product"/>
         <columnAttribute name="reference"/>
       </table>
