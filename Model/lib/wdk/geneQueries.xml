@@ -368,7 +368,6 @@
       </sql>
     </sqlQuery>
 
-
     <sqlQuery name="Products" >
       <column name="source_id"/>
       <column name="product"/>
@@ -381,6 +380,7 @@
                          within group(order by tp.publication) as reference
                 from apidbTuning.TranscriptAttributes ta, apidb.TranscriptProduct tp
                 where ta.na_feature_id = tp.na_feature_id
+                and tp.is_preferred = 1
                 group by ta.gene_source_id, ta.source_id, tp.product
               union
                 select gf.source_id,
@@ -388,6 +388,7 @@
                        cast (null as varchar2(12)) as reference
                 from dots.GeneFeature gf, apidb.GeneFeatureProduct gfp
                 where gf.na_feature_id = gfp.na_feature_id
+                and gfp.is_preferred = 1
                 group by gf.source_id, gfp.product
               union
                 select gf.source_id,
@@ -408,6 +409,31 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="AlternateProducts" >
+      <column name="source_id"/>
+      <column name="product"/>
+      <column name="reference"/>
+      <sql>
+        <![CDATA[
+                select ta.gene_source_id as source_id,
+                       tp.product,
+                       listagg(tp.publication, ', ')
+                         within group(order by tp.publication) as reference
+                from apidbTuning.TranscriptAttributes ta, apidb.TranscriptProduct tp
+                where ta.na_feature_id = tp.na_feature_id
+                and tp.is_preferred = 0
+                group by ta.gene_source_id, ta.source_id, tp.product
+              union
+                select gf.source_id,
+                       gfp.product,
+                       cast (null as varchar2(12)) as reference
+                from dots.GeneFeature gf, apidb.GeneFeatureProduct gfp
+                where gf.na_feature_id = gfp.na_feature_id
+                and gfp.is_preferred = 0
+                group by gf.source_id, gfp.product
+        ]]>
+      </sql>
+    </sqlQuery>
 
     <sqlQuery name="gene_dbrefs">
       <column name="source_id"/>
