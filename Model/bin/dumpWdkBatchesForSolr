@@ -27,13 +27,14 @@ if ($metadata) {
   exit 0;
 }
 
-my $props = getPropsFromGusConfigFile("$ENV{GUS_HOME}/config/gus.config");
+my $gusProps = getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
+my $modelProps = getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
 
-my $dbh = getDbh($props);
+my $dbh = getDbh($gusProps);
 
-runWdkReport("pathway", "all");
-runWdkReport("compound", "all");
-runWdkReport("dataset-presenter", "all");
+runWdkReport("pathway", $modelProps->{PROJECT_ID});
+runWdkReport("compound", $modelProps->{PROJECT_ID});
+runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
 
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
@@ -113,9 +114,9 @@ sub getDbh {
   return $dbh;
 }
 
-sub getPropsFromGusConfigFile {
-  my ($gusConfigFile) = @_;
-  open(F, $gusConfigFile) || die "Error: can't open gus.config file '$gusConfigFile'\n";
+sub getPropsFromFile {
+  my ($propFile) = @_;
+  open(F, $propFile) || die "Error: can't open config file '$propFile'\n";
   my $props;
   while(<F>) {
     next if /^\s+$/;  # skip blank lines
