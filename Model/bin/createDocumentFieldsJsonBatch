@@ -64,7 +64,14 @@ def getFieldIsSubtitle(field):
     else:
         return False
 
-# get the solr scoring boost for a wdk field (attr or table)
+# see if a wdk field (attr or table) is searchable in site search (true by dflt)
+def getFieldIsSearchable(field):
+    if ('properties' in field and 'isSearchable' in field['properties']):
+        return field['properties']['isSearchable'][0] == "true"
+    else:
+        return True
+
+    # get the solr scoring boost for a wdk field (attr or table)
 def getFieldBoostFactor(field):
     if ('properties' in field and 'boost' in field['properties']):
         return float(field['properties']['boost'][0])
@@ -94,6 +101,7 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
             attrJson['name'] = TEXT_PREFIX + recordTypeName + "_" + attribute['name']
             attrJson['displayName'] = attribute['displayName']
             attrJson['isSummary'] = getFieldIsSummary(attribute)
+            attrJson['isSearchable'] = getFieldIsSearchable(attribute)
             if getFieldIncludeProjects(attribute) is not None:
                 attrJson['includeProjects'] = getFieldIncludeProjects(attribute)
             attrJson['isSubtitle'] = getFieldIsSubtitle(attribute)
