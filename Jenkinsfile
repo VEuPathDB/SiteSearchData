@@ -74,11 +74,11 @@ node ('centos8') {
 
     stage('build') {
         // build build container, could be removed it there is one made generally available
-        // sh 'podman build -t build_container -f $WORKSPACE/project_home/SiteSearchService/dockerfiles/Dockerfile.build .'
-        // assuming this is built TODO: get build container pushed properly
+        sh 'podman build -t build_container_ssd -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile.build .'
+        // TODO: get build container pushed properly
 
         // build the service inside the build_container
-        sh 'podman run --rm -v /tmp/.m2:/root/.m2:Z -v $WORKSPACE:/tmp/base_gus:Z --name builder build_container bld SiteSearchData'
+        sh 'podman run --rm -v /tmp/.m2:/root/.m2:Z -v $WORKSPACE:/tmp/base_gus:Z --name builder build_container_ssd bld SiteSearchData'
         }
 
     stage('package') {
