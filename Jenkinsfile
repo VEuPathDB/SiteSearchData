@@ -90,10 +90,10 @@ node ('centos8') {
 
       withCredentials([usernameColonPassword(credentialsId: '0f11d4d1-6557-423c-b5ae-693cc87f7b4b', variable: 'HUB_LOGIN')]) {
         // build the release container, which copies the built gus_home into it
-	sh 'podman build --format=docker -t site-search-data -f $WORKSPACE/project_home/SiteSearchService/dockerfiles/Dockerfile.release .'
+	sh 'podman build --format=docker -t site-search-data -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile.release .'
 
         // push to dockerhub (for now)
-        // sh "podman push --creds \"$HUB_LOGIN\" site-search docker://docker.io/veupathdb/site-search:${tag}"
+        sh "podman push --creds \"$HUB_LOGIN\" site-search docker://docker.io/veupathdb/site-search-data:${tag}"
         }
       }
 
