@@ -534,7 +534,13 @@ Each Question must:
       <table name="Epitopes"
              displayName="Epitopes from IEDB"
              queryRef="GeneTables.Epitopes">
-        <columnAttribute name="iedb_id"  displayName="Epitope"/>
+        <columnAttribute name="iedb_id"/>
+      </table>
+
+      <table name="Orthologs"
+             displayName="Orthologs"
+             queryRef="GeneTables.Orthologs">
+        <columnAttribute name="ortho_product"/>
       </table>
 
       <table name="Products"
