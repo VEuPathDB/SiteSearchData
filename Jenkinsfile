@@ -93,7 +93,7 @@ node ('centos8') {
 	sh 'podman build --format=docker -t site-search-data -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile.release .'
 
         // push to dockerhub (for now)
-        sh "podman push --creds \"$HUB_LOGIN\" site-search docker://docker.io/veupathdb/site-search-data:${tag}"
+        sh "podman push --creds \"$HUB_LOGIN\" site-search-data docker://docker.io/veupathdb/site-search-data:${tag}"
         }
       }
 
