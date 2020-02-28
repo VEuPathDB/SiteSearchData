@@ -247,7 +247,16 @@
       </sql>
     </sqlQuery>
 
-
+    <sqlQuery name="Orthologs">
+      <column name="source_id"/>
+      <column name="ortho_product"/>
+      <sql>
+        <![CDATA[
+       select distinct source_id, ortho_product from apidbTuning.OrthologousGenes
+        ]]>
+      </sql>
+    </sqlQuery>
+    
     <sqlQuery name="InterPro">
       <column name="source_id"/>
       <column name="interpro_name"/>
