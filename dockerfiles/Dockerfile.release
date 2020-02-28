@@ -10,8 +10,8 @@ RUN cd /tmp && \
     rm instantclient-basic-linux.x64-19.5.0.0.0dbru.zip
 ENV ORACLE_HOME /tmp/instantclient_19_5
 
-# needs libaio
-RUN apt-get install libaio1
+# needs libaio for oracleclient, python3/requests for loading scripts
+RUN apt-get install libaio1 python3 python3-requests
 
 # maybe don't use ORACLE_HOME, if it isn't appropriate
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${ORACLE_HOME}
