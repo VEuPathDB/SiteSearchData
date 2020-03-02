@@ -544,7 +544,7 @@ Each Question must:
       </table>
 
       <table name="Products"
-             displayName="All product descriptions"
+             displayName="Product descriptions"
              queryRef="GeneTables.Products">
           <propertyList name="boost">
             <value>1.5</value>
@@ -554,7 +554,7 @@ Each Question must:
       </table>
 
       <table name="AlternateProducts"
-             displayName="All product descriptions"
+             displayName="Alternate product descriptions"
              queryRef="GeneTables.AlternateProducts">
         <columnAttribute name="product"/>
         <columnAttribute name="reference"/>
