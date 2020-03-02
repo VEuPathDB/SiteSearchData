@@ -101,6 +101,9 @@ Each Question must:
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Organism ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
         <text>
           <![CDATA[
                    $$source_id$$
@@ -144,6 +147,9 @@ Each Question must:
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Sequence ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
         <text>
           <![CDATA[
                    $$source_id$$
@@ -196,6 +202,9 @@ Each Question must:
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Pathway ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
         <text>
           <![CDATA[
                $$source_id$$
@@ -259,6 +268,9 @@ Each Question must:
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="ChEBI ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
         <text>
           <![CDATA[
                    $$source_id$$
@@ -351,6 +363,9 @@ Each Question must:
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="EST ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
         <text>
           <![CDATA[
                    $$source_id$$
@@ -398,9 +413,10 @@ Each Question must:
         <columnRef>source_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key"
-                   displayName="Gene ID"
-                   attributeCategory="deep">
+      <idAttribute name="primary_key" displayName="Gene ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
         <text>
           <![CDATA[
                    $$source_id$$
@@ -581,7 +597,7 @@ Each Question must:
         <columnAttribute name="mod_type"/>
         <columnAttribute name="life_cycle_stage"/>
         <columnAttribute name="phenotype"/>
-	<columnAttribute name="mutation_description"/>
+        <columnAttribute name="mutation_description"/>
       </table>
 
       <table name="Phenotype"
@@ -630,6 +646,9 @@ Each Question must:
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Data set">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
         <text>
           <![CDATA[ $$display_name$$ ]]>
         </text>
@@ -697,6 +716,9 @@ Each Question must:
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Popset ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
         <text>
           <![CDATA[
                    $$source_id$$
