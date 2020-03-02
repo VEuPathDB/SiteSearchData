@@ -26,6 +26,7 @@ def parseAndValidateArgs():
 solrUrl, parentDir = parseAndValidateArgs()
 
 for batchDir in Path(parentDir).rglob('solr-json-batch_*'):
+    count++
     if not os.path.isdir(batchDir):
         utils.error(batchDir + " is not a directory")
     cmd = "siteSearchLoadBatch " + solrUrl + " index --batch-dir " + str(batchDir)
@@ -33,3 +34,6 @@ for batchDir in Path(parentDir).rglob('solr-json-batch_*'):
     status = os.system(cmd)
     if status != 0:
         utils.error("Failed with status " + str(status) + " running command: " + cmd)
+    print("Batch " + str(count) + " loaded")
+    
+print("DONE!! Loaded " + str(count) + " batches)
