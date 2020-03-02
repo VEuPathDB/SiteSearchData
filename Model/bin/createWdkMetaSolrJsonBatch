@@ -32,7 +32,7 @@ Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'.
     parser.add_argument("project", help="Project ID of the website to read from, e.g., PlasmoDB")
     parser.add_argument("parentDir", help="Directory in which to put the directory of output files")
     args = parser.parse_args()
-    utils.validateWebServiceUrl(args.wdkServiceUrl)
+    utils.validateWebServiceUrl(args.webSiteServiceUrl)
     utils.validateParentDir(args.parentDir)
     return args.webSiteServiceUrl, args.parentDir, args.project
 
