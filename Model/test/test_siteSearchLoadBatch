@@ -129,31 +129,16 @@ class SiteSearchLoadBatchTestCase(ParameterizedTestCase):
 
 
 class IndexTestCase(SiteSearchLoadBatchTestCase):
-    def test_file_success(self):
-        """
-        Test that indexing a single file using '--file' works.
-        """
-        # Index file
-        file_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000/data_file_0.json'
-        cmd = self.script_base_cmd + ['index', '--file', file_path]
-        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEqual(process.returncode, 0, process.stderr)
-
-        # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000_file_0.json')
-
     def test_file_fail_json(self):
         """
-        Test that indexing a file not containing a JSON array of objects fails.
+        Test that indexing a batch with a file not containing a JSON array of
+        objects fails.
         """
         # Index file
-        file_path = test_dir_path + '/test_data/input/index_file_fail_json.json'
-        cmd = self.script_base_cmd + ['index', '--file', file_path]
+        file_path = test_dir_path + '/test_data/input/invalid_batches/index_batch_fail_bad_json_file'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', file_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(process.returncode, 0, process.stdout)
-
-        # Check that the core is still empty
-        self.assertTrue(core_is_empty(self.core_url))
 
     def test_batch_success(self):
         """
@@ -291,9 +276,12 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         # Index file
         dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
         file_path = dir_path + '/data_file_0.json'
-        cmd = self.script_base_cmd + ['index', '--file', file_path]
-        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEqual(process.returncode, 0, process.stderr)
+
+        with open(file_path) as f:
+            data = f.read()
+
+        request = requests.post(self.core_url + '/update?commit=true', data=data, auth=(user, passwd), headers={'content-type':'application/json'})
+        request.raise_for_status()
 
         # Attempt to index batch
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
@@ -352,24 +340,6 @@ class DeleteTestCase(SiteSearchLoadBatchTestCase):
 
         # Check Solr state
         self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000.json')
-
-    def test_delete_doc_key(self):
-        """
-        Test deleting a document using '--doc-key'.
-        """
-        # Index documents
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
-        cmd = self.script_base_cmd + ['index', '--file', dir_path + '/data_file_0.json', dir_path + '/data_file_1.json']
-        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEqual(process.returncode, 0, process.stderr)
-
-        # Delete documents
-        cmd = self.script_base_cmd + ['delete', '--doc-key', 'dataset_batch-name_1000000003', 'dataset_batch-name_1000000004']
-        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEqual(process.returncode, 0, process.stderr)
-
-        # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000_file_0.json')
 
 
 class RollbackTestCase(SiteSearchLoadBatchTestCase):
