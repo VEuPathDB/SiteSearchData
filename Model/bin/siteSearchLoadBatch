@@ -21,16 +21,18 @@ AUTH = (USER, PASS)
 # Parse the arguments
 def parse_args():
     help = """
-Add, update, or remove batches or individual files from Solr's index.
+Add, update, or remove batches from Solr's index.
 
-Commits on success. If any changes were staged but an error occurs, all changes are rolled back.
+Commits on success. If an error occurs, the script exits with a nonzero exit
+code. If changes were staged before the script failed, they may still be staged
+or they may have been already committed. For the former case, use the rollback
+subcommand to rollback changes. For the latter case, use the provided delete
+command to delete the corrupted batch.
 
 Examples:
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH
-  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --file FILE_1 FILE_2
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-type-name BATCH_TYPE BATCH_NAME
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 BATCH_ID_2
-  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --doc-key UNIQUE_KEY_1 UNIQUE_KEY_2
 """
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
@@ -40,19 +42,17 @@ Examples:
     subparsers = parser.add_subparsers(title='subcommands', help='Add a subcommand name followed by -h for specific help on it.')
 
     # Index subparser
-    parser_index = subparsers.add_parser('index', help='Index files or batches into Solr.')
+    parser_index = subparsers.add_parser('index', help='Index batches into Solr.')
     parser_index.set_defaults(func=index)
-    parser_index.add_argument('--batch-dir', help="Index a new batch contained in the given directory. The directory must contain a batch.json file and the JSON files containing the data must have a '.json' extension. The JSON files should adhere to the requirements listed in the --file option. The data files will be loaded first, and batch.json last, indicating a successful load. Batch validation is performed before loading, which involves making sure that the following fields in all data documents match the values of those fields in batch.json: batch-type, batch-name, batch-id, batch-timestamp. If validation fails, an error is thrown. If a batch-meta document with batch-id equal to the batch-id of this batch exists in Solr, we assume this batch has already been successfully loaded and skip it. If a batch-meta document with the same batch-type and batch-name but different timestamp is found, an error is thrown (add --replace to replace the batch, instead). If no matching batch-meta document is found but other documents with the same batch-type and batch-name are found, this constitutes a data integrity problem and we throw an error.")
+    parser_index.add_argument('--batch-dir', help="Index a new batch contained in the given directory. The directory must contain a batch.json file and the JSON files containing the data must have a '.json' extension. Each data file must be a JSON-formatted list of Solr documents, that is, a JSON array containing JSON objects. The data files will be loaded first, and batch.json last, indicating a successful load. Batch validation is performed before loading, which involves making sure that the following fields in all data documents match the values of those fields in batch.json: batch-type, batch-name, batch-id, batch-timestamp. If validation fails, an error is thrown. If a batch-meta document with batch-id equal to the batch-id of this batch exists in Solr, we assume this batch has already been successfully loaded and skip it. If a batch-meta document with the same batch-type and batch-name but different timestamp is found, an error is thrown (add --replace to replace the batch, instead). If no matching batch-meta document is found but other documents with the same batch-type and batch-name are found, this constitutes a data integrity problem and we throw an error.")
     parser_index.add_argument('--replace', action='store_true', help='Use in combination with --batch-dir to replace a batch that already exists in Solr. If the batch is not found in Solr, an error is thrown.')
     parser_index.add_argument('--validate-only', action='store_true', help='Validate the batch provided with --batch-dir, but do not index it.')
-    parser_index.add_argument('--file', nargs='+', metavar='FILE', dest='file_paths', help='Index individual files. Each file must be a JSON-formatted list of Solr documents, that is, a JSON array containing JSON objects.')
 
     # Delete subparser
-    parser_delete = subparsers.add_parser('delete', help='Delete documents or batches from Solr. Note that the script does not check to see that any documents matching the deletion query actually exist.')
+    parser_delete = subparsers.add_parser('delete', help='Delete batches from Solr.')
     parser_delete.set_defaults(func=delete)
     parser_delete.add_argument('--batch-type-name', nargs=2, metavar=('BATCH_TYPE', 'BATCH_NAME'), help='Delete a batch of documents with the given batch type and batch name. Provide the batch type followed by the batch name, separated by a space (ex: --batch-type-name organism pberANKA).')
     parser_delete.add_argument('--batch-id', nargs='+', metavar='BATCH_ID', dest='batch_ids', help='Delete a batch of documents by batch ID.')
-    parser_delete.add_argument('--doc-key', nargs='+', metavar='UNIQUE_KEY', dest='doc_keys', help='Delete documents by unique key.')
 
     # Rollback subparser
     parser_rollback = subparsers.add_parser('rollback', help='Rollback any staged changes in Solr.')
@@ -66,8 +66,8 @@ Examples:
         sys.exit(2)
 
     if args.func == index:
-        if not (args.batch_dir or args.file_paths):
-            parser.error('To index, please provide at least one of: --batch-dir, --file. Add -h for help.')
+        if not args.batch_dir:
+            parser.error('To index, please provide --batch-dir. Add -h for help.')
         if args.replace and not args.batch_dir:
             parser.error('--replace can only be used with --batch-dir')
         if args.validate_only and not args.batch_dir:
@@ -121,14 +121,12 @@ def run(func, solr_url, **kwargs):
 
             sys.exit(1)
 
-def index(solr_url, batch_dir=None, file_paths=None, replace=False, validate_only=False):
-    """Index files or batches.
+def index(solr_url, batch_dir=None, replace=False, validate_only=False):
+    """Index a batch.
 
     Args:
         solr_url (str): The URL to the Solr core to update.
         batch_dir (str): Index a new batch located in this directory.
-        file_paths (list[path-like]): Index the files located at these
-            paths.
         replace (bool): Replace the version of the batch in Solr with
             the version provided in batch_dir.
         validate_only (bool): Only validate the batch provided in
@@ -198,16 +196,10 @@ def index(solr_url, batch_dir=None, file_paths=None, replace=False, validate_onl
                     index_batch(batch_dir, solr_url)
                     changes_staged = True
 
-    # If there are new files to index, index them
-    if file_paths:
-        for path in file_paths:
-            index_file(path, solr_url)
-            changes_staged = True
-
     return changes_staged
 
-def delete(solr_url, batch_type_name=None, batch_ids=None, doc_keys=None):
-    """Delete documents or batches.
+def delete(solr_url, batch_type_name=None, batch_ids=None):
+    """Delete batches.
 
     Args:
         solr_url (str): The URL to the Solr core to update.
@@ -215,7 +207,6 @@ def delete(solr_url, batch_type_name=None, batch_ids=None, doc_keys=None):
             type and name. The tuple should have two elements: the
             batch type followed by the batch name.
         batch_ids (list[str]): Delete the batches with these IDs.
-        doc_keys (list[str]): Delete the documents with these keys.
 
     Returns:
         bool: True if any changes were staged in Solr.
@@ -237,20 +228,6 @@ def delete(solr_url, batch_type_name=None, batch_ids=None, doc_keys=None):
 
             if delete_batch(query_text, solr_url, batch_id):
                 changes_staged = True
-
-    # If there is a del_key, use it to delete documents
-    if doc_keys:
-        for key in doc_keys:
-            query_text = f'{UNIQUE_KEY_FIELD}:{key}'
-            print('Checking for matching document(s)')
-
-            if count_docs(query_text, solr_url):
-                print('Deleting document with key ' + key)
-                data = f'<delete><query>{query_text}</query></delete>'
-                solr_request('POST', solr_url + '/update', data=data, auth=AUTH, headers={'content-type':'application/xml'})
-                changes_staged = True
-            else:
-                print(f'No document with key {key} found')
 
     return changes_staged
 
