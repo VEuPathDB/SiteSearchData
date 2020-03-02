@@ -6,6 +6,7 @@ import os
 import sys
 import traceback
 import time
+import pathlib
 
 import requests
 
@@ -108,16 +109,32 @@ def run(func, solr_url, **kwargs):
 
         except Exception as e:
             print(traceback.format_exc(), file=sys.stderr)
-            print('Rolling back Solr as a safeguard.')
+            print("An error has occurred. It's possible that this has resulted in a corrupted batch existing in Solr.\nIf you think this is the case, you'll need to purge the corrupted batch.")
 
-            # Roll back changes
-            try:
-                rollback(solr_url)
-                print('An error occurred and changes were rolled back.', file=sys.stderr)
+            if func is index:
+                try:
+                    # Attempt to get the batch info
+                    batch_json_path = kwargs['batch_dir'] + '/batch.json'
 
-            except Exception as e:
-                print(traceback.format_exc())
-                print('An error occurred, but rollback failed. Changes could still be staged in Solr.', file=sys.stderr)
+                    with open(batch_json_path) as batch_json_file:
+                        batch_json = json.load(batch_json_file)[0]
+
+                    batch_type = batch_json['batch-type']
+                    batch_name = batch_json['batch-name']
+                    script_path = pathlib.Path(__file__)
+
+                    # Build the delete command
+                    cmd = f'./{script_path} {solr_url} delete --batch-type-name {batch_type} {batch_name}'
+
+                    print('Use the following command to do so:')
+                    print(cmd)
+
+                # If batch.json is missing, nothing was staged anyway, so we're good
+                except FileNotFoundError:
+                    pass
+
+            elif func is delete:
+                print('To do so, successfully rerun the original delete command.')
 
             sys.exit(1)
 
@@ -213,6 +230,7 @@ def delete(solr_url, batch_type_name=None, batch_ids=None):
     """
     changes_staged = False
 
+    # Delete batches using batch_type and batch_name
     if batch_type_name:
         batch_type, batch_name = batch_type_name
         query_text = 'batch-type:{} AND batch-name:{}'.format(batch_type, batch_name)
@@ -221,7 +239,7 @@ def delete(solr_url, batch_type_name=None, batch_ids=None):
         if delete_batch(query_text, solr_url, batch_text):
             changes_staged = True
 
-    # If there is a del_batch_id, use it to delete the old batch
+    # Delete batches using batch_ids
     if batch_ids:
         for batch_id in batch_ids:
             query_text = '{}:{}'.format(BATCH_ID_FIELD, batch_id)
