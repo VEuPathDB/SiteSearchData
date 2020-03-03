@@ -21,5 +21,13 @@
      "boost": 1
     }
   ]
+ },
+ { "document-type": "popbioSample",
+   "fields": [
+     {"name":"TEXT__popbio_species",
+      "isSummary": false,
+      "boost": 1
+     }
+   ]
  }
 ]

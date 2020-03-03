@@ -43,6 +43,11 @@
         "displayNamePlural": "Popset isolate sequences",
         "wdkSearchUrlName": "PopsetIsolatesByText",
         "hasOrganismField": false
+      },
+      { "id": "popbioSample",
+	"displayName": "Field sample",
+	"displayNamePlural": "Field samples",
+	"hasOrganismField": false
       }
     ]
   },
