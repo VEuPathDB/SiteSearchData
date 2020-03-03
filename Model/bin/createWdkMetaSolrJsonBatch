@@ -63,7 +63,7 @@ for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
         outputSearch['batch-timestamp'] = batchTimestamp
         outputSearch['batch-id'] = batchId
         outputSearch['document-type'] = SEARCHDOCTYPE
-        outputSearch['id'] = search['urlSegment']
+        outputSearch['id'] = 'search_' + search['urlSegment']
         outputSearch['primaryKey'] = [search['urlSegment'], recordTypeName]
         outputSearch[ATTR_PREFIX + 'search_' + 'name'] = search['urlSegment']
         if 'displayName' in search:
