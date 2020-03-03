@@ -109,7 +109,7 @@ def run(func, solr_url, **kwargs):
 
         except Exception as e:
             print(traceback.format_exc(), file=sys.stderr)
-            print("An error has occurred. It's possible that this has resulted in a corrupted batch existing in Solr.\nIf you think this is the case, you'll need to purge the corrupted batch.")
+            print("An error has occurred. It's possible that this has resulted in either staged, uncommitted changes or a corrupted batch existing in Solr.\nIf you think there are uncommitted changes staged in Solr, use the rollback function to drop these changes.\nIf you think there is a corrupted batch in Solr, you'll need to purge the corrupted batch.")
 
             if func is index:
                 try:
