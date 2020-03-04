@@ -250,9 +250,11 @@
     <sqlQuery name="Orthologs">
       <column name="source_id"/>
       <column name="ortho_product"/>
+      <column name="ortho_name"/>
       <sql>
         <![CDATA[
-       select distinct source_id, ortho_product from apidbTuning.OrthologousGenes
+          select distinct source_id, ortho_product, ortho_name
+          from apidbTuning.OrthologousGenes
         ]]>
       </sql>
     </sqlQuery>
