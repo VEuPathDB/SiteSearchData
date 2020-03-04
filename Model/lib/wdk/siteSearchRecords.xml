@@ -576,16 +576,6 @@ Each Question must:
         <columnAttribute name="reference"/>
       </table>
 
-      <table name="Compounds"
-             displayName="Compounds"
-             queryRef="GeneTables.Compounds">
-        <columnAttribute name="compound_source_id"/>
-        <columnAttribute name="compound_name"/>
-        <columnAttribute name="other_names"/>
-        <columnAttribute name="iupac_name"/>
-        <columnAttribute name="id"/>
-      </table>
-
       <table name="RodMalPhenotype"
              displayName="Rodent malaria phenotype"
              queryRef="GeneTables.RodMalPhenotype">
