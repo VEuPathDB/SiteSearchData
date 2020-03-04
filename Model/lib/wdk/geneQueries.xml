@@ -517,57 +517,6 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="Compounds">
-      <column name="source_id"/>
-      <column name="compound_source_id"/>
-      <column name="compound_name"/>
-      <column name="other_names"/>
-      <column name="iupac_name"/>
-      <column name="id"/>
-      <sql>
-        <![CDATA[
-          with tp_ec
-          as (select distinct ec_number_gene
-              from apidbTuning.TranscriptPathway),
-          wildcarded_pathway_ec
-          as (select distinct enzyme
-              from apidbTuning.PathwayReactions
-              where enzyme like '%.%.%.%'
-                and enzyme like '%-%'
-                and enzyme != '-.-.-.-'),
-          unwildcarded_pathway_ec
-          as (select distinct enzyme
-              from apidbTuning.PathwayReactions
-              where enzyme like '%.%.%.%'
-                and enzyme not like '%-%'),
-          ec_match
-          as (  select ec_number_gene, wpe.enzyme
-                from tp_ec te, wildcarded_pathway_ec wpe
-                where te.ec_number_gene like replace(wpe.enzyme, '-', '%')
-              union all
-                select ec_number_gene, upe.enzyme
-                from tp_ec te, unwildcarded_pathway_ec upe
-                where te.ec_number_gene = upe.enzyme)
-          select distinct tp.gene_source_id as source_id,
-                          ca.source_id as compound_source_id, ca.compound_name,
-                          ca.other_names, ca.iupac_name, cids.id
-          from apidbTuning.TranscriptPathway tp, apidbTuning.PathwayReactions pr,
-               apidbTuning.PathwayCompounds pc, apidbTuning.CompoundAttributes ca,
-               ec_match em,
-               (select id, compound
-                from apidbTuning.CompoundId
-                where id != compound) cids
-          where tp.ec_number_gene = em.ec_number_gene
-            and em.enzyme = pr.enzyme
-            and pr.reaction_id = pc.reaction_id
-            and pr.ext_db_name = pc.ext_db_name
-            and pc.pathway_id = tp.pathway_id
-            and ca.source_id = pc.chebi_accession
-            and cids.compound(+) = ca.source_id
-        ]]>
-      </sql>
-    </sqlQuery>
-
     <sqlQuery name="RodMalPhenotype">
       <column name="source_id"/>
       <column name="rmgmid"/>
