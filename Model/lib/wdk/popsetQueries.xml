@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="PopsetIds" queryType="id" isCacheable="false">
+  <querySet name="PopsetIds" queryType="id" isCacheable="true">
 
     <sqlQuery name="PopsetByOrganismAbbrev">
       <paramRef ref="popsetParams.organismAbbrev"/>
