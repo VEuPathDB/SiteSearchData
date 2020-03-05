@@ -557,6 +557,7 @@ Each Question must:
              displayName="Orthologs"
              queryRef="GeneTables.Orthologs">
         <columnAttribute name="ortho_product"/>
+        <columnAttribute name="ortho_name"/>
       </table>
 
       <table name="Products"
