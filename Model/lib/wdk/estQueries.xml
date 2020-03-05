@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="EstIdQueries" queryType="id" isCacheable="false">
+  <querySet name="EstIdQueries" queryType="id" isCacheable="true">
 
     <sqlQuery name="EstsByOrganismAbbrev">
       <paramRef ref="estParams.organismAbbrev"/>
