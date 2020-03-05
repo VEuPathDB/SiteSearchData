@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="DatasetIdQueries" queryType="id" isCacheable="false">
+  <querySet name="DatasetIdQueries" queryType="id" isCacheable="true">
     <sqlQuery name="AllDatasets">
       <column name="dataset_id"/>
       <sql>
