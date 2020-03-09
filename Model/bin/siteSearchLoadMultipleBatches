@@ -31,10 +31,10 @@ for batchDir in Path(parentDir).rglob('solr-json-batch_*'):
     if not os.path.isdir(batchDir):
         utils.error(batchDir + " is not a directory")
     cmd = "siteSearchLoadBatch " + solrUrl + " index --batch-dir " + str(batchDir)
-    print("running command: " + cmd)
+    print("running command: " + cmd, flush=True)
     status = os.system(cmd)
     if status != 0:
         utils.error("Failed with status " + str(status) + " running command: " + cmd)
-    print("Batch " + str(count) + " loaded")
+    print("Batch " + str(count) + " loaded", flush=True)
     
-print("DONE!! Loaded " + str(count) + " batches)
+print("DONE.  Loaded " + str(count) + " batches", flush=True)
