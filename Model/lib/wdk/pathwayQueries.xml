@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="PathwayIdQueries" queryType="id" isCacheable="false">
+  <querySet name="PathwayIdQueries" queryType="id" isCacheable="true">
 
     <sqlQuery name="AllPathways">
       <column name="source_id"/>
