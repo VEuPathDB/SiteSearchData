@@ -102,6 +102,7 @@ def runReportToFile(wdkServiceUrl, workingDir, recordTypeName, searchName, param
             utils.error("Received " + str(response.status_code) + " status from HTTP GET to " + reportUrl + " with parameters: " + str(urlParams))
         with open(targetFilename, 'wb') as file:
             shutil.copyfileobj(response.raw, file)
+        utils.validateDocumentsJsonFile(targetFilename)        
 
 def checkRecordTypeBatch(recordType, batchType):
     if ('properties' in recordType and 'batch' in recordType['properties']):
