@@ -4,6 +4,7 @@ import requests
 import json
 import sys
 import os.path
+import subprocess
 import glob
 from pathlib import Path
 
@@ -67,3 +68,10 @@ def writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
     with open(outputDir + "/batch.json", "w") as text_file:
         text_file.write(batchJson)
     Path(outputDir + "/DONE").touch()  # write flag indicating a complete batch
+
+# validate that the json file ends in an a ']'
+def validateDocumentsJsonFile(jsonFileName):
+    output = subprocess.getoutput("tail -c 1 " + jsonFileName)
+    if output != ']':			
+       error("File " + jsonFileName + " is not valid.  It does not end in ']'.  Try 'tail -c 500' to see the end of that file")
+
