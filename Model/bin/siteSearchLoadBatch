@@ -56,7 +56,7 @@ Examples:
     parser_delete.add_argument('--batch-id', nargs='+', metavar='BATCH_ID', dest='batch_ids', help='Delete a batch of documents by batch ID.')
 
     # Rollback subparser
-    parser_rollback = subparsers.add_parser('rollback', help='Rollback any staged changes in Solr.')
+    parser_rollback = subparsers.add_parser('rollback', help='Rollback Solr. This unstages any staged (uncommitted) changes that may exist in Solr.')
     parser_rollback.set_defaults(func=rollback)
 
     args = parser.parse_args()
@@ -97,15 +97,8 @@ def run(func, solr_url, **kwargs):
     else:
         try:
             # Run the command
-            changes_staged = func(solr_url, **kwargs)
-
-            if changes_staged:
-                # Commit the changes
-                print('Committing changes', flush=True)
-                solr_request('POST', solr_url + '/update', data='<commit/>', auth=AUTH, headers={'content-type':'application/xml'})
-                print('Changes committed', flush=True)
-            else:
-                print('No change', flush=True)
+            func(solr_url, **kwargs)
+            exit_code = 0
 
         except Exception as e:
             print(traceback.format_exc(), file=sys.stderr)
@@ -144,7 +137,15 @@ the corrupted batch."""
             elif func is delete:
                 print('To do so, successfully rerun the original delete command.', file=sys.stderr, flush=True)
 
-            sys.exit(1)
+            exit_code = 1
+
+        finally:
+            # Commit
+            print('Committing', flush=True)
+            solr_request('POST', solr_url + '/update', data='<commit/>', auth=AUTH, headers={'content-type':'application/xml'})
+            print('Commit successful', flush=True)
+
+            sys.exit(exit_code)
 
 def index(solr_url, batch_dir=None, replace=False, validate_only=False):
     """Index a batch.
@@ -156,12 +157,8 @@ def index(solr_url, batch_dir=None, replace=False, validate_only=False):
             the version provided in batch_dir.
         validate_only (bool): Only validate the batch provided in
             batch_dir - do not index it.
-
-    Returns:
-        bool: True if any changes were staged in Solr.
     """
     select_url = solr_url + '/select'
-    changes_staged = False
 
     if batch_dir:
         # Validate the batch
@@ -198,7 +195,6 @@ def index(solr_url, batch_dir=None, replace=False, validate_only=False):
                         batch_text = f"'{batch_name} {batch_name}'"
                         delete_batch(query_text, solr_url, batch_text)
                         index_batch(batch_dir, solr_url)
-                        changes_staged = True
                     # If we're not, throw an error
                     else:
                         sys.exit(f"Error: Another version of batch '{batch_type} {batch_name}' already exists in Solr. Add --replace to replace it.")
@@ -219,9 +215,6 @@ def index(solr_url, batch_dir=None, replace=False, validate_only=False):
                 # Else, index the batch
                 else:
                     index_batch(batch_dir, solr_url)
-                    changes_staged = True
-
-    return changes_staged
 
 def delete(solr_url, batch_type_name=None, batch_ids=None):
     """Delete batches.
@@ -232,45 +225,35 @@ def delete(solr_url, batch_type_name=None, batch_ids=None):
             type and name. The tuple should have two elements: the
             batch type followed by the batch name.
         batch_ids (list[str]): Delete the batches with these IDs.
-
-    Returns:
-        bool: True if any changes were staged in Solr.
     """
-    changes_staged = False
 
     # Delete batches using batch_type and batch_name
     if batch_type_name:
         batch_type, batch_name = batch_type_name
         query_text = f'batch-type:{batch_type} AND batch-name:{batch_name}'
         batch_text = f"'{batch_type} {batch_name}'"
-
-        if delete_batch(query_text, solr_url, batch_text):
-            changes_staged = True
+        delete_batch(query_text, solr_url, batch_text)
 
     # Delete batches using batch_ids
     if batch_ids:
         for batch_id in batch_ids:
             query_text = f'{BATCH_ID_FIELD}:{batch_id}'
-
-            if delete_batch(query_text, solr_url, batch_id):
-                changes_staged = True
-
-    return changes_staged
+            delete_batch(query_text, solr_url, batch_id)
 
 def rollback(solr_url):
-    """Roll back changes staged in Solr.
+    """Roll back Solr.
 
     Args:
         solr_url (str): The URL to the Solr core.
     """
-    print('Rolling back changes', flush=True)
+    print('Rolling back', flush=True)
 
     try:
         solr_request('POST', solr_url + '/update', data='<rollback/>', auth=AUTH, headers={'content-type':'application/xml'})
         print('Rollback successful', flush=True)
 
     except Exception as e:
-        print('Error: Unable to roll back changes', file=sys.stderr, flush=True)
+        print('Error: Unable to roll back', file=sys.stderr, flush=True)
         raise
 
 def validate_batch(batch_dir):
@@ -340,7 +323,6 @@ def index_batch(batch_dir, solr_url):
         batch_dir (str): The path to the batch.
         solr_url (str): The URL to the Solr core.
     """
-    changes_staged = False
     start_time = time.time()
 
     # Index all data files
@@ -350,12 +332,10 @@ def index_batch(batch_dir, solr_url):
                 batch_json_file = obj
             elif obj.name.endswith('.json'):
                 index_file(obj, solr_url)
-                changes_staged = True
 
     # Finally, index batch.json
     index_file(batch_json_file, solr_url)
     end_time = time.time()
-    changes_staged = True
 
     print(f'Time to index batch: {(end_time - start_time):.2f}s', flush=True)
 
@@ -368,12 +348,8 @@ def delete_batch(query_text, solr_url, batch_text):
         solr_url (str): The URL to the Solr core.
         batch_text (str): The text that will be printed to refer to the
             batch.
-
-    Returns:
-        bool: True if any changes were staged in Solr.
     """
     url = solr_url + '/update'
-    changes_staged = False
 
     # First, check for the existence of matching batch documents
     print(f'Checking for documents matching batch {batch_text}', flush=True)
@@ -383,7 +359,6 @@ def delete_batch(query_text, solr_url, batch_text):
         print('Deleting batch-meta document for batch ' + batch_text, flush=True)
         data = f'<delete><query>{query_text} AND document-type:batch-meta</query></delete>'
         solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
-        changes_staged = True
 
         # Then delete the data documents
         print('Deleting batch ' + batch_text, flush=True)
@@ -392,8 +367,6 @@ def delete_batch(query_text, solr_url, batch_text):
 
     else:
         print(f'No matching documents for batch {batch_text}', flush=True)
-
-    return changes_staged
 
 def count_docs(query_text, solr_url):
     """Counter the number of documents matching a query.
