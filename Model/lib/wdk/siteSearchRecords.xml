@@ -487,7 +487,7 @@ Each Question must:
       <table name="userCommentIds"
              internal="true"
              queryRef="GeneTables.UserCommentIDs">
-        <columnAttribute displayName="Comment ID" name="comment_id"/>
+        <columnAttribute name="comment_id"/>
       </table>
 
       <table name="UserCommentContent"
@@ -734,7 +734,6 @@ Each Question must:
         <columnAttribute name="isolation_source" displayName="Isolation source"/>
         <columnAttribute name="curated_isolation_source" displayName="Curated isolation source"/>
         <columnAttribute name="note" displayName="Note"/>
-        <columnAttribute name="gene_name" displayName="Gene name"/>
         <columnAttribute name="product" displayName="Product">
           <propertyList name="isSummary">
             <value>true</value>
@@ -756,6 +755,20 @@ Each Question must:
         <columnAttribute name="popset" displayName="Popset"/>
         <columnAttribute name="strain" displayName="Strain"/>
       </attributeQueryRef>
+
+      <table name="References"  displayName="References" queryRef="PopsetTables.References">
+        <columnAttribute name="title"/>
+        <columnAttribute name="authors"/>
+        <columnAttribute name="journal"/>
+      </table>
+
+      <table name="GeneOverlap" 
+             displayName="Blast Similarity Alignments and Overlapping Genes" queryRef="PopsetTables.GeneOverlap">
+        <columnAttribute name="source_id"/>
+        <columnAttribute name="gene"/>
+        <columnAttribute name="organism"/>
+        <columnAttribute name="gene_product"/>
+      </table>
 
     </recordClass>
 
