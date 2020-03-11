@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+use strict;
+
+my ($targetDir, $buildNum) = @ARGV;
+
+my %projectsMap = ('AmoebaDB', 'amoeba', 'CryptoDB', 'cryptodb',
+  'FungiDB', 'fungidb', 'GiardiaDB', 'giardiadb',
+  'HostDB', 'hostdb', 'MicrosporidiaDB', 'micro',
+  'PiroplasmaDB', 'piro', 'PlasmoDB', 'plasmo',
+  'SchistoDB', 'schisto', 'ToxoDB', 'toxo', 'TrichDB', 'trichdb',
+  'TriTrypDB', 'tritrypdb', 'VectorBase', 'vectorbase');
+
+die "
+Dump WDK meta information (eg Searches) into solr-compatible json files.  Reads the web services
+from QA sites for all the genomics components.
+
+Usage: dumpQaWdkMetaBaches targetDir buildNum
+
+"  unless $targetDir && $buildNum;
+
+die "targetDir '$targetDir' does not exist or is not a directory\n" unless -d $targetDir;
+
+my $BATCH_DIR_PREFIX = "solr-json-batch";
+
+foreach my $project (keys %projectsMap) {
+  my $dom = $project eq 'SchistoDB'? 'net' : 'org';
+  my $abbrev = $projectsMap{$project};
+  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_wdkmeta_${project}*");
+  my $serviceUrl = "'https://qa.${project}.${dom}/${abbrev}.b${buildNum}/service'";
+  runCmd("createWdkMetaSolrJsonBatch $serviceUrl $project $targetDir")
+    unless checkPrevBatchDir($temp[0], "wdkmeta", $project);
+}
+
+sub checkPrevBatchDir {
+  my ($prevBatchDir, $batchType, $batchName) = @_;
+
+  return 0 unless -e $prevBatchDir;
+
+  die "\nError: Incomplete batch dir (no DONE file): $prevBatchDir.  Please delete it first.\n" unless -e "$prevBatchDir/DONE";
+
+  print STDOUT "Batch '$batchType $batchName' already present in targetDir.  Skipping.\n";
+  return 1;
+}
+
+sub runCmd {
+  my ($cmd) = @_;
+  print STDOUT "Running $cmd\n";
+  system($cmd) && die "Failed\n";
+}
+
+
