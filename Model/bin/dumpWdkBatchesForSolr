@@ -7,11 +7,10 @@ use DBI;
 
 my $BATCH_DIR_PREFIX = "solr-json-batch";
 
-my $ORG_ABBREV_SQL = "select distinct o.abbrev AS internal from apidb.Organism o";
+my $ORG_ABBREV_SQL = "select distinct abbrev AS internal from apidb.Organism order by abbrev";
 
-my ($metadata, $wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
-&GetOptions("metadata" => \$metadata,
-            "targetDir=s" => \$targetDir,
+my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
+&GetOptions("targetDir=s" => \$targetDir,
             "wdkServiceUrl=s" => \$wdkServiceUrl,
             "numberOfOrganisms=i" => \$numberOfOrganisms,
 	    "verbose!" => \$verbose);
@@ -22,17 +21,13 @@ $| = 1;
 
 die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
 
-if ($metadata) {
-  runMetaReports();
-  exit 0;
-}
-
 my $gusProps = getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
 my $modelProps = getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
 
 my $dbh = getDbh($gusProps);
 
 runWdkReport("pathway", $modelProps->{PROJECT_ID});
+runWdkReport("popset-isolate", $modelProps->{PROJECT_ID});
 runWdkReport("compound", $modelProps->{PROJECT_ID});
 runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
 
@@ -69,20 +64,6 @@ sub checkPrevBatchDir {
 
   print STDOUT "Batch '$batchType $batchName' already present in targetDir.  Skipping.\n";
   return 1;
-}
-
-sub runMetaReports {
-  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_wdkmeta_all*");
-  runCmd("createWdkMetaSolrJsonBatch $wdkServiceUrl $targetDir")
-    unless checkPrevBatchDir($temp[0], "wdkmeta", "all");
-
-  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_document-categories_all*");
-  runCmd("createDocumentTypeCategoriesJsonBatch $targetDir")
-    unless checkPrevBatchDir($temp[0], "document-categories", "all");
-
-  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_document-fields_all*");
-  runCmd("createDocumentFieldsJsonBatch $wdkServiceUrl $targetDir")
-    unless checkPrevBatchDir($temp[0], "document-fields", "all")
 }
 
 sub runWdkReport {
@@ -132,23 +113,18 @@ sub usage {
   die
 "Dump batches to be loaded into solr from data produced by the workflow.
 
-usage:  dumpWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--metadata] [--numberOfOrganisms NUMBER] [--verbose]
+usage:  dumpWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
 
-Either dump wdk records as Solr compatible Json, or dump metadata for Solr.
+Dump wdk records as Solr compatible Json
 
 Dumps data in hard-coded set of batches:
-WDK records:
  - organisms (one batch per organism)
  - pathways
  - compounds
  - datasets
-Metadata:
- - wdkmeta (such as wdk Searches)
- - document-types
- - field-types
+ - popset isolates
 
-
-For WDK records, connects to the appDb found in $ENV{GUS_HOME}/config/gus.config, and queries it to find the list of organisms to dump.
+Connects to the appDb found in $ENV{GUS_HOME}/config/gus.config, and queries it to find the list of organisms to dump.
 
 Connects to a running SiteSearchData wdk service to generate the reports.
 
