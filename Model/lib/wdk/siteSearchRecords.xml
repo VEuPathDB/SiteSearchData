@@ -319,7 +319,7 @@ Each Question must:
         <columnAttribute name="value"/>
       </table>
 
-      <table name="CompoundsMetabolicPathways"
+      <table name="MetabolicPathwaysReactions"
              displayName="Metabolic pathway reactions"
              queryRef="CompoundTables.CompoundsFromMetabolicPathways">
         <columnAttribute name="ec_number"/>
@@ -327,20 +327,12 @@ Each Question must:
         <columnAttribute name="products_text"/>
       </table>
 
-      <table name="PathwaysFromCompounds"
+      <table name="MetabolicPathways"
              displayName="Metabolic pathways"
              queryRef="CompoundTables.PathwaysFromCompounds">
         <columnAttribute name="pathway_name"/>
       </table>
 
-<!-- no genes table unless we add it to the site model
-      <table name="Genes" displayName="Genes"
-             queryRef="CompoundTables.Genes">
-        <columnAttribute name="gene_source_id"/>
-        <columnAttribute name="product"/>
-        <columnAttribute name="gene_name"/>
-      </table>
- -->
       <table name="SecondaryIds"
              displayName="Secondary IDs"
              queryRef="CompoundTables.SecondaryIds">
@@ -497,7 +489,7 @@ Each Question must:
       </table>
 
       <table name="ECNumbers"
-             displayName="EC numbers"
+             displayName="EC descriptions and numbers"
              queryRef="GeneTables.ECNumbers">
         <columnAttribute name="ec_number"/>
         <columnAttribute name="ec_description"/>
@@ -699,7 +691,7 @@ Each Question must:
 
     <recordClass name="PopsetRecordClass" urlName="popsetSequence" displayName="Popset isolate sequence">
       <propertyList name="batch">
-        <value>organism</value>
+        <value>popset-isolate</value>
       </propertyList>
 
       <primaryKey aliasQueryRef="PopsetAttributes.PopsetAlias">
