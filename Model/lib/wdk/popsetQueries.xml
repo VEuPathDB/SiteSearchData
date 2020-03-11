@@ -2,44 +2,18 @@
 
   <querySet name="PopsetIds" queryType="id" isCacheable="true">
 
-    <sqlQuery name="PopsetByOrganismAbbrev">
-      <paramRef ref="popsetParams.organismAbbrev"/>
+    <!-- we can't dump popset isolates per organism because they are loaded at the family level.
+         A given isolate might be associated with multiple reference organisms -->
+    <sqlQuery name="AllPopsetIsolates">
       <column name="source_id"/>
       <sql>
         <![CDATA[
-          select pa.source_id
-          from apidbTuning.PopsetAttributes pa, apidb.Organism o
-          where pa.taxon_id = o.taxon_id
-            and o.abbrev = $$organismAbbrev$$
+          select pa.source_id from apidbTuning.PopsetAttributes pa
         ]]>
       </sql>
     </sqlQuery>
 
   </querySet>
-
-  <querySet name="PopsetParamQueries" queryType="vocab"  isCacheable="false">
-    <sqlQuery name="organismAbbrevs">
-      <column name="internal"/>
-      <column name="term"/>
-      <sql>
-        <![CDATA[
-          SELECT distinct o.abbrev as internal,
-                          o.abbrev as term
-          from apidb.organism o
-        ]]>
-      </sql>
-    </sqlQuery>
-
-  </querySet>
-
-  <paramSet name="popsetParams">
-    <flatVocabParam name="organismAbbrev"
-                    queryRef="SequenceParamQueries.organismAbbrevs"
-                    multiPick="false"
-                    prompt="Organism abbrev"
-                    quote="true">
-    </flatVocabParam>
-  </paramSet>
 
   <querySet name="PopsetAttributes" queryType="attribute" isCacheable="false">
 
@@ -57,7 +31,7 @@
     <sqlQuery name="Attributes">
       <column name="source_id"/>
       <column name="organism"/>
-      <column name="organism_full"/>
+      <column name="project"/>
       <column name="description"/>
       <column name="isolation_source"/>
       <column name="curated_isolation_source"/>
@@ -71,11 +45,11 @@
       <column name="strain"/>
       <sql>
         <![CDATA[
-          select source_id, organism, organism as organism_full, description,
+          select source_id, organism, description,
                  isolation_source, curated_isolation_source,
 		 note, gene_name, product,
                  geographic_location,curated_geographic_location, 
-                 host as specific_host, popset, strain
+                 host as specific_host, popset, strain, '@PROJECT_ID@' as project
           from apidbTuning.PopsetAttributes
         ]]>
       </sql>

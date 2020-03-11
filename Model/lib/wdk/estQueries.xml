@@ -54,10 +54,10 @@
       <column name="vector"/>
       <column name="stage"/>
       <column name="organism"/>
-      <column name="organism_full"/>
+      <column name="project"/>
       <sql>
         <![CDATA[
-          select source_id, dbest_name, vector, stage, organism, organism as organism_full
+          select source_id, dbest_name, vector, stage, organism, '@PROJECT_ID@' as project
           from apidbTuning.EstAttributes
         ]]>
       </sql>
