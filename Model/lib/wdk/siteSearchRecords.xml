@@ -754,6 +754,7 @@ Each Question must:
         <columnAttribute name="journal"/>
       </table>
 
+    <!--  THIS QUERY IS TOO SLOW  - 10 minutes in plasmo  - not worth it
       <table name="GeneOverlap" 
              displayName="Blast Similarity Alignments and Overlapping Genes" queryRef="PopsetTables.GeneOverlap">
         <columnAttribute name="source_id"/>
@@ -761,6 +762,7 @@ Each Question must:
         <columnAttribute name="organism"/>
         <columnAttribute name="gene_product"/>
       </table>
+-->
 
     </recordClass>
 
