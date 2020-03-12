@@ -110,7 +110,6 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("document-type", urlSegment);
       obj.put("primaryKey", pkValues); // multi string field. for forming record URLs
       obj.put("wdkPrimaryKeyString", String.join(",", pkValues)); // joined string field for sorting
-      obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       obj.put("batch-type", batchType);
       obj.put("batch-id", batchId);
       obj.put("batch-name", batchName);
@@ -118,13 +117,16 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       for (String attributeName: attributeNames) {
         String name = record.getRecordClass().getAttributeFieldMap().get(attributeName).isInternal()?
               attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
-        obj.put(name, record.getAttributeValue(attributeName).getValue());
+        String value = record.getAttributeValue(attributeName).getValue();
+        obj.put(name, value);
+        if (name.equals("project")) idValuesString += "_" + value; // append project id, if we have one
       }
       for (String tableName: tableNames) {
         String name = record.getRecordClass().getTableFieldMap().get(tableName).isInternal()?
             tableName : TABLE_PREFIX + urlSegment + "_" + tableName;
         obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
       }
+      obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       return obj;
     }
     catch (Exception e) {
