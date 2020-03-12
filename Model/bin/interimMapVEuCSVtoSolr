@@ -1,0 +1,124 @@
+#!/usr/bin/env perl
+#  -*- mode: cperl -*-
+
+#
+# usage:
+#
+# 1. go to popbio map in sample view and export ALL samples as CSV
+# 2. ./interimMapVEuCSVtoSolr export.csv
+# 3. that will generate a directory called ./solr-json-batch_BATCHID
+#    which contains all JSON needed for indexing
+#
+#
+
+use strict;
+use warnings;
+use Text::CSV_XS;
+use JSON;
+use utf8::all;
+
+my ($file) = @ARGV;
+
+die "Must provide MapVEu CSV file as argument\n" unless ($file && -s $file);
+
+my $batch_name = "popbio";
+my $batch_type = "samples";
+my $batch_timestamp = time();
+my $batch_id = sprintf "%s_%s_%d", $batch_type, $batch_name, $batch_timestamp;
+my $document_type = "popbio-sample";
+
+my $output_dir = "solr-json-batch_${batch_id}";
+mkdir $output_dir || die;
+
+my $json = JSON->new; # ->pretty;
+
+# output batch info JSON
+my $batch_info = [
+		  {
+		   "batch-type" => $batch_type,
+		   "batch-name" => $batch_name,
+		   "document-type" => "batch-meta",
+		   "batch-timestamp" => $batch_timestamp,
+		   "batch-id" => $batch_id,
+		   "id" => $batch_id,
+		  }
+		 ];
+
+if (open(my $batch_info_fh, ">$output_dir/batch.json")) {
+  print $batch_info_fh $json->encode($batch_info);
+  close($batch_info_fh);
+} else {
+  die "couldn't write $output_dir/batch.json\n";
+}
+
+
+my $csv = Text::CSV_XS->new ({ binary => 1, auto_diag => 1 });
+open my $fh, "<:encoding(utf8)", $file or die "$file: $!";
+
+my $headers = $csv->getline($fh);
+
+# header to index
+my %h2i;
+for (my $i=0; $i<@$headers; $i++) { $h2i{$headers->[$i]}=$i }
+
+
+my %SolrField2function =
+  (
+   # Solr_Field_name => function that takes a $row object
+
+   "id" => sub { $document_type."_".$_[0]->[$h2i{"Sample ID"}] },
+   "documentType" => sub { $document_type },
+
+   "batch-id" => sub { $batch_id },
+   "batch-type" => sub { $batch_type },
+   "batch-timestamp" => sub { $batch_timestamp },
+   "batch-name" => sub { $batch_name },
+
+   "TEXT__popbio_species" => sub { $_[0]->[$h2i{"Species"}] },
+   "TEXT__popbio_sample_id" => sub { $_[0]->[$h2i{"Sample ID"}] },
+   "TEXT__popbio_sample_name" => sub { $_[0]->[$h2i{"Label"}] },
+   "TEXT__popbio_collection_id" => sub { $_[0]->[$h2i{"Collection ID"}] },
+
+   ### the place name is not particularly useful because in the map CSV export only the GADM-assigned ADM2 name is
+   ### available and it's not usually a placename that anyone would search for (like the country, adm1 or perhaps
+   ### the actual location (e.g. village) collected in)
+   ### also, this CSV field is not actually multi-valued, despite the pluralised name.
+   "TEXT__popbio_collection_location" => sub { $_[0]->[$h2i{"Locations"}] },
+
+   "TEXT__popbio_computed_description" => sub { sprintf "Sample %s collected from %s on %s",
+						  $_[0]->[$h2i{"Label"}],
+						  $_[0]->[$h2i{"Locations"}],
+						  $_[0]->[$h2i{"Collection date range"}]
+					      },
+
+   "MULTITEXT__popbio_collection_protocols" => sub { [ split /,/, $_[0]->[$h2i{"Collection protocols"}] ] },
+
+   ### project IDs should end up being single valued after maybe more curation
+   ### but for now multi-valued is safer
+   "MULTITEXT__popbio_project_ids" => sub { [ split /,/, $_[0]->[$h2i{"Projects"}] ] }, 
+
+   "MULTITEXT__popbio_citations" => sub { [ split /,/, $_[0]->[$h2i{"Citations"}] ] },
+   "MULTITEXT__popbio_tags" => sub { [ split /,/, $_[0]->[$h2i{"Tag"}] ] },
+
+   ### not indexing because more suited to advanced/strategy search or in-map filtering:
+   ### sex, dev stage, attractants, sample type, available data types
+  );
+
+
+open(my $samples_fh, ">$output_dir/$batch_type.json") || die "can't open output json";
+
+my $count;
+print $samples_fh "[\n";
+while (my $row = $csv->getline($fh)) {
+  my $doc = { };
+  foreach my $SolrField (keys %SolrField2function) {
+    $doc->{$SolrField} = $SolrField2function{$SolrField}($row);
+  }
+  print $samples_fh ",\n" if ($count++);
+  print $samples_fh $json->encode($doc);
+  # printing each document at a time, to prevent unnecessary memory use
+}
+print $samples_fh "]\n";
+
+
+close($samples_fh);

@@ -22,10 +22,51 @@
     }
   ]
  },
- { "document-type": "popbioSample",
+ { "document-type": "popbio_sample",
    "fields": [
      {"name":"TEXT__popbio_species",
       "isSummary": false,
+      "displayName": "Species",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_sample_id",
+      "isSummary": false,
+      "displayName": "Sample ID",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_sample_name",
+      "isSummary": false,
+      "displayName": "Sample name",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_collection_id",
+      "isSummary": false,
+      "displayName": "Collection ID",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_collection_location",
+      "isSummary": false,
+      "displayName": "Collection location",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_computed_description",
+      "isSummary": true,
+      "displayName": "Description",
+      "boost": 1
+     },
+     {"name":"MULTITEXT__popbio_project_ids",
+      "isSummary": false,
+      "displayName": "Project ID",
+      "boost": 1
+     },
+     {"name":"MULTITEXT__popbio_citations",
+      "isSummary": false,
+      "displayName": "Citations",
+      "boost": 1
+     },
+     {"name":"MULTITEXT__popbio_tags",
+      "isSummary": false,
+      "displayName": "Tags",
       "boost": 1
      }
    ]
