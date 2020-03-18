@@ -25,12 +25,12 @@
  { "document-type": "popbio_sample",
    "fields": [
      {"name":"TEXT__popbio_species",
-      "isSummary": false,
+      "isSummary": true,
       "displayName": "Species",
       "boost": 1
      },
      {"name":"TEXT__popbio_sample_id",
-      "isSummary": false,
+      "isSummary": true,
       "displayName": "Sample ID",
       "boost": 1
      },

@@ -68,6 +68,9 @@ my %SolrField2function =
 
    "id" => sub { $document_type."_".$_[0]->[$h2i{"Sample ID"}] },
    "documentType" => sub { $document_type },
+   "project" => sub { 'VectorBase' },
+   "primaryKey" => sub { $_[0]->[$h2i{"Sample ID"}] },
+   "hyperlinkName" => sub { sprintf "See %s in MapVEu", $_[0]->[$h2i{"Sample ID"}] },
 
    "batch-id" => sub { $batch_id },
    "batch-type" => sub { $batch_type },
