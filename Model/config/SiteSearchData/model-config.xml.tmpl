@@ -82,12 +82,6 @@
       <userProperty name="organization" displayName="Organization" dbKey="organization" required="true"/>
     </accountDb>
 
-    <userDatasetStore implementation="org.gusdb.wdk.model.user.dataset.filesys.FilesysUserDatasetStore">
-      <property name="rootPath">/var/www/Common/workspaces/users</property>
-      <typeHandler type="example" version="1.0"   implementation="org.gusdb.wdk.model.user.dataset.ExampleTypeHandler"/>
-      <typeHandler type="GeneList" version="1.0"  implementation="org.apidb.apicommon.model.userdataset.GeneListTypeHandler"/>
-    </userDatasetStore>
-
     <emailSubject>
          <![CDATA[
             Your EuPathDB Password
