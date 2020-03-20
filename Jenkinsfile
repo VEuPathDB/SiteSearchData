@@ -28,7 +28,7 @@ node ('centos8') {
 
         dir('project_home/SiteSearchData') {
            checkout([$class: 'GitSCM',
-           branches: [[name: '*/containertest']],
+           branches: [[name: env.BRANCH_NAME ]],
            doGenerateSubmoduleConfigurations: false, 
            extensions: [], 
            submoduleCfg: [], 
