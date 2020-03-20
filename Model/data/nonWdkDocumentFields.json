@@ -22,7 +22,7 @@
     }
   ]
  },
- { "document-type": "popbio_sample",
+ { "document-type": "popbio-sample",
    "fields": [
      {"name":"TEXT__popbio_species",
       "isSummary": true,
