@@ -25,7 +25,7 @@
  { "document-type": "popbio-sample",
    "fields": [
      {"name":"TEXT__popbio_species",
-      "isSummary": false,
+      "isSummary": true,
       "displayName": "Species",
       "boost": 1
      },
