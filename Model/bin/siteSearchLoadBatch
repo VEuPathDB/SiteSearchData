@@ -213,13 +213,8 @@ def index(solr_url, batch_dir=None, replace=False, validate_only=False):
                 if response.json()['response']['numFound']:
                     sys.exit(f"Error: Documents with batch-type '{batch_type}' and batch-name '{batch_name}' exist in Solr, but there is no batch-meta document signifying the existence of the batch. Delete the existing documents before loading this batch.")
 
-                # If we're updating, throw an error
-                if replace:
-                    sys.exit(f"Error: Batch '{batch_type} {batch_name}' does not exist in Solr. Remove --replace to index it.")
-                # Else, index the batch
-                else:
-                    index_batch(batch_dir, solr_url)
-                    changes_staged = True
+                index_batch(batch_dir, solr_url)
+                changes_staged = True
 
     return changes_staged
 
