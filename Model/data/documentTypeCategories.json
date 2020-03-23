@@ -81,6 +81,35 @@
         "hasOrganismField": false
       }
     ]
+  },
+  { "name": "Instructional",
+    "documentTypes": [
+      { "id": "tutorial",
+        "displayName": "Tutorial",
+        "displayNamePlural": "Tutorials",
+        "hasOrganismField": false
+      },
+      { "id": "workshop-exercise",
+        "displayName": "Workshop exercise",
+        "displayNamePlural": "Workshop exercises",
+        "hasOrganismField": false
+      }
+    ]
+  },
+  { "name": "About",
+    "documentTypes": [
+      { "id": "news",
+        "displayName": "News",
+        "displayNamePlural": "News",
+        "hasOrganismField": false
+      },
+      { "id": "general",
+        "displayName": "General info pages",
+        "displayNamePlural": "General info pages",
+        "hasOrganismField": false
+      }
+    ]
   }
+
 ]
 
