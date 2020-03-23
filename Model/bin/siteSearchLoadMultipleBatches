@@ -18,12 +18,13 @@ def parseAndValidateArgs():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
     parser.add_argument("solrUrl", help="url of SiteSearchData WDK service")
     parser.add_argument("parentDir", help="Parent directory to recursively scan to find batch directories to load")
+    parser.add_argument("--replace", action='store_true', default=False, help="Optional flag: set to replace similar batches in solr (if any)")
 
     args = parser.parse_args()
     utils.validateParentDir(args.parentDir)
-    return args.solrUrl, args.parentDir
+    return args.solrUrl, args.parentDir, args.replace
 
-solrUrl, parentDir = parseAndValidateArgs()
+solrUrl, parentDir, replace = parseAndValidateArgs()
 
 count=0
 for batchDir in Path(parentDir).rglob('solr-json-batch_*'):
@@ -31,6 +32,8 @@ for batchDir in Path(parentDir).rglob('solr-json-batch_*'):
     if not os.path.isdir(batchDir):
         utils.error(batchDir + " is not a directory")
     cmd = "siteSearchLoadBatch " + solrUrl + " index --batch-dir " + str(batchDir)
+    if replace:
+        cmd += " --replace"
     print("running command: " + cmd, flush=True)
     status = os.system(cmd)
     if status != 0:
