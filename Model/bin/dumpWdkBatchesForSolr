@@ -72,7 +72,7 @@ sub runWdkReport {
 
   return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
 
-  my $cmd = "createWdkRecordsSolrJsonBatch $batchType $batchName $wdkServiceUrl $targetDir";
+  my $cmd = "ssCreateWdkRecordsBatch $batchType $batchName $wdkServiceUrl $targetDir";
   $cmd .= " --paramName organismAbbrev --paramValue $organismAbbrev" if $organismAbbrev;
   runCmd($cmd);
   return 1;

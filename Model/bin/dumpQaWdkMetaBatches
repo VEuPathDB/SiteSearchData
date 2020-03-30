@@ -27,7 +27,7 @@ foreach my $project (keys %projectsMap) {
   my $abbrev = $projectsMap{$project};
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_wdkmeta_${project}*");
   my $serviceUrl = "'https://qa.${project}.${dom}/${abbrev}.b${buildNum}/service'";
-  runCmd("createWdkMetaSolrJsonBatch $serviceUrl $project $targetDir")
+  runCmd("ssCreateWdkMetaSolrBatch $serviceUrl $project $targetDir")
     unless checkPrevBatchDir($temp[0], "wdkmeta", $project);
 }
 
