@@ -14,6 +14,9 @@ die "
 Dump WDK meta information (eg Searches) into solr-compatible json files.  Reads the web services
 from QA sites for all the genomics components.
 
+(The program has a hard-coded list of genomics components.  It uses that and the provided buildNum to form the URL
+for each QA site.  It calls ssCreateWdkMetaBatch for each one.)
+
 Usage: dumpQaWdkMetaBaches targetDir buildNum
 
 "  unless $targetDir && $buildNum;
@@ -27,7 +30,7 @@ foreach my $project (keys %projectsMap) {
   my $abbrev = $projectsMap{$project};
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_wdkmeta_${project}*");
   my $serviceUrl = "'https://qa.${project}.${dom}/${abbrev}.b${buildNum}/service'";
-  runCmd("ssCreateWdkMetaSolrBatch $serviceUrl $project $targetDir")
+  runCmd("ssCreateWdkMetaBatch $serviceUrl $project $targetDir")
     unless checkPrevBatchDir($temp[0], "wdkmeta", $project);
 }
 
