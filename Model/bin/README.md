@@ -14,7 +14,7 @@ Here is a summary:
 * `ssCreateDocumentFieldsBatch`
   * creates a (metadata) batch describing the fields in each solr document.  Queries the SiteSearchData WDK Model (via a WDK service running that model) to discover the fields (attributes and tables) in each record type, and their properties.  Also reads the [../data/nonWdkDocumentFields.json](../data/nonWdkDocumentFields.json) file to discover field metadata for documents that are not supplied by the SiteSearchData WDK model (e.g., Jekyll documents).  Writes this information to a `document-fields.json` solr-ready file.  This metadata is used by the SiteSearchService to form its solr queries, and by the web client to format the left **Filter results** panel.
 * `ssCreateWdkMetaBatch`
-  * 
+  * creates a batch describing meta information about the genomics sites WDK model.  So far this includes the WDK searches in the genomics model.  Queries the QA site for the specified component.  Writes this information to a `wdkmeta.json` solr-ready file.  This information is used for standard Site Search Service searches.
 * `ssCreateWdkRecordsBatch`
 * `ssLoadBatch`
 * `ssLoadMultipleBatches`
