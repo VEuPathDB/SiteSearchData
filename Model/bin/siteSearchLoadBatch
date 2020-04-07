@@ -145,7 +145,11 @@ the corrupted batch."""
             solr_request('POST', solr_url + '/update', data='<commit/>', auth=AUTH, headers={'content-type':'application/xml'})
             print('Commit successful', flush=True)
 
-            sys.exit(exit_code)
+            try:
+                sys.exit(exit_code)
+            except UnboundLocalError:
+                # If exit_code hasn't been set, then Houston, we've had a problem
+                sys.exit(1)
 
 def index(solr_url, batch_dir=None, replace=False, validate_only=False):
     """Index a batch.
