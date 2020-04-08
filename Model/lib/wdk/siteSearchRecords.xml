@@ -79,7 +79,7 @@ Each Question must:
     </question>
 
     <question name="PopsetIsolates" displayName="dontcare"
-              queryRef="PopsetIds.PopsetByOrganismAbbrev"
+              queryRef="PopsetIds.AllPopsetIsolates"
               recordClassRef="recordClasses.PopsetRecordClass">
     </question>
 
@@ -319,7 +319,7 @@ Each Question must:
         <columnAttribute name="value"/>
       </table>
 
-      <table name="CompoundsMetabolicPathways"
+      <table name="MetabolicPathwaysReactions"
              displayName="Metabolic pathway reactions"
              queryRef="CompoundTables.CompoundsFromMetabolicPathways">
         <columnAttribute name="ec_number"/>
@@ -327,20 +327,12 @@ Each Question must:
         <columnAttribute name="products_text"/>
       </table>
 
-      <table name="PathwaysFromCompounds"
+      <table name="MetabolicPathways"
              displayName="Metabolic pathways"
              queryRef="CompoundTables.PathwaysFromCompounds">
         <columnAttribute name="pathway_name"/>
       </table>
 
-<!-- no genes table unless we add it to the site model
-      <table name="Genes" displayName="Genes"
-             queryRef="CompoundTables.Genes">
-        <columnAttribute name="gene_source_id"/>
-        <columnAttribute name="product"/>
-        <columnAttribute name="gene_name"/>
-      </table>
- -->
       <table name="SecondaryIds"
              displayName="Secondary IDs"
              queryRef="CompoundTables.SecondaryIds">
@@ -386,8 +378,8 @@ Each Question must:
         </columnAttribute>
         <columnAttribute name="vector" displayName="Vector"/>
         <columnAttribute name="stage"  displayName="Stage"/>
-        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
-        <columnAttribute name="organism_full" displayName="Organism" >
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="organism" displayName="Organism" >
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -487,7 +479,7 @@ Each Question must:
       <table name="userCommentIds"
              internal="true"
              queryRef="GeneTables.UserCommentIDs">
-        <columnAttribute displayName="Comment ID" name="comment_id"/>
+        <columnAttribute name="comment_id"/>
       </table>
 
       <table name="UserCommentContent"
@@ -497,7 +489,7 @@ Each Question must:
       </table>
 
       <table name="ECNumbers"
-             displayName="EC numbers"
+             displayName="EC descriptions and numbers"
              queryRef="GeneTables.ECNumbers">
         <columnAttribute name="ec_number"/>
         <columnAttribute name="ec_description"/>
@@ -558,6 +550,7 @@ Each Question must:
              displayName="Orthologs"
              queryRef="GeneTables.Orthologs">
         <columnAttribute name="ortho_product"/>
+        <columnAttribute name="ortho_name"/>
       </table>
 
       <table name="Products"
@@ -699,7 +692,7 @@ Each Question must:
 
     <recordClass name="PopsetRecordClass" urlName="popsetSequence" displayName="Popset isolate sequence">
       <propertyList name="batch">
-        <value>organism</value>
+        <value>popset-isolate</value>
       </propertyList>
 
       <primaryKey aliasQueryRef="PopsetAttributes.PopsetAlias">
@@ -723,8 +716,8 @@ Each Question must:
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="PopsetAttributes.Attributes">
-        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
-        <columnAttribute name="organism_full" displayName="Organism" />
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="organism" displayName="Organism" />
         <columnAttribute name="description" displayName="Description">
           <propertyList name="isSummary">
             <value>true</value>
@@ -733,7 +726,6 @@ Each Question must:
         <columnAttribute name="isolation_source" displayName="Isolation source"/>
         <columnAttribute name="curated_isolation_source" displayName="Curated isolation source"/>
         <columnAttribute name="note" displayName="Note"/>
-        <columnAttribute name="gene_name" displayName="Gene name"/>
         <columnAttribute name="product" displayName="Product">
           <propertyList name="isSummary">
             <value>true</value>
@@ -755,6 +747,22 @@ Each Question must:
         <columnAttribute name="popset" displayName="Popset"/>
         <columnAttribute name="strain" displayName="Strain"/>
       </attributeQueryRef>
+
+      <table name="References"  displayName="References" queryRef="PopsetTables.References">
+        <columnAttribute name="title"/>
+        <columnAttribute name="authors"/>
+        <columnAttribute name="journal"/>
+      </table>
+
+    <!--  THIS QUERY IS TOO SLOW  - 10 minutes in plasmo  - not worth it
+      <table name="GeneOverlap" 
+             displayName="Blast Similarity Alignments and Overlapping Genes" queryRef="PopsetTables.GeneOverlap">
+        <columnAttribute name="source_id"/>
+        <columnAttribute name="gene"/>
+        <columnAttribute name="organism"/>
+        <columnAttribute name="gene_product"/>
+      </table>
+-->
 
     </recordClass>
 

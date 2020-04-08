@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+'''
+NOTICE: This script has an associated testing script located at
+SiteSearchData/Model/test/test_ssLoadBatch. After making changes to this
+script, please run the testing script to test its functionality.
+'''
+
 import argparse
 import json
 import os
@@ -213,12 +219,8 @@ def index(solr_url, batch_dir=None, replace=False, validate_only=False):
                 if response.json()['response']['numFound']:
                     sys.exit(f"Error: Documents with batch-type '{batch_type}' and batch-name '{batch_name}' exist in Solr, but there is no batch-meta document signifying the existence of the batch. Delete the existing documents before loading this batch.")
 
-                # If we're updating, throw an error
-                if replace:
-                    sys.exit(f"Error: Batch '{batch_type} {batch_name}' does not exist in Solr. Remove --replace to index it.")
-                # Else, index the batch
-                else:
-                    index_batch(batch_dir, solr_url)
+                # Index the batch
+                index_batch(batch_dir, solr_url)
 
 def delete(solr_url, batch_type_name=None, batch_ids=None):
     """Delete batches.

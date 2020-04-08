@@ -6,7 +6,7 @@
       <column name="source_id"/>
       <sql>
         <![CDATA[
-          select ga.source_id
+          select distinct ga.source_id
           from apidbTuning.GeneAttributes ga, apidb.Organism o
           where ga.taxon_id = o.taxon_id
             and o.abbrev = $$organismAbbrev$$
