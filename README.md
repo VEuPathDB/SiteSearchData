@@ -7,11 +7,12 @@ Its main pieces are:
 * a dedicated [WDK model](/Model/lib/wdk) that describes the way we represent data from the component database as documents in solr
 * a [set of programs](Model/bin) to create both data and metadata documents to load into solr (using that WDK model), and programs to do the loading.
 * additional [hard-coded metadata](Model/data) to load that describes in solr the document types we have and their fields
+* [config file templates](Model/config) that ease the configuration of a $GUS_HOME for use in dumping data for solr
 
 (Please see those folders for detailed documentation.)
 
 ## Batches
- A batch:
+ All solr-ready data is dumped, and loaded, in batches.  They ensure the validity and trackability of all data in solr.  The batches are carefully structured.  Each batch:
 * is housed in a directory of the form `solr-json-batch_xxxxxxxx_yyyyyyyy_nnnnnnnn` where:
   * `xxxxxxxx` is the batch type (eg, organism)
   * `yyyyyyyy` is the batch name (eg, pfal3D7)
