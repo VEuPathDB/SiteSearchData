@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+'''
+Tests the script located at SiteSearchData/Model/bin/ssLoadBatch.
+'''
+
 import unittest
 import subprocess
 import json
@@ -12,11 +16,11 @@ user = os.environ['SOLR_USER'] if ('SOLR_USER' in os.environ) else ''
 passwd = os.environ['SOLR_PASSWORD'] if ('SOLR_PASSWORD' in os.environ) else ''
 # Path to siteSearchLoadBatch - must be changed if script is moved relative to this file
 test_dir_path = os.path.dirname(__file__)
-script_path = os.path.normpath(os.path.join(test_dir_path, '../bin/siteSearchLoadBatch'))
+script_path = os.path.normpath(os.path.join(test_dir_path, '../bin/ssLoadBatch'))
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Perform unit testing on siteSearchLoadBatch.')
+    parser = argparse.ArgumentParser(description='Perform unit testing on ssLoadBatch.')
     parser.add_argument('core_url', help='The URL of the core to use for testing. This core must contain no data.')
     args = parser.parse_args()
     return args
@@ -208,19 +212,19 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         # Check Solr state
         self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000001.json')
 
-    def test_batch_replace_fail_missing(self):
+    def test_batch_replace_success_missing(self):
         """
         Test that attempting to replace a batch using '--batch-dir --replace'
-        fails if the batch doesn't exist in Solr.
+        works even if the batch doesn't exist in Solr.
         """
-        # Attempt to replace batch
+        # Replace batch that doesn't exist in Solr
         dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000001'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--replace']
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertNotEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(process.returncode, 0, process.stderr)
 
-        # Check that the core is still empty
-        self.assertTrue(core_is_empty(self.core_url))
+        # Check Solr state
+        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000001.json')
 
     def test_batch_fail_batch_json(self):
         """
