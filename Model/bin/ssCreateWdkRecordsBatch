@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 
 
 # importing the requests library 
 import requests
@@ -124,14 +124,14 @@ outputDir = utils.createWorkingDir(parentDir, batchId)
 for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
     recordType = utils.getRecordType(wdkServiceUrl, recordTypeName)
     if (checkRecordTypeBatch(recordType, batchType)): 
-        print(str(datetime.datetime.now()) + " Processing record type: " + recordType['nativeDisplayName'])
+        print(str(datetime.datetime.now()) + " Processing record type: " + recordType['nativeDisplayName'], flush=True)
         searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName) 
         runReportToFile(wdkServiceUrl, outputDir, recordTypeName, searchUrlName, paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
 
 # write meta file about this batch
-print(str(datetime.datetime.now()) + " writing batch.json")
+print(str(datetime.datetime.now()) + " writing batch.json", flush=True)
 utils.writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
-print(str(datetime.datetime.now()) + " done")
+print(str(datetime.datetime.now()) + " done", flush=True)
     
 
     

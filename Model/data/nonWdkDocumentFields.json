@@ -1,25 +1,116 @@
 [{ "document-type": "search",
   "fields": [
     {"name":"TEXT__search_record-type",
+     "displayName": "Record type",
      "isSummary": false,
      "boost": 1
     },
-    {"name":"TEXT__search_name",
-     "isSummary": false,
-     "boost": 1.5
-    },
     {"name":"TEXT__search_displayName",
+     "displayName": "Search name",
      "isSummary": false,
      "boost": 1
     },
     {"name":"TEXT__search_summary",
+     "displayName": "Search summary",
      "isSummary": true,
      "boost": 1
     },
     {"name":"TEXT__search_description",
+     "displayName": "Search description",
      "isSummary": false,
      "boost": 1
     }
   ]
- }
+ },
+ { "document-type": "tutorial",
+  "fields": [
+    {"name":"TEXT__tutorial_content",
+     "displayName": "Content",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ },
+ { "document-type": "news",
+  "fields": [
+    {"name":"TEXT__news_content",
+     "displayName": "Content",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ },
+ { "document-type": "general",
+  "fields": [
+    {"name":"TEXT__general_content",
+     "displayName": "Content",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ },
+ { "document-type": "workshop-exercise",
+  "fields": [
+    {"name":"TEXT__workshop-exercise_content",
+     "displayName": "Content",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ },
+ { "document-type": "popbio-sample",
+   "fields": [
+     {"name":"TEXT__popbio_species",
+      "isSummary": true,
+      "displayName": "Species",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_sample_id",
+      "isSummary": false,
+      "displayName": "Sample ID",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_sample_name",
+      "isSummary": true,
+      "isSubtitle": true,
+      "displayName": "Sample name",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_collection_id",
+      "isSummary": false,
+      "displayName": "Collection ID",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_collection_location",
+      "isSummary": false,
+      "displayName": "Collection location",
+      "boost": 1
+     },
+     {"name":"TEXT__popbio_computed_description",
+      "isSummary": true,
+      "displayName": "Description",
+      "boost": 1
+     },
+     {"name":"MULTITEXT__popbio_project_ids",
+      "isSummary": false,
+      "displayName": "Project IDs",
+      "boost": 1
+     },
+     {"name":"MULTITEXT__popbio_citations",
+      "isSummary": false,
+      "displayName": "Citations",
+      "boost": 1
+     },
+     {"name":"MULTITEXT__popbio_collection_protocols",
+      "isSummary": false,
+      "displayName": "Collection protocols",
+      "boost": 1
+     },
+     {"name":"MULTITEXT__popbio_tags",
+      "isSummary": false,
+      "displayName": "Tags",
+      "boost": 1
+     }
+   ]
+ } 
 ]

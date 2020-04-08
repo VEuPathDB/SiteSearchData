@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.gusdb.fgputil.json.JsonWriter;
@@ -18,8 +21,12 @@ import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.answer.AnswerValue;
 import org.gusdb.wdk.model.answer.stream.RecordStream;
 import org.gusdb.wdk.model.answer.stream.RecordStreamFactory;
+import org.gusdb.wdk.model.record.Field;
+import org.gusdb.wdk.model.record.RecordClass;
 import org.gusdb.wdk.model.record.RecordInstance;
+import org.gusdb.wdk.model.record.TableField;
 import org.gusdb.wdk.model.record.TableValue;
+import org.gusdb.wdk.model.record.attribute.AttributeField;
 import org.gusdb.wdk.model.report.Reporter;
 import org.gusdb.wdk.model.report.ReporterConfigException;
 import org.gusdb.wdk.model.report.reporter.AnswerDetailsReporter;
@@ -57,12 +64,16 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   private int _batchTimestamp;
   private String _batchId;
   private String _batchName; // eg, "plasmodium falciparum 3d7"
+  private String _projectId; // from model.prop. eg PlasmoDB
 
-  public static final String ATTR_PREFIX = "TEXT__";
-  public static final String TABLE_PREFIX = "MULTITEXT__";
+  private static final String ATTR_PREFIX = "TEXT__";
+  private static final String TABLE_PREFIX = "MULTITEXT__";
+  private static final String PROJECT_ID_PROP = "PROJECT_ID";
   
   public SolrLoaderReporter(AnswerValue answerValue) {
     super(answerValue);
+    _projectId = // eg PlasmoDB (from model.prop file)
+        answerValue.getWdkModel().getProperties().get(PROJECT_ID_PROP);
   }
   
   @Override
@@ -80,14 +91,17 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
 
   @Override
   protected void write(OutputStream out) throws WdkModelException {
-
+    
+    Map<String, TableField> tablesForThisProject = filterFieldsByProject(_tables);
+    Map<String, AttributeField> attrsForThisProject = filterFieldsByProject(_attributes);
+    
     // create output writer and initialize record stream
     try (JsonWriter writer = new JsonWriter(out);
-         RecordStream records = RecordStreamFactory.getRecordStream(
-            _baseAnswer, _attributes.values(), _tables.values())) {
+         RecordStream records = RecordStreamFactory.getRecordStream (
+            _baseAnswer, attrsForThisProject.values(), tablesForThisProject.values())) {
       writer.array();
       for (RecordInstance record : records) {
-        writer.value(formatRecord(record, _attributes.keySet(), _tables.keySet(), _batchType, _batchId, _batchName, _batchTimestamp));
+        writer.value(formatRecord(record, attrsForThisProject.keySet(), tablesForThisProject.keySet(), _batchType, _batchId, _batchName, _batchTimestamp));
       }
       writer.endArray();
     }
@@ -95,12 +109,31 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       throw new WdkModelException("Unable to write reporter result to output stream", e);
     }
   }
-
+  
+  /**
+   * find fields that either have no "includeProjects" <propertyList> or
+   * that do, and match the projectId in model.prop.
+   * (the wdk "project" for our model is SiteSearchData, thus we have to use
+   * properties to track which component we are reporting on)
+   */
+  private <T extends Field> Map<String, T> filterFieldsByProject(Map<String, T> fields) {
+    Predicate<Entry<String,T>> includeInProject = entry -> {
+      String[] includeProjects = entry.getValue().getPropertyList("includeProjects");
+      return includeProjects == null || includeProjects.length == 0 ? true :
+          Arrays.asList(includeProjects).contains(_projectId);
+    };
+    return fields.entrySet()
+      .stream()
+      .filter(includeInProject)
+      .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+  }
+   
   private static JSONObject formatRecord(RecordInstance record,
       Set<String> attributeNames, Set<String> tableNames, String batchType, String batchId, String batchName, int batchTimestamp) throws WdkModelException {
     try {
+      RecordClass recordClass = record.getRecordClass();
       Collection<String> pkValues = record.getPrimaryKey().getValues().values();
-      String urlSegment = record.getRecordClass().getUrlSegment();
+      String urlSegment = recordClass.getUrlSegment();
       Collection<String> idValues = new ArrayList<String>();
       idValues.add(urlSegment);
       idValues.addAll(pkValues);
@@ -110,7 +143,6 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("document-type", urlSegment);
       obj.put("primaryKey", pkValues); // multi string field. for forming record URLs
       obj.put("wdkPrimaryKeyString", String.join(",", pkValues)); // joined string field for sorting
-      obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       obj.put("batch-type", batchType);
       obj.put("batch-id", batchId);
       obj.put("batch-name", batchName);
@@ -118,13 +150,17 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       for (String attributeName: attributeNames) {
         String name = record.getRecordClass().getAttributeFieldMap().get(attributeName).isInternal()?
               attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
-        obj.put(name, record.getAttributeValue(attributeName).getValue());
+        String value = record.getAttributeValue(attributeName).getValue();
+        obj.put(name, value);
+        if (name.equals("project")) idValuesString += "_" + value; // append project id, if we have one
       }
       for (String tableName: tableNames) {
-        String name = record.getRecordClass().getTableFieldMap().get(tableName).isInternal()?
+        TableField tableField = recordClass.getTableFieldMap().get(tableName);
+        String name = tableField.isInternal()?
             tableName : TABLE_PREFIX + urlSegment + "_" + tableName;
         obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
       }
+      obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       return obj;
     }
     catch (Exception e) {

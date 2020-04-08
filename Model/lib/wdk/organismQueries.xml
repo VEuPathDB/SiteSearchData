@@ -6,7 +6,7 @@
       <column name="source_id"/>
       <sql>
         <![CDATA[
-          select oa.source_id
+          select distinct oa.source_id
           from apidbTuning.OrganismAttributes oa, apidb.Organism o
           where oa.component_taxon_id = o.taxon_id
         ]]>
