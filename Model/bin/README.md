@@ -23,4 +23,5 @@ Here is a summary:
 * `ssCreateWdkMetaBatch`
 * `ssCreateWdkRecordsBatch`
 * `ssLoadBatch`
+  * loads batches into Solr. This script has a testing script located at [SiteSearchData/Model/test/test_ssLoadBatch](SiteSearchData/Model/test/test_ssLoadBatch). Run the testing script after making any changes to this one.
 * `ssLoadMultipleBatches`
