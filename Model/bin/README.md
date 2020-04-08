@@ -19,5 +19,6 @@ Here is a summary:
   * creates a batch describing wdk records.  Uses the SiteSearchData WDK Model (via a WDK service running that model) to run WDK reports (the SolrJsonReporter) to dump the wdk records in solr-ready json format.  Is parameterized by a batch-type, and includes only record-types from the SiteSearchData model that have that batch-type as a property.  For example, the batch-type "organism" includes Genes, ESTs and Genomic Sequences.
 * `ssLoadBatch`
   * loads a batch of files into solr.  Validates the batch, ensuring that all document files contain only documents with the same batch type, name and timestamp as is found in the batch's `batch.json` file.  If a batch of this type, name and timestamp is already in solr, does not load the batch.  If a batch of this type and name, but a different timestamp, is in solr, throws an error, unless the `--replace` flag is set; if set, it replaces the batch in solr.
+  * this script has a testing script located at [SiteSearchData/Model/test/test_ssLoadBatch](SiteSearchData/Model/test/test_ssLoadBatch). Run the testing script after making any changes to this one.
 * `ssLoadMultipleBatches`
   * reads a directory structure and recursively discovers solr batch directories.  For each one, calls `ssLoadBatch`.
