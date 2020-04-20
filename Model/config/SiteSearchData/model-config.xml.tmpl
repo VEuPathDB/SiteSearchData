@@ -22,19 +22,11 @@
              baseline="0.1"
              slow="5"
              />
-             
-    <!-- the maxPkColumnWidth the max side of the string type primary key columns. Those columns in 
-         the cache tables will be resized to the specified value. optional, default is 150 -->    
 
-    <!-- APP Databases: -->
-    <!-- alt trunk development: localhost:5033/rm23697.upenn.edu -->
-    <!-- trunk development: localhost:5034/plasbl6n.upenn.edu -->
-    <!-- trunk userDbLink="@devn.LOGIN_COMMENT" -->
-    <!-- sandbox userDbLink="@RM9972.LOGIN_COMMENT" -->
-
+    <!-- change @XXXX-inc to, eg, @plas-inc -->
     <appDb  login=""
             password=""
-            connectionUrl="jdbc:oracle:oci:@XXXX-inc"
+            connectionUrl="jdbc:oracle:oci:@XXXX-inc" 
             platform="Oracle"
             maxActive="20"
             maxIdle="1"
@@ -43,17 +35,13 @@
             showConnections="false"
             showConnectionsInterval="10"
             showConnectionsDuration="600"
-            userDbLink="@devn.LOGIN_COMMENT"
+            userDbLink="@prodn.LOGIN_COMMENT"
             acctDbLink="@acctdbn.profile"
             maxPkColumnWidth="150"/>
 
-    <!-- USER Databases: -->
-    <!-- apicommdevS: localhost:5030/apicommd.uga.edu -->
-    <!-- apicommdevN: localhost:5034/apicommd.upenn.edu -->
-    <!-- strategy-loading branch dev: localhost:5034/rm35304a.upenn.edu -->
     <userDb login=""
             password=""
-            connectionUrl="jdbc:oracle:oci:@apicommdevn"
+            connectionUrl="jdbc:oracle:oci:@apicommn"
             platform="Oracle"
             maxActive="20"
             maxIdle="1"
