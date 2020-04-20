@@ -241,7 +241,7 @@ Each Question must:
       </attributeQueryRef>
 
       <table name="Compounds"
-             displayName="Compounds"
+             displayName="Associated compounds"
              queryRef="PathwayTables.CompoundsFromMetabolicPathways">
         <columnAttribute name="ec_number"/>
         <columnAttribute name="enzyme_description"/>
@@ -328,7 +328,7 @@ Each Question must:
       </table>
 
       <table name="MetabolicPathways"
-             displayName="Metabolic pathways"
+             displayName="Associated metabolic pathways"
              queryRef="CompoundTables.PathwaysFromCompounds">
         <columnAttribute name="pathway_name"/>
       </table>
@@ -546,11 +546,12 @@ Each Question must:
         <columnAttribute name="iedb_id"/>
       </table>
 
+     <!-- we exclude Gene ID in this table to avoid false positives when searching on them.  The key use case is getting a hit on the transfered product field and gene name -->
       <table name="Orthologs"
              displayName="Orthologs"
              queryRef="GeneTables.Orthologs">
         <columnAttribute name="ortho_product"/>
-        <columnAttribute name="ortho_name"/>
+        <columnAttribute name="ortho_name"/>  <!-- gene name -->
       </table>
 
       <table name="Products"
