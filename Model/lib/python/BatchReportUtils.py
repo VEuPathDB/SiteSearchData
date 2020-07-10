@@ -41,7 +41,7 @@ def createWorkingDir(parentDir, batchId):
     try:
         os.mkdir(newDirPath)
     except OSError:
-        error("Could not create directory " + 'newDirPath')
+        error("Could not create directory '" + newDirPath + "'")
     return newDirPath
 
 def getRecordTypeNames(wdkServiceUrl):
