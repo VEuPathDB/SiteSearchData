@@ -1,6 +1,6 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
-# importing the requests library 
+# importing the requests library
 import requests
 import json
 import argparse
@@ -26,15 +26,15 @@ Output: a directory containing one or more Solr compatible JSON files, one per i
 
 The WDK model resident in the provided WDK service is expected to be dedicated to creating these reports.  It must conform to:
   - Having exactly the correct set of record types to produce reports for.
-  - Each record type must have exactly one search.  
+  - Each record type must have exactly one search.
   - That search must have either zero or one parameters.
   - If it has one, the name and value will be supplied here on the command line.
-  - Each record type must support the solrjson reporter.  
+  - Each record type must support the solrjson reporter.
   - For each record type's report, all the record type's tables and attributes will be included
 
 The batch is given a generated BATCH_ID of the form: BATCHTYPE-BATCHNAME-timestamp
 
-Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'. 
+Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'.
 
 """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
@@ -92,7 +92,7 @@ def composeUrlParams(paramName, paramValue, recordType, batchType, batchName, ba
     reportConfig['tables'] = list(map(lambda table: table['name'], recordType['tables']))
     urlParams['reportConfig'] = json.dumps(reportConfig)
     return urlParams
-        
+
 def runReportToFile(wdkServiceUrl, workingDir, recordTypeName, searchName, paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId):
     reportUrl = wdkServiceUrl + '/record-types/' + recordTypeName + '/searches/' + searchName + '/reports/' + REPORTNAME + '?'
     urlParams = composeUrlParams(paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
@@ -102,14 +102,14 @@ def runReportToFile(wdkServiceUrl, workingDir, recordTypeName, searchName, param
             utils.error("Received " + str(response.status_code) + " status from HTTP GET to " + reportUrl + " with parameters: " + str(urlParams))
         with open(targetFilename, 'wb') as file:
             shutil.copyfileobj(response.raw, file)
-        utils.validateDocumentsJsonFile(targetFilename)        
+        utils.validateDocumentsJsonFile(targetFilename)
 
 def checkRecordTypeBatch(recordType, batchType):
     if ('properties' in recordType and 'batch' in recordType['properties']):
         return recordType['properties']['batch'][0] == batchType
     else:
         utils.error("Record type '" + recordType['urlSegment'] + "' does not contain a 'batch' property")
-    
+
 
 ###########################################################################################################
 
@@ -123,16 +123,12 @@ outputDir = utils.createWorkingDir(parentDir, batchId)
 # for each record type, find the single question in the model, and run it with the solrjson reporter
 for recordTypeName in utils.getRecordTypeNames(wdkServiceUrl):
     recordType = utils.getRecordType(wdkServiceUrl, recordTypeName)
-    if (checkRecordTypeBatch(recordType, batchType)): 
+    if (checkRecordTypeBatch(recordType, batchType)):
         print(str(datetime.datetime.now()) + " Processing record type: " + recordType['nativeDisplayName'], flush=True)
-        searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName) 
+        searchUrlName = getSearchUrlName(recordType, recordTypeName, paramName)
         runReportToFile(wdkServiceUrl, outputDir, recordTypeName, searchUrlName, paramName, paramValue, recordType, batchType, batchName, batchTimestamp, batchId)
 
 # write meta file about this batch
 print(str(datetime.datetime.now()) + " writing batch.json", flush=True)
 utils.writeBatchJsonFile(batchType, batchName, batchTimestamp, batchId, outputDir)
 print(str(datetime.datetime.now()) + " done", flush=True)
-    
-
-    
-
