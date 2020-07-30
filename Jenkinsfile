@@ -74,15 +74,6 @@ node ('centos8') {
     sh 'env'
   }
 
-  stage('build') {
-    // build build container, could be removed it there is one made generally available
-    sh 'podman build -t build_container_ssd -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile.build .'
-    // TODO: get build container pushed properly
-
-    // build the service inside the build_container
-    sh 'podman run --rm -v /tmp/.m2:/root/.m2:Z -v $WORKSPACE:/tmp/base_gus:Z --name builder build_container_ssd bld SiteSearchData'
-  }
-
   stage('package') {
 
     // set tag to branch if it isn't master
@@ -92,7 +83,7 @@ node ('centos8') {
 
     withCredentials([usernameColonPassword(credentialsId: '0f11d4d1-6557-423c-b5ae-693cc87f7b4b', variable: 'HUB_LOGIN')]) {
       // build the release container, which copies the built gus_home into it
-      sh 'podman build --format=docker -t site-search-data -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile.release .'
+      sh 'podman build --format=docker -t site-search-data -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile .'
 
       // push to dockerhub (for now)
       sh "podman push --creds \"$HUB_LOGIN\" site-search-data docker://docker.io/veupathdb/site-search-data:${tag}"

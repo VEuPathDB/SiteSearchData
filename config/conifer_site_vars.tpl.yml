@@ -1,0 +1,11 @@
+accountDb_connectionUrl: jdbc:oracle:oci:@${ACCT_DB_TNS_NAME}
+accountDb_login: ${ACCT_DB_USER}
+accountDb_password: ${ACCT_DB_PASS}
+
+appDb_connectionUrl: jdbc:oracle:oci:@${APP_DB_TNS_NAME}
+appDb_login: ${APP_DB_USER}
+appDb_password: ${APP_DB_PASS}
+
+userDb_connectionUrl: jdbc:oracle:oci:@${USER_DB_TNS_NAME}
+userDb_login: ${USER_DB_USER}
+userDb_password: ${USER_DB_PASS}

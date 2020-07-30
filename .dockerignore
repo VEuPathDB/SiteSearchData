@@ -1,0 +1,10 @@
+.idea/
+.settings/
+dockerfiles/
+
+.project
+.classpath
+.gitignore
+LICENSE
+README.md
+*.iml

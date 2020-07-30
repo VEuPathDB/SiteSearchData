@@ -1,0 +1,3 @@
+{
+  "solrUrl": "${SOLR_URL}"
+}
