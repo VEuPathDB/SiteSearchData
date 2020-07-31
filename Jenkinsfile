@@ -59,21 +59,6 @@ node ('centos8') {
 
   }
 
-  stage('setup') {
-    // need dummy gus.config
-    sh 'mkdir -p gus_home/config'
-    sh 'cp project_home/install/gus.config.sample gus_home/config/gus.config'
-
-    // sadly, can't find another good way to get this into the build context
-    sh 'cp project_home/SiteSearchData/dockerfiles/entrypoint.sh .'
-
-    // create /tmp/.m2 for build caching
-    sh 'mkdir /tmp/.m2/ || true'
-
-    // only for debugging purposes
-    sh 'env'
-  }
-
   stage('package') {
 
     // set tag to branch if it isn't master
