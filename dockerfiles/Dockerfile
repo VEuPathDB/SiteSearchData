@@ -49,6 +49,8 @@ RUN git clone ${GIT_HOME}/install ${PROJECT_HOME}/install \
  && git clone ${GIT_HOME}/FgpUtil ${PROJECT_HOME}/FgpUtil \
  && git clone ${GIT_HOME}/WDK     ${PROJECT_HOME}/WDK \
  && git clone ${GIT_HOME}/WSF     ${PROJECT_HOME}/WSF \
+ && mkdir -p ${GUS_HOME}/config \
+ && cp ${PROJECT_HOME}/install/gus.config.sample ${GUS_HOME}/install/gus.config \
  && env \
  && bld SiteSearchData
 
