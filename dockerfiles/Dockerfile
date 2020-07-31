@@ -70,7 +70,7 @@ ENV PATH="${GUS_HOME}/bin:${PATH}" \
 # python3/requests for loading scripts
 RUN apk add -u --no-cache python2 python3 py3-pip gettext \
  && pip3 install requests \
- && wget https://bootstrap.pypa.io/get-pip.py -O - | /bin/sh \
+ && wget https://bootstrap.pypa.io/get-pip.py -O - | /usr/bin/python2.7 \
  && pip2.7 install six yaml \
  && mkdir -p ${TNS_ADMIN}
 
