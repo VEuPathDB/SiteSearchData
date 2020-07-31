@@ -62,8 +62,9 @@ RUN git clone ${GIT_HOME}/install ${PROJECT_HOME}/install \
 
 FROM foxcapades/alpine-oracle:1.3
 
-ENV GUS_HOME=/tmp/gus_home \
-    PATH="${GUS_HOME}/bin:${PATH}" \
+ENV BASE_GUS=/tmp/base_gus
+ENV GUS_HOME=${GUS_HOME}/gus_home
+ENV PATH="${GUS_HOME}/bin:${PATH}" \
     TNS_ADMIN=/tmp/oracle
 
 # python3/requests for loading scripts
@@ -71,7 +72,7 @@ RUN apk add -u --no-cache python3 py3-pip \
  && pip install requests \
  && mkdir -p ${TNS_ADMIN}
 
-COPY --from=build /tmp/gus_home /tmp/gus_home/
+COPY --from=build ${GUS_HOME} ${GUS_HOME}
 COPY [ \
   "dockerfiles/entrypoint.sh", \
   "conifer_site_vars.tpl.yml", \
