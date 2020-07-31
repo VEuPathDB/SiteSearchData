@@ -26,7 +26,8 @@ RUN wget http://www.us.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bi
 RUN apk add -u --no-cache \
     npm \
     nodejs \
-    git
+    git \
+    perl
 
 #
 # Project Build
