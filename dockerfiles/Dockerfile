@@ -63,7 +63,7 @@ RUN git clone ${GIT_HOME}/install ${PROJECT_HOME}/install \
 FROM foxcapades/alpine-oracle:1.3
 
 ENV BASE_GUS=/tmp/base_gus
-ENV GUS_HOME=${GUS_HOME}/gus_home
+ENV GUS_HOME=${BASE_GUS}/gus_home
 ENV PATH="${GUS_HOME}/bin:${PATH}" \
     TNS_ADMIN=/tmp/oracle
 
