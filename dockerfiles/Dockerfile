@@ -70,7 +70,7 @@ ENV PATH="${GUS_HOME}/bin:${PATH}" \
 # python3/requests for loading scripts
 RUN apk add -u --no-cache python3 py3-pip gettext \
  && ln -s /usr/bin/python3 /usr/bin/python \
- && pip install requests \
+ && pip install requests yaml \
  && mkdir -p ${TNS_ADMIN}
 
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
