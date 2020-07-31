@@ -32,11 +32,11 @@ RUN apk add -u --no-cache \
 # Project Build
 #
 
-ENV BASE_GUS=/tmp/base_gus \
-    GUS_HOME="${BASE_GUS}/gus_home" \
+ENV BASE_GUS=/tmp/base_gus
+ENV GUS_HOME="${BASE_GUS}/gus_home" \
     PROJECT_HOME="${BASE_GUS}/project_home" \
-    GIT_HOME=https://github.com/VEuPathDB \
-    PATH="${GUS_HOME}/bin:${PROJECT_HOME}/install/bin:${PATH}"
+    GIT_HOME=https://github.com/VEuPathDB
+ENV PATH="${GUS_HOME}/bin:${PROJECT_HOME}/install/bin:${PATH}"
 
 WORKDIR /tmp
 
