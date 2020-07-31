@@ -71,7 +71,7 @@ ENV PATH="${GUS_HOME}/bin:${PATH}" \
 RUN apk add -u --no-cache python2 python3 py3-pip gettext \
  && pip3 install requests \
  && wget https://bootstrap.pypa.io/get-pip.py -O - | /usr/bin/python2.7 \
- && pip2.7 install six PyYAML \
+ && pip2.7 install six PyYAML ansible \
  && mkdir -p ${TNS_ADMIN}
 
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
