@@ -68,9 +68,9 @@ ENV PATH="${GUS_HOME}/bin:${PATH}" \
     TNS_ADMIN=/tmp/oracle
 
 # python3/requests for loading scripts
-RUN apk add -u --no-cache python3 py3-pip gettext \
+RUN apk add -u --no-cache python3 py3-pip python2 gettext \
  && ln -s /usr/bin/python3 /usr/bin/python \
- && pip install requests yaml \
+ && pip install requests \
  && mkdir -p ${TNS_ADMIN}
 
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
