@@ -75,8 +75,9 @@ RUN apk add -u --no-cache python3 py3-pip \
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
 COPY [ \
   "dockerfiles/entrypoint.sh", \
-  "conifer_site_vars.tpl.yml", \
-  "site-search-config.tpl.json", \
+  "config/conifer_site_vars.tpl.yml", \
+  "config/site-search-config.tpl.json", \
+  "config/ldap.tpl.ora", \
   "/tmp/" \
 ]
 
