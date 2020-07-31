@@ -10,11 +10,11 @@ FROM veupathdb/alpine-dev-base:latest AS build
 #  Install Apache Ant
 #
 
-ENV ANT_VERSION=1.10.6 \
+ENV ANT_VERSION=1.10.8 \
     ANT_HOME=/opt/ant \
     PATH=${PATH}:/opt/ant/bin
 
-RUN wget -q http://www.us.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
+RUN wget http://www.us.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
  && tar -xzf apache-ant-${ANT_VERSION}-bin.tar.gz \
  && mv apache-ant-${ANT_VERSION} ${ANT_HOME} \
  && rm apache-ant-${ANT_VERSION}-bin.tar.gz
