@@ -68,7 +68,7 @@ ENV PATH="${GUS_HOME}/bin:${PATH}" \
     TNS_ADMIN=/tmp/oracle
 
 # python3/requests for loading scripts
-RUN apk add -u --no-cache python2 python3 py3-pip gettext build-base python2-dev libffi-dev libssl-dev \
+RUN apk add -u --no-cache python2 python3 py3-pip gettext build-base python2-dev libffi-dev libressl-dev \
  && pip3 install requests \
  && wget https://bootstrap.pypa.io/get-pip.py -O - | /usr/bin/python2.7 \
  && pip2.7 install six PyYAML ansible \
