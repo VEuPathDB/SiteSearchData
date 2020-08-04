@@ -83,7 +83,6 @@ RUN apk add -u --no-cache \
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
 COPY [ \
   "dockerfiles/entrypoint.sh", \
-  "config/conifer_site_vars.tpl.yml", \
   "config/site-search-config.tpl.json", \
   "config/ldap.tpl.ora", \
   "/tmp/" \
