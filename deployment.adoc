@@ -2,42 +2,16 @@
 
 == Configuration
 
-Configuration for this service is done through the following required
-environment variables.
+Due to a lack of tooling around configuring a containerized WDK based service,
+the configuration for this must be mounted it at runtime.  The expected config
+files are:
 
-`APP_DB_TNS_NAME`:: TNS name for a site's application database without the leading
-  ampersand.
+[%header, cols=2]
+|===
+| Source File | Mount Path
+| `SiteSearchData/config/gus.config.tmpl`
+| `/tmp/base_gus/gus_home/config/gus.config`
 
-`APP_DB_USER`:: application database username.
-
-`APP_DB_PASS`:: application database password.
-
-`LDAP_SERVER`:: comma separated list of one or more LDAP servers (including port
-  number).
-+
-.Examples
-[source, shell script]
-----
-LDAP_SERVER=my.ldap.server:123
-# OR
-LDAP_SERVER=my.ldap.server:123,other.ldap.server:124
-----
-
-`ORACLE_BASE_DN`:: Distinguished name context for TNS name lookup.  This value
-  is used to provide the `DEFAULT_ADMIN_VALUE` for the Oracle LDAP config.
-
-`SOLR_URL`:: URL of the Solr instance that this service will interact with.
-
-
-.Sample Env file
-[source, shell script]
-----
-APP_DB_TNS_NAME=
-APP_DB_USER=
-APP_DB_PASS=
-
-LDAP_SERVER=
-ORACLE_BASE_DN=
-
-SOLR_URL=
-----
+| `WDK/Model/config/model-config.xml.sample-min`
+| `/tmp/base_gus/gus_home/config/model-config.xml`
+|===
