@@ -90,7 +90,6 @@ COPY --from=build ${GUS_HOME} ${GUS_HOME}
 COPY [ \
   "dockerfiles/entrypoint.sh", \
   "config/site-search-config.tpl.json", \
-  "config/ldap.tpl.ora", \
   "/tmp/" \
 ]
 
