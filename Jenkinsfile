@@ -59,6 +59,11 @@ node ('centos8') {
 
   }
 
+  stage('setup') {
+  // sadly, can't find another good way to get this into the build context
+        sh 'cp project_home/SiteSearchData/dockerfiles/entrypoint.sh .'
+        sh 'cp project_home/SiteSearchData/config/site-search-config.tpl.json .'
+  }
   stage('package') {
 
     // set tag to branch if it isn't master
