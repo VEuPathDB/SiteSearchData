@@ -62,10 +62,11 @@ RUN git clone ${GIT_HOME}/install ${PROJECT_HOME}/install \
 
 FROM foxcapades/alpine-oracle:1.3
 
-ENV BASE_GUS=/tmp/base_gus
-ENV GUS_HOME=${BASE_GUS}/gus_home
-ENV PATH="${GUS_HOME}/bin:${PATH}" \
+ENV BASE_GUS=/tmp/base_gus \
+    JAVA_HOME=/opt/jdk \
     TNS_ADMIN=/tmp/oracle
+ENV GUS_HOME=${BASE_GUS}/gus_home
+ENV PATH="${GUS_HOME}/bin:${JAVA_HOME}/bin:${PATH}"
 
 # python3/requests for loading scripts
 RUN apk add -u --no-cache \
@@ -77,9 +78,14 @@ RUN apk add -u --no-cache \
     libffi-dev \
     libressl-dev \
     perl \
+    wget \
  && pip3 install requests \
  && mkdir -p ${TNS_ADMIN} ${GUS_HOME}/lib/java/db_driver \
- && cp /jdbc/* ${GUS_HOME}/lib/java/db_driver
+ && cp /jdbc/* ${GUS_HOME}/lib/java/db_driver \
+ && wget https://download.java.net/java/early_access/alpine/10/binaries/openjdk-15-ea+10_linux-x64-musl_bin.tar.gz \
+ && tar -xzf openjdk-15-ea+10_linux-x64-musl_bin.tar.gz \
+ && rm openjdk-15-ea+10_linux-x64-musl_bin.tar.gz \
+ && mv jdk-15 ${JAVA_HOME}
 
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
 COPY [ \
