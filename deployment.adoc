@@ -23,28 +23,4 @@ files are:
 
 === Environment
 
-`LDAP_SERVER`:: comma separated list of one or more LDAP servers (including port
-number).
-+
-.Examples
-[source, shell script]
-----
-LDAP_SERVER=my.ldap.server:123
-# OR
-LDAP_SERVER=my.ldap.server:123,other.ldap.server:124
-----
-
-`ORACLE_BASE_DN`:: Distinguished name context for TNS name lookup.  This value
-is used to provide the `DEFAULT_ADMIN_VALUE` for the Oracle LDAP config.
-
 `SOLR_URL`:: URL of the Solr instance that this service will interact with.
-
-
-.Sample Env file
-[source, shell script]
-----
-LDAP_SERVER=
-ORACLE_BASE_DN=
-
-SOLR_URL=
-----
