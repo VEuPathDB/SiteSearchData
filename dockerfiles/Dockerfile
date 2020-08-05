@@ -78,7 +78,8 @@ RUN apk add -u --no-cache \
     libressl-dev \
     perl \
  && pip3 install requests \
- && mkdir -p ${TNS_ADMIN}
+ && mkdir -p ${TNS_ADMIN} ${GUS_HOME}/lib/java/db_driver \
+ && cp /jdbc/* ${GUS_HOME}/lib/java/db_driver
 
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
 COPY [ \
