@@ -14,8 +14,11 @@ files are:
 | `SiteSearchData/config/gus.config.tmpl`
 | `/tmp/base_gus/gus_home/config/gus.config`
 
-| `WDK/Model/config/model-config.xml.sample-min`
-| `/tmp/base_gus/gus_home/config/model-config.xml`
+| (no complete base files)
+| `/tmp/base_gus/gus_home/config/SiteSearchData/model-config.xml`
+
+| (no complete base files)
+| `/tmp/base_gus/gus_home/config/SiteSearchData/model.prop`
 |===
 
 === Environment
