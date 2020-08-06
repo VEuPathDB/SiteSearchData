@@ -58,7 +58,7 @@ node ('centos8') {
   }
 
   stage('build') {
-    sh 'cp -rt $WORKSPACE $WORKSPACE/project_home/SiteSearchData/dockerfiles/* $WORKSPACE/project_home/SiteSearchData/config/*'
+    sh 'cp -rt $WORKSPACE $WORKSPACE/project_home/SiteSearchData/dockerfiles $WORKSPACE/project_home/SiteSearchData/config'
   }
 
   stage('package') {
