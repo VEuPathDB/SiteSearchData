@@ -55,8 +55,10 @@ node ('centos8') {
       userRemoteConfigs: [[url: 'https://github.com/EuPathDB/WSF.git']]]
       )
     }
+  }
 
-
+  stage('build') {
+    sh 'cp -rt $WORKSPACE $WORKSPACE/project_home/SiteSearchData/dockerfiles/*'
   }
 
   stage('package') {
