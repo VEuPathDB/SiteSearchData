@@ -89,9 +89,6 @@ COPY [ \
   "/tmp/" \
 ]
 
-
-COPY bin/* /usr/local/bin
-
 RUN chmod +x /tmp/entrypoint.sh
 
 ENTRYPOINT ["/tmp/entrypoint.sh"]
