@@ -26,6 +26,16 @@ node ('centos8') {
       )
     }
 
+    dir('project_home/ApiCommonWebsite') {
+      checkout([$class: 'GitSCM',
+      branches: [[name: env.BRANCH_NAME ]],
+      doGenerateSubmoduleConfigurations: false,
+      extensions: [],
+      submoduleCfg: [],
+      userRemoteConfigs: [[url: 'https://github.com/EuPathDB/ApiCommonWebsite.git']]]
+      )
+    }
+
     dir('project_home/SiteSearchData') {
       checkout([$class: 'GitSCM',
       branches: [[name: env.BRANCH_NAME ]],

@@ -48,6 +48,7 @@ COPY dockerfiles/entrypoint.sh .
 RUN mkdir -p ${GUS_HOME}/config \
  && cp ${PROJECT_HOME}/install/gus.config.sample ${GUS_HOME}/config/gus.config \
  && env \
+ && bld ApiCommonWebsite \
  && bld SiteSearchData
 
 ############################################################
