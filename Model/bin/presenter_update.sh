@@ -36,6 +36,6 @@ find $DESTINATION_DIRECTORY -type f -print0 | xargs -0 ls -al
 
 # load produced output into solr
 
-ssLoadMultipleBatches $SOLR_URL $DESTINATION_FOLDER --replace
+ssLoadMultipleBatches $SOLR_URL $DESTINATION_DIRECTORY --replace
 
 kill %1
