@@ -31,7 +31,7 @@ for batchDir in Path(parentDir).rglob('solr-json-batch_*'):
     count += 1
     if not os.path.isdir(batchDir):
         utils.error(batchDir + " is not a directory")
-    cmd = "siteSearchLoadBatch " + solrUrl + " index --batch-dir " + str(batchDir)
+    cmd = "ssLoadBatch " + solrUrl + " index --batch-dir " + str(batchDir)
     if replace:
         cmd += " --replace"
     print("running command: " + cmd, flush=True)
