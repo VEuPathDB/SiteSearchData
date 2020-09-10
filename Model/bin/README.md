@@ -5,10 +5,10 @@ Since all site search data is loaded into solr in trackable batches, these comma
 Each file has a help option explaining its usage in detail.
 
 Here is a summary:
-* `dumpQaWdkMetaBatches`
-  * calls `ssCreateWdkMetaBatch` for a hard-coded list of genomics components.  Accesses each component's QA site REST service.
-* `dumpWdkBatchesForSolr`
-  * dumps pathways, compounds, organisms, datasets and popset isolates for a given component.  Connects to the component database found in $GUS_HOME/config/gus.config, and queries it to find the list of organisms to dump.  Connects to a running SiteSearchData wdk service to generate the reports.
+* `dumpApiCommonQaWdkMetaBatches`
+  * calls `ssCreateWdkMetaBatch` for a hard-coded list of genomics components.  Accesses each component's QA site REST service.  This is a legacy script.
+* `dumpApiCommonWdkBatchesForSolr`
+  * dumps pathways, compounds, organisms, datasets and popset isolates for a given component.  Connects to the component database found in $GUS_HOME/config/gus.config, and queries it to find the list of organisms to dump.  Connects to a running SiteSearchData wdk service to generate the reports.  This is a legacy script
 * `ssCreateDocumentCategoriesBatch`
   * creates a (metadata) batch describing the types of documents we will have in solr, and their categories.  Reads the [../data/documentTypeCategories.json](../data/documentTypeCategories.json) file and includes its contents in a `jsonblob` field in a `document-types.json` solr-ready file.  This metadata is used by the SiteSearchService to form its solr queries, and by the web client to format the left **Filter results** panel.
 * `ssCreateDocumentFieldsBatch`
