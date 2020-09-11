@@ -13,22 +13,22 @@
              releaseDate="%%releaseDate%%"
              buildNumber="%%buildNumber%%"/>
 
-  <import file="siteSearchRecords.xml"/>
+  <import file="ApiCommon/siteSearchRecords.xml"/>
 
-  <import file="geneQueries.xml"/>
+  <import file="ApiCommon/geneQueries.xml"/>
 
-  <import file="estQueries.xml"/>
+  <import file="ApiCommon/estQueries.xml"/>
 
-  <import file="pathwayQueries.xml"/>
+  <import file="ApiCommon/pathwayQueries.xml"/>
 
-  <import file="compoundQueries.xml"/>
+  <import file="ApiCommon/compoundQueries.xml"/>
 
-  <import file="datasetQueries.xml"/>
+  <import file="ApiCommon/datasetQueries.xml"/>
 
-  <import file="organismQueries.xml"/>
+  <import file="ApiCommon/organismQueries.xml"/>
 
-  <import file="sequenceQueries.xml"/>
+  <import file="ApiCommon/sequenceQueries.xml"/>
 
-  <import file="popsetQueries.xml"/>
+  <import file="ApiCommon/popsetQueries.xml"/>
 
 </wdkModel>
