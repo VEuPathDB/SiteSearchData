@@ -126,7 +126,7 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
 
 wdkServiceUrl, cohort, parentDir = parseAndValidateArgs()
 
-INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/nonWdkDocumentFields.json"
+INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/" + cohort + "/nonWdkDocumentFields.json"
 
 utils.failIfPreviousBatchDir(parentDir, BATCHTYPE, BATCHNAME)
 
