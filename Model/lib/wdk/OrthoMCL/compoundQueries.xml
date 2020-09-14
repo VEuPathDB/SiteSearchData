@@ -1,0 +1,204 @@
+<wdkModel>
+
+  <querySet name="CompoundIdQueries" queryType="id" isCacheable="true">
+
+    <sqlQuery name="AllCompounds">
+      <column name="source_id"/>
+      <sql>
+        <![CDATA[
+            select source_id
+            from apidbTuning.CompoundAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+  <querySet name="CompoundAttributes" queryType="attribute" isCacheable="false">
+
+    <sqlQuery name="CompoundAlias" doNotTest="true">
+      <column name="source_id"/>
+      <column name="old_source_id"/>
+      <sql>
+        <![CDATA[
+          select source_id, source_id as old_source_id
+          from apidbTuning.CompoundAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Bfmv">
+      <column name="source_id"/>
+      <column name="project"/>
+      <column name="compound_name"/>
+      <column name="other_names"/>
+      <column name="definition"/>
+      <column name="formula"/>
+      <sql>
+        <![CDATA[
+          select source_id, compound_name, definition,
+                 other_names, formula, '@PROJECT_ID@' as project
+          from apidbTuning.CompoundAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="CompoundTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="Properties">
+      <column name="source_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+            select ca.source_id, struct.type, to_char(struct.structure) as value
+            from apidbTuning.CompoundAttributes ca, chebi.Structures struct
+            where ca.id = struct.compound_id
+              and struct.dimension = '1D'
+          union
+            select ca.source_id, cd.type,
+                   case
+                     when cd.type='FORMULA'
+                       then REGEXP_REPLACE(cd.chemical_data,'(\d)','<sub>\1</sub>')
+                     else chemical_data
+                   end as value
+            from apidbTuning.CompoundAttributes ca, chebi.chemical_data cd
+            where ca.id = cd.compound_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="IupacNames">
+      <column name="source_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select ca.source_id, n.name as value
+          from apidbTuning.CompoundAttributes ca, chebi.names n
+          where ca.id = n.compound_id
+            and n.type='IUPAC NAME'
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Definition">
+      <column name="source_id"/>
+      <column name="definition"/>
+      <sql>
+        <![CDATA[
+          select source_id, definition
+          from apidbTuning.CompoundAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+
+    <sqlQuery name="Synonyms">
+      <column name="source_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select cid.compound as source_id, cid.id as value
+          from apidbTuning.CompoundId cid
+          where cid.type ='synonym'
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="CompoundsFromMetabolicPathways">
+      <column name="source_id"/>
+      <column name="ec_number"/>
+      <column name="substrates_text"/>
+      <column name="products_text"/>
+      <sql>
+        <![CDATA[
+           select distinct pc.chebi_accession as source_id, pr.enzyme as ec_number,
+                           pr.substrates_text, pr.products_text
+           from apidbTuning.PathwayCompounds pc, apidbTuning.PathwayReactions pr
+           where pc.reaction_id = pr.reaction_id
+             and pc.ext_db_name = pr.ext_db_name
+             and pc.ext_db_version = pr.ext_db_version
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="PathwaysFromCompounds">
+      <column name="source_id"/>
+      <column name="pathway_source_id"/>
+      <column name="pathway_name"/>
+      <sql>
+        <![CDATA[
+          select distinct pc.chebi_accession as source_id,
+                          pa.source_id as pathway_source_id,
+                          pa.name as pathway_name, pa.pathway_source,
+                          pr.reaction_source_id
+          from apidbTuning.PathwayCompounds pc, apidbTuning.PathwayReactions pr,
+               apidbTuning.PathwayAttributes pa
+          where pc.pathway_id = pa.pathway_id
+            and pr.reaction_id = pc.reaction_id
+            and pc.chebi_accession is not null
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Genes">
+      <column name="source_id"/>
+      <column name="gene_source_id"/>
+      <column name="product"/>
+      <column name="gene_name"/>
+      <sql>
+        <![CDATA[
+          with tp_ec
+          as (select distinct ec_number_gene
+              from apidbTuning.TranscriptPathway),
+          wildcarded_pathway_ec
+          as (select distinct enzyme
+              from apidbTuning.PathwayReactions
+              where enzyme like '%.%.%.%'
+                and enzyme like '%-%'
+                and enzyme != '-.-.-.-'),
+          unwildcarded_pathway_ec
+          as (select distinct enzyme
+              from apidbTuning.PathwayReactions
+              where enzyme like '%.%.%.%'
+                and enzyme not like '%-%'),
+          ec_match
+          as (  select ec_number_gene, wpe.enzyme
+                from tp_ec te, wildcarded_pathway_ec wpe
+                where te.ec_number_gene like replace(wpe.enzyme, '-', '%')
+              union
+                select ec_number_gene, upe.enzyme
+                from tp_ec te, unwildcarded_pathway_ec upe
+                where te.ec_number_gene = upe.enzyme)
+          select distinct ca.source_id, tp.gene_source_id, ga.product, ga.name as gene_name
+          from apidbTuning.TranscriptPathway tp, apidbTuning.PathwayReactions pr,
+               apidbTuning.PathwayCompounds pc, apidbTuning.CompoundAttributes ca,
+               ec_match em, apidbTuning.GeneAttributes ga
+          where tp.ec_number_gene = em.ec_number_gene
+            and em.enzyme = pr.enzyme
+            and pr.reaction_id = pc.reaction_id
+            and pr.ext_db_name = pc.ext_db_name
+            and pc.pathway_id = tp.pathway_id
+            and ca.source_id = pc.chebi_accession
+            and tp.gene_source_id = ga.source_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="SecondaryIds">
+      <column name="source_id"/>
+      <column name="child_id"/>
+      <sql>
+        <![CDATA[
+           select 'CHEBI:' || parent_id as source_id,
+                       chebi_accession as child_id
+                from chebi.Compounds
+                where parent_id is not null
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+
+</wdkModel>
