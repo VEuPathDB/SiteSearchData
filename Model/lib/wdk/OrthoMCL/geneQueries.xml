@@ -1,0 +1,615 @@
+<wdkModel>
+
+  <querySet name="GeneIdQueries" queryType="id" isCacheable="true">
+    <sqlQuery name="GenesByOrganismAbbrev">
+      <paramRef ref="geneParams.organismAbbrev"/>
+      <column name="source_id"/>
+      <sql>
+        <![CDATA[
+          select distinct ga.source_id
+          from apidbTuning.GeneAttributes ga, apidb.Organism o
+          where ga.taxon_id = o.taxon_id
+            and o.abbrev = $$organismAbbrev$$
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+  <paramSet name="geneParams">
+    <flatVocabParam name="organismAbbrev"
+                    queryRef="GeneParamQueries.organismAbbrevs"
+                    multiPick="false"
+                    prompt="OrganismAbbrev"
+                    quote="true">
+    </flatVocabParam>
+  </paramSet>
+
+  <querySet name="GeneParamQueries" queryType="vocab"  isCacheable="false">
+    <sqlQuery name="organismAbbrevs">
+      <column name="internal"/>
+      <column name="term"/>
+      <sql>
+        <![CDATA[
+          select distinct o.abbrev AS internal, o.abbrev AS term
+          from apidb.Organism o
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+
+  <querySet name="GeneAttributes" queryType="attribute" isCacheable="false">
+
+    <sqlQuery name="GeneAlias">
+      <column name="source_id"/>
+      <column name="old_source_id"/>
+      <sql>
+        <![CDATA[
+          select a.gene AS source_id, a.id as old_source_id
+          from apidbTuning.GeneId a
+          where a.unique_mapping = 1
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Bfmv">
+      <column name="source_id"/>
+      <column name="product"/>
+      <column name="name"/>
+      <column name="gene_type"/>
+      <column name="sequence_id"/>
+      <column name="organism_full"/>
+      <column name="organism"/>
+      <column name="orthomcl_name"/>
+      <sql>
+        <![CDATA[
+          select source_id, product, name, gene_type,
+                 sequence_id, organism as organism_full, organism,
+                 orthomcl_name
+          from apidbTuning.GeneAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+
+  <querySet name="GeneTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="UserCommentIDs">
+      <column name="source_id"/>
+      <column name="comment_id"/>
+      <sql>
+        <![CDATA[
+          select tsc.source_id, tsc.comment_id
+          from apidb.TextSearchableComment@COMMENT_DBLINK@ tsc,
+               @COMMENT_SCHEMA@MappedComment@COMMENT_DBLINK@ mc
+          where mc.comment_id = tsc.comment_id
+            and mc.review_status_id != 'rejected'
+            and mc.is_visible = 1
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="UserCommentContent">
+      <column name="source_id"/>
+      <column name="content"/>
+      <sql>
+        <![CDATA[
+          select tsc.source_id, tsc.content
+          from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc,
+               @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
+          where mc.comment_id = tsc.comment_id
+            and mc.review_status_id != 'rejected'
+            and mc.is_visible = 1
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="ProteinSourceIDs">
+      <column name="source_id"/>
+      <column name="protein_source_id"/>
+      <sql>
+        <![CDATA[
+          select ta.gene_source_id as source_id, ta.protein_source_id
+          from apidbTuning.TranscriptAttributes ta
+        ]]>
+      </sql>
+    </sqlQuery>
+
+
+    <sqlQuery name="GeneTranscripts">
+      <column name="source_id"/>
+      <column name="transcript_id"/>
+      <sql>
+        <!-- transcripts must be ordered alphabetically, as expected by client -->
+        <![CDATA[
+          select gene_source_id as source_id, source_id as transcript_id
+          from apidbTuning.TranscriptAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+
+    <sqlQuery name="ECNumbers" >
+      <column name="source_id"/>
+      <column name="ec_number"/>
+      <column name="ec_description"/>
+      <column name="ec_source"/>
+      <column name="expasy_url"/>
+
+      <sql>
+        <![CDATA[
+          select ta.gene_source_id AS source_id, ec.ec_number,
+                 ec.description AS ec_description,
+                 decode(asec.evidence_code,
+                        'OrthoMCLDerived', 'computationally inferred from orthology',
+                        'gb', 'GenBank',
+                        'Hagai', 'MPMP',
+                        evidence_code)
+                   as ec_source,
+                 'http://enzyme.expasy.org/cgi-bin/enzyme/enzyme-search-ec?field1='
+                   || ec.ec_number_1
+                   || decode(ec.ec_number_2,
+                             null, null,
+                             chr(38) || 'field2=' || ec.ec_number_2)
+                   || decode(ec.ec_number_3,
+                             null, null,
+                             chr(38) || 'field3=' || ec.ec_number_3)
+                   || decode(ec.ec_number_4,
+                             null, null,
+                             chr(38) || 'field4=' || ec.ec_number_4)
+                   as expasy_url
+          from apidbTuning.TranscriptAttributes ta, sres.enzymeclass ec,
+               dots.AaSequenceEnzymeClass asec
+          where ta.aa_sequence_id = asec.aa_sequence_id
+            and asec.enzyme_class_id = ec.enzyme_class_id
+          group by ta.gene_source_id, ec.ec_number, ec.description,
+                   asec.evidence_code,
+                   ec.ec_number_1, ec.ec_number_2, ec.ec_number_3, ec.ec_number_4
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <!--++++++++++-->
+    <!-- GO terms -->
+    <!--++++++++++-->
+
+    <sqlQuery name="GOTerms" >
+      <column name="source_id"/>
+      <column name="go_id"/>
+      <column name="go_term_name"/>
+      <column name="ontology"/>
+      <column name="source"/>
+      <column name="evidence_code"/>
+      <column name="reference"/>
+      <column name="evidence_code_parameter"/>
+      <column name="sort_key"/>
+      <sql>
+        <![CDATA[
+          select source_id, go_id,  go_term_name, ontology,
+                 source, evidence_code, reference, evidence_code_parameter
+          from (-- makeup of GeneGoTable tuning table
+                select source_id, go_id,
+                       max(go_term_name) as go_term_name, ontology, source, evidence_code,
+                       reference, evidence_code_parameter
+                from (select distinct ggt.gene_source_id as source_id,
+                                      replace(ggt.go_id, 'GO_', 'GO:') as go_id,
+                                      ggt.transcript_source_id,
+                                      ggt.go_term_name, ggt.ontology, ggt.source,
+                                      ggt.evidence_code, ggt.reference,
+                                      ggt.evidence_code_parameter
+                      from (-- makeup of GeneGoTerms tuning table
+                            with root_term
+                                 as (select ontology_term_id,
+                                            cast(initcap(replace(name, '_', ' ')) as varchar2(20))
+                                              as ontology
+                                     from sres.OntologyTerm
+                                     where source_id
+                                           in ('GO_0008150','GO_0003674','GO_0005575'))
+                            select gf.source_id as gene_source_id,
+                                   t.source_id as transcript_source_id,
+                                   cast (gt.source_id as varchar2(20)) as go_id,
+                                   rt.ontology,
+                                   cast(gt.name as varchar2(250)) as go_term_name,
+                                   cast(gail.name as varchar2(24)) as source,
+                                   cast(gec.name as varchar2(12)) as evidence_code,
+                                   cast(gaiec.reference as varchar2(250)) as reference,
+                                   cast(gaiec.evidence_code_parameter as varchar2(80))
+                                     as evidence_code_parameter
+                            from dots.GeneFeature gf, dots.Transcript t,
+                                 dots.TranslatedAaFeature taf, dots.GoAssociation ga,
+                                 sres.OntologyTerm gt, dots.GoAssociationInstance gai,
+                                 dots.GoAssociationInstanceLoe gail,
+                                 dots.GoAssocInstEvidCode gaiec, sres.OntologyTerm gec,
+                                 root_term rt, dots.NaSequence ns
+                            where t.parent_id = gf.na_feature_id
+                              and gf.na_sequence_id = ns.na_sequence_id
+                              and t.na_feature_id = taf.na_feature_id
+                              and taf.aa_sequence_id = ga.row_id
+                              and ga.table_id = (select table_id
+                                                 from core.TableInfo
+                                                 where name = 'TranslatedAASequence')
+                              and ga.go_term_id = gt.ontology_term_id
+                              and ga.go_association_id = gai.go_association_id
+                              and gai.go_assoc_inst_loe_id = gail.go_assoc_inst_loe_id
+                              and gai.go_association_instance_id
+                                  = gaiec.go_association_instance_id
+                              and gaiec.go_evidence_code_id = gec.ontology_term_id
+                              and gt.ancestor_term_id = rt.ontology_term_id(+)
+                           ) ggt
+                     )
+                group by source_id, go_id, ontology,
+                         source, evidence_code, reference, evidence_code_parameter
+               )
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Orthologs">
+      <column name="source_id"/>
+      <column name="ortho_product"/>
+      <column name="ortho_name"/>
+      <sql>
+        <![CDATA[
+          select distinct source_id, ortho_product, ortho_name
+          from apidbTuning.OrthologousGenes
+        ]]>
+      </sql>
+    </sqlQuery>
+    
+    <sqlQuery name="InterPro">
+      <column name="source_id"/>
+      <column name="interpro_name"/>
+      <column name="interpro_family_id"/>
+      <column name="interpro_primary_id"/>
+      <column name="interpro_secondary_id"/>
+      <column name="interpro_desc"/>
+      <sql>
+        <![CDATA[
+          select ta.gene_source_id as source_id, xd1.name AS interpro_name,
+                 dr.primary_identifier AS interpro_primary_id,
+                 dr.secondary_identifier AS interpro_secondary_id,
+                 dr.remark AS interpro_desc, df2.source_id AS interpro_family_id
+          from apidbTuning.TranscriptAttributes ta, dots.AaLocation al,
+               sres.ExternalDatabaseRelease xdr1, sres.ExternalDatabase xd1,
+               sres.ExternalDatabaseRelease xdr3, sres.ExternalDatabase xd3,
+               sres.DbRef dr, dots.DbRefAaFeature draf, dots.DomainFeature df,
+               dots.DomainFeature df2
+          where xd3.name in ('InterproscanData_RSRC', 'INTERPRO')
+            and ta.aa_sequence_id = df.aa_sequence_id
+            and df.aa_feature_id = draf.aa_feature_id
+            and df.aa_feature_id = al.aa_feature_id
+            and draf.db_ref_id = dr.db_ref_id
+            and dr.external_database_release_id = xdr1.external_database_release_id
+            and xdr1.external_database_id = xd1.external_database_id
+            and df.external_database_release_id = xdr3.external_database_release_id
+            and xdr3.external_database_id = xd3.external_database_id
+            and df.parent_id = df2.aa_feature_id (+)
+          group by ta.gene_source_id, xd1.name, dr.primary_identifier,
+                   dr.secondary_identifier, dr.remark, al.start_min, al.end_min,
+                   df.e_value, df2.source_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Alias">
+      <column name="source_id"/>
+      <column name="alias"/>
+      <column name="database_name"/>
+      <column name="id_type"/>
+      <sql>
+        <![CDATA[
+          select distinct
+                 upper(replace(gi.id, ';current=false', '')) as alias,
+                 gi.database_name,
+                 case
+                   when gi.database_name like '%synonym%'
+                     then 'synonym'
+                   when gi.database_name like '%primary_genome%'
+                     then 'name'
+                   when gi.database_name like '%PreviousGeneIDs%'
+                     then 'previous ID'
+                   when gi.database_name like '%aliases%'
+                     then 'alias'
+                   else 'alternate ID'
+                 end as id_type,
+                 gi.gene AS source_id
+          from apidbTuning.GeneId gi
+          where regexp_like(gi.id, '(\D)')
+            and gi.database_name not like '%gene2Uniprot_RSRC'
+            and gi.union_member != 'same ID'
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Notes" clobRow="true">
+
+      <column name="source_id"/>
+      <column name="comment_string"/>
+      <sql>
+        <![CDATA[
+          select nfc.comment_string, ci.source_id
+          from dots.NaFeatureComment nfc,
+               (select nfc.na_feature_comment_id,
+                       ta.gene_source_id as source_id
+                from dots.NaFeatureComment nfc, apidbTuning.TranscriptAttributes ta
+                where ta.gene_na_feature_id = nfc.na_feature_id
+                   or ta.gene_na_feature_id = nfc.na_feature_id
+                group by nfc.na_feature_comment_id, ta.gene_source_id
+               ) ci
+          where ci.na_feature_comment_id = nfc.na_feature_comment_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+
+    <sqlQuery name="MetabolicPathways">
+
+      <column name="source_id"/>
+      <column name="pathway_source"/>
+      <column name="pathway_source_id"/>
+      <column name="pathway_name"/>
+
+      <sql>
+        <![CDATA[
+            select gene_source_id AS source_id, pathway_source,
+                   pathway_source_id, pathway_name
+            from apidbTuning.PathwaysGeneTable
+        ]]>
+      </sql>
+    </sqlQuery>
+
+
+    <sqlQuery name="Epitopes">
+
+      <column name="source_id"/>
+      <column name="transcript_id"/>
+      <column name="iedb_id"/>
+      <column name="sequence"/>
+      <column name="name"/>
+      <sql>
+        <![CDATA[
+          select es.iedb_id, to_char(es.sequence) AS sequence, es.name,
+                 ta.source_id as transcript_id, ta.gene_source_id as source_id
+          from apidbTuning.EpitopeSummary es, apidbTuning.TranscriptAttributes ta
+          where es.source_id = ta.source_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Products" >
+      <column name="source_id"/>
+      <column name="product"/>
+      <column name="reference"/>
+      <sql>
+        <![CDATA[
+                select ta.gene_source_id as source_id,
+                       tp.product,
+                       listagg(tp.publication, ', ')
+                         within group(order by tp.publication) as reference
+                from apidbTuning.TranscriptAttributes ta, apidb.TranscriptProduct tp
+                where ta.na_feature_id = tp.na_feature_id
+                and tp.is_preferred = 1
+                group by ta.gene_source_id, ta.source_id, tp.product
+              union
+                select gf.source_id,
+                       gfp.product,
+                       cast (null as varchar2(12)) as reference
+                from dots.GeneFeature gf, apidb.GeneFeatureProduct gfp
+                where gf.na_feature_id = gfp.na_feature_id
+                and gfp.is_preferred = 1
+                group by gf.source_id, gfp.product
+              union
+                select gf.source_id,
+                       t.product,
+                       cast (null as varchar2(12)) as reference
+                from dots.Transcript t, dots.GeneFeature gf
+                where t.parent_id = gf.na_feature_id
+                  and t.product is not null
+                group by gf.source_id, t.source_id, t.product
+              union
+                select gf.source_id,
+                       gf.product,
+                       cast (null as varchar2(12)) as reference
+                from dots.GeneFeature gf
+                where gf.product is not null
+                group by gf.source_id, gf.product
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="AlternateProducts" >
+      <column name="source_id"/>
+      <column name="product"/>
+      <column name="reference"/>
+      <sql>
+        <![CDATA[
+                select ta.gene_source_id as source_id,
+                       tp.product,
+                       listagg(tp.publication, ', ')
+                         within group(order by tp.publication) as reference
+                from apidbTuning.TranscriptAttributes ta, apidb.TranscriptProduct tp
+                where ta.na_feature_id = tp.na_feature_id
+                and tp.is_preferred = 0
+                group by ta.gene_source_id, ta.source_id, tp.product
+              union
+                select gf.source_id,
+                       gfp.product,
+                       cast (null as varchar2(12)) as reference
+                from dots.GeneFeature gf, apidb.GeneFeatureProduct gfp
+                where gf.na_feature_id = gfp.na_feature_id
+                and gfp.is_preferred = 0
+                group by gf.source_id, gfp.product
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="gene_dbrefs">
+      <column name="source_id"/>
+      <column name="dataset"/>
+      <column name="link_url"/>
+
+      <sql>
+        <![CDATA[
+            select edd.dataset_presenter_display_name AS dataset, ga.source_id,
+                   db.primary_identifier AS ext_id
+            from sres.DbRef db, dots.DbRefNaFeature dbna,
+                 apidbTuning.ExternalDbDatasetPresenter edd,
+                 apidbTuning.GeneAttributes ga
+            where db.external_database_release_id = edd.external_database_release_id
+              and dbna.db_ref_id = db.db_ref_id
+              and ga.na_feature_id = dbna.na_feature_id
+              and lower(edd.dataset_presenter_name) not like '%nrdb%'
+              and lower(edd.dataset_presenter_name) not like '%nafeature_aliases%'
+              and edd.dataset_presenter_name not like '%dbxref_simple_gene2HagaiPathway%'
+              and lower(edd.dataset_presenter_name) not like '%pubmed%'
+          union
+            select edd.dataset_presenter_display_name AS dataset,
+                   ta.gene_source_id as source_id,
+                   db.primary_identifier AS ext_id
+            from sres.DbRef db, dots.DbRefNaFeature dbna,
+                 apidbTuning.ExternalDbDatasetPresenter edd,
+                 apidbTuning.TranscriptAttributes ta
+            where db.external_database_release_id = edd.external_database_release_id
+              and dbna.db_ref_id = db.db_ref_id
+              and ta.na_feature_id = dbna.na_feature_id
+              and lower(edd.dataset_presenter_name) not like '%nrdb%'
+              and lower(edd.dataset_presenter_name) not like '%nafeature_aliases%'
+              and edd.dataset_presenter_name not like '%dbxref_simple_gene2HagaiPathway%'
+              and lower(edd.dataset_presenter_name) not like '%pubmed%'
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="PdbSimilarities">
+      <column name="source_id"/>
+      <column name="pdb_chain"/>
+      <column name="pdb_id"/>
+      <column name="taxon"/>
+      <column name="pdb_title"/>
+      <sql>
+        <![CDATA[
+          select gene_source_id as source_id,
+                pdb_chain, pdb_id, taxon, pdb_title
+          from (select distinct ps.pdb_chain, ps.pdb_title, ps.pdb_id, ps.taxon,
+                                ta.source_id, ta.gene_source_id
+                from apidbTuning.PdbSimilarity ps, apidbTuning.TranscriptAttributes ta
+                where ps.source_id = ta.source_id)
+          group by gene_source_id, pdb_chain, pdb_id, taxon, pdb_title
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="PubMed">
+      <column name="source_id"/>
+      <column name="pubmed_id"/>
+      <column name="doi"/>
+      <column name="title"/>
+      <column name="authors"/>
+      <sql>
+        <![CDATA[
+          select distinct gene_source_id as source_id,  'PMID:' || pubmed_id as pubmed_id, doi, title,
+                          authors
+          from apidbTuning.GenePubmed
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="RodMalPhenotype">
+      <column name="source_id"/>
+      <column name="rmgmid"/>
+      <column name="pubmed_id"/>
+      <column name="life_cycle_stage"/>
+      <column name="phenotype"/>
+      <column name="mutation_description"/>
+      <sql>
+        <![CDATA[
+          with mut
+               as (select distinct
+                             ga.source_id, pm.source_id as rmgmid, pm.pubmed_id,
+                             pm.modification_type as mod_type,
+                             pm.mutation_description, ot.name,
+                             dbms_lob.substr(pr.phenotype_post_composition, 4000, 1) as phenotype1,
+                             dbms_lob.substr(pr.phenotype_post_composition, 4000, 4001) as phenotype2,
+                             pm.has_multiple_mutations as multiple,
+                             na.na_feature_id as id, pm.phenotype_model_id
+                   from apidb.PhenotypeResult pr
+                          left outer join sres.OntologyTerm ot
+                            on pr.life_cycle_stage_term_id = ot.ontology_term_id,
+                        apidb.PhenotypeModel pm, dots.GeneFeature ga,
+                        apidb.NaFeaturePhenotypeModel na
+                   where pm.phenotype_model_id = pr.phenotype_model_id
+                     and na.phenotype_model_id = pm.phenotype_model_id
+                     and na.na_feature_id = ga.na_feature_id
+                  )
+          select m.source_id, m.rmgmid, m.pubmed_id, m.mod_type,
+                 m.mutation_description,
+                 listagg(m.name, ', ') within group (order by m.name) as life_cycle_stage,
+                 concat(to_clob(phenotype1), to_clob(phenotype2)) as phenotype
+          from mut m
+          group by m.source_id, m.rmgmid, m.pubmed_id, m.mod_type,
+                   m.mutation_description, m.phenotype1, m.phenotype2
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Phenotype">
+      <column name="source_id"/>
+      <column name="pubmed_id"/>
+      <column name="modification_type"/>
+      <column name="allele"/>
+      <column name="entity"/>
+      <column name="quality"/>
+      <column name="timing"/>
+      <column name="cycle_stage"/>
+      <column name="phenotype_post_composition"/>
+      <column name="phenotype_comment"/>
+      <column name="chebi_annotation_extension"/>
+      <sql>
+      <![CDATA[
+        select gf.source_id, pm.pubmed_id, pm.modification_type, pm.allele,
+                  oen.name as entity, opq.name as quality, pr.timing,
+                  ols.name as cycle_stage, phenotype_post_composition,
+                  phenotype_comment, pr.chebi_annotation_extension
+        from dots.GeneFeature gf, apidb.PhenotypeModel pm,
+             apidb.PhenotypeResult pr, sres.OntologyTerm oen,
+             sres.OntologyTerm opq, sres.OntologyTerm ols,
+             (  select phenotype_model_id, na_feature_id
+                from apidb.PhenotypeModel
+              union
+                select phenotype_model_id, na_feature_id
+                from apidb.NaFeaturePhenotypeModel) pmodel_feature
+	      where gf.na_feature_id = pmodel_feature.na_feature_id
+        and pm.phenotype_model_id = pmodel_feature.phenotype_model_id
+        and pm.phenotype_model_id = pr.phenotype_model_id
+        and pr.phenotype_entity_term_id = oen.ontology_term_id (+)
+        and pr.phenotype_quality_term_id = opq.ontology_term_id (+)
+        and pr.life_cycle_stage_term_id = ols.ontology_term_id (+)
+       ]]>
+      </sql>
+  </sqlQuery>
+
+ <sqlQuery name="CellularLocalization">
+      <column name="source_id"/>
+      <column name="note"/>
+      <column name="image_type"/>
+      <sql>
+      <![CDATA[
+        select replace(img.note, 'GO term: ', '') as note,
+               img.image_type, FeatureIdGeneId.source_id
+        from apidb.NaFeatureImage img,
+             (  select na_feature_id, source_id
+                from dots.GeneFeature
+              union
+                select t.na_feature_id, g.source_id
+                from dots.GeneFeature g, dots.Transcript t
+                where t.parent_id = g.na_feature_id) FeatureIdGeneId
+        where img.na_feature_id = FeatureIdGeneId.na_feature_id
+       ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+</wdkModel>

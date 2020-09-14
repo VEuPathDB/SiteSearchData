@@ -36,21 +36,6 @@
       }
     ]
   },
-  { "name": "Population biology",
-    "documentTypes": [
-      { "id": "popsetSequence",
-        "displayName": "Popset isolate sequence",
-        "displayNamePlural": "Popset isolate sequences",
-        "wdkSearchUrlName": "PopsetIsolatesByText",
-        "hasOrganismField": false
-      },
-      { "id": "popbio-sample",
-        "displayName": "Field sample",
-        "displayNamePlural": "Field samples",
-        "hasOrganismField": false
-      }
-    ]
-  },
   { "name": "Metabolism",
     "documentTypes": [
       { "id": "pathway",
