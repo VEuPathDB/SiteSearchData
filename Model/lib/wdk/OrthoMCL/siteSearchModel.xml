@@ -15,20 +15,8 @@
 
   <import file="OrthoMCL/siteSearchRecords.xml"/>
 
-  <import file="OrthoMCL/geneQueries.xml"/>
+  <import file="OrthoMCL/sequenceRecordQueries.xml"/>
 
-  <import file="OrthoMCL/estQueries.xml"/>
-
-  <import file="OrthoMCL/pathwayQueries.xml"/>
-
-  <import file="OrthoMCL/compoundQueries.xml"/>
-
-  <import file="OrthoMCL/datasetQueries.xml"/>
-
-  <import file="OrthoMCL/organismQueries.xml"/>
-
-  <import file="OrthoMCL/sequenceQueries.xml"/>
-
-  <import file="OrthoMCL/popsetQueries.xml"/>
+  <import file="OrthoMCL/groupRecordQueries.xml"/>
 
 </wdkModel>
