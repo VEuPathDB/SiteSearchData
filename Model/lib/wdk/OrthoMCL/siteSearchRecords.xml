@@ -39,48 +39,19 @@ Each Question must:
 - not bother with help (it would never been seen), and its displayName is irrelevant
 
  -->
+
 <wdkModel>
 
   <questionSet name="Questions" displayName="dontcare">
 
-    <question name="GenesByOrganism" displayName="dontcare"
-              queryRef="GeneIdQueries.GenesByOrganismAbbrev"
-              recordClassRef="recordClasses.gene">
-    </question>
-
-    <question name="EstsByOrganism" displayName="dontcare"
-              queryRef="EstIdQueries.EstsByOrganismAbbrev"
-              recordClassRef="recordClasses.est">
-    </question>
-
-    <question name="Pathways" displayName="dontcare"
-              queryRef="PathwayIdQueries.AllPathways"
-              recordClassRef="recordClasses.pathway">
-    </question>
-
-    <question name="Compounds" displayName="dontcare"
-              queryRef="CompoundIdQueries.AllCompounds"
-              recordClassRef="recordClasses.compound">
-    </question>
-
-    <question name="Datasets" displayName="dontcare"
-              queryRef="DatasetIdQueries.AllDatasets"
-              recordClassRef="recordClasses.dataset">
-    </question>
-
-    <question name="Organisms" displayName="dontcare"
-              queryRef="OrganismIdQueries.Organisms"
-              recordClassRef="recordClasses.organism">
-    </question>
-
     <question name="Sequences" displayName="dontcare"
-              queryRef="SequenceIdQueries.SequencesByOrganismAbbrev"
+              queryRef="SequenceId.AllSequences"
               recordClassRef="recordClasses.sequence">
     </question>
 
-    <question name="PopsetIsolates" displayName="dontcare"
-              queryRef="PopsetIds.AllPopsetIsolates"
-              recordClassRef="recordClasses.PopsetRecordClass">
+    <question name="Groups" displayName="dontcare"
+              queryRef="GroupIdQueries.AllGroups"
+              recordClassRef="recordClasses.group">
     </question>
 
   </questionSet>
@@ -88,681 +59,155 @@ Each Question must:
   <recordClassSet name="recordClasses">
 
     <!-- ################################################################### -->
-    <!-- ########################  Organism Record  ######################## -->
-    <!-- ################################################################### -->
-
-    <recordClass name="organism" urlName="organism" displayName="Organism">
-      <propertyList name="batch">
-        <value>dataset-presenter</value>
-      </propertyList>
-
-      <primaryKey aliasQueryRef="OrganismAttributes.OrganismAlias">
-        <columnRef>source_id</columnRef>
-      </primaryKey>
-
-      <idAttribute name="primary_key" displayName="Organism ID">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[
-                   $$source_id$$
-          ]]>
-        </text>
-      </idAttribute>
-
-      <reporter name="solrjson"
-                displayName="solr json: choose from columns and/or tables"
-                scopes=""
-                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
-
-      <attributeQueryRef ref="OrganismAttributes.organismAttrs">
-        <columnAttribute name="species" displayName="Species"/>
-        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
-        <columnAttribute name="organism_full" displayName="Organism"/>
-        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
-        <columnAttribute name="data_source" displayName="Data source"/>
-
-      </attributeQueryRef>
-
-      <table name="GenomeSequencingAndAnnotationAttribution"
-             displayName="Genome sequencing and annotation"
-             queryRef="OrganismTables.GenomeSequencingAndAnnotation">
-        <columnAttribute name="description"/>
-      </table>
-
-    </recordClass>
-
-    <!-- ################################################################### -->
     <!-- ########################  Sequence Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="sequence" urlName="genomic-sequence" displayName="Genomic sequence">
+    <recordClass name="sequence" urlName="sequence" displayName="Genomic sequence">
       <propertyList name="batch">
-        <value>organism</value>
-      </propertyList>
-
-      <primaryKey aliasQueryRef="SequenceAttributes.SequenceAlias">
-        <columnRef>source_id</columnRef>
-      </primaryKey>
-
-      <idAttribute name="primary_key" displayName="Sequence ID">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[
-                   $$source_id$$
-          ]]>
-        </text>
-      </idAttribute>
-
-      <reporter name="solrjson"
-                displayName="solr json: choose from columns and/or tables"
-                scopes=""
-                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
-
-      <attributeQueryRef ref="SequenceAttributes.Bfmv">
-        <columnAttribute name="description" displayName="Description">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
-        <columnAttribute name="organism_full" displayName="Organism">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="genbank_accession" displayName="GenBank"/>
-      </attributeQueryRef>
-
-      <table name="Aliases"
-             displayName="Previous IDs and aliases"
-             queryRef="SequenceTables.Aliases">
-        <columnAttribute name="seq_id"/>
-      </table>
-
-
-
-    </recordClass>
-
-    <!-- ################################################################### -->
-    <!-- ########################  Pathway Record  ######################### -->
-    <!-- ################################################################### -->
-
-    <recordClass name="pathway" urlName="pathway" displayName="Metabolic pathway">
-      <propertyList name="batch">
-        <value>pathway</value>
-      </propertyList>
-
-      <primaryKey aliasQueryRef="PathwayAttributes.PathwayAlias">
-        <columnRef>pathway_source</columnRef>
-        <columnRef>source_id</columnRef>
-      </primaryKey>
-
-      <idAttribute name="primary_key" displayName="Pathway ID">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[
-               $$source_id$$
-          ]]>
-        </text>
-      </idAttribute>
-
-      <textAttribute name="pathway_source_text" displayName="Pathway source">
-        <text>
-          <![CDATA[
-               $$pathway_source$$
-          ]]>
-        </text>
-      </textAttribute>
-
-      <reporter name="solrjson"
-                displayName="solr json: choose from columns and/or tables"
-                scopes=""
-                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
-
-      <attributeQueryRef ref="PathwayAttributes.Bfmv">
-        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
-        <columnAttribute name="name" displayName="Pathway">
-          <propertyList name="isSubtitle">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        </columnAttribute>
-      </attributeQueryRef>
-
-      <table name="Compounds"
-             displayName="Compounds"
-             queryRef="PathwayTables.CompoundsFromMetabolicPathways">
-        <columnAttribute name="ec_number"/>
-        <columnAttribute name="enzyme_description"/>
-        <columnAttribute name="substrates_text"/>
-        <columnAttribute name="products_text"/>
-        <columnAttribute name="compound_source_id"/>
-        <columnAttribute name="chebi_accession"/>
-        <columnAttribute name="compound_other_id"/>
-      </table>
-
-    </recordClass>
-
-    <!-- ################################################################### -->
-    <!-- ########################  Compound Record  ######################## -->
-    <!-- ################################################################### -->
-
-    <recordClass name="compound" urlName="compound" displayName="Compound">
-      <propertyList name="batch">
-        <value>compound</value>
-      </propertyList>
-
-      <primaryKey aliasQueryRef="CompoundAttributes.CompoundAlias">
-        <columnRef>source_id</columnRef>
-      </primaryKey>
-
-      <idAttribute name="primary_key" displayName="ChEBI ID">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[
-                   $$source_id$$
-          ]]>
-        </text>
-      </idAttribute>
-
-      <reporter name="solrjson"
-                displayName="solr json: choose from columns and/or tables"
-                scopes=""
-                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
-
-      <attributeQueryRef ref="CompoundAttributes.Bfmv">
-        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
-        <columnAttribute name="definition" displayName="Definition" >
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="formula" displayName="Molecular formula"/>
-        <columnAttribute name="compound_name" displayName="Name" >
-          <propertyList name="isSubtitle">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        </columnAttribute>
-      </attributeQueryRef>
-
-      <table name="Properties" displayName="Properties"
-             queryRef="CompoundTables.Properties">
-        <columnAttribute name="value"/>
-      </table>
-
-      <table name="IupacNames" displayName="IUPAC names"
-             queryRef="CompoundTables.IupacNames">
-        <columnAttribute name="value"/>
-      </table>
-
-      <table name="Synonyms" displayName="Synonyms"
-             queryRef="CompoundTables.Synonyms">
-        <columnAttribute name="value"/>
-      </table>
-
-      <table name="MetabolicPathwaysReactions"
-             displayName="Metabolic pathway reactions"
-             queryRef="CompoundTables.CompoundsFromMetabolicPathways">
-        <columnAttribute name="ec_number"/>
-        <columnAttribute name="substrates_text"/>
-        <columnAttribute name="products_text"/>
-      </table>
-
-      <table name="MetabolicPathways"
-             displayName="Metabolic pathways"
-             queryRef="CompoundTables.PathwaysFromCompounds">
-        <columnAttribute name="pathway_name"/>
-      </table>
-
-      <table name="SecondaryIds"
-             displayName="Secondary IDs"
-             queryRef="CompoundTables.SecondaryIds">
-        <columnAttribute name="child_id"/>
-      </table>
-
-    </recordClass>
-
-    <!-- ################################################################### -->
-    <!-- ###########################  EST Record  ########################## -->
-    <!-- ################################################################### -->
-
-    <recordClass name="est" urlName="est" displayName="EST">
-      <propertyList name="batch">
-        <value>organism</value>
-      </propertyList>
-
-      <primaryKey aliasQueryRef="EstTableQueries.EstAlias">
-        <columnRef>source_id</columnRef>
-      </primaryKey>
-
-      <idAttribute name="primary_key" displayName="EST ID">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[
-                   $$source_id$$
-          ]]>
-        </text>
-      </idAttribute>
-
-      <reporter name="solrjson"
-                displayName="solr json: choose from columns and/or tables"
-                scopes=""
-                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
-
-      <attributeQueryRef ref="EstAttributeQueries.Bfmv">
-        <columnAttribute name="dbest_name" displayName="Library">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="vector" displayName="Vector"/>
-        <columnAttribute name="stage"  displayName="Stage"/>
-        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
-        <columnAttribute name="organism" displayName="Organism" >
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-      </attributeQueryRef>
-
-      <table name="ReferenceInfo" displayName="Reference" queryRef="EstTableQueries.Reference">
-        <columnAttribute name="author" displayName="Author"/>
-        <columnAttribute name="affiliation" displayName="Affiliation"/>
-      </table>
-    </recordClass>
-
-    <!-- ################################################################### -->
-    <!-- ##########################  Gene Record  ########################## -->
-    <!-- ################################################################### -->
-
-    <recordClass name="gene" urlName="gene">
-
-      <propertyList name="batch">
-        <value>organism</value>
-      </propertyList>
-
-      <primaryKey aliasQueryRef="GeneAttributes.GeneAlias">
-        <columnRef>source_id</columnRef>
-      </primaryKey>
-
-      <idAttribute name="primary_key" displayName="Gene ID">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[
-                   $$source_id$$
-          ]]>
-        </text>
-      </idAttribute>
-
-      <reporter name="solrjson"  displayName="solr json: choose from columns and/or tables" scopes=""
-                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
-
-      <attributeQueryRef ref="GeneAttributes.Bfmv">
-        <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
-
-        <columnAttribute name="product" displayName="Preferred product description" >
-          <propertyList name="isSubtitle">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="isSearchable"> <!-- instead search the Products table -->
-            <value>false</value>
-          </propertyList>
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-
-        <columnAttribute name="gene_type" displayName="Gene type"/>
-        <columnAttribute name="name" displayName="Gene name or symbol">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="boost">
-            <value>2</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
-        <columnAttribute name="organism_full" displayName="Organism" >
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="orthomcl_name" displayName="Ortholog group"/>
-      </attributeQueryRef>
-
-      <table name="GeneTranscripts"
-             displayName="Transcripts"
-             queryRef="GeneTables.GeneTranscripts">
-        <columnAttribute name="transcript_id"/>
-      </table>
-
-      <table name="InterPro"
-             displayName="InterPro domains"
-             queryRef="GeneTables.InterPro">
-        <columnAttribute name="interpro_name"/>
-        <columnAttribute name="interpro_family_id"/>
-        <columnAttribute name="interpro_primary_id"/>
-        <columnAttribute name="interpro_secondary_id"/>
-        <columnAttribute name="interpro_desc"/>
-      </table>
-
-      <table name="Notes"
-             displayName="Notes from annotators"
-             queryRef="GeneTables.Notes">
-        <columnAttribute name="comment_string"/>
-      </table>
-
-      <!-- needed for the user comment updater. -->
-      <table name="userCommentIds"
-             internal="true"
-             queryRef="GeneTables.UserCommentIDs">
-        <columnAttribute name="comment_id"/>
-      </table>
-
-      <table name="UserCommentContent"
-             displayName="User comments"
-             queryRef="GeneTables.UserCommentContent">
-        <columnAttribute name="content"/>
-      </table>
-
-      <table name="ECNumbers"
-             displayName="EC descriptions and numbers"
-             queryRef="GeneTables.ECNumbers">
-        <columnAttribute name="ec_number"/>
-        <columnAttribute name="ec_description"/>
-      </table>
-
-      <table name="GOTerms"
-             displayName="GO terms"
-             queryRef="GeneTables.GOTerms">
-        <columnAttribute name="go_id"/>
-        <columnAttribute name="go_term_name"/>
-        <columnAttribute name="reference"/>
-      </table>
-
-      <table name="MetabolicPathways"
-             displayName="Metabolic pathways"
-             queryRef="GeneTables.MetabolicPathways">
-        <columnAttribute name="pathway_source_id"/>
-        <columnAttribute name="pathway_name"/>
-      </table>
-
-      <table name="Alias"
-             displayName="Names, IDs, and aliases"
-             queryRef="GeneTables.Alias">
-        <columnAttribute name="alias"/>
-        <columnAttribute name="id_type"/>
-      </table>
-
-      <table name="PubMed"
-             displayName="PubMed"
-             queryRef="GeneTables.PubMed">
-        <columnAttribute name="pubmed_id"/>
-        <columnAttribute name="doi"/>
-        <columnAttribute name="title"/>
-        <columnAttribute name="authors"/>
-      </table>
-
-      <table name="GeneLinkouts"
-             displayName="External links"
-             queryRef="GeneTables.gene_dbrefs">
-        <columnAttribute name="ext_id"/>
-      </table>
-
-      <table name="PdbSimilarities"
-             displayName="PDB chains"
-             queryRef="GeneTables.PdbSimilarities">
-        <columnAttribute name="pdb_chain"/>
-        <columnAttribute name="pdb_id"/>
-        <columnAttribute name="pdb_title"/>
-      </table>
-
-      <table name="Epitopes"
-             displayName="Epitopes from IEDB"
-             queryRef="GeneTables.Epitopes">
-        <columnAttribute name="iedb_id"/>
-      </table>
-
-      <table name="Orthologs"
-             displayName="Orthologs"
-             queryRef="GeneTables.Orthologs">
-        <columnAttribute name="ortho_product"/>
-        <columnAttribute name="ortho_name"/>
-      </table>
-
-      <table name="Products"
-             displayName="Product descriptions"
-             queryRef="GeneTables.Products">
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        <columnAttribute name="product"/>
-        <columnAttribute name="reference"/>
-      </table>
-
-      <table name="AlternateProducts"
-             displayName="Alternate product descriptions"
-             queryRef="GeneTables.AlternateProducts">
-        <columnAttribute name="product"/>
-        <columnAttribute name="reference"/>
-      </table>
-
-      <table name="RodMalPhenotype"
-             displayName="Rodent malaria phenotype"
-             queryRef="GeneTables.RodMalPhenotype">
-        <propertyList name="includeProjects">
-          <value>PlasmoDB</value>
-        </propertyList>
-        <columnAttribute name="rmgmid"/>
-        <columnAttribute name="pubmed_id"/>
-        <columnAttribute name="mod_type"/>
-        <columnAttribute name="life_cycle_stage"/>
-        <columnAttribute name="phenotype"/>
-        <columnAttribute name="mutation_description"/>
-      </table>
-
-      <table name="Phenotype"
-             displayName="Phenotype"
-             queryRef="GeneTables.Phenotype">
-        <propertyList name="includeProjects">
-          <value>FungiDB</value>
-          <value>TriTrypDB</value>
-        </propertyList>
-        <columnAttribute name="pubmed_id"/>
-        <columnAttribute name="modification_type"/>
-        <columnAttribute name="allele"/>
-        <columnAttribute name="entity"/>
-        <columnAttribute name="quality"/>
-        <columnAttribute name="timing"/>
-        <columnAttribute name="cycle_stage"/>
-        <columnAttribute name="phenotype_post_composition"/>
-        <columnAttribute name="phenotype_comment"/>
-        <columnAttribute name="chebi_annotation_extension"/>
-      </table>
-
-      <table name="CellularLocalization"
-             displayName="Cellular localization"
-             queryRef="GeneTables.CellularLocalization">
-        <propertyList name="includeProjects">
-          <value>GiardiaDB</value>
-          <value>TriTrypDB</value>
-        </propertyList>
-        <columnAttribute name="note"/>
-        <columnAttribute name="image_type"/>
-      </table>
-
-    </recordClass>
-
-    <!-- ################################################################### -->
-    <!-- #########################  Dataset Record  ######################## -->
-    <!-- ################################################################### -->
-
-    <recordClass name="dataset" urlName="dataset" displayName="Data set">
-      <propertyList name="batch">
-        <value>dataset-presenter</value>
+        <value>sequence</value>
       </propertyList>
 
       <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
-        <columnRef>dataset_id</columnRef>
+        <columnRef>full_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Data set">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[ $$display_name$$ ]]>
-        </text>
-      </idAttribute>
-
-      <reporter name="solrjson"
-                displayName="solr json: choose from columns and/or tables"
-                scopes=""
-                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
-
-      <attributeQueryRef ref="DatasetAttributes.All">
-        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
-        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
-        <columnAttribute name="display_name" displayName="Name">
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="description" displayName="Description"/>
-        <columnAttribute name="acknowledgement" displayName="Acknowledgement"/>
-        <columnAttribute name="summary" displayName="Summary">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="newcategory" displayName="Category"/>
-      </attributeQueryRef>
-
-      <table name="Contacts"
-             displayName="Principal Investigator and Collaborators"
-             queryRef="DatasetTables.Contacts">
-        <columnAttribute name="dataset_id"/>
-        <columnAttribute name="contact_name" displayName="Investigator"/>
-        <columnAttribute name="affiliation" displayName="Affiliation"/>
-      </table>
-
-      <table name="Publications"
-             displayName="Associated publications"
-             queryRef="DatasetTables.Publications">
-        <columnAttribute name="dataset_id"/>
-        <columnAttribute name="pmid" displayName="Pubmed ID"/>
-        <columnAttribute name="citation"/>
-      </table>
-
-      <table name="Organisms"
-             displayName="Organisms"
-             queryRef="DatasetTables.Organisms">
-        <columnAttribute name="dataset_id"/>
-        <columnAttribute name="organism"/>
-      </table>
-
-    </recordClass>
-
-    <!-- ################################################################### -->
-    <!-- #########################  Popset Record  ######################### -->
-    <!-- ################################################################### -->
-
-    <recordClass name="PopsetRecordClass" urlName="popsetSequence" displayName="Popset isolate sequence">
-      <propertyList name="batch">
-        <value>popset-isolate</value>
-      </propertyList>
-
-      <primaryKey aliasQueryRef="PopsetAttributes.PopsetAlias">
-        <columnRef>source_id</columnRef>
-      </primaryKey>
-
-      <idAttribute name="primary_key" displayName="Popset ID">
+      <idAttribute name="primary_key" displayName="Accession">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
         <text>
           <![CDATA[
-                   $$source_id$$
+                   $$full_id$$
           ]]>
         </text>
       </idAttribute>
+
+      <attributeQueryRef ref="SequenceAttributes.SequenceAttrs">  
+        <columnAttribute name="source_id" displayName="Source ID" />
+        <columnAttribute name="product" displayName="Product">
+        </columnAttribute>
+        <columnAttribute name="ec_numbers" displayName="EC Numbers"/>
+        <columnAttribute name="pfam_domains" displayName="PFam Domains"/>
+        <columnAttribute name="abbreviation" displayName="Taxon Code">
+        </columnAttribute>
+        <columnAttribute name="taxon_name" displayName="Taxon Name" />
+      </attributeQueryRef>
+
+      <attributeQueryRef ref="SequenceAttributes.SequenceGroup">
+        <columnAttribute name="group_name" displayName="Group ID" internal="false" inReportMaker="true" />
+      </attributeQueryRef>
 
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
                 scopes=""
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
-      <attributeQueryRef ref="PopsetAttributes.Attributes">
-        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
-        <columnAttribute name="organism" displayName="Organism" />
-        <columnAttribute name="description" displayName="Description">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="isolation_source" displayName="Isolation source"/>
-        <columnAttribute name="curated_isolation_source" displayName="Curated isolation source"/>
-        <columnAttribute name="note" displayName="Note"/>
-        <columnAttribute name="product" displayName="Product">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="geographic_location" displayName="Geographic location">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="curated_geographic_location" displayName="Curated geographic location"/>
-        <columnAttribute name="specific_host" displayName="Host"/>
-        <columnAttribute name="popset" displayName="Popset"/>
-        <columnAttribute name="strain" displayName="Strain"/>
+    </recordClass>
+
+    <!-- ################################################################### -->
+    <!-- ########################  Group Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="group" urlName="group" displayName="Group">
+      <propertyList name="batch">
+        <value>group</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>group_name</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Group">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[
+            $$group_name$$
+          ]]>
+        </text>
+      </idAttribute>
+
+<!--
+      <attributeQueryRef ref="GroupAttributes.EcNumbers">
+          <columnAttribute name="ec_numbers" displayName="EC Numbers" internal="false"  />
+      </attributeQueryRef>
+-->
+
+      <attributeQueryRef ref="GroupAttributes.Keywords">
+          <columnAttribute name="keywords" displayName="Keywords" internal="false"  />
       </attributeQueryRef>
 
-      <table name="References"  displayName="References" queryRef="PopsetTables.References">
-        <columnAttribute name="title"/>
-        <columnAttribute name="authors"/>
-        <columnAttribute name="journal"/>
+      <attributeQueryRef ref="GroupAttributes.Domains">
+          <columnAttribute name="descriptions" displayName="Domains" internal="false"  />
+      </attributeQueryRef>
+
+
+      <!-- =============================================================== -->
+      <!-- Tables -->
+      <!-- =============================================================== -->
+
+      <table name="TaxonCounts" internal="true" 
+             displayName="TaxonCounts"
+             queryRef="GroupTables.TaxonCounts">
+          <columnAttribute name="taxon_id" displayName="Taxon ID" />
+          <columnAttribute name="abbrev" displayName="Taxon Abbreviation" />
       </table>
 
-    <!--  THIS QUERY IS TOO SLOW  - 10 minutes in plasmo  - not worth it
-      <table name="GeneOverlap" 
-             displayName="Blast Similarity Alignments and Overlapping Genes" queryRef="PopsetTables.GeneOverlap">
-        <columnAttribute name="source_id"/>
-        <columnAttribute name="gene"/>
-        <columnAttribute name="organism"/>
-        <columnAttribute name="gene_product"/>
+
+      <table name="Sequences"
+             displayName="List of All Sequences"
+             queryRef="GroupTables.Proteins">
+	      <columnAttribute name="full_id" internal="true" />
+	      <columnAttribute name="taxon_name" displayName="Taxon" />
+	      <columnAttribute name="ec_numbers" displayName="EC Numbers" />
+	      <columnAttribute name="description" displayName="Description" />
+	      <columnAttribute name="taxon_abbrev" displayName="Taxon Abbreviation" internal="true" />
       </table>
--->
+      
+      <table name="PFams"
+             displayName="Pfam Domains"
+             queryRef="GroupTables.PFams">
+          <columnAttribute name="accession" displayName="Accession Number" />
+          <columnAttribute name="symbol" displayName="Symbol" />
+          <columnAttribute name="description" displayName="Description" />
+          <columnAttribute name="domain_index" internal="true" />
+      </table>
+
+      <table name="ProteinPFams"
+             displayName="Pfam Domain Architecture"
+             queryRef="GroupTables.ProteinPFams">
+          <columnAttribute name="accession" displayName="Accession Number" />
+          <columnAttribute name="symbol" displayName="Symbol" />
+          <columnAttribute name="full_id" displayName="Source Id" />
+          <columnAttribute name="domain_index" internal="true" />
+      </table>
+
+      <table name="EcNumber"
+             displayName="EC Number"
+             queryRef="GroupTables.EcNumber">
+        <columnAttribute name="ec_number" />
+        <columnAttribute displayName="EC Description"
+                         name="description"/>
+        <columnAttribute name="sequence_count" displayName="Sequences"/>
+      </table>
+
+      <table name="KeywordFrequency" internal="true"
+             queryRef="GroupTables.KeywordFrequency">
+        <columnAttribute name="keyword"/>
+      </table>
+
+
+      <table name="DomainFrequency" internal="true"
+             queryRef="GroupTables.DomainFrequency">
+        <columnAttribute name="keyword"/>
+      </table>
+
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
     </recordClass>
 
