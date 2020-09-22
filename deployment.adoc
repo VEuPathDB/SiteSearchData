@@ -1,0 +1,26 @@
+= Container Deployment
+
+== Configuration
+
+=== Files
+
+Due to a lack of tooling around configuring a containerized WDK based service,
+the configuration for this must be mounted it at runtime.  The expected config
+files are:
+
+[%header, cols=2]
+|===
+| Source File | Mount Path
+| `SiteSearchData/config/gus.config.tmpl`
+| `/tmp/base_gus/gus_home/config/gus.config`
+
+| (no complete base files)
+| `/tmp/base_gus/gus_home/config/SiteSearchData/model-config.xml`
+
+| (no complete base files)
+| `/tmp/base_gus/gus_home/config/SiteSearchData/model.prop`
+|===
+
+=== Environment
+
+`SOLR_URL`:: URL of the Solr instance that this service will interact with.
