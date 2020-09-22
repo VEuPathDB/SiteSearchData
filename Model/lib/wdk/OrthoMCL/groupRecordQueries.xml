@@ -11,8 +11,9 @@
         <column name="group_name"/>
         <sql>
           <![CDATA[
-            select distinct group_name
-            from apidbTuning.SequenceAttributes
+            select distinct name as group_name
+            from apidb.OrthologGroup
+            where core_peripheral_residual in ('P','R')
           ]]>
         </sql>
       </sqlQuery>
