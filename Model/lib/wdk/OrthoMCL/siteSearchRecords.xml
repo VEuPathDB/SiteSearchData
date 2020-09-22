@@ -1,0 +1,216 @@
+<!--
+    This is a special WDK model used to serve data to process that generates JSON files for Site Search.
+    
+    It follows very specific rules needed for successful production of that data.
+
+    ONLY EXPERTS should change this file.
+
+Each record class must:
+- have exactly one associated Question
+- have an urlName that exactly matches the urlName of the parallel record class in ApiCommonModel
+- include exactly one reporter, the SolrLoaderReporter
+- have a displayName using sentence case
+- have a <propertyList> with a "batch" property, indicating what type of batch that record class should be bundled with
+- should have only <attributeQueryRef>s and <table>s
+- might include an internal 'project' attribute if in solr we should segment these records by project
+
+Each <querySet> must set isCacheable="false".  No queries should set isCacheable.
+
+Each <attributeQueryRef> must:
+- always and only include name and displayName.
+- never have its name changed.  Doing so will invalidate strategies in the UserDB.  (They are used as parameter values)
+- the displayName should use sentence case
+- may use a few special attributes are labeled internal=true.  these serve special purposes in site search land, and are commented accordingly
+  - project: for recordclasses that stored in solr separately per project (eg pathways)
+  - organism: for recordclasses that can be filtered on organism
+  - hyperlinkName: non-searchable attribute to use as text in the hyperlink for this recordclass in search results
+- may include a <propertyList> for "isSummary" indicating that this field is used in the UI to briefly describe this record
+- may include a <propertyList> for "isSubtitle" indicating that this field is used in the UI to briefly describe this record, and displays as a subtitle
+- may include a <propertyList> for "includeProjects" indicating which projects to include this field in.  default is all, if absent
+- may include a <propertyList> for "boost" indicating a multiplier used to boost score of documents that match this field (default is 1)
+
+Each <table> must follow the same rules as attributeQueryRefs, plus:
+- the table's <columnAttribute>s should include only name.  (The user will never see their display name or help, etc)
+- property isSubtitle is not applicable, because tables can't sensibly be a subtitle
+- only include text-searchable columns (no numbers, eg)
+
+Each Question must:
+- have exactly zero or one parameters
+- not bother with help (it would never been seen), and its displayName is irrelevant
+
+ -->
+
+<wdkModel>
+
+  <questionSet name="Questions" displayName="dontcare">
+
+    <question name="Sequences" displayName="dontcare"
+              queryRef="SequenceId.AllSequences"
+              recordClassRef="recordClasses.sequence">
+    </question>
+
+    <question name="Groups" displayName="dontcare"
+              queryRef="GroupIdQueries.AllGroups"
+              recordClassRef="recordClasses.group">
+    </question>
+
+  </questionSet>
+
+  <recordClassSet name="recordClasses">
+
+    <!-- ################################################################### -->
+    <!-- ########################  Sequence Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="sequence" urlName="sequence" displayName="Genomic sequence">
+      <propertyList name="batch">
+        <value>sequence</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>full_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Accession">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[
+                   $$full_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <attributeQueryRef ref="SequenceAttributes.SequenceAttrs">  
+        <columnAttribute name="source_id" displayName="Source ID" />
+        <columnAttribute name="product" displayName="Product">
+        </columnAttribute>
+        <columnAttribute name="ec_numbers" displayName="EC Numbers"/>
+        <columnAttribute name="pfam_domains" displayName="PFam Domains"/>
+        <columnAttribute name="abbreviation" displayName="Taxon Code">
+        </columnAttribute>
+        <columnAttribute name="taxon_name" displayName="Taxon Name" />
+      </attributeQueryRef>
+
+      <attributeQueryRef ref="SequenceAttributes.SequenceGroup">
+        <columnAttribute name="group_name" displayName="Group ID" internal="false" inReportMaker="true" />
+      </attributeQueryRef>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+    </recordClass>
+
+    <!-- ################################################################### -->
+    <!-- ########################  Group Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="group" urlName="group" displayName="Group">
+      <propertyList name="batch">
+        <value>group</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>group_name</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Group">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[
+            $$group_name$$
+          ]]>
+        </text>
+      </idAttribute>
+
+<!--
+      <attributeQueryRef ref="GroupAttributes.EcNumbers">
+          <columnAttribute name="ec_numbers" displayName="EC Numbers" internal="false"  />
+      </attributeQueryRef>
+-->
+
+      <attributeQueryRef ref="GroupAttributes.Keywords">
+          <columnAttribute name="keywords" displayName="Keywords" internal="false"  />
+      </attributeQueryRef>
+
+      <attributeQueryRef ref="GroupAttributes.Domains">
+          <columnAttribute name="descriptions" displayName="Domains" internal="false"  />
+      </attributeQueryRef>
+
+
+      <!-- =============================================================== -->
+      <!-- Tables -->
+      <!-- =============================================================== -->
+
+      <table name="TaxonCounts" internal="true" 
+             displayName="TaxonCounts"
+             queryRef="GroupTables.TaxonCounts">
+          <columnAttribute name="taxon_id" displayName="Taxon ID" />
+          <columnAttribute name="abbrev" displayName="Taxon Abbreviation" />
+      </table>
+
+
+      <table name="Sequences"
+             displayName="List of All Sequences"
+             queryRef="GroupTables.Proteins">
+	      <columnAttribute name="full_id" internal="true" />
+	      <columnAttribute name="taxon_name" displayName="Taxon" />
+	      <columnAttribute name="ec_numbers" displayName="EC Numbers" />
+	      <columnAttribute name="description" displayName="Description" />
+	      <columnAttribute name="taxon_abbrev" displayName="Taxon Abbreviation" internal="true" />
+      </table>
+      
+      <table name="PFams"
+             displayName="Pfam Domains"
+             queryRef="GroupTables.PFams">
+          <columnAttribute name="accession" displayName="Accession Number" />
+          <columnAttribute name="symbol" displayName="Symbol" />
+          <columnAttribute name="description" displayName="Description" />
+          <columnAttribute name="domain_index" internal="true" />
+      </table>
+
+      <table name="ProteinPFams"
+             displayName="Pfam Domain Architecture"
+             queryRef="GroupTables.ProteinPFams">
+          <columnAttribute name="accession" displayName="Accession Number" />
+          <columnAttribute name="symbol" displayName="Symbol" />
+          <columnAttribute name="full_id" displayName="Source Id" />
+          <columnAttribute name="domain_index" internal="true" />
+      </table>
+
+      <table name="EcNumber"
+             displayName="EC Number"
+             queryRef="GroupTables.EcNumber">
+        <columnAttribute name="ec_number" />
+        <columnAttribute displayName="EC Description"
+                         name="description"/>
+        <columnAttribute name="sequence_count" displayName="Sequences"/>
+      </table>
+
+      <table name="KeywordFrequency" internal="true"
+             queryRef="GroupTables.KeywordFrequency">
+        <columnAttribute name="keyword"/>
+      </table>
+
+
+      <table name="DomainFrequency" internal="true"
+             queryRef="GroupTables.DomainFrequency">
+        <columnAttribute name="keyword"/>
+      </table>
+
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+    </recordClass>
+
+  </recordClassSet>
+
+</wdkModel>

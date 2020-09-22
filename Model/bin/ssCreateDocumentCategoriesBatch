@@ -15,7 +15,6 @@ TARGETDIRPREFIX = 'solr-json-batch_'
 BATCHTYPE = 'document-categories'
 BATCHNAME = 'all'
 DOCTYPE = 'document-categories'
-INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/documentTypeCategories.json"
 
 def parseAndValidateArgs():
     help = """Read the \$GUS_HOME/data/SiteSearchData/documentTypeCategories.json file and incorporate it into a small batch ready to be loaded by the solr batch loader. 
@@ -29,14 +28,17 @@ Output files are placed in a new directory of name 'PARENTDIR/BATCH_ID'.
 
 """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
+    parser.add_argument("cohort", help="The name of the model to use, eg ApiCommon or OrthoMCL")
     parser.add_argument("parentDir", help="Directory in which to put the directory of output files")
     args = parser.parse_args()
-    return args.parentDir
+    return args.cohort, args.parentDir
     
 
 ###########################################################################################################
 
-parentDir = parseAndValidateArgs()
+cohort, parentDir = parseAndValidateArgs()
+
+INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/" + cohort +"/documentTypeCategories.json"
 
 utils.failIfPreviousBatchDir(parentDir, BATCHTYPE, BATCHNAME)
 

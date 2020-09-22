@@ -16,7 +16,6 @@ TARGETDIRPREFIX = 'solr-json-batch_'
 BATCHTYPE = 'document-fields'
 BATCHNAME = 'all'
 DOCTYPE = 'document-fields'
-INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/nonWdkDocumentFields.json"
 TEXT_PREFIX = "TEXT__"
 MULTITEXT_PREFIX = "MULTITEXT__"
 
@@ -43,12 +42,13 @@ Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'.
 """
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
     parser.add_argument("wdkServiceUrl", help="Base url of SiteSearchData WDK service")
+    parser.add_argument("cohort", help="The name of the model to use, eg ApiCommon or OrthoMCL")
     parser.add_argument("parentDir", help="Directory in which to put the directory of output files")
 
     args = parser.parse_args()
     utils.validateWebServiceUrl(args.wdkServiceUrl)
     utils.validateParentDir(args.parentDir)
-    return args.wdkServiceUrl, args.parentDir
+    return args.wdkServiceUrl, args.cohort, args.parentDir
 
 # see if a wdk field (attr or table) is a summary field for site search
 def getFieldIsSummary(field):
@@ -124,7 +124,9 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
 
 ###########################################################################################################
 
-wdkServiceUrl, parentDir = parseAndValidateArgs()
+wdkServiceUrl, cohort, parentDir = parseAndValidateArgs()
+
+INPUT_FILE = os.environ['GUS_HOME'] + "/data/SiteSearchData/Model/" + cohort + "/nonWdkDocumentFields.json"
 
 utils.failIfPreviousBatchDir(parentDir, BATCHTYPE, BATCHNAME)
 
