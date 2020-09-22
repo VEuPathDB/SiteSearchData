@@ -1,19 +1,19 @@
 #!/bin/sh
 
-# setup config file from env vars
+# Populate config templates
+# this should be a loop, or something more sane, but we're dealing with sh here.
 
-# NOTE: this is POC, and is sub-optimal for a variety of ways.  It is just here
-# to show that another step is needed to generate the file from env vars.  This
-# could be done in many different ways, and ideally the template (and
-# templating) should be stored with the application code, not in an entrypoint
-# script
+if [ ! -f ${GUS_HOME}/config/SiteSearchData/model-config.xml ];
+then
+    envsubst < ${GUS_HOME}/config/SiteSearchData/model-config.xml.tmpl > ${GUS_HOME}/config/SiteSearchData/model-config.xml 
+fi
 
-# left as a horrible reminder that actual config needs to take place
-cat > /tmp/site-search-config.json <<EOF
-{
-  "solrUrl": "${SOLR_URL}"
-}
-EOF
+if [ ! -f ${GUS_HOME}/config/SiteSearchData/model.prop ];
+then
+    envsubst < ${GUS_HOME}/config/SiteSearchData/model.prop.tmpl > ${GUS_HOME}/config/SiteSearchData/model.prop
+fi
+
+#envsubst < /tmp/site-search-config.tpl.json > /tmp/site-search-config.json
 
 # run CMD, or whatever is specified by run
 exec "$@"

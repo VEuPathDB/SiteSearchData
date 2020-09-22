@@ -1,85 +1,53 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0"?>
 
 <modelConfig modelName="siteSearchModel"
              webServiceUrl="local"
              smtpServer="127.0.0.1"
-             supportEmail="help@eupathdb.org"
-             adminEmail=""
-             secretKeyFile="/Users/rdoherty/work/etc/secret_key"
-             monitorBlockedThreads="true"
-             blockedThreshold="20"
-             authenticationMethod="user_db"
-             oauthUrl="http://localhost:8081/oauth"
-             oauthClientId="apiComponentSite"
-             oauthClientSecret="12345"
-             changePasswordUrl="https://eupathdb.org/oauth/assets/eupathdb-changePassword.html?returnUrl={{returnUrl}}&amp;suggestedUsername={{suggestedUsername}}"
-             keyStoreFile=""
-             keyStorePassPhrase=""
-             wdkTempDir="/var/tmp/wdk"
+             supportEmail=""
+             wdkTempDir="/tmp/wdk"
              >
-             
-    <queryMonitor
-             baseline="0.1"
-             slow="5"
-             />
 
-    <!-- change @XXXX-inc to, eg, @plas-inc -->
-    <appDb  login=""
-            password=""
-            connectionUrl="jdbc:oracle:oci:@XXXX-inc" 
-            platform="Oracle"
-            maxActive="20"
-            maxIdle="1"
-            minIdle="1"
-            maxWait="50"
-            showConnections="false"
-            showConnectionsInterval="10"
-            showConnectionsDuration="600"
-            userDbLink="@prodn.LOGIN_COMMENT"
-            acctDbLink="@acctdbn.profile"
-            maxPkColumnWidth="150"/>
+    <appDb login="$APPDB_LOGIN"
+           password="$APPDB_PASSWORD"
+           connectionUrl="jdbc:oracle:oci:@$APPDB"
+           platform="Oracle"
+           userDbLink="devn.login_comment"
+           acctDbLink="acctdbN.profile"
+           />
 
-    <userDb login=""
-            password=""
-            connectionUrl="jdbc:oracle:oci:@apicommn"
+    <userDb login="$USERDB_LOGIN"
+            password="$USERDB_PASSWORD"
+            connectionUrl="jdbc:oracle:oci:@$USERDB"
             platform="Oracle"
-            maxActive="20"
-            maxIdle="1"
-            minIdle="1"
-            maxWait="50"
-            showConnections="false"
-            showConnectionsInterval="10"
-            showConnectionsDuration="600"
-            userSchema="userlogins5."/>
+            userSchema="userlogins5"
+            />
 
-    <accountDb login=""
-            password=""
-            connectionUrl="jdbc:oracle:oci:@acctDbN"
+    <accountDb login="$ACCTDB_LOGIN"
+            password="$ACCTDB_PASSWORD"
+            connectionUrl="jdbc:oracle:oci:@$ACCTDB"
             platform="Oracle"
-            maxActive="20"
-            maxIdle="1"
-            minIdle="1"
-            maxWait="50"
-            showConnections="false"
-            showConnectionsInterval="10"
-            showConnectionsDuration="600"
-            accountSchema="useraccounts.">
+            accountSchema="useraccounts"
+                  >
       <userProperty name="firstName" displayName="First Name" dbKey="first_name" required="true"/>
       <userProperty name="middleName" displayName="Middle Name" dbKey="middle_name"/>
       <userProperty name="lastName" displayName="Last Name" dbKey="last_name" required="true"/>
       <userProperty name="organization" displayName="Organization" dbKey="organization" required="true"/>
+
     </accountDb>
 
     <emailSubject>
-         <![CDATA[
-            Your EuPathDB Password
-         ]]>
+      <![CDATA[
+          Your Strategies WDK Template Site Password
+      ]]>
     </emailSubject>
     <emailContent>
-        <![CDATA[
-        <p>Thank you for registering at eupathdb.org, a member site of the EuPathDB Bioinformatics Resource Center.</p>
-        <p>Your temporary password is: $$PASSWORD$$</p>
-        <p>You may now login to <a href="http://eupathdb.org">EuPathDB</a> or any other EuPathDB member site.</p>
-        ]]>
+      <![CDATA[
+          <p>Thank you for registering at Strategies WDK Template Site.</p>
+          <p>Your temporary password is: $$PASSWORD$$</p>
+          <p>You may now login to <a href="http://<serverName>/<webappName>">Strategies WDK Template</a>.</p>
+          <p>Thanks,</p>
+          <p>WDK Development Team</p>
+      ]]>
     </emailContent>
+
 </modelConfig>
