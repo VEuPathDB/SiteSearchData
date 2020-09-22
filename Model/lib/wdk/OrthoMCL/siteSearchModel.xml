@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE xml [
+  <!ENTITY nbsp "&#160;">
+  <!ENTITY lt   "&#60;">
+  <!ENTITY gt   "&#62;">
+  ]>
+
+<wdkModel>
+
+  <modelName displayName="SiteSearch"
+             version="%%buildNumber%%"
+             releaseDate="%%releaseDate%%"
+             buildNumber="%%buildNumber%%"/>
+
+  <import file="OrthoMCL/siteSearchRecords.xml"/>
+
+  <import file="OrthoMCL/sequenceRecordQueries.xml"/>
+
+  <import file="OrthoMCL/groupRecordQueries.xml"/>
+
+</wdkModel>

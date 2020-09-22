@@ -1,0 +1,100 @@
+[
+  { "name": "Genome",
+    "documentTypes": [
+      { "id": "gene",
+        "displayName": "Gene",
+        "displayNamePlural": "Genes",
+        "wdkSearchUrlName": "GenesByText",
+        "hasOrganismField": true,
+        "boost": 3
+      },
+      { "id": "genomic-sequence",
+        "displayName": "Genomic sequence",
+        "displayNamePlural": "Genomic sequences",
+        "wdkSearchUrlName": "GenomicSeqByText",
+        "hasOrganismField": true
+      }
+    ]
+  },
+  { "name": "Organism",
+    "documentTypes": [
+      { "id": "organism",
+        "displayName": "Organism",
+        "displayNamePlural": "Organisms",
+        "wdkSearchUrlName": "OrganismsByText",
+        "hasOrganismField": true
+      }
+    ]
+  },
+  { "name": "Transcriptomics",
+    "documentTypes": [
+      { "id": "est",
+        "displayName": "EST",
+        "displayNamePlural": "ESTs",
+        "wdkSearchUrlName": "EstsByText",
+        "hasOrganismField": false
+      }
+    ]
+  },
+  { "name": "Metabolism",
+    "documentTypes": [
+      { "id": "pathway",
+        "displayName": "Metabolic pathway",
+        "displayNamePlural": "Metabolic pathways",
+        "wdkSearchUrlName": "PathwaysByText",
+        "hasOrganismField": false
+      },
+      { "id": "compound",
+        "displayName": "Compound",
+        "displayNamePlural": "Compounds",
+        "wdkSearchUrlName": "CompoundsByText",
+        "hasOrganismField": false
+      }
+    ]
+  },
+  { "name": "Data access",
+    "documentTypes": [
+      { "id": "dataset",
+        "displayName": "Data set",
+        "displayNamePlural": "Data sets",
+        "wdkSearchUrlName": "DatasetsByText",
+        "hasOrganismField": false
+      },
+      { "id": "search",
+        "displayName": "Search",
+        "displayNamePlural": "Searches",
+        "hasOrganismField": false
+      }
+    ]
+  },
+  { "name": "Instructional",
+    "documentTypes": [
+      { "id": "tutorial",
+        "displayName": "Tutorial",
+        "displayNamePlural": "Tutorials",
+        "hasOrganismField": false
+      },
+      { "id": "workshop-exercise",
+        "displayName": "Workshop exercise",
+        "displayNamePlural": "Workshop exercises",
+        "hasOrganismField": false
+      }
+    ]
+  },
+  { "name": "About",
+    "documentTypes": [
+      { "id": "news",
+        "displayName": "News",
+        "displayNamePlural": "News",
+        "hasOrganismField": false
+      },
+      { "id": "general",
+        "displayName": "General info pages",
+        "displayNamePlural": "General info pages",
+        "hasOrganismField": false
+      }
+    ]
+  }
+
+]
+

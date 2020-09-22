@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE xml [
+  <!ENTITY nbsp "&#160;">
+  <!ENTITY lt   "&#60;">
+  <!ENTITY gt   "&#62;">
+  ]>
+
+<wdkModel>
+
+  <modelName displayName="SiteSearch"
+             version="%%buildNumber%%"
+             releaseDate="%%releaseDate%%"
+             buildNumber="%%buildNumber%%"/>
+
+  <import file="ApiCommon/siteSearchRecords.xml"/>
+
+  <import file="ApiCommon/geneQueries.xml"/>
+
+  <import file="ApiCommon/estQueries.xml"/>
+
+  <import file="ApiCommon/pathwayQueries.xml"/>
+
+  <import file="ApiCommon/compoundQueries.xml"/>
+
+  <import file="ApiCommon/datasetQueries.xml"/>
+
+  <import file="ApiCommon/organismQueries.xml"/>
+
+  <import file="ApiCommon/sequenceQueries.xml"/>
+
+  <import file="ApiCommon/popsetQueries.xml"/>
+
+</wdkModel>

@@ -111,7 +111,9 @@ sub getPropsFromFile {
 sub usage {
 
   die
-"Dump batches to be loaded into solr from data produced by the workflow.
+"Dump ApiCommon batches to be loaded into solr from data produced by the workflow.  
+
+This is a legacy script, replaced by the full data production system for site search.
 
 usage:  dumpWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
 
