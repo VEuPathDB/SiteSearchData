@@ -26,34 +26,12 @@ my $modelProps = getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.pr
 
 my $dbh = getDbh($gusProps);
 
-runWdkReport("pathway", $modelProps->{PROJECT_ID});
-runWdkReport("popset-isolate", $modelProps->{PROJECT_ID});
-runWdkReport("compound", $modelProps->{PROJECT_ID});
-runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
+runWdkReport("group", "OrthoMCL");
+runWdkReport("sequence", "OrthoMCL");
+#runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
 
-my $organismCount = 0;
-foreach my $organismAbbrev (getOrganisms($dbh)) {
-  if ($numberOfOrganisms && $organismCount == $numberOfOrganisms) {
-    print STDOUT "Reached $numberOfOrganisms organisms.  Quitting\n";
-    last;
-  }
-  $organismCount += runWdkReport("organism", $organismAbbrev, $organismAbbrev);
-}
 print STDOUT "Done.\n";
 exit 0;
-
-sub getOrganisms {
-  my ($dbh) = @_;
-
-  my $sth = $dbh->prepare($ORG_ABBREV_SQL) || die "Couldn't prepare the SQL statement: " . $dbh->errstr;
-  $sth->execute ||  die "Failed to  execute statement: " . $sth->errstr;
-
-  my @orgs;
-  while (my @row = $sth->fetchrow_array()) {
-    push(@orgs, $row[0]);
-  }
-  return @orgs;
-}
 
 sub checkPrevBatchDir {
   my ($prevBatchDir, $batchType, $batchName) = @_;
@@ -111,9 +89,9 @@ sub getPropsFromFile {
 sub usage {
 
   die
-"Dump ApiCommon batches to be loaded into solr from data produced by the workflow.  
+"Dump OrthoMCL batches to be loaded into solr from data produced by the workflow.  
 
-usage:  dumpApiCommonWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
+usage:  dumpOrthomclWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
 
 Dump wdk records as Solr compatible Json
 
