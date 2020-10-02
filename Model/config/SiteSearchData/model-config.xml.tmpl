@@ -9,7 +9,7 @@
 
     <appDb login="$APPDB_LOGIN"
            password="$APPDB_PASSWORD"
-           connectionUrl="jdbc:oracle:oci:@$APPDB"
+           connectionUrl="$APPDB_CONNECTION"
            platform="Oracle"
            userDbLink="devn.login_comment"
            acctDbLink="acctdbN.profile"
@@ -17,14 +17,14 @@
 
     <userDb login="$USERDB_LOGIN"
             password="$USERDB_PASSWORD"
-            connectionUrl="jdbc:oracle:oci:@$USERDB"
+            connectionUrl="$USERDB_CONNECTION"
             platform="Oracle"
             userSchema="userlogins5"
             />
 
     <accountDb login="$ACCTDB_LOGIN"
             password="$ACCTDB_PASSWORD"
-            connectionUrl="jdbc:oracle:oci:@$ACCTDB"
+            connectionUrl="$ACCTDB_CONNECTION"
             platform="Oracle"
             accountSchema="useraccounts"
                   >
