@@ -25,7 +25,7 @@ done
 # make output dir and run commands to produce output
 
 mkdir $DESTINATION_DIRECTORY &&\
-ssCreateWdkRecordsBatch dataset-presenter all http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY &&\
+ssCreateWdkRecordsBatch dataset-presenter $PROJECT_NAME http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY &&\
 ssCreateWdkMetaBatch $SITE_BASE_URL/service/ $PROJECT_NAME $DESTINATION_DIRECTORY
 
 echo "produced files:"
