@@ -77,10 +77,10 @@ RUN apk add -u --no-cache \
  && pip3 install requests \
  && mkdir -p ${GUS_HOME}/lib/java/db_driver \
  && cp /jdbc/* ${GUS_HOME}/lib/java/db_driver \
- && wget https://download.java.net/java/early_access/alpine/10/binaries/openjdk-15-ea+10_linux-x64-musl_bin.tar.gz \
- && tar -xzf openjdk-15-ea+10_linux-x64-musl_bin.tar.gz \
- && rm openjdk-15-ea+10_linux-x64-musl_bin.tar.gz \
- && mv jdk-15 ${JAVA_HOME}
+ && wget https://download.java.net/java/early_access/alpine/14/binaries/openjdk-16-ea+14_linux-x64-musl_bin.tar.gz \
+ && tar -xzf openjdk-16-ea+14_linux-x64-musl_bin.tar.gz \
+ && rm openjdk-16-ea+14_linux-x64-musl_bin.tar.gz \
+ && mv jdk-16 ${JAVA_HOME}
 
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
 COPY [ \
