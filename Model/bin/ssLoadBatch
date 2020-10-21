@@ -202,7 +202,7 @@ def index(solr_url, batch_dir=None, replace=False, validate_only=False):
                     # If we're updating, do it
                     if replace:
                         query_text = f'batch-type:{batch_type} AND batch-name:{batch_name}'
-                        batch_text = f"'{batch_name} {batch_name}'"
+                        batch_text = f"'{batch_type} {batch_name}'"
                         delete_batch(query_text, solr_url, batch_text)
                         index_batch(batch_dir, solr_url)
                     # If we're not, throw an error
