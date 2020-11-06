@@ -41,7 +41,7 @@ my $userAgent = LWP::UserAgent->new;
 my $docCountMap = getSiteSearchDocumentTypeCounts($userAgent);
 
 foreach my $recordTypeName (keys %$recordTypes) {
-  $wdkCount = wdkRecordCount($userAgent, $siteUrl, $recordTypes->{$recordTypeName}, $recordTypeName);
+  my $wdkCount = wdkRecordCount($userAgent, $siteUrl, $recordTypes->{$recordTypeName}, $recordTypeName);
   die "TEST FAILURE: counts differ for record type: " . $recordTypeName . "\n" unless $docCountMap->{$recordTypeName} == $wdkCount;
 }
 
@@ -68,7 +68,8 @@ sub getSiteSearchDocumentTypeCounts {
   my $ssResults = from_json($res->content);
 
   my $map;
-  foreach my $docType (@($ssResults->{documentTypes})) {
+  my $resultDocTypes = $ssResults->{documentTypes};
+  foreach my $docType (@$resultDocTypes) {
     $map->{$docType->{'id'}} = $docType->{'count'};
   }
 
@@ -82,7 +83,7 @@ sub getWdkRecordCount {
 
   my $jsonString = qq({"pagination": { "offset": 0, "numRecords": 0 },"attributes":["primary_key"],"tables":[]});
 
-  my $searchUrl = "$siteUrl/service/record-types/$recordType/searches/$searchName/reports/standard";
+  my $wdkSearchUrl = "$siteUrl/service/record-types/$recordType/searches/$searchName/reports/standard";
 
   my $req = HTTP::Request->new(POST => $wdkSearchUrl);
   $req->header( 'Content-Type' => 'application/json' );
@@ -90,7 +91,7 @@ sub getWdkRecordCount {
   my $res = $userAgent->request($req);
 
   if (!$res->is_success) {
-    die "ERROR running wdk search: ", $questionName, " ", $res->status_line, "\n";
+    die "ERROR running wdk search: ", $searchName, " ", $res->status_line, "\n";
   }
 
   my $wdkResult = from_json($res->content);
@@ -103,9 +104,9 @@ sub usage {
   die "
 Test the wdk records installed in a website's site search by comparing against the WDK records found by querying the WDK
 
-Usage: testApiCommonWdkRecords website_url project
+Usage: testSiteSearchWdkRecordCounts website_url project
 
-Example: testApiCommonWdkRecords https://qa.plasmodb.org PlasmoDB
+Example: testSiteSearchWdkRecordCounts https://qa.plasmodb.org PlasmoDB
 
 Uses a hard-coded list of record types expected in Solr.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
 
