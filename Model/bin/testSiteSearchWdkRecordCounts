@@ -3,14 +3,15 @@ use strict;
 
 use JSON;
 use LWP::UserAgent;
+use LWP::Simple;
+use Data::Dumper;
 
-my ($siteUrl, $project) = @ARGV;
+my ($siteUrl, $project, $webappName) = @ARGV;
 
-&usage unless $siteUrl && $project;
+&usage unless $siteUrl && $project && $webappName;
 
-# map from site search document type ID to a wdk search that gets all records
 my $apiCommonRecordTypes =
-  {'gene' => 'AllGenes',
+  {'gene' => 'GenesByAllGenes',
    'est' => 'AllEsts',
    'popsetSequence' => 'AllPopsetSeqs',
    'organism' => '',
@@ -20,6 +21,9 @@ my $apiCommonRecordTypes =
    'pathway' => '',
    'dataset' => '',
    };
+
+$apiCommonRecordTypes =
+  {'gene' => 'GenesByAllGenes'};
 
 my $portalRecordTypes =
   {'Gene' => 'GenesByAllGenes',
@@ -38,11 +42,15 @@ $recordTypes = $orthoRecordTypes if $project eq 'OrthoMCL';
 
 my $userAgent = LWP::UserAgent->new;
 
-my $docCountMap = getSiteSearchDocumentTypeCounts($userAgent);
+my $docCountMap = getSiteSearchDocumentTypeCounts($userAgent, $siteUrl);
+
+print Dumper $docCountMap;
 
 foreach my $recordTypeName (keys %$recordTypes) {
-  my $wdkCount = wdkRecordCount($userAgent, $siteUrl, $recordTypes->{$recordTypeName}, $recordTypeName);
-  die "TEST FAILURE: counts differ for record type: " . $recordTypeName . "\n" unless $docCountMap->{$recordTypeName} == $wdkCount;
+  my $wdkCount = getWdkRecordCount($userAgent, $siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
+  my $ssCount = $docCountMap->{$recordTypeName};
+
+  die "TEST FAILURE: counts differ for record type: " . $recordTypeName . " (SS: $ssCount, WDK: $wdkCount)\n" unless $ssCount  == $wdkCount;
 }
 
 #############################################################################################
@@ -62,7 +70,7 @@ sub getSiteSearchDocumentTypeCounts {
   my $res = $userAgent->request($req);
 
   if (!$res->is_success) {
-    die "ERROR reading solr: ", $res->status_line, "\n";
+    die "ERROR reading solr '$ssUrl': ", $res->status_line, "\n";
   }
 
   my $ssResults = from_json($res->content);
@@ -77,24 +85,23 @@ sub getSiteSearchDocumentTypeCounts {
 }
 
 sub getWdkRecordCount {
-  my ($userAgent, $siteUrl, $searchName, $recordType) = @_;
+  my ($userAgent, $siteUrl, $webappName, $searchName, $recordType) = @_;
 
   $recordType = 'transcript' if $recordType eq 'gene';
 
   my $jsonString = qq({"pagination": { "offset": 0, "numRecords": 0 },"attributes":["primary_key"],"tables":[]});
 
-  my $wdkSearchUrl = "$siteUrl/service/record-types/$recordType/searches/$searchName/reports/standard";
+  my $wdkSearchUrl = "$siteUrl/$webappName/service/record-types/$recordType/searches/$searchName/reports/standard?reportConfig=$jsonString";
 
-  my $req = HTTP::Request->new(POST => $wdkSearchUrl);
-  $req->header( 'Content-Type' => 'application/json' );
-  $req->content($jsonString);
-  my $res = $userAgent->request($req);
+  my $contents = get($wdkSearchUrl);
 
-  if (!$res->is_success) {
-    die "ERROR running wdk search: ", $searchName, " ", $res->status_line, "\n";
+print "\n$wdkSearchUrl\n";
+
+  if (! defined $contents) {
+    die "ERROR running wdk search with url ", $wdkSearchUrl, " ", "\n";
   }
 
-  my $wdkResult = from_json($res->content);
+  my $wdkResult = from_json($contents);
 
   return $wdkResult->{meta}->{displayTotalCount};
 
@@ -104,9 +111,9 @@ sub usage {
   die "
 Test the wdk records installed in a website's site search by comparing against the WDK records found by querying the WDK
 
-Usage: testSiteSearchWdkRecordCounts website_url project
+Usage: testSiteSearchWdkRecordCounts website_url project webapp_name
 
-Example: testSiteSearchWdkRecordCounts https://qa.plasmodb.org PlasmoDB
+Example: testSiteSearchWdkRecordCounts https://qa.plasmodb.org PlasmoDB plasmo.bld49
 
 Uses a hard-coded list of record types expected in Solr.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
 
