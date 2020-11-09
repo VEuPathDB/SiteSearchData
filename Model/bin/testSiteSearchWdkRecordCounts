@@ -22,12 +22,9 @@ my $apiCommonRecordTypes =
    'dataset' => 'AllDatasets',
    };
 
-$apiCommonRecordTypes =
-  {'gene' => 'GenesByAllGenes'};
-
 my $portalRecordTypes =
-  {'Gene' => 'GenesByAllGenes',
-   'EST' => 'ESTsByAllGenes',
+  {'Gene' => 'AllGenes',
+   'EST' => 'AllEsts',
    };
 
 my $orthoRecordTypes =
@@ -44,12 +41,24 @@ my $organisms = getOrganisms($siteUrl, $webappName);
 
 my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $organisms);
 
+my $results;
+push(@$results, "Record Type\tWDK Count\tSite Search Count");
+
+my $foundError;
+
 foreach my $recordTypeName (keys %$recordTypes) {
   my $wdkCount = getWdkRecordCount($siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
   my $ssCount = $docCountMap->{$recordTypeName};
+  push(@$results, "$recordTypeName\t$wdkCount\t$ssCount");
+  $foundError |= $ssCount  != $wdkCount;
 
-  die "TEST FAILURE: counts differ for record type '" . $recordTypeName . "' (SS: $ssCount, WDK: $wdkCount)\n" unless $ssCount  == $wdkCount;
 }
+
+if ($foundError) {
+  die "
+TEST FAILURE: counts differ for at least one record type\n" . join("\n", @$results) . "\n";
+}
+
 
 #############################################################################################
 #############################################################################################
