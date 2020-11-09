@@ -40,14 +40,12 @@ my $recordTypes = $apiCommonRecordTypes;
 $recordTypes = $portalRecordTypes if $project eq 'VEuPathDB';
 $recordTypes = $orthoRecordTypes if $project eq 'OrthoMCL';
 
-my $userAgent = LWP::UserAgent->new;
+my $organisms = getOrganisms($siteUrl, $webappName);
 
-my $docCountMap = getSiteSearchDocumentTypeCounts($userAgent, $siteUrl);
-
-print Dumper $docCountMap;
+my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $organisms);
 
 foreach my $recordTypeName (keys %$recordTypes) {
-  my $wdkCount = getWdkRecordCount($userAgent, $siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
+  my $wdkCount = getWdkRecordCount($siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
   my $ssCount = $docCountMap->{$recordTypeName};
 
   die "TEST FAILURE: counts differ for record type: " . $recordTypeName . " (SS: $ssCount, WDK: $wdkCount)\n" unless $ssCount  == $wdkCount;
@@ -59,10 +57,13 @@ foreach my $recordTypeName (keys %$recordTypes) {
 # run a site search for '*', asking for 0 rows back.  This gives us the metadata about the result.
 # Return a map of document type to count
 sub getSiteSearchDocumentTypeCounts {
-  my ($userAgent, $siteUrl) = @_;
+  my ($siteUrl, $organisms) = @_;
 
+  my $organismsJson = to_json($organisms);
+
+  my $userAgent = LWP::UserAgent->new;
   my $ssUrl = "$siteUrl/site-search";
-  my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject\": "$project"});
+  my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project"}, "restrictMetadataToOrganisms": $organsismsJson});
 
   my $req = HTTP::Request->new(POST => $ssUrl);
   $req->header( 'Content-Type' => 'application/json' );
@@ -85,7 +86,7 @@ sub getSiteSearchDocumentTypeCounts {
 }
 
 sub getWdkRecordCount {
-  my ($userAgent, $siteUrl, $webappName, $searchName, $recordType) = @_;
+  my ($siteUrl, $webappName, $searchName, $recordType) = @_;
 
   $recordType = 'transcript' if $recordType eq 'gene';
 
@@ -104,7 +105,42 @@ print "\n$wdkSearchUrl\n";
   my $wdkResult = from_json($contents);
 
   return $wdkResult->{meta}->{displayTotalCount};
+}
 
+sub getOrganisms {
+  my ($siteUrl, $webappName) = @_;
+
+  $recordType = 'transcript' if $recordType eq 'gene';
+
+  # https://sfischer.plasmodb.org/plasmo.sfischer/service/record-types/organism/searches/GenomeDataTypes/reports/standard?reportConfig={%22pagination%22:%20{%20%22offset%22:%200,%20%22numRecords%22:%201000%20},%22attributes%22:[%22primary_key%22],%22tables%22:[]}
+
+  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": -1 },"attributes":["primary_key"],"tables":[]});
+
+  my $wdkOrganismsUrl = "$siteUrl/$webappName/service/record-types/organism/searches/$searchName/GenomeDataTypes/reports/standard?reportConfig=$jsonString";
+
+  my $contents = get($wdkOrganismUrl);
+
+print "\n$wdkSearchUrl\n";
+
+  if (! defined $contents) {
+    die "ERROR getting wdk organisms with url ", $wdkOrganismsUrl, " ", "\n";
+  }
+
+  my $wdkResult = from_json($contents);
+
+  my $organisms = $wdkResult->{records};
+
+  my $organismNames;
+  foreach my $organism (@$organisms) {
+    my $organismName = $organism->{primary_key};
+
+    # remove html italics
+    $organismName =~ s/\<i\>//;
+    $organismName =~ s/\<\\i\>//;
+    push(@$organismNames, $organismName);
+  }
+
+  return $organismNames;
 }
 
 sub usage {
