@@ -11,15 +11,15 @@ my ($siteUrl, $project, $webappName) = @ARGV;
 &usage unless $siteUrl && $project && $webappName;
 
 my $apiCommonRecordTypes =
-  {'gene' => 'GenesByAllGenes',
+  {'gene' => 'AllGenes',
    'est' => 'AllEsts',
    'popsetSequence' => 'AllPopsetSeqs',
-   'organism' => '',
-   'genomic-sequence' => '',
-   'compound' => '',
-   'popbio-sample' => '',
-   'pathway' => '',
-   'dataset' => '',
+   'organism' => 'AllOrganisms',
+   'genomic-sequence' => 'AllGenomicSeqs',
+   'compound' => 'AllCompounds',
+ #  'popbio-sample' => '',
+   'pathway' => 'AllPathways',
+   'dataset' => 'AllDatasets',
    };
 
 $apiCommonRecordTypes =
