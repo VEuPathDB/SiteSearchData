@@ -48,7 +48,7 @@ foreach my $recordTypeName (keys %$recordTypes) {
   my $wdkCount = getWdkRecordCount($siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
   my $ssCount = $docCountMap->{$recordTypeName};
 
-  die "TEST FAILURE: counts differ for record type: " . $recordTypeName . " (SS: $ssCount, WDK: $wdkCount)\n" unless $ssCount  == $wdkCount;
+  die "TEST FAILURE: counts differ for record type '" . $recordTypeName . "' (SS: $ssCount, WDK: $wdkCount)\n" unless $ssCount  == $wdkCount;
 }
 
 #############################################################################################
@@ -63,7 +63,7 @@ sub getSiteSearchDocumentTypeCounts {
 
   my $userAgent = LWP::UserAgent->new;
   my $ssUrl = "$siteUrl/site-search";
-  my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project"}, "restrictMetadataToOrganisms": $organsismsJson});
+  my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project", "restrictSearchToOrganisms": $organismsJson});
 
   my $req = HTTP::Request->new(POST => $ssUrl);
   $req->header( 'Content-Type' => 'application/json' );
@@ -96,8 +96,6 @@ sub getWdkRecordCount {
 
   my $contents = get($wdkSearchUrl);
 
-print "\n$wdkSearchUrl\n";
-
   if (! defined $contents) {
     die "ERROR running wdk search with url ", $wdkSearchUrl, " ", "\n";
   }
@@ -110,17 +108,12 @@ print "\n$wdkSearchUrl\n";
 sub getOrganisms {
   my ($siteUrl, $webappName) = @_;
 
-  $recordType = 'transcript' if $recordType eq 'gene';
-
-  # https://sfischer.plasmodb.org/plasmo.sfischer/service/record-types/organism/searches/GenomeDataTypes/reports/standard?reportConfig={%22pagination%22:%20{%20%22offset%22:%200,%20%22numRecords%22:%201000%20},%22attributes%22:[%22primary_key%22],%22tables%22:[]}
 
   my $jsonString = qq({"pagination": { "offset": 0, "numRecords": -1 },"attributes":["primary_key"],"tables":[]});
 
-  my $wdkOrganismsUrl = "$siteUrl/$webappName/service/record-types/organism/searches/$searchName/GenomeDataTypes/reports/standard?reportConfig=$jsonString";
+  my $wdkOrganismsUrl = "$siteUrl/$webappName/service/record-types/organism/searches/GenomeDataTypes/reports/standard?reportConfig=$jsonString";
 
-  my $contents = get($wdkOrganismUrl);
-
-print "\n$wdkSearchUrl\n";
+  my $contents = get($wdkOrganismsUrl);
 
   if (! defined $contents) {
     die "ERROR getting wdk organisms with url ", $wdkOrganismsUrl, " ", "\n";
@@ -132,11 +125,11 @@ print "\n$wdkSearchUrl\n";
 
   my $organismNames;
   foreach my $organism (@$organisms) {
-    my $organismName = $organism->{primary_key};
+    my $organismName = $organism->{attributes}->{primary_key};
 
     # remove html italics
     $organismName =~ s/\<i\>//;
-    $organismName =~ s/\<\\i\>//;
+    $organismName =~ s/\<\/i\>//;
     push(@$organismNames, $organismName);
   }
 
