@@ -22,6 +22,9 @@ my $apiCommonRecordTypes =
    'dataset' => 'AllDatasets',
    };
 
+delete($apiCommonRecordTypes->{popsetSequence}) if $project eq "HostDB" or $project eq "VectorBase";
+delete($apiCommonRecordTypes->{est}) if $project eq "HostDB";
+
 my $portalRecordTypes =
   {'gene' => 'AllGenes',
    'organism' => 'AllOrganisms',
@@ -32,6 +35,7 @@ my $orthoRecordTypes =
   {'group' => 'AllGroups',
    'sequence' => 'AllSequences',
    };
+
 
 my $recordTypes = $apiCommonRecordTypes;
 
