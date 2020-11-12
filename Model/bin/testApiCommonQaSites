@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+use strict;
+
+my ($buildNum) = @ARGV;
+
+usage() unless $buildNum;
+
+my %projectsMap = ('AmoebaDB', 'amoeba', 'CryptoDB', 'cryptodb',
+  'FungiDB', 'fungidb', 'GiardiaDB', 'giardiadb',
+  'HostDB', 'hostdb', 'MicrosporidiaDB', 'micro',
+  'PiroplasmaDB', 'piro', 'PlasmoDB', 'plasmo',
+  'SchistoDB', 'schisto', 'ToxoDB', 'toxo', 'TrichDB', 'trichdb',
+  'TriTrypDB', 'tritrypdb', 'VectorBase', 'vectorbase');
+
+my $failure;
+foreach my $project (keys %projectsMap) {
+  my $org = "org";
+  $org = "net" if $project eq 'SchistoDB';
+  my $webApp = $projectsMap{$project};
+  my $cmd = "testSiteSearchWdkRecordCounts https://qa.$project.$org $project $webApp.b$buildNum";
+  print STDERR "\n-----------------------------------------------------------\n";
+  print STDERR $cmd . "\n";
+  my $status = system($cmd);
+  $failure |= $status;
+}
+
+die "
+FAILURE: At least one site failed
+"
+if $failure;
+
+sub usage {
+  die "
+Test all apicommon qa sites, to see if site search agrees with wdk.
+
+Usage: testApiCommonQaSites build_number
+
+";
+}
