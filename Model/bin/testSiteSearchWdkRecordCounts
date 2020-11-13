@@ -47,7 +47,7 @@ my $organisms = getOrganisms($siteUrl, $webappName);
 my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $organisms);
 
 my $results;
-push(@$results, "Record Type\tWDK Count\tSite Search Count");
+print "Status\tRecord Type\tWDK Count\tSite Search Count\n";
 
 my $foundError;
 
@@ -55,14 +55,16 @@ foreach my $recordTypeName (keys %$recordTypes) {
   my $wdkCount = getWdkRecordCount($siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
   my $ssCount = $docCountMap->{$recordTypeName};
   if ($ssCount != $wdkCount) {
-    push(@$results, "$recordTypeName\t$wdkCount\t$ssCount");
+    print "FAIL\t$recordTypeName\t$wdkCount\t$ssCount\n";
     $foundError = 1;
+  } else {
+    print "PASS\t$recordTypeName\n";
   }
 }
 
 if ($foundError) {
   die "
-TEST FAILURE: counts differ for at least one record type\n" . join("\n", @$results) . "\n";
+TEST FAILURE: counts differ for at least one record type\n";
 }
 
 print STDERR "Test completed.  No failures.\n";
@@ -126,7 +128,7 @@ sub getOrganisms {
   my ($siteUrl, $webappName) = @_;
 
 
-  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": -1 },"attributes":["primary_key"],"tables":[]});
+  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": -1 },"attributes":["organism_name"],"tables":[]});
 
   my $wdkOrganismsUrl = "$siteUrl/$webappName/service/record-types/organism/searches/GenomeDataTypes/reports/standard?reportConfig=$jsonString";
 
@@ -142,11 +144,7 @@ sub getOrganisms {
 
   my $organismNames;
   foreach my $organism (@$organisms) {
-    my $organismName = $organism->{attributes}->{primary_key};
-
-    # remove html italics
-    $organismName =~ s/\<i\>//;
-    $organismName =~ s/\<\/i\>//;
+    my $organismName = $organism->{attributes}->{organism_name};
     push(@$organismNames, $organismName);
   }
 
