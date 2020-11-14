@@ -10,7 +10,7 @@ my %projectsMap = ('AmoebaDB', 'amoeba', 'CryptoDB', 'cryptodb',
   'HostDB', 'hostdb', 'MicrosporidiaDB', 'micro',
   'PiroplasmaDB', 'piro', 'PlasmoDB', 'plasmo',
   'SchistoDB', 'schisto', 'ToxoDB', 'toxo', 'TrichDB', 'trichdb',
-  'TriTrypDB', 'tritrypdb', 'VectorBase', 'vectorbase');
+  'TriTrypDB', 'tritrypdb', 'VectorBase', 'vectorbase', 'VEuPathDB', 'veupathdb');
 
 my $failure;
 foreach my $project (keys %projectsMap) {
