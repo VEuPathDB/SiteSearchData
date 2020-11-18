@@ -50,6 +50,7 @@
         <sqlQuery name="SequenceAttrs">
             <column name="full_id"/>
             <column name="source_id"/>
+            <column name="project"/>
             <column name="length"/>
             <column name="product"/>
             <column name="molecular_weight"/>
@@ -73,7 +74,8 @@ SELECT eas.secondary_identifier AS full_id, eas.source_id,
        (SELECT apidb.tab_to_string(set(cast(collect(da.accession) as apidb.varchartab)), ', ')
         FROM ApidbTuning.DomainAssignment da
         WHERE da.aa_sequence_id = eas.aa_sequence_id
-        GROUP BY da.full_id ) as pfam_domains
+        GROUP BY da.full_id ) as pfam_domains,
+       'OrthoMCL' as project
 FROM dots.ExternalAaSequence eas, apidb.orthomcltaxon ot
 WHERE substr(eas.secondary_identifier,1,4) = ot.three_letter_abbrev
  		]]>
