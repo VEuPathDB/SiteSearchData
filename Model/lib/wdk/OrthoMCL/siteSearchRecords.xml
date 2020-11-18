@@ -83,19 +83,26 @@ Each Question must:
       </idAttribute>
 
       <attributeQueryRef ref="SequenceAttributes.SequenceAttrs">  
+        <!-- special field for project filtering -->
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>
         <columnAttribute name="source_id" displayName="Source ID" />
-        <columnAttribute name="product" displayName="Product">
-        </columnAttribute>
-        <columnAttribute name="ec_numbers" displayName="EC Numbers"/>
+        <columnAttribute name="product" displayName="Product"/>
         <columnAttribute name="pfam_domains" displayName="PFam Domains"/>
-        <columnAttribute name="abbreviation" displayName="Taxon Code">
-        </columnAttribute>
+        <columnAttribute name="abbreviation" displayName="Taxon Code"/>
         <columnAttribute name="taxon_name" displayName="Taxon Name" />
       </attributeQueryRef>
 
       <attributeQueryRef ref="SequenceAttributes.SequenceGroup">
         <columnAttribute name="group_name" displayName="Group ID" internal="false" inReportMaker="true" />
       </attributeQueryRef>
+
+      <table name="EcNumbers"
+             displayName="EC Numbers"
+             queryRef="SequenceTables.EcNumbers">
+          <columnAttribute name="full_id" displayName="Full ID"/>
+          <columnAttribute name="ec_number" displayName="EC Number"/>
+          <columnAttribute name="description" displayName="Description"/>
+      </table>
 
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"
@@ -128,20 +135,11 @@ Each Question must:
         </text>
       </idAttribute>
 
-<!--
-      <attributeQueryRef ref="GroupAttributes.EcNumbers">
-          <columnAttribute name="ec_numbers" displayName="EC Numbers" internal="false"  />
+      <attributeQueryRef ref="GroupAttributes.GroupAttrs">
+        <columnAttribute name="group_name" displayName="Group Name" />
+        <!-- special field for project filtering -->
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>
       </attributeQueryRef>
--->
-
-      <attributeQueryRef ref="GroupAttributes.Keywords">
-          <columnAttribute name="keywords" displayName="Keywords" internal="false"  />
-      </attributeQueryRef>
-
-      <attributeQueryRef ref="GroupAttributes.Domains">
-          <columnAttribute name="descriptions" displayName="Domains" internal="false"  />
-      </attributeQueryRef>
-
 
       <!-- =============================================================== -->
       <!-- Tables -->
@@ -150,7 +148,6 @@ Each Question must:
       <table name="TaxonCounts" internal="true" 
              displayName="TaxonCounts"
              queryRef="GroupTables.TaxonCounts">
-          <columnAttribute name="taxon_id" displayName="Taxon ID" />
           <columnAttribute name="abbrev" displayName="Taxon Abbreviation" />
       </table>
 
@@ -160,9 +157,8 @@ Each Question must:
              queryRef="GroupTables.Proteins">
 	      <columnAttribute name="full_id" internal="true" />
 	      <columnAttribute name="taxon_name" displayName="Taxon" />
-	      <columnAttribute name="ec_numbers" displayName="EC Numbers" />
 	      <columnAttribute name="description" displayName="Description" />
-	      <columnAttribute name="taxon_abbrev" displayName="Taxon Abbreviation" internal="true" />
+	      <columnAttribute name="previous_groups" displayName="Previous Groups" />
       </table>
       
       <table name="PFams"
@@ -171,16 +167,6 @@ Each Question must:
           <columnAttribute name="accession" displayName="Accession Number" />
           <columnAttribute name="symbol" displayName="Symbol" />
           <columnAttribute name="description" displayName="Description" />
-          <columnAttribute name="domain_index" internal="true" />
-      </table>
-
-      <table name="ProteinPFams"
-             displayName="Pfam Domain Architecture"
-             queryRef="GroupTables.ProteinPFams">
-          <columnAttribute name="accession" displayName="Accession Number" />
-          <columnAttribute name="symbol" displayName="Symbol" />
-          <columnAttribute name="full_id" displayName="Source Id" />
-          <columnAttribute name="domain_index" internal="true" />
       </table>
 
       <table name="EcNumber"
@@ -189,18 +175,17 @@ Each Question must:
         <columnAttribute name="ec_number" />
         <columnAttribute displayName="EC Description"
                          name="description"/>
-        <columnAttribute name="sequence_count" displayName="Sequences"/>
       </table>
 
       <table name="KeywordFrequency" internal="true"
              queryRef="GroupTables.KeywordFrequency">
-        <columnAttribute name="keyword"/>
+        <columnAttribute name="keyword" displayName="Keyword"/>
       </table>
 
 
       <table name="DomainFrequency" internal="true"
              queryRef="GroupTables.DomainFrequency">
-        <columnAttribute name="keyword"/>
+        <columnAttribute name="keyword" displayName="Domain"/>
       </table>
 
 
