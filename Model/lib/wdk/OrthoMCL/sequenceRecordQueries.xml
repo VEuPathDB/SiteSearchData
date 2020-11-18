@@ -92,11 +92,11 @@ WHERE substr(eas.secondary_identifier,1,4) = ot.three_letter_abbrev
            <column name="link_text"/>
            <sql>
              <![CDATA[
-               SELECT sa.full_id, sa.group_name, sa.url,
+               SELECT sa.full_id, sa.group_name, sa.source_url,
 	              CASE sa.core_peripheral WHEN 'C' THEN 'Core' WHEN 'P' THEN 'Peripheral' END AS core_peripheral,
 		      CASE WHEN sa.group_name LIKE 'OG%r%_%' THEN 0 ELSE sa.group_size END AS num_core,
 		      CASE WHEN sa.group_name LIKE 'OG%r%_%' THEN sa.group_size ELSE sa.peripheral_group_size-sa.group_size END AS num_peripheral, 
-                      CASE WHEN sa.url is null THEN null ELSE sa.full_id END AS link_text
+                      CASE WHEN sa.source_url is null THEN null ELSE sa.full_id END AS link_text
                FROM ApidbTuning.SequenceAttributes sa
              ]]>
            </sql>
