@@ -159,6 +159,14 @@ Each Question must:
         <columnAttribute name="project" displayName="dontcare" internal="true"/>
       </attributeQueryRef>
 
+      <attributeQueryRef ref="GroupAttributes.Keywords">
+        <columnAttribute name="keywords" displayName="Keywords"/>
+      </attributeQueryRef>
+
+      <attributeQueryRef ref="GroupAttributes.Domains">
+        <columnAttribute name="descriptions" displayName="Domains"/>
+      </attributeQueryRef>
+
       <!-- =============================================================== -->
       <!-- Tables -->
       <!-- =============================================================== -->
@@ -173,10 +181,15 @@ Each Question must:
       <table name="Sequences"
              displayName="List of All Sequences"
              queryRef="GroupTables.Proteins">
-	      <columnAttribute name="full_id" internal="true" />
-	      <columnAttribute name="taxon_name" displayName="Taxon" />
-	      <columnAttribute name="description" displayName="Description" />
-	      <columnAttribute name="previous_groups" displayName="Previous Groups" />
+          <columnAttribute name="full_id" internal="true" />
+          <columnAttribute name="source_id">
+            <propertyList name="boost">
+              <value>10</value>
+             </propertyList>
+          </columnAttribute>
+          <columnAttribute name="taxon_name" displayName="Taxon" />
+          <columnAttribute name="description" displayName="Description" />
+          <columnAttribute name="previous_groups" displayName="Previous Groups" />
       </table>
       
       <table name="PFams"
@@ -195,17 +208,17 @@ Each Question must:
                          name="description"/>
       </table>
 
+<!--
       <table name="KeywordFrequency" internal="true"
              queryRef="GroupTables.KeywordFrequency">
         <columnAttribute name="keyword" displayName="Keyword"/>
       </table>
 
-
       <table name="DomainFrequency" internal="true"
              queryRef="GroupTables.DomainFrequency">
         <columnAttribute name="keyword" displayName="Domain"/>
       </table>
-
+ -->
 
       <reporter name="solrjson"
                 displayName="solr json: choose from columns and/or tables"

@@ -238,6 +238,7 @@ WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
             <column name="core_peripheral"/>
             <column name="group_name"/>
             <column name="full_id"/>
+            <column name="source_id"/>
             <column name="taxon_name"/>
             <column name="taxon_abbrev"/>
             <column name="length"/>
@@ -249,7 +250,7 @@ WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
                 select case sa.core_peripheral when 'C' then 'Core' when 'P' then 'Peripheral' else '' end as core_peripheral,
 		       sa.group_name, sa.full_id, sa.taxon_name, sa.taxon_abbreviation AS taxon_abbrev,
                        sa.length, sa.product as description,
-                       sa.old_groups as previous_groups, sa.ec_numbers
+                       sa.old_groups as previous_groups, sa.ec_numbers, sa.source_id
                 from ApidbTuning.SequenceAttributes sa
               ]]>
             </sql>
