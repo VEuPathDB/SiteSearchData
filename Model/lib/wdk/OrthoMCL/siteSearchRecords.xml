@@ -67,7 +67,7 @@ Each Question must:
         <value>sequence</value>
       </propertyList>
 
-      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+      <primaryKey aliasQueryRef="SequenceId.Alias">
         <columnRef>full_id</columnRef>
       </primaryKey>
 
@@ -83,13 +83,32 @@ Each Question must:
       </idAttribute>
 
       <attributeQueryRef ref="SequenceAttributes.SequenceAttrs">  
+        <!-- columnAttribute name="full_id" displayName="Full ID"/ -->
         <!-- special field for project filtering -->
         <columnAttribute name="project" displayName="dontcare" internal="true"/>
-        <columnAttribute name="source_id" displayName="Source ID" />
-        <columnAttribute name="product" displayName="Product"/>
+        <columnAttribute name="source_id" displayName="Source ID">
+          <propertyList name="boost">
+            <value>100</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="product" displayName="Product">
+          <propertyList name="isSubtitle">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="boost">
+            <value>10</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="pfam_domains" displayName="PFam Domains"/>
         <columnAttribute name="abbreviation" displayName="Taxon Code"/>
-        <columnAttribute name="taxon_name" displayName="Taxon Name" />
+        <columnAttribute name="taxon_name" displayName="Taxon Name">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
       </attributeQueryRef>
 
       <attributeQueryRef ref="SequenceAttributes.SequenceGroup">
@@ -99,7 +118,6 @@ Each Question must:
       <table name="EcNumbers"
              displayName="EC Numbers"
              queryRef="SequenceTables.EcNumbers">
-          <columnAttribute name="full_id" displayName="Full ID"/>
           <columnAttribute name="ec_number" displayName="EC Number"/>
           <columnAttribute name="description" displayName="Description"/>
       </table>
@@ -120,7 +138,7 @@ Each Question must:
         <value>group</value>
       </propertyList>
 
-      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+      <primaryKey aliasQueryRef="GroupIdQueries.Alias">
         <columnRef>group_name</columnRef>
       </primaryKey>
 
