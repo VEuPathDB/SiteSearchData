@@ -136,7 +136,7 @@ Each Question must:
       </idAttribute>
 
       <attributeQueryRef ref="GroupAttributes.GroupAttrs">
-        <columnAttribute name="group_name" displayName="Group Name" />
+        <!-- columnAttribute name="group_name" displayName="Group Name" / -->
         <!-- special field for project filtering -->
         <columnAttribute name="project" displayName="dontcare" internal="true"/>
       </attributeQueryRef>

@@ -53,7 +53,7 @@
             <![CDATA[
 		     SELECT pr.group_name, number_of_members, number_of_match_pairs,
                             avg_percent_identity, percent_match_pairs, avg_percent_match,
-                            evalue, evalue_display, avg_connectivity, "OrthoMCL" as project
+                            evalue, evalue_display, avg_connectivity, 'OrthoMCL' as project
 		     FROM (SELECT name as group_name, number_of_members, number_of_match_pairs,
 		                  decode(avg_percent_identity,null,'',round(avg_percent_identity,1)) as avg_percent_identity,
 				  decode(percent_match_pairs,null,'',round(percent_match_pairs,1)) as percent_match_pairs,
