@@ -32,20 +32,22 @@
         </sql>
       </sqlQuery>
 
+      <sqlQuery name="Alias">
+        <column name="full_id"/>
+        <column name="old_full_id"/>
+        <sql>
+          <![CDATA[
+            select full_id, full_id as old_full_id
+            from apidbTuning.SequenceAttributes
+          ]]>
+        </sql>
+      </sqlQuery>
+
     </querySet>
 
-    <!-- Queries that retrieve attributes of ESTs -->
+    <!-- Queries that retrieve attributes of sequencess -->
     
     <querySet name="SequenceAttributes" queryType="attribute" isCacheable="false">
-
-       <defaultTestParamValues>
-            <paramValue name="full_id">pfal|PF11_0344</paramValue>
-       </defaultTestParamValues>
-
-        <testRowCountSql>
-            SELECT count(*) FROM dots.ExternalAaSequence
-        </testRowCountSql>
-
 
         <sqlQuery name="SequenceAttrs">
             <column name="full_id"/>
