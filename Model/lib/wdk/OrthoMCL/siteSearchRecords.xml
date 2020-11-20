@@ -44,11 +44,6 @@ Each Question must:
 
   <questionSet name="Questions" displayName="dontcare">
 
-    <question name="Sequences" displayName="dontcare"
-              queryRef="SequenceId.AllSequences"
-              recordClassRef="recordClasses.sequence">
-    </question>
-
     <question name="SequencesByAlphabet" displayName="dontcare"
               queryRef="SequenceId.SequencesByAlphabet"
               recordClassRef="recordClasses.sequence">
@@ -67,7 +62,7 @@ Each Question must:
     <!-- ########################  Sequence Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="sequence" urlName="sequence" displayName="Genomic sequence">
+    <recordClass name="sequence" urlName="sequence" displayName="Protein sequence">
       <propertyList name="batch">
         <value>sequence</value>
       </propertyList>
