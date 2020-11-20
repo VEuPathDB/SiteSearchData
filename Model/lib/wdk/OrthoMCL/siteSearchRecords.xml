@@ -176,8 +176,7 @@ Each Question must:
       <!-- Tables -->
       <!-- =============================================================== -->
 
-      <table name="TaxonCounts" internal="true" 
-             displayName="TaxonCounts"
+      <table name="TaxonCounts" displayName="Taxon Abbreviation"
              queryRef="GroupTables.TaxonCounts">
           <columnAttribute name="abbrev" displayName="Taxon Abbreviation" />
       </table>
