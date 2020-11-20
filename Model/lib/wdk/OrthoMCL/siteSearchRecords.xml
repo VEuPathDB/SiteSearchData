@@ -49,6 +49,11 @@ Each Question must:
               recordClassRef="recordClasses.sequence">
     </question>
 
+    <question name="SequencesByAlphabet" displayName="dontcare"
+              queryRef="SequenceId.SequencesByAlphabet"
+              recordClassRef="recordClasses.sequence">
+    </question>
+
     <question name="Groups" displayName="dontcare"
               queryRef="GroupIdQueries.AllGroups"
               recordClassRef="recordClasses.group">

@@ -32,6 +32,24 @@
         </sql>
       </sqlQuery>
 
+      <!-- an id query that returns sequences starting with a given letter, as an easy way to segment the sequences, so that we don't generate massive JSON files -->
+      <sqlQuery name="SequencesByAlphabet">
+      <paramRef ref="sequenceParams.alphabetLetter"/>
+        <column name="full_id"/>
+        <sql>
+          <![CDATA[
+            select full_id
+            from apidbTuning.SequenceAttributes
+            where full_id like '$$alphabetLetter$$%'
+          ]]>
+        </sql>
+      </sqlQuery>
+
+      <paramSet name="sequenceParams">
+          <stringParam name="alphabetLetter"
+                       prompt="letter"/>
+      </paramSet>
+
       <sqlQuery name="Alias">
         <column name="full_id"/>
         <column name="old_full_id"/>

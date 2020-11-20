@@ -26,8 +26,13 @@ my $modelProps = getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.pr
 
 my $dbh = getDbh($gusProps);
 
+my @alphabet = ('a' .. 'z');
+
+for my $letter (@alphabet) {
+  runWdkReportParam("sequence", $letter, "alphabetLetter", $letter);
+}
+
 runWdkReport("group", "OrthoMCL");
-runWdkReport("sequence", "OrthoMCL");
 #runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
 
 print STDOUT "Done.\n";
@@ -45,13 +50,23 @@ sub checkPrevBatchDir {
 }
 
 sub runWdkReport {
-  my ($batchType, $batchName, $organismAbbrev) = @_;
+  my ($batchType, $batchName, $paramName, $paramValue) = @_;
   my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
 
   return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
 
-  my $cmd = "ssCreateWdkRecordsBatch $batchType $batchName $wdkServiceUrl $targetDir";
-  $cmd .= " --paramName organismAbbrev --paramValue $organismAbbrev" if $organismAbbrev;
+  my $cmd = "ssCreateWdkRecordsBatch $batchType $batchName $wdkServiceUrl $targetDir ";
+  runCmd($cmd);
+  return 1;
+}
+
+sub runWdkReportParam {
+  my ($batchType, $batchName, $paramName, $paramValue) = @_;
+  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
+
+  return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
+
+  my $cmd = "ssCreateWdkRecordsBatch $batchType $batchName $wdkServiceUrl $targetDir  --paramName $paramName --paramValue $paramValue";
   runCmd($cmd);
   return 1;
 }
