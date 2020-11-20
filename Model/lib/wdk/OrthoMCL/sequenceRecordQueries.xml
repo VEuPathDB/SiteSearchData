@@ -40,15 +40,10 @@
           <![CDATA[
             select full_id
             from apidbTuning.SequenceAttributes
-            where full_id like '$$alphabetLetter$$%'
+            where full_id like $$alphabetLetter$$ || '%'
           ]]>
         </sql>
       </sqlQuery>
-
-      <paramSet name="sequenceParams">
-          <stringParam name="alphabetLetter"
-                       prompt="letter"/>
-      </paramSet>
 
       <sqlQuery name="Alias">
         <column name="full_id"/>
@@ -62,6 +57,13 @@
       </sqlQuery>
 
     </querySet>
+
+      <paramSet name="sequenceParams">
+          <stringParam name="alphabetLetter"
+                       prompt="letter"
+                       number="false"/>
+      </paramSet>
+
 
     <!-- Queries that retrieve attributes of sequencess -->
     
