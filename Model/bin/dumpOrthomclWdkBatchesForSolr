@@ -32,8 +32,11 @@ for my $letter (@alphabet) {
   runWdkReportParam("sequence", $letter, "alphabetLetter", $letter);
 }
 
-runWdkReport("group", "OrthoMCL");
-#runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
+my @numerals = ('0' .. '9');
+
+for my $numeral (@numerals) {
+  runWdkReportParam("group", $numeral, "numeral", $numeral);
+}
 
 print STDOUT "Done.\n";
 exit 0;
@@ -46,17 +49,6 @@ sub checkPrevBatchDir {
   die "\nError: Incomplete batch dir (no DONE file): $prevBatchDir.  Please delete it first.\n" unless -e "$prevBatchDir/DONE";
 
   print STDOUT "Batch '$batchType $batchName' already present in targetDir.  Skipping.\n";
-  return 1;
-}
-
-sub runWdkReport {
-  my ($batchType, $batchName, $paramName, $paramValue) = @_;
-  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
-
-  return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
-
-  my $cmd = "ssCreateWdkRecordsBatch $batchType $batchName $wdkServiceUrl $targetDir ";
-  runCmd($cmd);
   return 1;
 }
 

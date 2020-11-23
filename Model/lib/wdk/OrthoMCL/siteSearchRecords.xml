@@ -49,8 +49,8 @@ Each Question must:
               recordClassRef="recordClasses.sequence">
     </question>
 
-    <question name="Groups" displayName="dontcare"
-              queryRef="GroupIdQueries.AllGroups"
+    <question name="GroupsByLastNumeral" displayName="dontcare"
+              queryRef="GroupIdQueries.GroupsByLastNumeral"
               recordClassRef="recordClasses.group">
     </question>
 
