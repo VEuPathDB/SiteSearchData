@@ -1,6 +1,6 @@
 [
   { "name": "Genome",
-    "documentTypes": [,
+    "documentTypes": [
       { "id": "sequence",
         "displayName": "Protein Sequence",
         "displayNamePlural": "Protein Sequences",
