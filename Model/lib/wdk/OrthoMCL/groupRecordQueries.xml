@@ -7,13 +7,16 @@
 
     <querySet name="GroupIdQueries" queryType="id" isCacheable="true">
 
-      <sqlQuery name="AllGroups">
+      <!-- an id query that returns groups ending with the provided numeral.  This is easy way to divide groups into chunks, to avoid massive JSON files -->
+      <sqlQuery name="GroupsByLastNumeral">
+        <paramRef ref="groupParams.numeral"/>
         <column name="group_name"/>
         <sql>
           <![CDATA[
             select distinct name as group_name
             from apidb.OrthologGroup
             where core_peripheral_residual in ('P','R')
+            and name like '%' || $$numeral$$
           ]]>
         </sql>
       </sqlQuery>
@@ -31,6 +34,13 @@
       </sqlQuery>
 
     </querySet>
+
+    <paramSet name="groupParams">
+          <stringParam name="numeral"
+                       prompt="numeral"
+                       number="false"/>
+      </paramSet>
+
 
     <!-- 
     Group Attribute Queries
