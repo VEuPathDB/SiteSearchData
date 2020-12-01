@@ -163,9 +163,11 @@ Each Question must:
         <columnAttribute name="keywords" displayName="Keywords"/>
       </attributeQueryRef>
 
+      <!-- commenting out "Domains" to favor "PFam Domains"
       <attributeQueryRef ref="GroupAttributes.Domains">
         <columnAttribute name="descriptions" displayName="Domains"/>
       </attributeQueryRef>
+        -->
 
       <!-- =============================================================== -->
       <!-- Tables -->
