@@ -5,7 +5,7 @@
         "displayName": "Protein Sequence",
         "displayNamePlural": "Protein Sequences",
         "wdkSearchUrlName": "SequencesByText",
-        "hasOrganismField": true
+        "hasOrganismField": false
       }
     ]
   },
@@ -15,7 +15,7 @@
         "displayName": "Ortholog Group",
         "displayNamePlural": "Ortholog Groups",
         "wdkSearchUrlName": "GroupsByText",
-        "hasOrganismField": true
+        "hasOrganismField": false
       }
     ]
   },
