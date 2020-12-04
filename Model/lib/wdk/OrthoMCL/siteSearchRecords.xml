@@ -102,7 +102,11 @@ Each Question must:
             <value>10</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="pfam_domains" displayName="PFam Domains"/>
+        <columnAttribute name="pfam_domains" displayName="PFam Domains">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="abbreviation" displayName="Taxon Code"/>
         <columnAttribute name="taxon_name" displayName="Taxon Name">
           <propertyList name="isSummary">
@@ -112,7 +116,11 @@ Each Question must:
       </attributeQueryRef>
 
       <attributeQueryRef ref="SequenceAttributes.SequenceGroup">
-        <columnAttribute name="group_name" displayName="Group ID" internal="false" inReportMaker="true" />
+        <columnAttribute name="group_name" displayName="Current group" internal="false" inReportMaker="true" >
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
       </attributeQueryRef>
 
       <table name="EcNumbers"
@@ -120,6 +128,12 @@ Each Question must:
              queryRef="SequenceTables.EcNumbers">
           <columnAttribute name="ec_number" displayName="EC Number"/>
           <columnAttribute name="description" displayName="Description"/>
+      </table>
+
+      <table name="CurrentAndOldGroups"
+             displayName="CurrentAndOldGroups"
+             queryRef="SequenceTables.CurrentAndOldGroups">
+          <columnAttribute name="current_old_groups" displayName="Current/previous group(s)"/>
       </table>
 
       <reporter name="solrjson"
@@ -133,7 +147,7 @@ Each Question must:
     <!-- ########################  Group Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="group" urlName="group" displayName="Group">
+    <recordClass name="group" urlName="group" displayName="Current group">
       <propertyList name="batch">
         <value>group</value>
       </propertyList>
@@ -142,7 +156,7 @@ Each Question must:
         <columnRef>group_name</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Group">
+      <idAttribute name="primary_key" displayName="Current group">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
@@ -160,7 +174,12 @@ Each Question must:
       </attributeQueryRef>
 
       <attributeQueryRef ref="GroupAttributes.Keywords">
-        <columnAttribute name="keywords" displayName="Keywords"/>
+        <columnAttribute name="keywords" displayName="Keywords">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+
       </attributeQueryRef>
 
       <!-- commenting out "Domains" to favor "PFam Domains"
