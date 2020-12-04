@@ -139,20 +139,27 @@ WHERE substr(eas.secondary_identifier,1,4) = ot.three_letter_abbrev
 
     <querySet name="SequenceTables" queryType="table" isCacheable="false">
 
-        <sqlQuery name="OldGroups">
+        <sqlQuery name="CurrentAndOldGroups">
             <column name="full_id"/>
-            <column name="group_name"/>
+            <column name="current_old_groups"/>
             <sql>
                         <![CDATA[
-SELECT eas.secondary_identifier AS full_id, ref.primary_identifier AS group_name
-FROM dots.ExternalAaSequence eas,
-     Dots.AaSequenceDbRef seqref, Sres.DbRef ref,
-     Sres.ExternalDatabase db, Sres.ExternalDatabaseRelease dbr
-WHERE eas.aa_sequence_id = seqref.aa_sequence_id
-  AND seqref.db_ref_id = ref.db_ref_id
-  AND ref.external_database_release_id = dbr.external_database_release_id
-  AND dbr.external_database_id = db.external_database_id
-  AND db.name = 'OrthoMCL Old Groups'
+                    with sequences as
+                         (select full_id, group_name, aa_sequence_id
+                          from ApidbTuning.SequenceAttributes)
+                      select s.full_id, s.group_name AS current_old_groups
+                      from sequences s
+                      where s.group_name is not null
+                    union
+                      select s.full_id, ref.primary_identifier AS current_old_groups
+                      from sequences s, 
+                           dots.AaSequenceDbRef seqref, Sres.DbRef ref,
+                           sres.ExternalDatabase db, Sres.ExternalDatabaseRelease dbr
+                      where s.aa_sequence_id = seqref.aa_sequence_id
+                        and seqref.db_ref_id = ref.db_ref_id
+                        and ref.external_database_release_id = dbr.external_database_release_id
+                        and dbr.external_database_id = db.external_database_id
+                        and db.name = 'OrthoMCL Old Groups'
                         ]]>
             </sql>
         </sqlQuery>
