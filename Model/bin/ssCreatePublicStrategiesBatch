@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+
+import json
+import argparse
+import sys
+import os
+import time
+import datetime
+
+sys.path.append(os.environ['GUS_HOME'] + "/lib/python")
+
+import SiteSearchData.Model.BatchReportUtils as utils
+
+TARGETDIRPREFIX = 'solr-json-batch_'
+BATCHTYPE = 'public-strategy'
+DOCTYPE = 'public-strategy'
+ATTR_PREFIX = 'TEXT__'
+
+def parseAndValidateArgs():
+    help = """Read the WDK public strategies endpoint from an application website (eg, PlasmoDB) and create a solr-compatible JSON file with searchable information about that site's public strategies.  Also produces a JSON file containing meta information about this batch of files.
+
+Input: URL for a WDK service to call
+Output: a directory containing a Solr compatible JSON file and a batch.json file with meta information.
+
+The batch is given a generated BATCH_ID of the form: pubstrats-PROJECT_ID-TIMESTAMP
+
+Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'. 
+
+"""
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
+    parser.add_argument("webSiteServiceUrl", help="Base url of WDK service from the website to read from")
+    parser.add_argument("project", help="Project ID of the website to read from, e.g., PlasmoDB")
+    parser.add_argument("parentDir", help="Directory in which to put the directory of output files")
+    args = parser.parse_args()
+    utils.validateWebServiceUrl(args.webSiteServiceUrl)
+    utils.validateParentDir(args.parentDir)
+    return args.webSiteServiceUrl, args.parentDir, args.project
+
+    
+
+###########################################################################################################
+
+wdkServiceUrl, parentDir, projectId = parseAndValidateArgs()
+batchName = projectId
+utils.failIfPreviousBatchDir(parentDir, BATCHTYPE, batchName)
+batchTimestamp = int(time.time())
+batchId = BATCHTYPE + "_" + batchName + "_" + str(batchTimestamp)
+
+outputDir = utils.createWorkingDir(parentDir, batchId)
+targetFilename = outputDir + "/" + BATCHTYPE + ".json"
+
+'''
+{
+  "lastViewed": "2020-09-30T16:34:46.204",
+  "rootStepId": 422979143,
+  "signature": "c402a54a1735ed89",
+  "author": "Mark Hickman",
+  "releaseVersion": "6.1",
+  "isValid": true,
+  "description": "fibrinogen domain in some vector species",
+  "leafAndTransformStepCount": 5,
+  "isDeleted": false,
+  "estimatedSize": 109,
+  "isSaved": true,
+  "isExample": false,
+  "organization": "UPenn",
+  "name": "fibrinogen_in_vectors",
+  "recordClassName": "sequence",
+  "createdTime": "2020-09-30T16:16:45",
+  "isPublic": true,
+  "strategyId": 321461893,
+  "lastModified": "2020-09-30T16:25:00.952",
+  "nameOfFirstStep": "PFam ID or Keyword"
+}
+'''
+
+outputStrategies = []
+
+for strat in utils.getPublicStrategies(wdkServiceUrl):
+    outputStrategy = {}
+    outputStrategy['batch-type'] = BATCHTYPE
+    outputStrategy['batch-name'] = batchName
+    outputStrategy['project'] = projectId
+    outputStrategy['batch-timestamp'] = batchTimestamp
+    outputStrategy['batch-id'] = batchId
+    outputStrategy['document-type'] = DOCTYPE
+    outputStrategy['id'] = 'strategy_' + strat['signature']
+    outputStrategy['primaryKey'] = [strat['signature']]
+    outputStrategy[ATTR_PREFIX + 'strategy_' + 'name'] = strat['name']
+    outputStrategy['hyperlinkName'] = strat['name']
+    outputStrategy[ATTR_PREFIX + 'strategy_' + 'description'] = strat['description']
+    outputStrategy[ATTR_PREFIX + 'strategy_' + 'author'] = strat['author']
+    outputStrategy[ATTR_PREFIX + 'strategy_' + 'organization'] = strat['organization']
+    outputStrategy[ATTR_PREFIX + 'strategy_' + 'modified'] = strat['lastModified']
+    outputStrategy[ATTR_PREFIX + 'strategy_' + 'recordClass'] = strat['recordClassName']
+    outputStrategies.append(outputStrategy)
+
+searchJson = json.dumps(outputStrategies)
+print(str(datetime.datetime.now()) + " writing " + targetFilename)
+with open(targetFilename, "w") as text_file:
+    text_file.write(searchJson)
+
+# write meta file about this batch
+print(str(datetime.datetime.now()) + " writing batch.json")
+utils.writeBatchJsonFile(BATCHTYPE, batchName, batchTimestamp, batchId, outputDir)
+print(str(datetime.datetime.now()) + " done")
+    
+
+    
+
