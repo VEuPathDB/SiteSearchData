@@ -76,7 +76,9 @@ targetFilename = outputDir + "/" + BATCHTYPE + ".json"
 
 outputStrategies = []
 
-for strat in utils.getPublicStrategies(wdkServiceUrl):
+response = utils.httpGet(wdkServiceUrl + '/strategy-lists/public/', {})
+
+for strat in response.json():
     outputStrategy = {}
     outputStrategy['batch-type'] = BATCHTYPE
     outputStrategy['batch-name'] = batchName
