@@ -17,12 +17,12 @@ SEARCHDOCTYPE = 'search'
 ATTR_PREFIX = 'TEXT__'
 
 def parseAndValidateArgs():
-    help = """Read the WDK record-type endpoint from an application website (eg, UniDB) and create a solr-compatible JSON file with searchable meta information about the record types.  For now only includes information about searches.  Also produces a JSON file containing meta information about this batch of files.
+    help = """Read the WDK record-type endpoint from an application website (eg, PlasmoDB) and create a solr-compatible JSON file with searchable meta information about the record types.  For now only includes information about searches.  Also produces a JSON file containing meta information about this batch of files.
 
 Input: URL for a WDK service to call
 Output: a directory containing a Solr compatible JSON file and a batch.json file with meta information.
 
-The batch is given a generated BATCH_ID of the form: wdkmeta-all-TIMESTAMP
+The batch is given a generated BATCH_ID of the form: wdkmeta-PROJECT_ID-TIMESTAMP
 
 Reports are generated into a directory of name 'PARENTDIR/BATCH_ID'. 
 
