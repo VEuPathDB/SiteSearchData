@@ -102,6 +102,11 @@ Each Question must:
             <value>10</value>
           </propertyList>
         </columnAttribute>
+        <columnAttribute name="ec_numbers" displayName="EC Numbers">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
         <columnAttribute name="pfam_domains" displayName="PFam Domains">
           <propertyList name="isSummary">
             <value>true</value>
@@ -116,22 +121,15 @@ Each Question must:
       </attributeQueryRef>
 
       <attributeQueryRef ref="SequenceAttributes.SequenceGroup">
-        <columnAttribute name="group_name" displayName="Current group" internal="false" inReportMaker="true" >
+        <columnAttribute name="group_name" displayName="Ortholog group" internal="false" inReportMaker="true" >
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
         </columnAttribute>
       </attributeQueryRef>
 
-      <table name="EcNumbers"
-             displayName="EC Numbers"
-             queryRef="SequenceTables.EcNumbers">
-          <columnAttribute name="ec_number" displayName="EC Number"/>
-          <columnAttribute name="description" displayName="Description"/>
-      </table>
-
       <table name="CurrentAndOldGroups"
-             displayName="CurrentAndOldGroups"
+             displayName="Current/previous group(s)"
              queryRef="SequenceTables.CurrentAndOldGroups">
           <columnAttribute name="current_old_groups" displayName="Current/previous group(s)"/>
       </table>
@@ -147,7 +145,7 @@ Each Question must:
     <!-- ########################  Group Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="group" urlName="group" displayName="Current group">
+    <recordClass name="group" urlName="group" displayName="Ortholog group">
       <propertyList name="batch">
         <value>group</value>
       </propertyList>
@@ -156,7 +154,7 @@ Each Question must:
         <columnRef>group_name</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Current group">
+      <idAttribute name="primary_key" displayName="Ortholog group">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
