@@ -1,0 +1,166 @@
+#!/usr/bin/perl
+use strict;
+
+use JSON;
+use LWP::UserAgent;
+use LWP::Simple;
+use Data::Dumper;
+
+my ($siteUrl, $project, $webappName) = @ARGV;
+
+&usage unless $siteUrl && $project && $webappName;
+
+my $apiCommonRecordTypes =
+  {'gene' => 'AllGenes',
+   'est' => 'AllEsts',
+   'popsetSequence' => 'AllPopsetSeqs',
+   'organism' => 'AllOrganisms',
+   'genomic-sequence' => 'AllGenomicSeqs',
+   'compound' => 'AllCompounds',
+ #  'popbio-sample' => '',
+   'pathway' => 'AllPathways',
+   'dataset' => 'AllDatasets',
+   };
+
+delete($apiCommonRecordTypes->{popsetSequence}) if $project eq "HostDB" or $project eq "VectorBase";
+delete($apiCommonRecordTypes->{est}) if $project eq "HostDB";
+
+my $portalRecordTypes =
+  {'gene' => 'AllGenes',
+   'organism' => 'AllOrganisms',
+   'genomic-sequence' => 'AllGenomicSeqs',
+   };
+
+my $orthoRecordTypes =
+  {'group' => 'AllGroups',
+   'sequence' => 'AllSequences',
+   };
+
+
+my $recordTypes = $apiCommonRecordTypes;
+
+$recordTypes = $portalRecordTypes if $project eq 'VEuPathDB';
+$recordTypes = $orthoRecordTypes if $project eq 'OrthoMCL';
+
+my $organisms = getOrganisms($siteUrl, $webappName);
+
+my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $organisms);
+
+my $results;
+print "Status\tRecord Type\tWDK Count\tSite Search Count\n";
+
+my $foundError;
+
+foreach my $recordTypeName (keys %$recordTypes) {
+  my $wdkCount = getWdkRecordCount($siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
+  my $ssCount = $docCountMap->{$recordTypeName};
+  if ($ssCount != $wdkCount) {
+    print "FAIL\t$recordTypeName\t$wdkCount\t$ssCount\n";
+    $foundError = 1;
+  } else {
+    print "PASS\t$recordTypeName\n";
+  }
+}
+
+if ($foundError) {
+  die "
+TEST FAILURE: counts differ for at least one record type\n";
+}
+
+print STDERR "Test completed.  No failures.\n";
+
+
+#############################################################################################
+#############################################################################################
+
+# run a site search for '*', asking for 0 rows back.  This gives us the metadata about the result.
+# Return a map of document type to count
+sub getSiteSearchDocumentTypeCounts {
+  my ($siteUrl, $organisms) = @_;
+
+  my $organismsJson = to_json($organisms);
+
+  my $userAgent = LWP::UserAgent->new;
+  my $ssUrl = "$siteUrl/site-search";
+  my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project", "restrictSearchToOrganisms": $organismsJson});
+
+  my $req = HTTP::Request->new(POST => $ssUrl);
+  $req->header( 'Content-Type' => 'application/json' );
+  $req->content($ssJsonString);
+  my $res = $userAgent->request($req);
+
+  if (!$res->is_success) {
+    die "ERROR reading solr '$ssUrl': ", $res->status_line, "\n";
+  }
+
+  my $ssResults = from_json($res->content);
+
+  my $map;
+  my $resultDocTypes = $ssResults->{documentTypes};
+  foreach my $docType (@$resultDocTypes) {
+    $map->{$docType->{'id'}} = $docType->{'count'};
+  }
+
+  return $map;
+}
+
+sub getWdkRecordCount {
+  my ($siteUrl, $webappName, $searchName, $recordType) = @_;
+
+  $recordType = 'transcript' if $recordType eq 'gene';
+
+  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": 0 },"attributes":["primary_key"],"tables":[]});
+
+  my $wdkSearchUrl = "$siteUrl/$webappName/service/record-types/$recordType/searches/$searchName/reports/standard?reportConfig=$jsonString";
+
+  my $contents = get($wdkSearchUrl);
+
+  if (! defined $contents) {
+    die "ERROR running wdk search with url ", $wdkSearchUrl, " ", "\n";
+  }
+
+  my $wdkResult = from_json($contents);
+
+  return $wdkResult->{meta}->{displayTotalCount};
+}
+
+sub getOrganisms {
+  my ($siteUrl, $webappName) = @_;
+
+
+  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": -1 },"attributes":["organism_name"],"tables":[]});
+
+  my $wdkOrganismsUrl = "$siteUrl/$webappName/service/record-types/organism/searches/GenomeDataTypes/reports/standard?reportConfig=$jsonString";
+
+  my $contents = get($wdkOrganismsUrl);
+
+  if (! defined $contents) {
+    die "ERROR getting wdk organisms with url ", $wdkOrganismsUrl, " ", "\n";
+  }
+
+  my $wdkResult = from_json($contents);
+
+  my $organisms = $wdkResult->{records};
+
+  my $organismNames;
+  foreach my $organism (@$organisms) {
+    my $organismName = $organism->{attributes}->{organism_name};
+    push(@$organismNames, $organismName);
+  }
+
+  return $organismNames;
+}
+
+sub usage {
+  die "
+Test the wdk records installed in a website's site search by comparing against the WDK records found by querying the WDK
+
+Usage: testSiteSearchWdkRecordCounts website_url project webapp_name
+
+Example: testSiteSearchWdkRecordCounts https://qa.plasmodb.org PlasmoDB plasmo.bld49
+
+Uses a hard-coded list of record types expected in Solr.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
+
+";
+}
+

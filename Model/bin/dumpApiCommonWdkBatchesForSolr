@@ -111,9 +111,9 @@ sub getPropsFromFile {
 sub usage {
 
   die
-"Dump batches to be loaded into solr from data produced by the workflow.
+"Dump ApiCommon batches to be loaded into solr from data produced by the workflow.  
 
-usage:  dumpWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
+usage:  dumpApiCommonWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
 
 Dump wdk records as Solr compatible Json
 

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdkModel>
+
+    <!-- *************** -->
+    <!-- model querySets -->
+    <!-- *************** -->
+
+    <!--
+    A "query" obtains tabular values from a data source.  It has columns
+    and parameters.  So far, only SQL data sources are supported, but others,
+    such as flat files are coming.  
+
+    Queries are used for different purposes: providing primary keys to a 
+    question; providing attributes and tables to a record; and, providing
+    vocabularies to vocabulary parameters.
+
+    A "query set" is a grouping of queries.  It is useful in organizing the
+    model xml file.  
+
+    The full name of a query is of the form "set_name.name."
+    -->
+
+    <querySet name="SequenceId" queryType="id" isCacheable="true">
+
+      <sqlQuery name="AllSequences">
+        <column name="full_id"/>
+        <sql>
+          <![CDATA[
+            select full_id
+            from apidbTuning.SequenceAttributes
+          ]]>
+        </sql>
+      </sqlQuery>
+
+      <!-- an id query that returns sequences starting with a given letter, as an easy way to segment the sequences, so that we don't generate massive JSON files -->
+      <sqlQuery name="SequencesByAlphabet">
+      <paramRef ref="sequenceParams.alphabetLetter"/>
+        <column name="full_id"/>
+        <sql>
+          <![CDATA[
+            select full_id
+            from apidbTuning.SequenceAttributes
+            where full_id like $$alphabetLetter$$ || '%'
+          ]]>
+        </sql>
+      </sqlQuery>
+
+      <sqlQuery name="Alias">
+        <column name="full_id"/>
+        <column name="old_full_id"/>
+        <sql>
+          <![CDATA[
+            select full_id, full_id as old_full_id
+            from apidbTuning.SequenceAttributes
+          ]]>
+        </sql>
+      </sqlQuery>
+
+    </querySet>
+
+      <paramSet name="sequenceParams">
+          <stringParam name="alphabetLetter"
+                       prompt="letter"
+                       number="false"/>
+      </paramSet>
+
+
+    <!-- Queries that retrieve attributes of sequencess -->
+    
+    <querySet name="SequenceAttributes" queryType="attribute" isCacheable="false">
+
+        <sqlQuery name="SequenceAttrs">
+            <column name="full_id"/>
+            <column name="source_id"/>
+            <column name="project"/>
+            <column name="length"/>
+            <column name="product"/>
+            <column name="molecular_weight"/>
+            <column name="abbreviation"/>
+            <column name="taxon_name"/>          
+            <column name="ec_numbers"/>          
+            <column name="pfam_domains"/>          
+            <sql>
+		<![CDATA[
+SELECT eas.secondary_identifier AS full_id, eas.source_id,
+       eas.length, eas.description AS product,
+       eas.molecular_weight,
+       ot.three_letter_abbrev AS abbreviation, 
+       ot.name AS taxon_name,
+       (SELECT  apidb.tab_to_string(set(cast(collect(ec.description || ' (' || ec.ec_number || ')') as apidb.varchartab)), ', ')
+                    FROM dots.AaSequenceEnzymeClass asec, sres.enzymeClass ec
+                   WHERE eas.aa_sequence_id = asec.aa_sequence_id
+                     AND asec.enzyme_class_id = ec.enzyme_class_id
+               GROUP by eas.secondary_identifier
+              ) as ec_numbers,
+       (SELECT apidb.tab_to_string(set(cast(collect(da.description || ' (' || da.accession || ')') as apidb.varchartab)), ', ')
+        FROM ApidbTuning.DomainAssignment da
+        WHERE da.aa_sequence_id = eas.aa_sequence_id
+        GROUP BY da.full_id ) as pfam_domains,
+       'OrthoMCL' as project
+FROM dots.ExternalAaSequence eas, apidb.orthomcltaxon ot
+WHERE NVL(SUBSTR(eas.secondary_identifier, 0, INSTR(eas.secondary_identifier, '|')-1), eas.secondary_identifier)
+       = ot.three_letter_abbrev
+ 		]]>
+            </sql>
+        </sqlQuery>
+
+        <sqlQuery name="SequenceGroup">
+           <column name="full_id"/>
+           <column name="core_peripheral"/>
+           <column name="group_name"/>
+           <column name="num_core"/>
+           <column name="num_peripheral"/>
+           <column name="url"/>
+           <column name="link_text"/>
+           <sql>
+             <![CDATA[
+               SELECT sa.full_id, sa.group_name, sa.source_url,
+	              CASE sa.core_peripheral WHEN 'C' THEN 'Core' WHEN 'P' THEN 'Peripheral' END AS core_peripheral,
+		      CASE WHEN sa.group_name LIKE 'OG%r%_%' THEN 0 ELSE sa.group_size END AS num_core,
+		      CASE WHEN sa.group_name LIKE 'OG%r%_%' THEN sa.group_size ELSE sa.peripheral_group_size-sa.group_size END AS num_peripheral, 
+                      CASE WHEN sa.source_url is null THEN null ELSE sa.full_id END AS link_text
+               FROM ApidbTuning.SequenceAttributes sa
+             ]]>
+           </sql>
+        </sqlQuery>
+
+        <sqlQuery name="SequenceSequence">
+            <column name="full_id"/>
+            <column name="sequence"/>
+            <sql>
+			<![CDATA[
+            SELECT eas.secondary_identifier AS full_id, eas.sequence 
+            FROM dots.ExternalAaSequence eas
+ 			]]>
+            </sql>
+        </sqlQuery>
+
+    </querySet>
+
+    <querySet name="SequenceTables" queryType="table" isCacheable="false">
+
+        <sqlQuery name="CurrentAndOldGroups">
+            <column name="full_id"/>
+            <column name="current_old_groups"/>
+            <sql>
+                        <![CDATA[
+                    with sequences as
+                         (select full_id, group_name, aa_sequence_id
+                          from ApidbTuning.SequenceAttributes)
+                      select s.full_id, s.group_name AS current_old_groups
+                      from sequences s
+                      where s.group_name is not null
+                    union
+                      select s.full_id, ref.primary_identifier AS current_old_groups
+                      from sequences s, 
+                           dots.AaSequenceDbRef seqref, Sres.DbRef ref,
+                           sres.ExternalDatabase db, Sres.ExternalDatabaseRelease dbr
+                      where s.aa_sequence_id = seqref.aa_sequence_id
+                        and seqref.db_ref_id = ref.db_ref_id
+                        and ref.external_database_release_id = dbr.external_database_release_id
+                        and dbr.external_database_id = db.external_database_id
+                        and db.name = 'OrthoMCL Old Groups'
+                        ]]>
+            </sql>
+        </sqlQuery>
+
+
+        <sqlQuery name="PFamDomains">
+            <column name="full_id"/>
+            <column name="accession"/>
+            <column name="symbol"/>
+            <column name="description"/>
+            <column name="domain_index"/>
+            <column name="max_index"/>
+            <column name="start_min"/>
+            <column name="end_max"/>
+            <column name="length"/>
+            <sql>
+                        <![CDATA[
+     SELECT da.full_id, da.accession, da.symbol, da.description, da.domain_index,
+            (SELECT MAX(domain_index) FROM ApidbTuning.DomainAssignment) AS max_index,
+            da.start_min, da.end_max, sa.length
+     FROM ApidbTuning.DomainAssignment da, ApidbTuning.SequenceAttributes sa
+     WHERE da.full_id = sa.full_id
+     ORDER BY da.full_id, da.start_min
+            ]]>
+          </sql>
+        </sqlQuery>
+
+
+        <sqlQuery name="EcNumbers">
+            <column name="full_id"/>
+            <column name="ec_number"/>
+            <column name="description"/>
+            <column name="expasy_url"/>
+            <sql>
+                <![CDATA[
+                    SELECT eas.secondary_identifier as full_id, ec.ec_number, ec.description,
+                                 'http://enzyme.expasy.org/cgi-bin/enzyme/enzyme-search-ec?field1=' || ec.ec_number_1
+                                 || chr(38) || 'field2=' || ec.ec_number_2
+                                 || chr(38) || 'field3=' || ec.ec_number_3
+                                 || chr(38) || 'field4=' || ec.ec_number_4 as expasy_url
+                    FROM dots.ExternalAaSequence eas,
+                         dots.AaSequenceEnzymeClass asec, sres.enzymeClass ec
+                    WHERE eas.aa_sequence_id = asec.aa_sequence_id
+                      AND asec.enzyme_class_id = ec.enzyme_class_id
+ 		]]>
+            </sql>
+        </sqlQuery>
+
+        <!-- tables for text search -->
+
+        <sqlQuery name="Product">
+            <column name="full_id"/>
+            <column name="product"/>
+            <column name="id_string"/>
+            <sql>
+		<![CDATA[
+                  SELECT eas.secondary_identifier AS full_id,
+                         eas.description AS product,
+                         eas.secondary_identifier AS id_string
+                  FROM dots.ExternalAaSequence eas
+ 		]]>
+            </sql>
+        </sqlQuery>
+
+        <sqlQuery name="Taxon">
+            <column name="full_id"/>
+            <column name="taxon"/>
+            <column name="abbreviation"/>
+            <sql>
+		<![CDATA[
+                  SELECT eas.secondary_identifier AS full_id,
+                         ot.three_letter_abbrev AS abbreviation,
+                         ot.name AS taxon
+                  FROM dots.ExternalAaSequence eas, apidb.orthomcltaxon ot
+                  WHERE NVL(SUBSTR(eas.secondary_identifier, 0, INSTR(eas.secondary_identifier, '|')-1), eas.secondary_identifier) = ot.three_letter_abbrev
+ 		]]>
+            </sql>
+        </sqlQuery>
+
+        <sqlQuery name="OrthologGroupId">
+            <column name="full_id"/>
+            <column name="group_name"/>
+            <sql>
+                <![CDATA[
+                    with sequences as
+                         (select full_id, group_name, aa_sequence_id
+                          from ApidbTuning.SequenceAttributes)
+                      select s.full_id, s.group_name
+                      from sequences s
+                      where s.group_name is not null
+                    union
+                      select s.full_id, ref.primary_identifier AS group_name
+                      from sequences s, 
+                           dots.AaSequenceDbRef seqref, Sres.DbRef ref,
+                           sres.ExternalDatabase db, Sres.ExternalDatabaseRelease dbr
+                      where s.aa_sequence_id = seqref.aa_sequence_id
+                        and seqref.db_ref_id = ref.db_ref_id
+                        and ref.external_database_release_id = dbr.external_database_release_id
+                        and dbr.external_database_id = db.external_database_id
+                        and db.name = 'OrthoMCL Old Groups'
+ 		]]>
+            </sql>
+        </sqlQuery>
+
+    </querySet>
+
+</wdkModel>

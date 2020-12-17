@@ -1,0 +1,120 @@
+#!/usr/bin/perl
+
+use lib "$ENV{GUS_HOME}/lib/perl";
+use Getopt::Long;
+use strict;
+use DBI;
+
+my $BATCH_DIR_PREFIX = "solr-json-batch";
+
+my $ORG_ABBREV_SQL = "select distinct abbrev AS internal from apidb.Organism order by abbrev";
+
+my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
+&GetOptions("targetDir=s" => \$targetDir,
+            "wdkServiceUrl=s" => \$wdkServiceUrl,
+            "numberOfOrganisms=i" => \$numberOfOrganisms,
+	    "verbose!" => \$verbose);
+
+$| = 1;
+
+&usage unless ($targetDir && $wdkServiceUrl);
+
+die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
+
+my $gusProps = getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
+my $modelProps = getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
+
+my $dbh = getDbh($gusProps);
+
+my @alphabet = ('a' .. 'z');
+
+for my $letter (@alphabet) {
+  runWdkReportParam("sequence", $letter, "alphabetLetter", $letter);
+}
+
+my @numerals = ('0' .. '9');
+
+for my $numeral (@numerals) {
+  runWdkReportParam("group", $numeral, "numeral", $numeral);
+}
+
+print STDOUT "Done.\n";
+exit 0;
+
+sub checkPrevBatchDir {
+  my ($prevBatchDir, $batchType, $batchName) = @_;
+
+  return 0 unless -e $prevBatchDir;
+
+  die "\nError: Incomplete batch dir (no DONE file): $prevBatchDir.  Please delete it first.\n" unless -e "$prevBatchDir/DONE";
+
+  print STDOUT "Batch '$batchType $batchName' already present in targetDir.  Skipping.\n";
+  return 1;
+}
+
+sub runWdkReportParam {
+  my ($batchType, $batchName, $paramName, $paramValue) = @_;
+  my @temp = glob("$targetDir/${BATCH_DIR_PREFIX}_${batchType}_${batchName}*");
+
+  return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
+
+  my $cmd = "ssCreateWdkRecordsBatch $batchType $batchName $wdkServiceUrl $targetDir  --paramName $paramName --paramValue $paramValue";
+  runCmd($cmd);
+  return 1;
+}
+
+sub runCmd {
+  my ($cmd) = @_;
+  print STDOUT "Running $cmd\n";
+  system($cmd) && die "Failed\n";
+}
+
+sub getDbh {
+  my ($props) = @_;
+
+  my $u  = $props->{databaseLogin};
+  my $pw = $props->{databasePassword};
+  my $dsn = $props->{dbiDsn};
+  $dbh = DBI->connect($dsn, $u, $pw) ||  die "Couldn't connect to database: " . DBI->errstr;
+  $dbh->{RaiseError} = 1;
+  return $dbh;
+}
+
+sub getPropsFromFile {
+  my ($propFile) = @_;
+  open(F, $propFile) || die "Error: can't open config file '$propFile'\n";
+  my $props;
+  while(<F>) {
+    next if /^\s+$/;  # skip blank lines
+    next if /^\s+\#/; # skip comments
+    /(\w+)\=(\S+)/;
+    $props->{$1} = $2;
+  }
+  return $props;
+}
+
+sub usage {
+
+  die
+"Dump OrthoMCL batches to be loaded into solr from data produced by the workflow.  
+
+usage:  dumpOrthomclWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
+
+Dump wdk records as Solr compatible Json
+
+Dumps data in hard-coded set of batches:
+ - organisms (one batch per organism)
+ - pathways
+ - compounds
+ - datasets
+ - popset isolates
+
+Connects to the appDb found in $ENV{GUS_HOME}/config/gus.config, and queries it to find the list of organisms to dump.
+
+Connects to a running SiteSearchData wdk service to generate the reports.
+
+If numberOfOrganisms provided, dump at most that many in this run (doesn't count skipped organisms).
+
+Calls the createWdkRecordsSolrBatch command to do the work.
+";
+}

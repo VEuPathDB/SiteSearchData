@@ -14,6 +14,8 @@ die "
 Dump WDK meta information (eg Searches) into solr-compatible json files.  Reads the web services
 from QA sites for all the genomics components.
 
+(This program is deprecated, in favor of a jenkins job associated with a site build, that performs the same function.)
+
 (The program has a hard-coded list of genomics components.  It uses that and the provided buildNum to form the URL
 for each QA site.  It calls ssCreateWdkMetaBatch for each one.)
 
