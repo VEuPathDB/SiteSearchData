@@ -112,7 +112,7 @@ Each Question must:
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="abbreviation" displayName="Taxon Code"/>
+        <columnAttribute name="abbreviation" displayName="Taxon Abbreviation"/>
         <columnAttribute name="taxon_name" displayName="Taxon Name">
           <propertyList name="isSummary">
             <value>true</value>
@@ -190,24 +190,42 @@ Each Question must:
       <!-- Tables -->
       <!-- =============================================================== -->
 
-      <table name="TaxonCounts" displayName="Taxon Abbreviation"
-             queryRef="GroupTables.TaxonCounts">
-          <columnAttribute name="abbrev" displayName="Taxon Abbreviation" />
+      <table name="ProteinTaxonAbbrev" displayName="Protein Taxon Abbreviation"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="taxon_abbrev" displayName="Protein Taxon Abbreviation" />
       </table>
 
-
-      <table name="Sequences"
-             displayName="List of All Sequences"
+      <table name="ProteinID"
+             displayName="Protein ID"
              queryRef="GroupTables.Proteins">
-          <columnAttribute name="full_id" internal="true" />
+          <columnAttribute name="full_id">
+            <propertyList name="boost">
+              <value>10</value>
+             </propertyList>
+          </columnAttribute>
           <columnAttribute name="source_id">
             <propertyList name="boost">
               <value>10</value>
              </propertyList>
           </columnAttribute>
-          <columnAttribute name="taxon_name" displayName="Taxon" />
-          <columnAttribute name="description" displayName="Description" />
-          <columnAttribute name="previous_groups" displayName="Previous Groups" />
+      </table>
+
+      <table name="ProteinDescription"
+             displayName="Protein Description"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="description" displayName="Protein Description" />
+      </table>
+
+      <table name="ProteinTaxonName"
+             displayName="Protein Taxon Name"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="taxon_name" displayName="Protein Taxon Name" />
+      </table>
+
+      <table name="ProteinPreviousGroups"
+             displayName="Protein Previous Groups"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="previous_groups" displayName="Protein Previous Groups" />
       </table>
       
       <table name="PFams"
