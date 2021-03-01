@@ -239,6 +239,19 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         # Check that the core is still empty
         self.assertTrue(core_is_empty(self.core_url))
 
+    def test_batch_fail_DONE(self):
+        """
+        Test that indexing with '--batch-dir' fails if the DONE file is missing.
+        """
+        # Index batch
+        dir_path = test_dir_path + '/test_data/input/invalid_batches/index_batch_fail_DONE'
+        cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
+        process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(process.returncode, 0, process.stderr)
+
+        # Check that the core is still empty
+        self.assertTrue(core_is_empty(self.core_url))
+
     def test_batch_fail_invalid(self):
         """
         Test that indexing with '--batch-dir' fails if the batch is invalid.
