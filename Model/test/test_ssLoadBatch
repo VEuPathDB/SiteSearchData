@@ -149,20 +149,20 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         Test that indexing a batch using '--batch-dir' works.
         """
         # Index batch
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000.json')
+        self.check_solr_against(test_dir_path + '/test_data/output/pathway_batch-name_1000000000.json')
 
     def test_batch_validate_only(self):
         """
         Test the '--validate-only' option.
         """
         # Validate batch
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--validate-only']
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
@@ -175,7 +175,7 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         Test that indexing a batch that already exists in Solr has no effect.
         """
         # Index batch
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
@@ -198,19 +198,19 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         Test that updating a batch using '--batch-dir --replace' works.
         """
         # Index batch
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Replace batch
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000001'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000001'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--replace']
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000001.json')
+        self.check_solr_against(test_dir_path + '/test_data/output/pathway_batch-name_1000000001.json')
 
     def test_batch_replace_success_missing(self):
         """
@@ -218,13 +218,13 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         works even if the batch doesn't exist in Solr.
         """
         # Replace batch that doesn't exist in Solr
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000001'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000001'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path, '--replace']
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000001.json')
+        self.check_solr_against(test_dir_path + '/test_data/output/pathway_batch-name_1000000001.json')
 
     def test_batch_fail_batch_json(self):
         """
@@ -258,19 +258,19 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         a different version of the batch is already loaded.
         """
         # Index batch
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Attempt to index different batch version
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000001'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000001'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path,]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000.json')
+        self.check_solr_against(test_dir_path + '/test_data/output/pathway_batch-name_1000000000.json')
 
     def test_batch_fail_batch_docs_exist(self):
         """
@@ -278,7 +278,7 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         batch exist in Solr without a corresponding batch-meta document.
         """
         # Index file
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000'
         file_path = dir_path + '/data_file_0.json'
 
         with open(file_path) as f:
@@ -293,7 +293,7 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         self.assertNotEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000_file_0.json')
+        self.check_solr_against(test_dir_path + '/test_data/output/pathway_batch-name_1000000000_file_0.json')
 
 
 class DeleteTestCase(SiteSearchLoadBatchTestCase):
@@ -302,7 +302,7 @@ class DeleteTestCase(SiteSearchLoadBatchTestCase):
         Test deleting a batch using '--batch-type-name'.
         """
         # Index first batch
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
@@ -319,14 +319,14 @@ class DeleteTestCase(SiteSearchLoadBatchTestCase):
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000.json')
+        self.check_solr_against(test_dir_path + '/test_data/output/pathway_batch-name_1000000000.json')
 
     def test_delete_batch_id(self):
         """
         Test deleting a batch using '--batch-id'.
         """
         # Index first batch
-        dir_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000'
+        dir_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000'
         cmd = self.script_base_cmd + ['index', '--batch-dir', dir_path]
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
@@ -343,7 +343,7 @@ class DeleteTestCase(SiteSearchLoadBatchTestCase):
         self.assertEqual(process.returncode, 0, process.stderr)
 
         # Check Solr state
-        self.check_solr_against(test_dir_path + '/test_data/output/dataset_batch-name_1000000000.json')
+        self.check_solr_against(test_dir_path + '/test_data/output/pathway_batch-name_1000000000.json')
 
 
 class RollbackTestCase(SiteSearchLoadBatchTestCase):
@@ -353,7 +353,7 @@ class RollbackTestCase(SiteSearchLoadBatchTestCase):
         """
         # Stage a file for indexing
         url = self.core_url + '/update'
-        file_path = test_dir_path + '/test_data/input/valid_batches/dataset_batch-name_1000000000/data_file_0.json'
+        file_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000/data_file_0.json'
 
         with open(file_path) as f:
             data = f.read()
