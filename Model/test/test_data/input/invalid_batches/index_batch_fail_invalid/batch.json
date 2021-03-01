@@ -1,10 +1,10 @@
 [
     {
-        "batch-type": "dataset",
+        "batch-type": "pathway",
         "batch-name": "batch-name",
         "document-type": "batch-meta",
         "batch-timestamp": 1000000000,
-        "batch-id": "dataset_batch-name_1000000000",
-        "id": "dataset_batch-name_1000000000"
+        "batch-id": "pathway_batch-name_1000000000",
+        "id": "pathway_batch-name_1000000000"
     }
 ]

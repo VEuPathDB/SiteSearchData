@@ -3,8 +3,8 @@
         "batch-type": "pathway",
         "batch-name": "batch-name",
         "document-type": "batch-meta",
-        "batch-timestamp": 1000000000,
-        "batch-id": "pathway_batch-name_1000000000",
+        "batch-timestamp": 1000000001,
+        "batch-id": "pathway_batch-name_1000000001",
         "id": "pathway_batch-name_1000000000"
     }
 ]
