@@ -39,7 +39,7 @@ command to delete the corrupted batch.
 Examples:
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-type-name BATCH_TYPE BATCH_NAME
-  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 BATCH_ID_2
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 [BATCH_ID_2 ...]
 """
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
@@ -51,7 +51,7 @@ Examples:
     # Index subparser
     parser_index = subparsers.add_parser('index', help='Index batches into Solr.')
     parser_index.set_defaults(func=index)
-    parser_index.add_argument('--batch-dir', help="Index a new batch contained in the given directory. The directory must contain a batch.json file and the JSON files containing the data must have a '.json' extension. Each data file must be a JSON-formatted list of Solr documents, that is, a JSON array containing JSON objects. The data files will be loaded first, and batch.json last, indicating a successful load. Batch validation is performed before loading, which involves making sure that the following fields in all data documents match the values of those fields in batch.json: batch-type, batch-name, batch-id, batch-timestamp. If validation fails, an error is thrown. If a batch-meta document with batch-id equal to the batch-id of this batch exists in Solr, we assume this batch has already been successfully loaded and skip it. If a batch-meta document with the same batch-type and batch-name but different timestamp is found, an error is thrown (add --replace to replace the batch, instead). If no matching batch-meta document is found but other documents with the same batch-type and batch-name are found, this constitutes a data integrity problem and we throw an error.")
+    parser_index.add_argument('--batch-dir', help="Index a new batch contained in the given directory. The directory must contain a batch.json file and the JSON files containing the data must have a '.json' extension. Each data file must be a JSON-formatted list of Solr documents, that is, a JSON array containing JSON objects. The data files will be loaded first, and batch.json last, indicating a successful load. Batch validation is performed before loading, which involves checking for a DONE file in the bach directory and making sure that the following fields in all data documents match the values of those fields in batch.json: batch-type, batch-name, batch-id, batch-timestamp. If validation fails, an error is thrown. If a batch-meta document with batch-id equal to the batch-id of this batch exists in Solr, we assume this batch has already been successfully loaded and skip it. If a batch-meta document with the same batch-type and batch-name but different timestamp is found, an error is thrown (add --replace to replace the batch, instead). If no matching batch-meta document is found but other documents with the same batch-type and batch-name are found, this constitutes a data integrity problem and we throw an error.")
     parser_index.add_argument('--replace', action='store_true', help='Use in combination with --batch-dir to replace a batch that already exists in Solr. If the batch is not found in Solr, it gets added as normal.')
     parser_index.add_argument('--validate-only', action='store_true', help='Validate the batch provided with --batch-dir, but do not index it.')
 
@@ -265,13 +265,17 @@ def rollback(solr_url):
 def validate_batch(batch_dir):
     """Validate a batch.
 
-    This involves making sure that certain fields are identical in all
-    documents in the batch.
+    This involves making sure that a DONE file exists in batch_dir and that
+    certain fields are identical in all documents in the batch.
 
     Args:
         batch_dir (str): The path to the batch.
     """
     print('Validating batch', flush=True)
+
+    # Look for a DONE file in batch_dir
+    if not os.path.isfile(batch_dir + '/DONE'):
+        raise ValueError('No DONE file present in batch directory')
 
     # Read batch.json
     batch_json_path = batch_dir + '/batch.json'
