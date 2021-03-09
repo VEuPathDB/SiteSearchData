@@ -212,7 +212,7 @@ WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
             <sql>
               <![CDATA[
                 select case sa.core_peripheral when 'C' then 'Core' when 'P' then 'Peripheral' else '' end as core_peripheral,
-		       sa.group_name, sa.full_id, sa.taxon_name, sa.taxon_abbreviation AS taxon_abbrev,
+		       sa.group_name, sa.full_id, sa.organism_name AS taxon_name, sa.taxon_abbreviation AS taxon_abbrev,
                        sa.length, sa.product as description,
                        sa.old_groups as previous_groups, sa.ec_numbers, sa.source_id
                 from ApidbTuning.SequenceAttributes sa
@@ -225,12 +225,12 @@ WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
           <column name="accession"/>
           <column name="symbol"/>
           <column name="description"/>
-          <column name="occurrences"/>
+          <column name="num_proteins"/>
           <column name="domain_index"/>
           <column name="max_index"/>
           <sql>
             <![CDATA[
-     SELECT group_name, accession, symbol, description, domain_index, COUNT(*) as occurrences,
+     SELECT group_name, accession, symbol, description, domain_index, COUNT(distinct full_id) as num_proteins,
             (SELECT MAX(domain_index) FROM ApidbTuning.DomainAssignment) AS max_index
      FROM ApidbTuning.DomainAssignment
      GROUP BY group_name, accession, symbol, description, domain_index
