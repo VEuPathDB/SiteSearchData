@@ -131,6 +131,17 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="Organisms">
+      <column name="source_id"/>
+      <column name="organism"/>
+      <sql>
+        <![CDATA[
+          select gene_source_id as source_id, organism
+          from apidbTuning.GeneAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
 
     <sqlQuery name="ECNumbers" >
       <column name="source_id"/>
