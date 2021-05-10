@@ -49,7 +49,7 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="Publications">
+ <sqlQuery name="Publications">
       <column name="dataset_id"/>
       <column name="pmid"/>
       <column name="citation"/>
