@@ -699,7 +699,7 @@ Each Question must:
       </table>
 
       <!-- special internal field for organism filtering -->
-      <table name="organismsForFilter" displayName="dontcare" queryRef="SequenceTables.Organisms" internal="true">
+      <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
 	<columnAttribute name="organism"/>  
       </table>
       
