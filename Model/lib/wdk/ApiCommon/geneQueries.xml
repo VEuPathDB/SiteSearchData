@@ -136,7 +136,7 @@
       <column name="organism"/>
       <sql>
         <![CDATA[
-          select gene_source_id as source_id, organism
+          select source_id, organism
           from apidbTuning.GeneAttributes
         ]]>
       </sql>
