@@ -13,6 +13,7 @@ Each record class must:
 - have a <propertyList> with a "batch" property, indicating what type of batch that record class should be bundled with
 - should have only <attributeQueryRef>s and <table>s
 - might include an internal 'project' attribute if in solr we should segment these records by project
+- might include an internal 'organismsForFilter' table if searches for this record can be filtered by organism(s)
 
 Each <querySet> must set isCacheable="false".  No queries should set isCacheable.
 
@@ -125,7 +126,7 @@ Each Question must:
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
-      <table name="organism" displayName="dontcare" queryRef="OrganismTables.Organisms" internal="true">
+      <table name="organismsForFilter" displayName="dontcare" queryRef="OrganismTables.Organisms" internal="true">
 	<columnAttribute name="organism"/>  
       </table>
       
@@ -181,7 +182,7 @@ Each Question must:
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
-      <table name="organism" displayName="dontcare" queryRef="SequenceTables.Organisms" internal="true">
+      <table name="organismsForFilter" displayName="dontcare" queryRef="SequenceTables.Organisms" internal="true">
 	<columnAttribute name="organism"/>  
       </table>
       
@@ -461,7 +462,7 @@ Each Question must:
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
-      <table name="organism" displayName="dontcare" queryRef="GeneTables.Organisms" internal="true">
+      <table name="organismsForFilter" displayName="dontcare" queryRef="GeneTables.Organisms" internal="true">
 	<columnAttribute name="organism"/>  
       </table>
       
@@ -698,7 +699,7 @@ Each Question must:
       </table>
 
       <!-- special internal field for organism filtering -->
-      <table name="organism" displayName="dontcare" queryRef="SequenceTables.Organisms" internal="true">
+      <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
 	<columnAttribute name="organism"/>  
       </table>
       
