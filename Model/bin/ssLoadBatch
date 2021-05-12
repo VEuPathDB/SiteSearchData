@@ -403,7 +403,7 @@ def solr_request(method, url, data=None, auth=None, headers=None):
     if data:
         data = data.encode('utf-8')
 
-    request = requests.request(method, url, data=data, auth=auth, headers=headers)
+    request = requests.request(method, url, data=data, verify=False, auth=auth, headers=headers, )
 
     try:
         request.raise_for_status()
