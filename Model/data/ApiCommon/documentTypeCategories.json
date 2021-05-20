@@ -73,7 +73,7 @@
         "displayName": "Data set",
         "displayNamePlural": "Data sets",
         "wdkSearchUrlName": "DatasetsByText",
-        "hasOrganismField": false
+        "hasOrganismField": true
       },
       { "id": "search",
         "displayName": "Search",
