@@ -78,6 +78,17 @@
 
   <querySet name="SequenceTables" queryType="table" isCacheable="false">
 
+    <sqlQuery name="Organisms">
+      <column name="source_id"/>
+      <column name="organism"/>
+      <sql>
+        <![CDATA[
+          select source_id, organism
+          from apidbTuning.GenomicSeqAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
     <sqlQuery name="Aliases"
               isCacheable="false">
       <column name="source_id"/>

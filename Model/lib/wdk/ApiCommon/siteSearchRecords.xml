@@ -13,6 +13,7 @@ Each record class must:
 - have a <propertyList> with a "batch" property, indicating what type of batch that record class should be bundled with
 - should have only <attributeQueryRef>s and <table>s
 - might include an internal 'project' attribute if in solr we should segment these records by project
+- might include an internal 'organismsForFilter' table if searches for this record can be filtered by organism(s)
 
 Each <querySet> must set isCacheable="false".  No queries should set isCacheable.
 
@@ -20,7 +21,7 @@ Each <attributeQueryRef> must:
 - always and only include name and displayName.
 - never have its name changed.  Doing so will invalidate strategies in the UserDB.  (They are used as parameter values)
 - the displayName should use sentence case
-- may use a few special attributes are labeled internal=true.  these serve special purposes in site search land, and are commented accordingly
+- may use a few special attributes are labeled internal=true.  these serve special purposes in site search land, and are commented accordingly.  They are not exposed to end users in presentations of searchable fields.
   - project: for recordclasses that stored in solr separately per project (eg pathways)
   - organism: for recordclasses that can be filtered on organism
   - hyperlinkName: non-searchable attribute to use as text in the hyperlink for this recordclass in search results
@@ -118,13 +119,17 @@ Each Question must:
 
       <attributeQueryRef ref="OrganismAttributes.organismAttrs">
         <columnAttribute name="species" displayName="Species"/>
-        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism"/>
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="data_source" displayName="Data source"/>
 
       </attributeQueryRef>
 
+      <!-- special internal field for organism filtering -->
+      <table name="organismsForFilter" displayName="dontcare" queryRef="OrganismTables.Organisms" internal="true">
+	<columnAttribute name="organism"/>  
+      </table>
+      
       <table name="GenomeSequencingAndAnnotationAttribution"
              displayName="Genome sequencing and annotation"
              queryRef="OrganismTables.GenomeSequencingAndAnnotation">
@@ -168,7 +173,6 @@ Each Question must:
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism">
           <propertyList name="isSummary">
             <value>true</value>
@@ -177,6 +181,11 @@ Each Question must:
         <columnAttribute name="genbank_accession" displayName="GenBank"/>
       </attributeQueryRef>
 
+      <!-- special internal field for organism filtering -->
+      <table name="organismsForFilter" displayName="dontcare" queryRef="SequenceTables.Organisms" internal="true">
+	<columnAttribute name="organism"/>  
+      </table>
+      
       <table name="Aliases"
              displayName="Previous IDs and aliases"
              queryRef="SequenceTables.Aliases">
@@ -444,7 +453,6 @@ Each Question must:
             <value>2</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="organism" displayName="dontcare" internal="true"/>  <!-- special field for organism filtering -->
         <columnAttribute name="organism_full" displayName="Organism" >
           <propertyList name="isSummary">
             <value>true</value>
@@ -453,6 +461,11 @@ Each Question must:
         <columnAttribute name="orthomcl_name" displayName="Ortholog group"/>
       </attributeQueryRef>
 
+      <!-- special internal field for organism filtering -->
+      <table name="organismsForFilter" displayName="dontcare" queryRef="GeneTables.Organisms" internal="true">
+	<columnAttribute name="organism"/>  
+      </table>
+      
       <table name="GeneTranscripts"
              displayName="Transcripts"
              queryRef="GeneTables.GeneTranscripts">
@@ -685,6 +698,11 @@ Each Question must:
         <columnAttribute name="organism"/>
       </table>
 
+      <!-- special internal field for organism filtering -->
+      <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
+	<columnAttribute name="organism"/>  
+      </table>
+      
     </recordClass>
 
     <!-- ################################################################### -->

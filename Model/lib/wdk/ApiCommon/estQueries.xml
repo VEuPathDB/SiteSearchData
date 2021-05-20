@@ -9,9 +9,14 @@
         <![CDATA[
           select distinct ea.source_id
           from apidbTuning.EstAttributes ea,
-               apidbTuning.TaxonSpecies ts,
                sres.TaxonName tn,
-               apidb.Organism o
+               apidb.Organism o,
+               (  select taxon_id, species_taxon_id
+                  from apidbTuning.TaxonSpecies
+                union
+                  select taxon_id, taxon_id as species_taxon_id
+                  from apidb.Organism
+               ) ts
           where ea.organism = tn.name
             and tn.taxon_id = ts.species_taxon_id
             and ts.taxon_id = o.taxon_id

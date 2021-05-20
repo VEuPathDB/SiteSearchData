@@ -198,52 +198,6 @@ WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
 
     <querySet name="GroupTables" queryType="table"  isCacheable="false">
 
-      <sqlQuery name="TaxonCounts">
-        <column name="group_name"/>
-        <column name="taxon_id"/>
-        <column name="abbrev"/>
-        <column name="count"/>
-        <sql>
-          <![CDATA[
-            select sa.group_name, ot.orthomcl_taxon_id as taxon_id,
-                   ot.three_letter_abbrev as abbrev, count(*) as count
-            from ApidbTuning.SequenceAttributes sa,
-                 apidb.OrthomclTaxon ot
-            where sa.orthomcl_taxon_id = ot.orthomcl_taxon_id
-            group by sa.group_name, ot.orthomcl_taxon_id, ot.three_letter_abbrev
-          ]]>
-        </sql>
-      </sqlQuery>
-
-        <sqlQuery name="Statistics">
-            <column name="group_name"/>
-            <column name="group_type"/>
-            <column name="number_of_members"/>
-            <column name="avg_percent_identity"/>
-            <column name="number_of_match_pairs"/>
-            <column name="max_match_pairs"/>
-            <column name="percent_match_pairs"/>
-            <column name="avg_percent_match"/>
-            <column name="evalue"/>
-            <column name="evalue_display"/>
-            <column name="avg_connectivity"/>
-            <sql>
-            <![CDATA[
-		     SELECT name AS group_name, number_of_members, number_of_match_pairs,
-		            DECODE(avg_percent_identity,null,'',round(avg_percent_identity,1)) AS avg_percent_identity,
-			    DECODE(percent_match_pairs,null,'',round(percent_match_pairs,1)) AS percent_match_pairs,
-			    number_of_members*(number_of_members-1)/2 AS max_match_pairs,
-		            DECODE(avg_percent_match,null,'',round(avg_percent_match,1)) AS avg_percent_match,
-			    DECODE(avg_connectivity,null,'',round(100*avg_connectivity/(number_of_members-1),1)) AS avg_connectivity,
-			    CASE WHEN (number_of_members=1) THEN 1 WHEN (avg_evalue_mant IS NULL OR avg_evalue_exp IS NULL) THEN 0 ELSE ROUND(avg_evalue_mant,1) * power(10,avg_evalue_exp) END AS evalue,
-			    CASE WHEN (number_of_members=1) THEN '' WHEN (avg_evalue_mant IS NULL OR avg_evalue_exp IS NULL) THEN '0' ELSE ROUND(avg_evalue_mant,1) || 'E' || avg_evalue_exp END AS evalue_display,
-			    CASE core_peripheral_residual WHEN 'C' THEN 'Core only' WHEN 'P' THEN 'Core+Peripheral' WHEN 'R' THEN 'Peripheral only' ELSE '' END AS group_type
-		     FROM apidb.OrthologGroup
-			]]>
-            </sql>
-        </sqlQuery>
-
-
         <sqlQuery name="Proteins">
             <column name="core_peripheral"/>
             <column name="group_name"/>
@@ -258,7 +212,7 @@ WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
             <sql>
               <![CDATA[
                 select case sa.core_peripheral when 'C' then 'Core' when 'P' then 'Peripheral' else '' end as core_peripheral,
-		       sa.group_name, sa.full_id, sa.taxon_name, sa.taxon_abbreviation AS taxon_abbrev,
+		       sa.group_name, sa.full_id, sa.organism_name AS taxon_name, sa.taxon_abbreviation AS taxon_abbrev,
                        sa.length, sa.product as description,
                        sa.old_groups as previous_groups, sa.ec_numbers, sa.source_id
                 from ApidbTuning.SequenceAttributes sa
@@ -271,12 +225,12 @@ WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
           <column name="accession"/>
           <column name="symbol"/>
           <column name="description"/>
-          <column name="occurrences"/>
+          <column name="num_proteins"/>
           <column name="domain_index"/>
           <column name="max_index"/>
           <sql>
             <![CDATA[
-     SELECT group_name, accession, symbol, description, domain_index, COUNT(*) as occurrences,
+     SELECT group_name, accession, symbol, description, domain_index, COUNT(distinct full_id) as num_proteins,
             (SELECT MAX(domain_index) FROM ApidbTuning.DomainAssignment) AS max_index
      FROM ApidbTuning.DomainAssignment
      GROUP BY group_name, accession, symbol, description, domain_index
@@ -284,7 +238,6 @@ WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
             ]]>
           </sql>
         </sqlQuery>
-
 
         <sqlQuery name="ProteinPFams">
           <column name="group_name"/>
