@@ -490,17 +490,37 @@
               and lower(edd.dataset_presenter_name) not like '%nafeature_aliases%'
               and edd.dataset_presenter_name not like '%dbxref_simple_gene2HagaiPathway%'
               and lower(edd.dataset_presenter_name) not like '%pubmed%'
-
-          union                                                                                                                    
-              SELECT REPLACE(substr(ed.name, instr(ed.name, '_', 1, 3)+1), '_geneMapping_RSRC', '') as dataset,              
-	      ga.source_id, sref.primary_identifier as ext_id                                                                 
-	      FROM SRes.DbRef sref, DoTS.DbRefNAFeature refea, SRES.ExternalDatabase ed,SRES.ExternalDatabaseRelease edr,
-	      ApidbTuning.geneAttributes ga                                                                    
-	      WHERE sref.external_database_release_id  = edr.external_database_release_id                         
-	      AND ed.external_database_id = edr.external_database_id                                                    
-	      AND ed.name like '%geneMapping%'                                                                    
-	      AND refea.db_ref_id = sref.db_ref_id                                                                 
-	      AND refea.na_feature_id = ga.na_feature_id  
+          union
+              select replace(substr(ed.name, instr(ed.name, '_', 1, 3)+1), '_geneMapping_RSRC', '') as dataset,
+                     ga.source_id, sref.primary_identifier as ext_id
+	      from sres.DbRef sref, dots.DbRefNaFeature refea, sres.ExternalDatabase ed,
+                   sres.ExternalDatabaseRelease edr, apidbTuning.GeneAttributes ga
+	      WHERE sref.external_database_release_id  = edr.external_database_release_id
+	      AND ed.external_database_id = edr.external_database_id
+	      AND ed.name like '%geneMapping%'
+	      AND refea.db_ref_id = sref.db_ref_id
+	      AND refea.na_feature_id = ga.na_feature_id
+          union
+              select d.name as dataset, ga.source_id, dbr.primary_identifier as ext_id
+              from sres.dbref dbr, dots.DbRefNaFeature dbrf,
+                   sres.ExternalDatabaseRelease r, sres.ExternalDatabase d,
+                   apidbTuning.GeneAttributes ga
+              where dbr.external_database_release_id = r.external_database_release_id
+                and r.external_database_id = d.external_database_id
+                and dbr.db_ref_id = dbrf.db_ref_id
+                and dbrf.na_feature_id = ga.na_feature_id
+                and d.name not in ('PUBMED')
+          union
+              select d.name as dataset, ga.source_id, dbr.primary_identifier as ext_id
+              from sres.dbref dbr, dots.DbRefNaFeature dbrf, dots.Transcript t,
+                   sres.ExternalDatabaseRelease r, sres.ExternalDatabase d,
+                   apidbTuning.geneAttributes ga
+              where dbr.external_database_release_id = r.external_database_release_id
+                and r.external_database_id = d.external_database_id
+                and dbr.db_ref_id = dbrf.db_ref_id
+                and dbrf.na_feature_id = t.na_feature_id
+                and t.parent_id = ga.na_feature_id
+                and d.name != 'PUBMED'
         ]]>
       </sql>
     </sqlQuery>
