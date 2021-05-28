@@ -288,7 +288,11 @@
                sres.ExternalDatabaseRelease xdr3, sres.ExternalDatabase xd3,
                sres.DbRef dr, dots.DbRefAaFeature draf, dots.DomainFeature df,
                dots.DomainFeature df2
-          where xd3.name in ('InterproscanData_RSRC', 'INTERPRO')
+          where xd3.name
+                in ('InterproscanData_RSRC', 'INTERPRO', 'Prints', 'HAMAP', 'SFLD',
+                    'TIGRFAM', 'SUPERFAMILY', 'Pfam', 'PIRSF', 'PROSITE patterns',
+                    'Superfamily', 'PRINTS', 'InterProScan', 'PFAM', 'SMART',
+                    'CDD', 'PANTHER')
             and ta.aa_sequence_id = df.aa_sequence_id
             and df.aa_feature_id = draf.aa_feature_id
             and df.aa_feature_id = al.aa_feature_id
