@@ -34,14 +34,24 @@
       <column name="organism_full"/>
       <column name="organism"/>
       <column name="hyperlinkName"/>
+      <column name="genome_dataset_id"/>
       <sql>
         <![CDATA[
-                 select source_id, species, organism_name AS organism_full, organism_name AS organism,
-                 organism_name AS hyperlinkName,
-                 decode(genome_source, 'gb', 'GenBank',
-                        'jkissinger', 'Kissinger Lab', genome_source)
-                   as data_source
-          from apidbTuning.OrganismAttributes
+                 select oa.source_id, oa.species, oa.organism_name AS organism_full,
+                        oa. organism_name AS organism, oa.organism_name AS hyperlinkName,
+                        decode(genome_source, 'gb', 'GenBank',
+                               'jkissinger', 'Kissinger Lab', genome_source)
+                          as data_source,
+                        genome_dataset.genome_dataset_id
+                 from apidbTuning.OrganismAttributes oa,
+                      (select oa.source_id, dsp.description,
+                              dsp.dataset_presenter_id as genome_dataset_id
+                       from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetNameTaxon dnt,
+                            apidbTuning.OrganismAttributes oa
+                       where dsp.type = 'genome'
+                         and dsp.dataset_presenter_id = dnt.dataset_presenter_id
+                         and oa.component_taxon_id = dnt.taxon_id) genome_dataset
+                 where genome_dataset.source_id = oa.source_id(+)
         ]]>
       </sql>
     </sqlQuery>
