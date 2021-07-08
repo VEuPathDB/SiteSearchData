@@ -92,7 +92,7 @@ Each Question must:
     <!-- ########################  Organism Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="organism" urlName="dataset" displayName="Organism">
+    <recordClass name="organism" urlName="organism" displayName="Organism">
       <propertyList name="batch">
         <value>dataset-presenter</value>
       </propertyList>
@@ -107,7 +107,7 @@ Each Question must:
         </propertyList>
         <text>
           <![CDATA[
-                   $$genome_dataset_id$$
+                   $$source_id$$
           ]]>
         </text>
       </idAttribute>
@@ -122,7 +122,7 @@ Each Question must:
         <columnAttribute name="organism_full" displayName="Organism"/>
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="data_source" displayName="Data source"/>
-        <columnAttribute name="genome_dataset_id" internal="true"/>
+        <columnAttribute name="genome_dataset_id" displayName="Genome Dataset ID" internal="true"/>
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
