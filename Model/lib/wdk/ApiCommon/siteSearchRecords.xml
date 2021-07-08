@@ -107,7 +107,7 @@ Each Question must:
         </propertyList>
         <text>
           <![CDATA[
-                   genome_dataset_id$$
+                   $$genome_dataset_id$$
           ]]>
         </text>
       </idAttribute>
@@ -122,7 +122,7 @@ Each Question must:
         <columnAttribute name="organism_full" displayName="Organism"/>
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="data_source" displayName="Data source"/>
-        <column name="genome_dataset_id" internal="true"/>
+        <columnAttribute name="genome_dataset_id" internal="true"/>
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
