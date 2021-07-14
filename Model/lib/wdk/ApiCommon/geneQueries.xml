@@ -10,6 +10,12 @@
           from apidbTuning.GeneAttributes ga, apidb.Organism o
           where ga.taxon_id = o.taxon_id
             and o.abbrev = $$organismAbbrev$$
+UNION
+          select distinct ga.source_id
+          from apidbTuning.GeneAttributes ga, apidb.Organism o
+          where ga.taxon_id = o.taxon_id
+            and o.abbrev = $$organismAbbrev$$
+	    and ga.source_id regex_like '%.
         ]]>
       </sql>
     </sqlQuery>
@@ -316,6 +322,7 @@
       <column name="id_type"/>
       <sql>
         <![CDATA[
+     with alias_query as (
           select distinct
                  upper(replace(gi.id, ';current=false', '')) as alias,
                  gi.database_name,
@@ -334,7 +341,13 @@
           from apidbTuning.GeneId gi
           where regexp_like(gi.id, '(\D)')
             and gi.database_name not like '%gene2Uniprot_RSRC'
-            and gi.union_member != 'same ID'
+            and gi.union_member != 'same ID' )
+     select * from alias_query
+     union
+     select regexp_replace(alias, '(*)\.\d\d?$', '') as alias,
+            database_name,'base name ' || id_type as id_type,source_id
+     from alias_query
+     where regexp_like(alias,'(*)\.\d\d?$')
         ]]>
       </sql>
     </sqlQuery>
