@@ -10,12 +10,6 @@
           from apidbTuning.GeneAttributes ga, apidb.Organism o
           where ga.taxon_id = o.taxon_id
             and o.abbrev = $$organismAbbrev$$
-UNION
-          select distinct ga.source_id
-          from apidbTuning.GeneAttributes ga, apidb.Organism o
-          where ga.taxon_id = o.taxon_id
-            and o.abbrev = $$organismAbbrev$$
-	    and ga.source_id regex_like '%.
         ]]>
       </sql>
     </sqlQuery>
