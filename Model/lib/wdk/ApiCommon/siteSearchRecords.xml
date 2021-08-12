@@ -589,6 +589,7 @@ Each Question must:
              queryRef="GeneTables.RodMalPhenotype">
         <propertyList name="includeProjects">
           <value>PlasmoDB</value>
+          <value>UniDB</value>
         </propertyList>
         <columnAttribute name="rmgmid"/>
         <columnAttribute name="pubmed_id"/>
@@ -604,6 +605,7 @@ Each Question must:
         <propertyList name="includeProjects">
           <value>FungiDB</value>
           <value>TriTrypDB</value>
+          <value>UniDB</value>
         </propertyList>
         <columnAttribute name="pubmed_id"/>
         <columnAttribute name="modification_type"/>
@@ -623,6 +625,7 @@ Each Question must:
         <propertyList name="includeProjects">
           <value>GiardiaDB</value>
           <value>TriTrypDB</value>
+          <value>UniDB</value>
         </propertyList>
         <columnAttribute name="note"/>
         <columnAttribute name="image_type"/>
