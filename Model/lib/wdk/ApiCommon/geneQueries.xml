@@ -322,7 +322,8 @@
           from apidbTuning.GeneId gi
           where regexp_like(gi.id, '(\D)')
             and gi.database_name not like '%gene2Uniprot_RSRC'
-            and gi.union_member != 'same ID' )
+            -- and gi.union_member != 'same ID' 
+         )
      select * from alias_query
      union
      select regexp_replace(alias, '(*)\.\d\d?$', '') as alias,
