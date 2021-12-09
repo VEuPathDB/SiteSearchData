@@ -8,19 +8,38 @@
       <sql>
         <![CDATA[
           select distinct ea.source_id
-          from apidbTuning.EstAttributes ea,
-               sres.TaxonName tn,
-               apidb.Organism o,
-               (  select taxon_id, species_taxon_id
-                  from apidbTuning.TaxonSpecies
+          from apidb.Organism o,
+               sres.TaxonName tn, apidbTuning.EstAttributes ea,
+               (
+                  select ts.taxon_id as representative_taxon_id,
+                         ts.species_taxon_id as taxon_id
+                  from apidbTuning.TaxonSpecies ts
+                  where ts.taxon_id
+                        in (select taxon_id
+                            from apidb.Organism
+                            where is_reference_strain = 1
+                           )
                 union
-                  select taxon_id, taxon_id as species_taxon_id
-                  from apidb.Organism
-               ) ts
-          where ea.organism = tn.name
-            and tn.taxon_id = ts.species_taxon_id
-            and ts.taxon_id = o.taxon_id
-            and o.is_reference_strain = 1
+                  select uplink.taxon_id as representative_taxon_id,
+                         downlink.taxon_id
+                  from apidbTuning.TaxonSpecies uplink,
+                       apidbTuning.TaxonSpecies downlink
+                  where uplink.species_taxon_id = downlink.species_taxon_id
+                    and uplink.taxon_id
+                        in (select taxon_id
+                            from apidb.Organism
+                            where is_reference_strain = 1
+                           )
+                    and downlink.taxon_id
+                        not in (select taxon_id
+                                from apidb.Organism)
+                union
+                   select taxon_id as representative_taxon_id, taxon_id
+                   from apidb.Organism
+               ) taxmap
+          where o.taxon_id = taxmap.representative_taxon_id
+            and taxmap.taxon_id = tn.taxon_id
+            and tn.name = ea.organism
             and o.abbrev = $$organismAbbrev$$
         ]]>
       </sql>
