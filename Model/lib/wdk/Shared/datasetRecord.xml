@@ -1,0 +1,82 @@
+<wdkModel>
+
+  <recordClassSet name="datasetRecordClasses">
+
+    <!-- ################################################################### -->
+    <!-- #########################  Dataset Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="dataset" urlName="dataset" displayName="Data set">
+      <propertyList name="batch">
+        <value>dataset-presenter</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>dataset_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Data set">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[ $$display_name$$ ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="DatasetAttributes.All">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
+        <columnAttribute name="display_name" displayName="Name">
+          <propertyList name="boost">
+            <value>1.5</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="description" displayName="Description"/>
+        <columnAttribute name="acknowledgement" displayName="Acknowledgement"/>
+        <columnAttribute name="summary" displayName="Summary">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="newcategory" displayName="Category"/>
+      </attributeQueryRef>
+
+      <table name="Contacts"
+             displayName="Principal Investigator and Collaborators"
+             queryRef="DatasetTables.Contacts">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="contact_name" displayName="Investigator"/>
+        <columnAttribute name="affiliation" displayName="Affiliation"/>
+      </table>
+
+      <table name="Publications"
+             displayName="Associated publications"
+             queryRef="DatasetTables.Publications">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="pmid" displayName="Pubmed ID"/>
+        <columnAttribute name="citation"/>
+      </table>
+
+      <table name="Organisms"
+             displayName="Organisms"
+             queryRef="DatasetTables.Organisms">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="organism"/>
+      </table>
+
+      <!-- special internal field for organism filtering -->
+      <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
+	<columnAttribute name="organism"/>  
+      </table>
+      
+    </recordClass>
+
+  </recordClassSet>
+
+</wdkModel>

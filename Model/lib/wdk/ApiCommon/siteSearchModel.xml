@@ -23,7 +23,8 @@
 
   <import file="ApiCommon/compoundQueries.xml"/>
 
-  <import file="ApiCommon/datasetQueries.xml"/>
+  <import file="Shared/datasetRecord.xml"/>
+  <import file="Shared/datasetQueries.xml"/>
 
   <import file="ApiCommon/organismQueries.xml"/>
 
