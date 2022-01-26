@@ -50,7 +50,7 @@
       </sql>
     </sqlQuery>
 
- <sqlQuery name="Publications">
+    <sqlQuery name="Publications">
       <column name="dataset_id"/>
       <column name="pmid"/>
       <column name="citation"/>
@@ -72,6 +72,37 @@
           from apidbTuning.DatasetNameTaxon dnt, sres.TaxonName tn
           where dnt.taxon_id = tn.taxon_id
             and tn.name_class = 'scientific name'
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="AttributeValues"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select distinct sd.dataset_id, av.string_value as value
+          from eda.AttributeValue av, eda.EntityTypeGraph etg, apidbTuning.StudyIdDatasetId sd
+          where av.entity_type_id = etg.entity_type_id
+            and etg.study_stable_id = sd.study_stable_id
+            and av.number_value is null
+            and av.date_value is null
+            and lower(av.string_value) != 'yes'
+            and lower(av.string_value) != 'no'
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="AttributeNames"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="name"/>
+      <sql>
+        <![CDATA[
+          select distinct sd.dataset_id, ag.display_name, ag.provider_label
+          from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg, apidbTuning.StudyIdDatasetId sd
+          where ag.stable_id = a.stable_id
+            and a.entity_type_id = etg.entity_type_id
+            and etg.study_stable_id = sd.study_stable_id
         ]]>
       </sql>
     </sqlQuery>

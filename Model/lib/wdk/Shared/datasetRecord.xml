@@ -70,6 +70,30 @@
         <columnAttribute name="organism"/>
       </table>
 
+      <table name="AttributeValues"
+             displayName="Attribute values"
+             queryRef="DatasetTables.AttributeValues">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+          <value>MicrobiomeDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="value"/>
+      </table>
+
+      <table name="AttributeNames"
+             displayName="Attribute names"
+             queryRef="DatasetTables.AttributeNames">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+          <value>MicrobiomeDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="name" displayName="Attribute name"/>
+      </table>
+
       <!-- special internal field for organism filtering -->
       <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
 	<columnAttribute name="organism"/>  
