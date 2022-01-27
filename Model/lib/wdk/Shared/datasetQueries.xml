@@ -96,13 +96,88 @@
     <sqlQuery name="AttributeNames"  isCacheable='false'>
       <column name="dataset_id"/>
       <column name="name"/>
+      <column name="provider_label"/>
       <sql>
         <![CDATA[
-          select distinct sd.dataset_id, ag.display_name, ag.provider_label
-          from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg, apidbTuning.StudyIdDatasetId sd
+          select distinct sd.dataset_id, ag.display_name as name, ag.provider_label
+          from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
+               apidbTuning.StudyIdDatasetId sd
           where ag.stable_id = a.stable_id
             and a.entity_type_id = etg.entity_type_id
             and etg.study_stable_id = sd.study_stable_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="StudyCharacteristics"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="disease"/>
+      <column name="sample_type"/>
+      <column name="participant_type"/>
+      <column name="study_type"/>
+      <column name="study_design"/>
+      <column name="country"/>
+      <column name="additionalData"/>
+      <column name="WHO"/>
+      <column name="projectName"/>
+      <sql>
+        <![CDATA[
+          with etypes
+               as (select sd.study_stable_id, sd.dataset_id as dataset_id,
+                          etg.display_name, etg.stable_id,
+                          count(*) as entity_type_count
+                   from eda.EntityAttributes ea, eda.EntityTypeGraph etg,
+                        apidbTuning.StudyIdDatasetId sd
+                   where ea.entity_type_id = etg.entity_type_id
+                     and etg.study_stable_id = sd.study_stable_id
+                   group by sd.study_stable_id, sd.dataset_id, etg.stable_id,
+                            etg.display_name
+                  ),
+               syn
+               as (select s.ontology_term_id, ot.source_id,
+                          s.ontology_synonym as label
+                   from sres.ontologySynonym s
+                      left join sres.ExternalDataBaseRelease edr
+                        on s.external_database_release_ID = edr.external_database_release_id
+                      left join sres.ExternaldataBase ed
+                        on edr.external_database_id = ed.external_database_id
+                      left join sres.OntologyTerm ot
+                        on s.ontology_term_id = ot.ontology_term_id
+                   where ed.name = 'OntologyTerm_classifications_RSRC'
+                  ),
+               study_chars
+               as (select dataset_id, disease, sample_type, participant_type,
+                          study_type, study_design, country, additionalData,
+                          WHO, projectName 
+                   from (  select sd.dataset_id, syn.label, sc.value
+                           from eda.StudyCharacteristic sc, eda.Study s,
+                                apidbTuning.StudyIdDatasetId sd, syn
+                           where sc.attribute_id = syn.ontology_term_id
+                             and s.stable_id = sd.study_stable_id
+                             and sc.study_id = s.study_id)
+                         pivot
+                          (listagg(value, ', ')
+                           for label in ('Disease' as Disease
+                                       , 'Sample type' as Sample_Type
+                                       , 'Sex' as Sex
+                                       , 'Population included' as Participant_Type
+                                       , 'Investigation type' as Study_Type
+                                       , 'Study design' as Study_Design
+                                       , 'Country' as Country
+                                       , 'Years' as Years
+                                       , 'Additional data' as AdditionalData
+                                       , 'Age' as Age
+                                       , 'WHO indicator subdomain' as WHO
+                                       , 'Project name' as ProjectName)
+                          )
+                  )
+          select dsp.dataset_presenter_id as dataset_id, study_chars.disease,
+                 study_chars.sample_type, study_chars.participant_type,
+                 study_chars.study_type, study_chars.study_design,
+                 study_chars.country, study_chars.additionalData,
+                 study_chars.WHO, study_chars.projectName
+          from apidbTuning.DatasetPresenter dsp, study_chars
+          where dsp.dataset_presenter_id = study_chars.dataset_id(+)
         ]]>
       </sql>
     </sqlQuery>
