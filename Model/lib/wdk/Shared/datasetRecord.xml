@@ -92,6 +92,27 @@
         </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="name" displayName="Attribute name"/>
+        <columnAttribute name="provider_label" displayName="Provider label"/>
+      </table>
+
+      <table name="StudyCharacteristics"
+             displayName="Study Characteristics"
+             queryRef="DatasetTables.StudyCharacteristics">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+          <value>MicrobiomeDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="disease"/>
+        <columnAttribute name="sample_type" displayName="Sample type"/>
+        <columnAttribute name="participant_type" displayName="Participant type"/>
+        <columnAttribute name="study_type" displayName="Study type"/>
+        <columnAttribute name="study_design" displayName="Study design"/>
+        <columnAttribute name="country"/>
+        <columnAttribute name="additionalData" displayName="Additional data"/>
+        <columnAttribute name="WHO"/>
+        <columnAttribute name="projectName" displayName="Project name"/>
       </table>
 
       <!-- special internal field for organism filtering -->
