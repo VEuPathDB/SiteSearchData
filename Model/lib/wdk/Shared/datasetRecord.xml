@@ -5,15 +5,6 @@
              releaseDate="%%releaseDate%%"
              buildNumber="%%buildNumber%%"/>
 
-  <questionSet name="Questions" displayName="dontcare">
-
-    <question name="Datasets" displayName="dontcare"
-              queryRef="DatasetIdQueries.AllDatasets"
-              recordClassRef="datasetRecordClasses.dataset">
-    </question>
-
-  </questionSet>
-
   <recordClassSet name="datasetRecordClasses">
 
     <!-- ################################################################### -->
@@ -80,6 +71,20 @@
       <table name="Organisms"
              displayName="Organisms"
              queryRef="DatasetTables.Organisms">
+        <propertyList name="includeProjects">
+          <value>MicrosporidiaDB</value>
+          <value>TrichDB</value>
+          <value>FungiDB</value>
+          <value>PlasmoDB</value>
+          <value>PiroplasmaDB</value>
+          <value>TriTrypDB</value>
+          <value>HostDB</value>
+          <value>ToxoDB</value>
+          <value>CryptoDB</value>
+          <value>VectorBase</value>
+          <value>GiardiaDB</value>
+          <value>AmoebaDB</value>
+        </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="organism"/>
       </table>
@@ -91,6 +96,8 @@
           <value>EDA</value>
           <value>ClinEpiDB</value>
           <value>MicrobiomeDB</value>
+          <value>EuPathDB</value>
+          <value>VEuPathDB</value>
         </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="value"/>
@@ -103,6 +110,8 @@
           <value>EDA</value>
           <value>ClinEpiDB</value>
           <value>MicrobiomeDB</value>
+          <value>EuPathDB</value>
+          <value>VEuPathDB</value>
         </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="name" displayName="Attribute name"/>
@@ -116,6 +125,8 @@
           <value>EDA</value>
           <value>ClinEpiDB</value>
           <value>MicrobiomeDB</value>
+          <value>EuPathDB</value>
+          <value>VEuPathDB</value>
         </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="disease"/>
@@ -131,6 +142,20 @@
 
       <!-- special internal field for organism filtering -->
       <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
+        <propertyList name="includeProjects">
+          <value>MicrosporidiaDB</value>
+          <value>TrichDB</value>
+          <value>FungiDB</value>
+          <value>PlasmoDB</value>
+          <value>PiroplasmaDB</value>
+          <value>TriTrypDB</value>
+          <value>HostDB</value>
+          <value>ToxoDB</value>
+          <value>CryptoDB</value>
+          <value>VectorBase</value>
+          <value>GiardiaDB</value>
+          <value>AmoebaDB</value>
+        </propertyList>
 	<columnAttribute name="organism"/>  
       </table>
       
