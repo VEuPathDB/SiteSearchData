@@ -1,10 +1,5 @@
 <wdkModel>
 
-  <modelName displayName="SiteSearch"
-             version="%%buildNumber%%"
-             releaseDate="%%releaseDate%%"
-             buildNumber="%%buildNumber%%"/>
-
   <recordClassSet name="datasetRecordClasses">
 
     <!-- ################################################################### -->
