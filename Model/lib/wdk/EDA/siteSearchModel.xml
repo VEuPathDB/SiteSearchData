@@ -8,6 +8,16 @@
 
 <wdkModel>
 
+  <questionSet name="Questions" displayName="dontcare">
+
+    <question name="Datasets" displayName="dontcare"
+              queryRef="DatasetIdQueries.AllDatasets"
+              recordClassRef="datasetRecordClasses.dataset">
+    </question>
+
+  </questionSet>
+
+
   <import file="Shared/datasetRecord.xml"/>
   <import file="Shared/datasetQueries.xml"/>
 
