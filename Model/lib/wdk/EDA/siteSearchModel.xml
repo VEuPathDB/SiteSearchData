@@ -8,6 +8,11 @@
 
 <wdkModel>
 
+  <modelName displayName="SiteSearch"
+             version="%%buildNumber%%"
+             releaseDate="%%releaseDate%%"
+             buildNumber="%%buildNumber%%"/>
+
   <questionSet name="Questions" displayName="dontcare">
 
     <question name="Datasets" displayName="dontcare"
