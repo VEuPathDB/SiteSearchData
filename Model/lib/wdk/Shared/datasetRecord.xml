@@ -84,6 +84,7 @@
         <columnAttribute name="organism"/>
       </table>
 
+<!--
       <table name="AttributeValues"
              displayName="Attribute values"
              queryRef="DatasetTables.AttributeValues">
@@ -134,6 +135,7 @@
         <columnAttribute name="WHO"/>
         <columnAttribute name="projectName" displayName="Project name"/>
       </table>
+-->
 
       <!-- special internal field for organism filtering -->
       <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
