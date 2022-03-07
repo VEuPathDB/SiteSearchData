@@ -18,7 +18,6 @@ import org.gusdb.fgputil.json.JsonWriter;
 import org.gusdb.wdk.core.api.JsonKeys;
 import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
-import org.gusdb.wdk.model.answer.AnswerValue;
 import org.gusdb.wdk.model.answer.stream.RecordStream;
 import org.gusdb.wdk.model.answer.stream.RecordStreamFactory;
 import org.gusdb.wdk.model.record.Field;
@@ -64,18 +63,11 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   private int _batchTimestamp;
   private String _batchId;
   private String _batchName; // eg, "plasmodium falciparum 3d7"
-  private String _projectId; // from model.prop. eg PlasmoDB
 
   private static final String ATTR_PREFIX = "TEXT__";
   private static final String TABLE_PREFIX = "MULTITEXT__";
   private static final String PROJECT_ID_PROP = "PROJECT_ID";
-  
-  public SolrLoaderReporter(AnswerValue answerValue) {
-    super(answerValue);
-    _projectId = // eg PlasmoDB (from model.prop file)
-        answerValue.getWdkModel().getProperties().get(PROJECT_ID_PROP);
-  }
-  
+
   @Override
   public Reporter configure(JSONObject config) throws ReporterConfigException, WdkModelException {
     List<String> configKeys = Arrays.asList("batch-type","batch-id","batch-name","batch-timestamp");
@@ -117,10 +109,12 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
    * properties to track which component we are reporting on)
    */
   private <T extends Field> Map<String, T> filterFieldsByProject(Map<String, T> fields) {
+    String projectId = // eg PlasmoDB (from model.prop file)
+        _baseAnswer.getWdkModel().getProperties().get(PROJECT_ID_PROP);
     Predicate<Entry<String,T>> includeInProject = entry -> {
       String[] includeProjects = entry.getValue().getPropertyList("includeProjects");
       return includeProjects == null || includeProjects.length == 0 ? true :
-          Arrays.asList(includeProjects).contains(_projectId);
+          Arrays.asList(includeProjects).contains(projectId);
     };
     return fields.entrySet()
       .stream()
