@@ -1,0 +1,54 @@
+<wdkModel>
+
+  <recordClassSet name="variableRecordClasses">
+
+    <!-- ################################################################### -->
+    <!-- ########################  Variable Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="variable" urlName="variable" displayName="Variable">
+      <propertyList name="batch">
+        <value>dataset-presenter</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>dataset_id</columnRef>
+        <columnRef>attribute_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Variable">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[ $$attribute_name$$ ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="VariableAttributes.All">
+        <columnAttribute name="attribute_name" displayName="Name">
+          <propertyList name="boost">
+            <value>1.5</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="provider_label" displayName="Provider Label"/>
+        <columnAttribute name="study_name" displayName="Study Name"/>
+        <columnAttribute name="entity_type" displayName="Entity Type"/>
+      </attributeQueryRef>
+
+      <table name="Values"
+             displayName="Values"
+             queryRef="VariableTables.Values">
+        <columnAttribute name="value" displayName="Value"/>
+      </table>
+
+    </recordClass>
+
+  </recordClassSet>
+
+</wdkModel>
