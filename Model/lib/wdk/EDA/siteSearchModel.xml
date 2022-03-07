@@ -20,11 +20,17 @@
               recordClassRef="datasetRecordClasses.dataset">
     </question>
 
+    <question name="Variables" displayName="dontcare"
+              queryRef="VariableIdQueries.AllVariables"
+              recordClassRef="variableRecordClasses.variable">
+    </question>
   </questionSet>
 
 
   <import file="Shared/datasetRecord.xml"/>
   <import file="Shared/datasetQueries.xml"/>
 
+  <import file="EDA/variableRecord.xml"/>
+  <import file="EDA/variableQueries.xml"/>
 
 </wdkModel>

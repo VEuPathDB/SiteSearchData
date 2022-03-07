@@ -1,0 +1,83 @@
+<wdkModel>
+
+  <querySet name="VariableIdQueries" queryType="id" isCacheable="true">
+    <sqlQuery name="AllVariables">
+      <column name="dataset_id"/>
+      <column name="attribute_id"/>
+      <sql>
+        <![CDATA[
+          select distinct sd.dataset_id, ag.stable_id as attribute_id
+          from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
+               apidbTuning.StudyIdDatasetId sd
+          where ag.stable_id = a.stable_id
+            and a.entity_type_id = etg.entity_type_id
+            and etg.study_stable_id = sd.study_stable_id
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+  <querySet name="VariableAttributes" queryType="attribute" isCacheable="false">
+    <sqlQuery name="All">
+      <column name="dataset_id"/>
+      <column name="attribute_id"/>
+      <column name="attribute_name"/>
+      <column name="provider_label"/>
+      <column name="study_name"/>
+      <column name="entity_type"/>
+      <sql>
+        <![CDATA[
+          select distinct sd.dataset_id, ag.stable_id as attribute_id, ag.display_name as attribute_name,
+                          ag.provider_label, studyName.study_name,
+                          etg.display_name as entity_type
+          from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
+               apidbTuning.StudyIdDatasetId sd, eda.Study s,
+               (select sc.value as study_name, sc.study_id
+                from eda.StudyCharacteristic sc, sres.OntologyTerm studyNameTerm
+                where sc.attribute_id = studyNameTerm.ontology_term_id
+                  and studyNameTerm.source_id = 'OBI_0001622' -- investigation title
+               ) studyName
+          where ag.stable_id = a.stable_id
+            and a.entity_type_id = etg.entity_type_id
+            and etg.study_stable_id = sd.study_stable_id
+            and ag.study_id = studyName.study_id(+)
+            and ag.study_id = s.study_id
+            and s.stable_id = etg.study_stable_id
+            -- problem rows
+            and (sd.dataset_id != 'DS_010e5612b8'
+                 or ag.stable_id != 'EUPATH_0035128'
+                 or etg.display_name != 'Household')
+            and (sd.dataset_id != 'DS_0086998c2f'
+                 or ag.stable_id != 'EUPATH_0033193'
+                 or etg.display_name != 'Participant repeated measure')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="VariableTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="Values">
+      <column name="dataset_id"/>
+      <column name="attribute_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select distinct sd.dataset_id, av.attribute_stable_id as attribute_id,
+                          av.string_value as value
+          from eda.AttributeValue av, eda.EntityTypeGraph etg, apidbTuning.StudyIdDatasetId sd
+          where av.entity_type_id = etg.entity_type_id
+            and etg.study_stable_id = sd.study_stable_id
+            and av.number_value is null
+            and av.date_value is null
+            and lower(av.string_value) != 'yes'
+            and lower(av.string_value) != 'no'
+        ]]>
+      </sql>
+    </sqlQuery>
+
+
+  </querySet>
+
+</wdkModel>
