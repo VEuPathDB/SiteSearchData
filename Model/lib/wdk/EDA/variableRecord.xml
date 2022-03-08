@@ -14,6 +14,7 @@
       <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
         <columnRef>dataset_id</columnRef>
         <columnRef>attribute_id</columnRef>
+        <columnRef>entity_type_id</columnRef>
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Variable">
