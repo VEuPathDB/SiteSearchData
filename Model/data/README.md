@@ -1,4 +1,5 @@
-These folders contain two files that manually describe metadata for site search.
+These folders contain two files that manually describe metadata for site search.  These files are dumped by the `ssCreateDocumentCategoriesBatch` and `ssCreateDocumentFieldsBatch` programs, respectively
+
 * `documentTypeCategories`
   * describes and categorizes all document types we load into solr
   * document types are nested under their category.  (Categories are displayed in the **Filter results** panel in the UI.)
