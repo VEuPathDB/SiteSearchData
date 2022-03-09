@@ -34,23 +34,18 @@
           select distinct sd.dataset_id, ag.stable_id as attribute_id,
                           EntityTypeTerm.source_id as entity_type_id,
                           ag.display_name as attribute_name,
-                          ag.provider_label, studyName.study_name,
+                          ag.provider_label, dsp.display_name as study_name,
                           etg.display_name as entity_type
           from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
                apidbTuning.StudyIdDatasetId sd, eda.Study s,
-               sres.OntologyTerm EntityTypeTerm,
-               (select sc.value as study_name, sc.study_id
-                from eda.StudyCharacteristic sc, sres.OntologyTerm studyNameTerm
-                where sc.attribute_id = studyNameTerm.ontology_term_id
-                  and studyNameTerm.source_id = 'OBI_0001622' -- investigation title
-               ) studyName
+               sres.OntologyTerm EntityTypeTerm, apidbTuning.DatasetPresenter dsp
           where ag.stable_id = a.stable_id
             and a.entity_type_id = etg.entity_type_id
             and etg.study_stable_id = sd.study_stable_id
-            and ag.study_id = studyName.study_id(+)
             and ag.study_id = s.study_id
             and s.stable_id = etg.study_stable_id
             and etg.entity_type_id = EntityTypeTerm.ontology_term_id
+            and sd.dataset_id = dsp.dataset_presenter_id
         ]]>
       </sql>
     </sqlQuery>
