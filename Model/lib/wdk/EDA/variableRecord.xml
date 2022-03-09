@@ -22,7 +22,7 @@
           <value>100</value>
         </propertyList>
         <text>
-          <![CDATA[ $$attribute_name$$ ]]>
+          <![CDATA[ $$attribute_name$$ - $$study_name$$ - $$entity_type$$]]>
         </text>
       </idAttribute>
 
@@ -37,8 +37,16 @@
             <value>1.5</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="provider_label" displayName="Provider Label"/>
-        <columnAttribute name="study_name" displayName="Study Name"/>
+        <columnAttribute name="provider_label" displayName="Provider Label">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>       
+        <columnAttribute name="study_name" displayName="Study Name">
+          <propertyList name="boost">
+            <value>-10</value>  <!-- we want this to have a lower score than the study name in the study, so the study will before its variables -->
+          </propertyList>
+        </columnAttribute>          
         <columnAttribute name="entity_type" displayName="Entity Type"/>
       </attributeQueryRef>
 
