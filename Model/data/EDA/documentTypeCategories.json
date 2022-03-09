@@ -1,0 +1,22 @@
+[
+  { "name": "Study",
+    "documentTypes": [
+      { "id": "dataset",
+        "displayName": "Study",
+        "displayNamePlural": "Studies",
+        "wdkSearchUrlName": "StudiesByText",
+        "hasOrganismField": false
+      }
+    ]
+  },
+  { "name": "Variable",
+    "documentTypes": [
+      { "id": "variable",
+        "displayName": "Variable",
+        "displayNamePlural": "Variables",
+        "wdkSearchUrlName": "VariablesByText",
+        "hasOrganismField": false
+      }
+    ]
+  }
+]
