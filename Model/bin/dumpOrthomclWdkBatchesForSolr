@@ -4,6 +4,7 @@ use lib "$ENV{GUS_HOME}/lib/perl";
 use Getopt::Long;
 use strict;
 use DBI;
+use SiteSearchUtils;
 
 my $BATCH_DIR_PREFIX = "solr-json-batch";
 
