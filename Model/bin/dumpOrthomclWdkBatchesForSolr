@@ -26,13 +26,13 @@ my $modelProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/
 my @alphabet = ('a' .. 'z');
 
 for my $letter (@alphabet) {
-  SiteSearchData::Model::Utils::runWdkReportParam("sequence", $letter, "alphabetLetter", $letter);
+  SiteSearchData::Model::Utils::runWdkReportParam($targetDir, $BATCH_DIR_PREFIX, "sequence", $letter, "alphabetLetter", $letter);
 }
 
 my @numerals = ('0' .. '9');
 
 for my $numeral (@numerals) {
-  SiteSearchData::Model::Utils::runWdkReportParam("group", $numeral, "numeral", $numeral);
+  SiteSearchData::Model::Utils::runWdkReportParam($targetDir, $BATCH_DIR_PREFIX, "group", $numeral, "numeral", $numeral);
 }
 
 print STDOUT "Done.\n";

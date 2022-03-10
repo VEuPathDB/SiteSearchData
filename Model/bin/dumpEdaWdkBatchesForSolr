@@ -22,7 +22,7 @@ die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
 my $gusProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
 my $modelProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
 
-SiteSearchData::Model::Utils::runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($targetDir, $BATCH_DIR_PREFIX, "dataset-presenter", $modelProps->{PROJECT_ID});
 
 print STDOUT "Done.\n";
 exit 0;
