@@ -22,15 +22,15 @@ $| = 1;
 
 die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
 
-my $gusProps = SiteSearchUtils::getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
-my $modelProps = SiteSearchUtils::getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
+my $gusProps = SiteSearchData::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
+my $modelProps = SiteSearchData::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
 
-my $dbh = SiteSearchUtils::getDbh($gusProps);
+my $dbh = SiteSearchData::Utils::getDbh($gusProps);
 
-SiteSearchUtils::runWdkReport("pathway", $modelProps->{PROJECT_ID});
-SiteSearchUtils::runWdkReport("popset-isolate", $modelProps->{PROJECT_ID});
-SiteSearchUtils::runWdkReport("compound", $modelProps->{PROJECT_ID});
-SiteSearchUtils::runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
+SiteSearchData::Utils::runWdkReport("pathway", $modelProps->{PROJECT_ID});
+SiteSearchData::Utils::runWdkReport("popset-isolate", $modelProps->{PROJECT_ID});
+SiteSearchData::Utils::runWdkReport("compound", $modelProps->{PROJECT_ID});
+SiteSearchData::Utils::runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
 
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
@@ -38,7 +38,7 @@ foreach my $organismAbbrev (getOrganisms($dbh)) {
     print STDOUT "Reached $numberOfOrganisms organisms.  Quitting\n";
     last;
   }
-  $organismCount += SiteSearchUtils::runWdkReport("organism", $organismAbbrev, $organismAbbrev);
+  $organismCount += SiteSearchData::Utils::runWdkReport("organism", $organismAbbrev, $organismAbbrev);
 }
 print STDOUT "Done.\n";
 exit 0;
