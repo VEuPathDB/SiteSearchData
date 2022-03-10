@@ -30,7 +30,7 @@ my $dbh = SiteSearchUtils::getDbh($gusProps);
 SiteSearchUtils::runWdkReport("pathway", $modelProps->{PROJECT_ID});
 SiteSearchUtils::runWdkReport("popset-isolate", $modelProps->{PROJECT_ID});
 SiteSearchUtils::runWdkReport("compound", $modelProps->{PROJECT_ID});
-runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
+SiteSearchUtils::runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
 
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
