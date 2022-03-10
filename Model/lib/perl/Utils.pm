@@ -14,7 +14,7 @@ sub checkPrevBatchDir {
 }
 
 sub runWdkReport {
-  my ($targetDir, $batchDirPrefix, $batchType, $batchName, $organismAbbrev) = @_;
+  my ($wdkServiceUrl, $targetDir, $batchDirPrefix, $batchType, $batchName, $organismAbbrev) = @_;
   my @temp = glob("$targetDir/${batchDirPrefix}_${batchType}_${batchName}*");
 
   return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
@@ -26,7 +26,7 @@ sub runWdkReport {
 }
 
 sub runWdkReportParam {
-  my ($targetDir, $batchDirPrefix, $batchType, $batchName, $paramName, $paramValue) = @_;
+  my ($wdkServiceUrl, $targetDir, $batchDirPrefix, $batchType, $batchName, $paramName, $paramValue) = @_;
   my @temp = glob("$targetDir/${batchDirPrefix}_${batchType}_${batchName}*");
 
   return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
