@@ -4,7 +4,7 @@ use lib "$ENV{GUS_HOME}/lib/perl";
 use Getopt::Long;
 use strict;
 use DBI;
-use SiteSearchData::Utils;
+use SiteSearchData::Model::Utils;
 
 
 my $BATCH_DIR_PREFIX = "solr-json-batch";
@@ -20,19 +20,19 @@ $| = 1;
 
 die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
 
-my $gusProps = SiteSearchData::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
-my $modelProps = SiteSearchData::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
+my $gusProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
+my $modelProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
 
 my @alphabet = ('a' .. 'z');
 
 for my $letter (@alphabet) {
-  SiteSearchData::Utils::runWdkReportParam("sequence", $letter, "alphabetLetter", $letter);
+  SiteSearchData::Model::Utils::runWdkReportParam("sequence", $letter, "alphabetLetter", $letter);
 }
 
 my @numerals = ('0' .. '9');
 
 for my $numeral (@numerals) {
-  SiteSearchData::Utils::runWdkReportParam("group", $numeral, "numeral", $numeral);
+  SiteSearchData::Model::Utils::runWdkReportParam("group", $numeral, "numeral", $numeral);
 }
 
 print STDOUT "Done.\n";
