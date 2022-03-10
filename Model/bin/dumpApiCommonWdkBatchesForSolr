@@ -27,10 +27,10 @@ my $modelProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/
 
 my $dbh = SiteSearchData::Model::Utils::getDbh($gusProps);
 
-SiteSearchData::Model::Utils::runWdkReport("pathway", $modelProps->{PROJECT_ID});
-SiteSearchData::Model::Utils::runWdkReport("popset-isolate", $modelProps->{PROJECT_ID});
-SiteSearchData::Model::Utils::runWdkReport("compound", $modelProps->{PROJECT_ID});
-SiteSearchData::Model::Utils::runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($targetDir, $BATCH_DIR_PREFIX, "pathway", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($targetDir, $BATCH_DIR_PREFIX, "popset-isolate", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($targetDir, $BATCH_DIR_PREFIX, "compound", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($targetDir, $BATCH_DIR_PREFIX, "dataset-presenter", $modelProps->{PROJECT_ID});
 
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
@@ -38,7 +38,7 @@ foreach my $organismAbbrev (getOrganisms($dbh)) {
     print STDOUT "Reached $numberOfOrganisms organisms.  Quitting\n";
     last;
   }
-  $organismCount += SiteSearchData::Model::Utils::runWdkReport("organism", $organismAbbrev, $organismAbbrev);
+  $organismCount += SiteSearchData::Model::Utils::runWdkReport($targetDir, $BATCH_DIR_PREFIX, "organism", $organismAbbrev, $organismAbbrev);
 }
 print STDOUT "Done.\n";
 exit 0;
