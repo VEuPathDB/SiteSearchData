@@ -1,4 +1,4 @@
-package SiteSearchUtils;
+package SiteSearchData::Model::Utils;
 
 use strict;
 
