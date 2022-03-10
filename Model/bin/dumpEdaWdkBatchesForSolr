@@ -21,17 +21,7 @@ die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
 my $gusProps = SiteSearchUtils::getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
 my $modelProps = SiteSearchUtils::getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
 
-my @alphabet = ('a' .. 'z');
-
-for my $letter (@alphabet) {
-  SiteSearchUtils::runWdkReportParam("sequence", $letter, "alphabetLetter", $letter);
-}
-
-my @numerals = ('0' .. '9');
-
-for my $numeral (@numerals) {
-  SiteSearchUtils::runWdkReportParam("group", $numeral, "numeral", $numeral);
-}
+SiteSearchUtils::runWdkReport("dataset-presenter", $modelProps->{PROJECT_ID});
 
 print STDOUT "Done.\n";
 exit 0;
@@ -39,15 +29,14 @@ exit 0;
 sub usage {
 
   die
-"Dump OrthoMCL batches to be loaded into solr from data produced by the workflow.  
+"Dump EDA batches to be loaded into solr from data produced by the workflow.  
 
-usage:  dumpOrthomclWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--verbose]
+usage:  dumpEdaWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--verbose]
 
 Dump wdk records as Solr compatible Json
 
 Dumps data in hard-coded set of batches:
- - sequences
- - groups
+ - dataset-presenter
 
 Connects to a running SiteSearchData wdk service to generate the reports.
 
