@@ -48,7 +48,7 @@ sub getDbh {
   my $u  = $props->{databaseLogin};
   my $pw = $props->{databasePassword};
   my $dsn = $props->{dbiDsn};
-  $dbh = DBI->connect($dsn, $u, $pw) ||  die "Couldn't connect to database: " . DBI->errstr;
+  my $dbh = DBI->connect($dsn, $u, $pw) ||  die "Couldn't connect to database: " . DBI->errstr;
   $dbh->{RaiseError} = 1;
   return $dbh;
 }
