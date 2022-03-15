@@ -32,4 +32,6 @@
 
   <import file="ApiCommon/popsetQueries.xml"/>
 
+  <import file="ApiCommon/apolloTrackQueries"/>
+
 </wdkModel>
