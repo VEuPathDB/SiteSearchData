@@ -461,6 +461,16 @@ Each Question must:
         <columnAttribute name="orthomcl_name" displayName="Ortholog group"/>
       </attributeQueryRef>
 
+      <table name = "ApolloUpdates"
+             displayName="Apollo Annotations"
+             queryRef="ApolloTables.Apollo">
+        <columnAttribute name="apollo_transcript_id"/>
+        <columnAttribute name="attr_owner"/>
+        <columnAttribute name="dbxref"/>
+        <columnAttribute name="symbol"/>
+        <columnAttribute name="apollo_description"/>
+      </table>
+
       <!-- special internal field for organism filtering -->
       <table name="organismsForFilter" displayName="dontcare" queryRef="GeneTables.Organisms" internal="true">
 	<columnAttribute name="organism"/>  
