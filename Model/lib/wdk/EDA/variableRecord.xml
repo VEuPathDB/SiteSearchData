@@ -42,11 +42,7 @@
             <value>true</value>
           </propertyList>
         </columnAttribute>       
-        <columnAttribute name="study_name" displayName="Study Name">
-          <propertyList name="boost">
-            <value>-10</value>  <!-- we want this to have a lower score than the study name in the study, so the study will before its variables -->
-          </propertyList>
-        </columnAttribute>          
+        <columnAttribute name="study_name" displayName="Study Name"/>          
         <columnAttribute name="entity_type" displayName="Entity Type"/>
       </attributeQueryRef>
 
