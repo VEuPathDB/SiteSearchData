@@ -77,6 +77,34 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="ProviderLabels">
+      <column name="dataset_id"/>
+      <column name="attribute_id"/>
+      <column name="entity_type_id"/>
+      <column name="provider_label"/>
+      <sql>
+        <![CDATA[
+          select distinct sd.dataset_id, ag.stable_id as attribute_id,
+                          EntityTypeTerm.source_id as entity_type_id,
+                          jtab.provider_label
+          from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
+               apidbTuning.StudyIdDatasetId sd, eda.Study s,
+               sres.OntologyTerm EntityTypeTerm,
+               json_table( (select provider_label
+                            from eda.AttributeGraph
+                            where attribute_graph_id = ag.attribute_graph_id) , '$[*]'
+                           columns (provider_label PATH '$'
+                                  )
+                         ) jtab
+          where ag.stable_id = a.stable_id
+            and a.entity_type_id = etg.entity_type_id
+            and etg.study_stable_id = sd.study_stable_id
+            and ag.study_id = s.study_id
+            and s.stable_id = etg.study_stable_id
+            and etg.entity_type_id = EntityTypeTerm.ontology_term_id
+        ]]>
+      </sql>
+    </sqlQuery>
 
   </querySet>
 
