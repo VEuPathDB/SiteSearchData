@@ -40,11 +40,6 @@
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="provider_label" displayName="Provider Label">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>       
         <columnAttribute name="study_name" displayName="Study Name">
           <propertyList name="isSummary">
             <value>true</value>
@@ -61,6 +56,15 @@
              displayName="Values"
              queryRef="VariableTables.Values">
         <columnAttribute name="value" displayName="Value"/>
+      </table>
+
+      <table name="ProviderLabels"
+             displayName="Provider Labels"
+             queryRef="VariableTables.ProviderLabels">
+        <propertyList name="isSummary">
+          <value>true</value>
+        </propertyList>
+        <columnAttribute name="provider_label"/>
       </table>
 
     </recordClass>
