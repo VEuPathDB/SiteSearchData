@@ -8,13 +8,12 @@
       <sql>
         <![CDATA[
           select distinct sd.dataset_id, ag.stable_id as attribute_id,
-                          EntityTypeTerm.source_id as entity_type_id
+                          a.entity_type_stable_id as entity_type_id
           from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
-               apidbTuning.StudyIdDatasetId sd, sres.OntologyTerm EntityTypeTerm
+               apidbTuning.StudyIdDatasetId sd
           where ag.stable_id = a.stable_id
             and a.entity_type_id = etg.entity_type_id
             and etg.study_stable_id = sd.study_stable_id
-            and etg.entity_type_id = EntityTypeTerm.ontology_term_id
         ]]>
       </sql>
     </sqlQuery>
@@ -26,25 +25,24 @@
       <column name="attribute_id"/>
       <column name="entity_type_id"/>
       <column name="attribute_name"/>
-      <column name="provider_label"/>
       <column name="study_name"/>
       <column name="entity_type"/>
       <sql>
         <![CDATA[
           select distinct sd.dataset_id, ag.stable_id as attribute_id,
-                          EntityTypeTerm.source_id as entity_type_id,
+                          a.entity_type_stable_id as entity_type_id,
                           ag.display_name as attribute_name,
-                          ag.provider_label, dsp.display_name as study_name,
+                          -- ag.provider_label,
+                          dsp.display_name as study_name,
                           etg.display_name as entity_type
           from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
                apidbTuning.StudyIdDatasetId sd, eda.Study s,
-               sres.OntologyTerm EntityTypeTerm, apidbTuning.DatasetPresenter dsp
+               apidbTuning.DatasetPresenter dsp
           where ag.stable_id = a.stable_id
             and a.entity_type_id = etg.entity_type_id
             and etg.study_stable_id = sd.study_stable_id
             and ag.study_id = s.study_id
             and s.stable_id = etg.study_stable_id
-            and etg.entity_type_id = EntityTypeTerm.ontology_term_id
             and sd.dataset_id = dsp.dataset_presenter_id
         ]]>
       </sql>
@@ -65,10 +63,11 @@
                           EntityTypeTerm.source_id as entity_type_id,
                           av.string_value as value
           from eda.AttributeValue av, eda.EntityTypeGraph etg, apidbTuning.StudyIdDatasetId sd,
-               sres.OntologyTerm EntityTypeTerm
+               eda.EntityType et, sres.OntologyTerm EntityTypeTerm
           where av.entity_type_id = etg.entity_type_id
             and etg.study_stable_id = sd.study_stable_id
-            and etg.entity_type_id = EntityTypeTerm.ontology_term_id
+            and etg.entity_type_id = et.entity_type_id
+            and et.type_id = EntityTypeTerm.ontology_term_id
             and av.number_value is null
             and av.date_value is null
             and lower(av.string_value) != 'yes'
@@ -89,7 +88,7 @@
                           jtab.provider_label
           from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
                apidbTuning.StudyIdDatasetId sd, eda.Study s,
-               sres.OntologyTerm EntityTypeTerm,
+               eda.EntityType et, sres.OntologyTerm EntityTypeTerm,
                json_table( (select provider_label
                             from eda.AttributeGraph
                             where attribute_graph_id = ag.attribute_graph_id) , '$[*]'
@@ -101,7 +100,8 @@
             and etg.study_stable_id = sd.study_stable_id
             and ag.study_id = s.study_id
             and s.stable_id = etg.study_stable_id
-            and etg.entity_type_id = EntityTypeTerm.ontology_term_id
+            and etg.entity_type_id = et.entity_type_id
+            and et.type_id = EntityTypeTerm.ontology_term_id
         ]]>
       </sql>
     </sqlQuery>
