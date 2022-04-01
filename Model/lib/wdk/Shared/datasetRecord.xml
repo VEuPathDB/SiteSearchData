@@ -15,7 +15,7 @@
         <columnRef>dataset_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Data set">
+      <idAttribute name="primary_key" displayName="Name">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
@@ -32,11 +32,6 @@
       <attributeQueryRef ref="DatasetAttributes.All">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
-        <columnAttribute name="display_name" displayName="Name">
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        </columnAttribute>
         <columnAttribute name="description" displayName="Description"/>
         <columnAttribute name="acknowledgement" displayName="Acknowledgement"/>
         <columnAttribute name="summary" displayName="Summary">
