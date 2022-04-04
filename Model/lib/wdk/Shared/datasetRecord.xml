@@ -32,6 +32,8 @@
       <attributeQueryRef ref="DatasetAttributes.All">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
+
+        <columnAttribute name="display_name" internal="true"/>
         <columnAttribute name="description" displayName="Description"/>
         <columnAttribute name="acknowledgement" displayName="Acknowledgement"/>
         <columnAttribute name="summary" displayName="Summary">
