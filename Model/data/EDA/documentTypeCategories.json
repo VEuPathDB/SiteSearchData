@@ -4,7 +4,6 @@
       { "id": "dataset",
         "displayName": "Study",
         "displayNamePlural": "Studies",
-        "wdkSearchUrlName": "StudiesByText",
         "hasOrganismField": false
       }
     ]
@@ -14,7 +13,6 @@
       { "id": "variable",
         "displayName": "Variable",
         "displayNamePlural": "Variables",
-        "wdkSearchUrlName": "VariablesByText",
         "hasOrganismField": false
       }
     ]
