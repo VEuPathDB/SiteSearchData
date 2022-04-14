@@ -74,10 +74,9 @@
 
   </querySet>
 
-
   <querySet name="GeneTables" queryType="table" isCacheable="false">
 
-    <sqlQuery name="UserCommentIDs">
+    <sqlQuery name="UserCommentIds">
       <column name="source_id"/>
       <column name="comment_id"/>
       <sql>
@@ -103,6 +102,25 @@
           where mc.comment_id = tsc.comment_id
             and mc.review_status_id != 'rejected'
             and mc.is_visible = 1
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="ApolloCommentIds">
+      <column name="source_id"/>
+      <sql>
+        <![CDATA[
+          select distinct source_id, id_attr from apidbtuning.ApolloSiteSearch;
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="ApolloCommentContent">
+      <column name="source_id"/>
+      <column name="ApolloComment"/>
+      <sql>
+        <![CDATA[
+        select source_id, attr as ApolloComment from apidbTuning.ApolloSiteSearch
         ]]>
       </sql>
     </sqlQuery>
