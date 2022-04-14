@@ -110,7 +110,7 @@
       <column name="source_id"/>
       <sql>
         <![CDATA[
-          select distinct source_id, id_attr from apidbtuning.ApolloSiteSearch;
+          select distinct source_id, id_attr from apidbtuning.ApolloSiteSearch
         ]]>
       </sql>
     </sqlQuery>
