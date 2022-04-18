@@ -76,7 +76,7 @@
 
   <querySet name="GeneTables" queryType="table" isCacheable="false">
 
-    <sqlQuery name="UserCommentIds">
+    <sqlQuery name="UserCommentIDs">
       <column name="source_id"/>
       <column name="comment_id"/>
       <sql>
