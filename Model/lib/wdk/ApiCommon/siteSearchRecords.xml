@@ -14,6 +14,8 @@ Each record class must:
 - should have only <attributeQueryRef>s and <table>s
 - might include an internal 'project' attribute if in solr we should segment these records by project
 - might include an internal 'organismsForFilter' table if searches for this record can be filtered by organism(s)
+- might include an internal 'display_name' attribute.  This is used when we need to include display_name in the primary key attribute.  
+  We want only one searchable display_name, so we make the original attribute internal="true"  (see the Dataset record for an example)
 
 Each <querySet> must set isCacheable="false".  No queries should set isCacheable.
 
