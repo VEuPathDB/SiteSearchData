@@ -24,6 +24,11 @@
               queryRef="VariableIdQueries.AllVariables"
               recordClassRef="variableRecordClasses.variable">
     </question>
+
+    <question name="VariableValues" displayName="dontcare"
+              queryRef="VariableValueIdQueries.AllVariableValues"
+              recordClassRef="variableValueRecordClasses.variableValue">
+    </question>
   </questionSet>
 
 
@@ -32,5 +37,8 @@
 
   <import file="EDA/variableRecord.xml"/>
   <import file="EDA/variableQueries.xml"/>
+
+  <import file="EDA/variableValueRecord.xml"/>
+  <import file="EDA/variableValueQueries.xml"/>
 
 </wdkModel>

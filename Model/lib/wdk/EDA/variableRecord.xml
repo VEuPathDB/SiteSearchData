@@ -12,9 +12,7 @@
       </propertyList>
 
       <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
-        <columnRef>dataset_id</columnRef>
-        <columnRef>attribute_id</columnRef>
-        <columnRef>entity_type_id</columnRef>
+        <columnRef>variable_id</columnRef>
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Variable">
@@ -22,7 +20,7 @@
           <value>100</value>
         </propertyList>
         <text>
-          <![CDATA[ $$attribute_name$$ - $$study_name$$ - $$entity_type$$]]>
+          <![CDATA[ $$name$$ ]]>
         </text>
       </idAttribute>
 
@@ -31,40 +29,27 @@
                 scopes=""
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
-      <attributeQueryRef ref="VariableAttributes.All">
-        <columnAttribute name="attribute_name" displayName="Name">
+      <attributeQueryRef ref="VariableAttributes.Name">
+        <columnAttribute name="name" displayName="Name">
           <propertyList name="boost">
             <value>1.5</value>
           </propertyList>
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
         </columnAttribute>
-        <columnAttribute name="study_name" displayName="Study Name">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>        
-        <columnAttribute name="entity_type" displayName="Entity Type">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>          
       </attributeQueryRef>
 
-      <table name="Values"
-             displayName="Values"
-             queryRef="VariableTables.Values">
-        <columnAttribute name="value" displayName="Value"/>
-      </table>
+      <attributeQueryRef ref="VariableAttributes.CategoriesPath">
+        <columnAttribute name="path" displayName="Categories path"/>
+      </attributeQueryRef>
 
-      <table name="ProviderLabels"
-             displayName="Provider Labels"
-             queryRef="VariableTables.ProviderLabels">
-        <propertyList name="isSummary">
-          <value>true</value>
-        </propertyList>
-        <columnAttribute name="provider_label"/>
+      <table name="StudyInfo"
+             displayName="Study Info"
+             queryRef="VariableTables.StudyInfo">
+        <columnAttribute name="study_id" displayName="Study ID"/>
+        <columnAttribute name="study_name" displayName="Study name"/>
+        <columnAttribute name="entity_type_id" displayName="Entity type ID"/>
+        <columnAttribute name="entity_type" displayName="Entity type"/>
+        <columnAttribute name="provider_label" displayName="Provider label"/>
+        <columnAttribute name="attribute_definition" displayName="Attribute definition"/>
       </table>
 
     </recordClass>
