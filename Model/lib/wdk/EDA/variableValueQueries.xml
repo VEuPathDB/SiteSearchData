@@ -1,0 +1,70 @@
+<wdkModel>
+
+  <querySet name="VariableValueIdQueries" queryType="id" isCacheable="true">
+    <sqlQuery name="AllVariableValues">
+      <column name="variable_id"/>
+      <column name="study_id"/>
+      <column name="entity_type_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select av.string_value as value, av.attribute_stable_id as variable_id,
+                 s.stable_id as study_id,
+                 EntityTypeTerm.source_id as entity_type_id
+          from eda.AttributeValue av, eda.EntityType et, eda.Study s,
+               sres.OntologyTerm EntityTypeTerm, eda.AttributeGraph ag
+          where av.entity_type_id = et.entity_type_id
+            and et.study_id = s.study_id
+            and et.type_id = EntityTypeTerm.ontology_term_id
+            and ag.stable_id = av.attribute_stable_id
+            and ag.study_id = et.study_id
+            and av.number_value is null
+            and av.date_value is null
+            and (ag.hidden is null
+                 or (ag.hidden != '["everywhere"]'
+                     and ag.hidden != '["variableTree"]'))
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="VariableValueAttributes" queryType="attribute" isCacheable="false">
+
+    <sqlQuery name="All">
+      <column name="variable_id"/>
+      <column name="study_id"/>
+      <column name="entity_type_id"/>
+      <column name="value"/>
+      <column name="variable_name"/>
+      <column name="entity_type_name"/>
+      <column name="study_name"/>
+      <sql>
+        <![CDATA[
+          select --+ NO_PARALLEL
+                 av.string_value as value, av.attribute_stable_id as variable_id,
+                 s.stable_id as study_id,
+                 EntityTypeTerm.source_id as entity_type_id,
+                 ag.display_name as variable_name,
+                 EntityTypeTerm.name as entity_type_name,
+                 dsp.display_name as study_name, sd.dataset_id
+          from eda.AttributeValue av, eda.EntityType et, eda.Study s,
+               sres.OntologyTerm EntityTypeTerm, eda.AttributeGraph ag,
+               apidbTuning.DatasetPresenter dsp, apidbTuning.StudyIdDatasetId sd
+          where av.entity_type_id = et.entity_type_id
+            and et.study_id = s.study_id
+            and et.type_id = EntityTypeTerm.ontology_term_id
+            and ag.stable_id = av.attribute_stable_id
+            and ag.study_id = et.study_id
+            and (ag.hidden is null
+                 or (ag.hidden != '["everywhere"]'
+                     and ag.hidden != '["variableTree"]'))
+            and s.stable_id = sd.study_stable_id
+            and sd.dataset_id = dsp.dataset_presenter_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+</wdkModel>
