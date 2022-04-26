@@ -49,7 +49,7 @@
         <columnAttribute name="entity_type_id" displayName="Entity type ID"/>
         <columnAttribute name="entity_type" displayName="Entity type"/>
         <columnAttribute name="provider_label" displayName="Provider label"/>
-        <columnAttribute name="attribute_definition" displayName="Attribute definition"/>
+        <columnAttribute name="attribute_definition" displayName="Description"/>
       </table>
 
     </recordClass>
