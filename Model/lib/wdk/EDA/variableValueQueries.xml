@@ -20,6 +20,7 @@
             and ag.study_id = et.study_id
             and av.number_value is null
             and av.date_value is null
+            and av.string_value not in ('Yes', 'No')
             and (ag.hidden is null
                  or (ag.hidden != '["everywhere"]'
                      and ag.hidden != '["variableTree"]'))
@@ -56,6 +57,9 @@
             and et.type_id = EntityTypeTerm.ontology_term_id
             and ag.stable_id = av.attribute_stable_id
             and ag.study_id = et.study_id
+            and av.number_value is null
+            and av.date_value is null
+            and av.string_value not in ('Yes', 'No')
             and (ag.hidden is null
                  or (ag.hidden != '["everywhere"]'
                      and ag.hidden != '["variableTree"]'))

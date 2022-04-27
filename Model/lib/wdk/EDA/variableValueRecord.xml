@@ -33,9 +33,11 @@
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="VariableValueAttributes.All">
+<!--
         <columnAttribute name="variable_name" displayName="Variable name"/>
         <columnAttribute name="entity_type_name" displayName="Entity type name"/>
         <columnAttribute name="study_name" displayName="Study name"/>
+-->
       </attributeQueryRef>
 
     </recordClass>
