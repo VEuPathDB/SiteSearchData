@@ -14,7 +14,12 @@
         "displayName": "Variable",
         "displayNamePlural": "Variables",
         "hasOrganismField": false
-      }
+      },
+      { "id": "variableValue",
+        "displayName": "Variable value",
+        "displayNamePlural": "Variable values",
+        "hasOrganismField": false
+      }      
     ]
   }
 ]
