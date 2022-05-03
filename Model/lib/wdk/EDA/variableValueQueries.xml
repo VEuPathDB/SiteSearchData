@@ -31,6 +31,39 @@
 
   </querySet>
 
+  <querySet name="VariableValueAttributes" queryType="attribute" isCacheable="false">
+
+    <sqlQuery name="All">
+      <column name="value"/>
+      <column name="project"/>
+      <column name="hyperlinkName"/>
+      <sql>
+        <![CDATA[
+          select distinct value, value as hyperlinkName, '@PROJECT_ID@' as project
+          from (with attributes
+                     as (select att.entity_type_id, att.ontology_term_id, v.value
+                         from eda.Attribute att,
+                              json_table(att.ordered_values , '$[*]' COLUMNS (value PATH '$')) as v
+                         where att.data_type = 'string'
+                           and  v.value not in ('Yes', 'No')
+                        )
+                select s.stable_id as study_id, etg.stable_id as entity_type_id,
+                       ag.stable_id as variable_id, a.value
+                from eda.Study s, eda.EntityTypeGraph etg, attributes a, eda.Attributegraph ag
+                where a.entity_type_id = etg.entity_type_id
+                  and etg.study_id = s.study_id
+                  and ag.study_id = s.study_id
+                  and ag.ontology_term_id = a.ontology_term_id
+                  and (ag.hidden is null
+                       or (ag.hidden != '["everywhere"]'
+                           and ag.hidden != '["variableTree"]'))
+               )
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
   <querySet name="VariableValueTables" queryType="table" isCacheable="false">
 
     <sqlQuery name="All">
