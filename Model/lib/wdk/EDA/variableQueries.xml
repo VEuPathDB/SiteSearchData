@@ -23,11 +23,16 @@
     <sqlQuery name="Name">
       <column name="variable_id"/>
       <column name="name"/>
+      <column name="project"/>
+      <column name="hyperlinkName"/>
       <sql>
         <![CDATA[
           select attribute_id as variable_id,
                  listagg(display_name, ' / ')  within group (order by display_name)
-                   as name
+                   as name,
+                 '@PROJECT_ID@' as project,
+                 listagg(display_name, ' / ')  within group (order by display_name)
+                   as hyperlinkName
           from (select distinct stable_id as attribute_id, display_name
                 from eda.AttributeGraph
                 where (hidden is null
