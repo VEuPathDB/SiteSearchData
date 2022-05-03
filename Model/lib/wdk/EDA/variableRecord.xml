@@ -30,6 +30,8 @@
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="VariableAttributes.Name">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="name" displayName="Name">
           <propertyList name="boost">
             <value>1.5</value>
