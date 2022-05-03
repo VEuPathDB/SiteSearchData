@@ -53,7 +53,7 @@
       <sql>
         <![CDATA[
           select attribute_id as variable_id,
-                 listagg(path, '; ') within group (order by path) as path
+                 nvl(listagg(path, '; ') within group (order by path), 'n/a') as path
           from (select distinct attribute_id, path
                 from (select attribute_id, study_id,
                              listagg(ancestor, ' > ')  within group (order by lvl desc) as path
@@ -99,11 +99,11 @@
           select distinct sd.dataset_id, sd.study_stable_id as study_id,
                           ag.stable_id as variable_id,
                           a.entity_type_stable_id as entity_type_id,
-                          ag.display_name as attribute_name,
-                          ag.provider_label,
-                          dsp.display_name as study_name,
-                          etg.display_name as entity_type,
-                          ag.definition as attribute_definition
+                          nvl(ag.display_name, 'n/a') as attribute_name,
+                          nvl(ag.provider_label, 'n/a') as provider_label,
+                          nvl(dsp.display_name, 'n/a') as study_name,
+                          nvl(etg.display_name, 'n/a') as entity_type,
+                          nvl(ag.definition, 'n/a') as attribute_definition
           from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
                apidbTuning.StudyIdDatasetId sd, eda.Study s,
                apidbTuning.DatasetPresenter dsp
