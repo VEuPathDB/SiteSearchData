@@ -54,7 +54,8 @@
         <![CDATA[
           select attribute_id as variable_id,
                  nvl(listagg(path, '; ') within group (order by path), 'n/a') as path
-          from (select distinct attribute_id, path
+          from (select distinct attribute_id,
+                                regexp_replace(path, ' >[^>]*$', '') as path
                 from (select attribute_id, study_id,
                              listagg(ancestor, ' > ')  within group (order by lvl desc) as path
                       from (select distinct connect_by_root stable_id as attribute_id, study_id,
@@ -64,14 +65,14 @@
                             where (hidden is null
                                    or (hidden != '["everywhere"]'
                                        and hidden != '["variableTree"]'))
-                              and stable_id
-                                  in (select stable_id
-                                      from eda.Attribute)
                             start with stable_id
                                        in (select stable_id
-                                           from eda.Attribute)
+                                           from eda.Attribute) -- has values
                             connect by stable_id = prior parent_stable_id
                                    and study_id = prior study_id
+                                   -- don't include entity types:
+                                   and stable_id
+                                       not in (select stable_id from eda.EntityTypeGraph)
                            )
                       group by attribute_id, study_id
                      )
