@@ -6,7 +6,7 @@
     <!-- ########################  VariableValue Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="variableValue" urlName="variableValue" displayName="VariableValue">
+    <recordClass name="variableValue" urlName="variableValue" displayName="Variable value">
       <propertyList name="batch">
         <value>dataset-presenter</value>
       </propertyList>
