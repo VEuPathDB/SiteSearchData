@@ -48,6 +48,9 @@
        <propertyList name="isSummary">
           <value>true</value>
         </propertyList>
+       <propertyList name="isSearchable">
+          <value>false</value>
+        </propertyList>        
         <columnAttribute name="study_id" displayName="Study ID"/>
         <columnAttribute name="study_name" displayName="Study name"/>
         <columnAttribute name="entity_type_id" displayName="Entity type ID"/>
