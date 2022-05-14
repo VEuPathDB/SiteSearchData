@@ -16,9 +16,6 @@
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Name">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
         <text>
           <![CDATA[ $$name$$ ]]>
         </text>
