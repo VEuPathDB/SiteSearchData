@@ -29,6 +29,7 @@ Each <attributeQueryRef> must:
   - hyperlinkName: non-searchable attribute to use as text in the hyperlink for this recordclass in search results
 - may include a <propertyList> for "isSummary" indicating that this field is used in the UI to briefly describe this record
 - may include a <propertyList> for "isSubtitle" indicating that this field is used in the UI to briefly describe this record, and displays as a subtitle
+- may include a <propertyList> for "isSearchable" indicating, when 'false', that this field can be returned as a summary field (isSummary), but is not searchable.
 - may include a <propertyList> for "includeProjects" indicating which projects to include this field in.  default is all, if absent
 - may include a <propertyList> for "boost" indicating a multiplier used to boost score of documents that match this field (default is 1)
 
