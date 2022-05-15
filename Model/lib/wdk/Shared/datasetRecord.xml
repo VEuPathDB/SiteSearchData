@@ -29,35 +29,56 @@
                 scopes=""
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
+      <!-- for ClinEpi and mbio, boost all fields in dataset record, so that Studies generally come out on top of search results -->	    
       <attributeQueryRef ref="DatasetAttributes.All">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
-
         <columnAttribute name="display_name" internal="true"/>
-        <columnAttribute name="description" displayName="Description"/>
-        <columnAttribute name="acknowledgement" displayName="Acknowledgement"/>
+        <columnAttribute name="description" displayName="Description">
+          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>	
+        <columnAttribute name="acknowledgement" displayName="Acknowledgement">
+          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>		
         <columnAttribute name="summary" displayName="Summary">
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
-        </columnAttribute>
-        <columnAttribute name="newcategory" displayName="Category"/>
+          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">  
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>		
+        <columnAttribute name="newcategory" displayName="Category">
+          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>				
       </attributeQueryRef>
 
       <table name="Contacts"
              displayName="Principal Investigator and Collaborators"
              queryRef="DatasetTables.Contacts">
+        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <value>20</value>
+        </propertyList>   	      
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="contact_name" displayName="Investigator"/>
-        <columnAttribute name="affiliation" displayName="Affiliation"/>
+        <columnAttribute name="affiliation" displayName="Affiliation"/>  
       </table>
 
       <table name="Publications"
              displayName="Associated publications"
              queryRef="DatasetTables.Publications">
+        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <value>20</value>
+        </propertyList>   	      
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="pmid" displayName="Pubmed ID"/>
-        <columnAttribute name="citation"/>
+        <columnAttribute name="citation"/> 
       </table>
 
       <table name="Organisms"
@@ -77,8 +98,12 @@
           <value>GiardiaDB</value>
           <value>AmoebaDB</value>
         </propertyList>
+        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <value>20</value>
+        </propertyList>   	      
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="organism"/>
+	      
       </table>
 
 <!--
