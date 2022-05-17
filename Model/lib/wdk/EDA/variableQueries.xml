@@ -117,6 +117,7 @@
             and (ag.hidden is null
                  or (ag.hidden != '["everywhere"]'
                      and ag.hidden != '["variableTree"]'))
+          order by dsp.display_name, etg.display_name
         ]]>
       </sql>
     </sqlQuery>
