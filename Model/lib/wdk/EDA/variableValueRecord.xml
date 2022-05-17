@@ -43,6 +43,9 @@
         <columnAttribute name="variable_id"/>
         <columnAttribute name="study_id"/>
         <columnAttribute name="entity_type_id"/>
+        <columnAttribute name="study_name"/>
+        <columnAttribute name="entity_type"/>
+        <columnAttribute name="variable_name"/>
       </table>
 
     </recordClass>
