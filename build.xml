@@ -1,28 +1,29 @@
-<project name="SiteSearchData" default="Installation" basedir=".">
+<project name="SiteSearchData" basedir=".">
 
-  <import file="${projectsDir}/WDK/build.xml" />
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooo  Dependencies  oooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 
+	<import file="${projectsDir}/WDK/build.xml" />
 
-  <target name="SiteSearchData-Installation" depends="WDK-Installation, 
-                                                      SiteSearchData-MavenInstallation,
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooo  Installation  oooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+
+	<target name="SiteSearchData-Installation" depends="WDK-Installation,
                                                       SiteSearchData/Model-Installation">
     <ant target="defaultProjectInstall">
       <property name="project" value="SiteSearchData" />
     </ant>
   </target>
 
-  <target name="SiteSearchData/Model-Installation">
+  <!-- ooooooooooooooooooooooo  Install Components  ooooooooooooooooooooooo -->
+
+	<target name="SiteSearchData/Model-Installation">
     <ant target="defaultComponentInstall">
       <property name="project" value="SiteSearchData" />
       <property name="component" value="Model" />
     </ant>
-  </target>
-
-  <target name="SiteSearchData-MavenInstallation">
-    <ant target="mavenBuildProject">
-      <property name="project" value="SiteSearchData" />
-    </ant>
-    <property name="alreadyBuilt" value="true" />
   </target>
 
 </project>
