@@ -1,7 +1,7 @@
 
 # Rules of the Site Search WDK Model
 
-This is a special WDK model used to serve data to process that generates JSON files for Site Search.
+This is a special WDK model used to serve data to the reporter that generates JSON files for Site Search.
     
 It follows very specific rules needed for successful production of that data.
     
