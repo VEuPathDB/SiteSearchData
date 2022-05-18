@@ -17,7 +17,7 @@
 
       <idAttribute name="primary_key" displayName="Name">
         <text>
-          <![CDATA[ $$name$$ ]]>
+          <![CDATA[ $$hyperlinkName$$ ]]>
         </text>
       </idAttribute>
 
@@ -27,7 +27,6 @@
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="VariableAttributes.Name">
-        <columnAttribute name="name" internal="true"/>
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
       </attributeQueryRef>
