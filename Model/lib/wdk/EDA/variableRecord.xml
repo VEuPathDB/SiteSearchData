@@ -16,6 +16,9 @@
       </primaryKey>
 
       <idAttribute name="primary_key" displayName="Name">
+        <propertyList name="boost">
+          <value>5</value>
+        </propertyList>        
         <text>
           <![CDATA[ $$hyperlinkName$$ ]]>
         </text>
