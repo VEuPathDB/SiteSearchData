@@ -35,7 +35,7 @@
       </attributeQueryRef>
 
       <attributeQueryRef ref="VariableAttributes.CategoriesPath">
-        <columnAttribute name="path" displayName="Categories path">
+        <columnAttribute name="path" displayName="Category">
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
