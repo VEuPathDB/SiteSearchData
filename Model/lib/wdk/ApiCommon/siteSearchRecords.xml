@@ -419,14 +419,22 @@
         <columnAttribute name="orthomcl_name" displayName="Ortholog group"/>
       </attributeQueryRef>
 
-      <table name = "ApolloUpdates"
+      <!-- needed for the apollo comment updater. -->
+      <table name="apolloCommentIds"
+             internal="true"
+             queryRef="GeneTables.ApolloCommentIDs">
+        <columnAttribute name="comment_id"/>
+      </table>
+
+      <table name = "apolloCommentContent"
              displayName="Apollo Annotations"
              queryRef="ApolloTables.Apollo">
         <columnAttribute name="apollo_transcript_id"/>
-        <columnAttribute name="attr_owner"/>
-        <columnAttribute name="dbxref"/>
-        <columnAttribute name="symbol"/>
+        <columnAttribute name="apollo_owner"/>
+        <columnAttribute name="apollo_dbxref"/>
+        <columnAttribute name="apollo_symbol"/>
         <columnAttribute name="apollo_description"/>
+        <columnAttribute name="apollo_go_term"/>
       </table>
 
       <!-- special internal field for organism filtering -->
