@@ -422,7 +422,7 @@
       <!-- needed for the apollo comment updater. -->
       <table name="apolloCommentIds"
              internal="true"
-             queryRef="GeneTables.ApolloCommentIDs">
+             queryRef="ApolloTables.ApolloCommentIDs">
         <columnAttribute name="comment_id"/>
       </table>
 
