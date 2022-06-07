@@ -12,7 +12,7 @@
                          from eda.Attribute att,
                               json_table(att.ordered_values , '$[*]' COLUMNS (value PATH '$')) as v
                          where att.data_type = 'string'
-                           and  v.value not in ('Yes', 'No')
+                           and  lower(trim(v.value)) not in ('yes', 'no')
                            and not regexp_like(v.value, '^[[:digit:]]+$')
                         )
                 select s.stable_id as study_id, etg.stable_id as entity_type_id,
