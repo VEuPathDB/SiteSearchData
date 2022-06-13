@@ -15,7 +15,7 @@
         <columnRef>variable_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Name">
+      <idAttribute name="primary_key" displayName="Variable name">
         <propertyList name="boost">
           <value>5</value>
         </propertyList>        
@@ -43,7 +43,7 @@
       </attributeQueryRef>
 
       <table name="StudyInfo"
-             displayName="Study Info"
+             displayName="Study specific variable information"
              queryRef="VariableTables.StudyInfo">
        <propertyList name="isSummary">
           <value>true</value>
