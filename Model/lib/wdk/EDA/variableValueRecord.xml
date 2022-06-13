@@ -15,7 +15,7 @@
         <columnRef>value</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="VariableValue">
+      <idAttribute name="primary_key" displayName="Variable value">
         <text>
           <![CDATA[ $$value$$ ]]>
         </text>
@@ -32,7 +32,7 @@
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <table name="All"
-             displayName="All"
+             displayName="Variables having this value"
              queryRef="VariableValueTables.All">
         <propertyList name="isSummary">
           <value>true</value>
