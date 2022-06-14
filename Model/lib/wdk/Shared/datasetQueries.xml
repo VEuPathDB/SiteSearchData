@@ -8,6 +8,10 @@
           select dataset_presenter_id as dataset_id
           from apidbTuning.DatasetPresenter
           where category is null OR category != 'Link outs'
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>
@@ -29,6 +33,11 @@
                  display_name, display_name as hyperlinkName, description, summary, acknowledgement,
                  nvl(display_category, category) as newcategory
           from apidbTuning.DatasetPresenter
+          where category is null OR category != 'Link outs'
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>
@@ -46,6 +55,11 @@
           select dataset_presenter_id as dataset_id,
                  name as contact_name, affiliation
           from apidbTuning.DatasetContact
+          where dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+
         ]]>
       </sql>
     </sqlQuery>
@@ -59,6 +73,10 @@
           select dataset_presenter_id as dataset_id, 'PMID:' || pmid as pmid, citation
           from apidbTuning.DatasetPublication
           where pmid is not null
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>
@@ -72,6 +90,10 @@
           from apidbTuning.DatasetNameTaxon dnt, sres.TaxonName tn
           where dnt.taxon_id = tn.taxon_id
             and tn.name_class = 'scientific name'
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>
@@ -89,6 +111,10 @@
             and av.date_value is null
             and lower(av.string_value) != 'yes'
             and lower(av.string_value) != 'no'
+            and sd.dataset_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>
@@ -105,6 +131,10 @@
           where ag.stable_id = a.stable_id
             and a.entity_type_id = etg.entity_type_id
             and etg.study_stable_id = sd.study_stable_id
+            and sd.dataset_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>
@@ -178,6 +208,10 @@
                  study_chars.WHO, study_chars.projectName
           from apidbTuning.DatasetPresenter dsp, study_chars
           where dsp.dataset_presenter_id = study_chars.dataset_id(+)
+            and dsp.dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>

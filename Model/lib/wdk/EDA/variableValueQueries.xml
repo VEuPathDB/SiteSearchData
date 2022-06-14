@@ -25,6 +25,19 @@
                   and (ag.hidden is null
                        or (ag.hidden != '["everywhere"]'
                            and ag.hidden != '["variableTree"]'))
+                  and s.stable_id
+                      not in (select study_stable_id
+                              from apidbTuning.StudyIdDatasetId
+                              where dataset_id
+                                    in (  select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'isPublic' and value = 'false'
+                                        union
+                                          select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'studyAccess' and value in ('private', 'prerelease')
+                                       )
+                             )
                )
         ]]>
       </sql>
@@ -59,6 +72,19 @@
                   and (ag.hidden is null
                        or (ag.hidden != '["everywhere"]'
                            and ag.hidden != '["variableTree"]'))
+                  and s.stable_id
+                      not in (select study_stable_id
+                              from apidbTuning.StudyIdDatasetId
+                              where dataset_id
+                                    in (  select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'isPublic' and value = 'false'
+                                        union
+                                          select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'studyAccess' and value in ('private', 'prerelease')
+                                       )
+                             )
                )
         ]]>
       </sql>
@@ -102,6 +128,19 @@ where a.entity_type_id = etg.entity_type_id
            and ag.hidden != '["variableTree"]'))
   and etg.study_stable_id = sd.study_stable_id
   and sd.dataset_id = dsp.dataset_presenter_id
+  and s.stable_id
+      not in (select study_stable_id
+              from apidbTuning.StudyIdDatasetId
+              where dataset_id
+                    in (  select dataset_presenter_id
+                          from apidbTuning.DatasetProperty
+                          where property = 'isPublic' and value = 'false'
+                        union
+                          select dataset_presenter_id
+                          from apidbTuning.DatasetProperty
+                          where property = 'studyAccess' and value in ('private', 'prerelease')
+                       )
+             )
 order by dsp.display_name, etg.display_name, ag.display_name
         ]]>
       </sql>
