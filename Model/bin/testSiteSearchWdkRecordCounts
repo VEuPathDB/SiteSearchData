@@ -85,7 +85,7 @@ sub getSiteSearchDocumentTypeCounts {
   my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project", "restrictSearchToOrganisms": $organismsJson});
 
   my $req = HTTP::Request->new(POST => $ssUrl);
-  $req->header( 'Content-Type' => 'application/json' );
+  $req->header( 'Content-Type' => 'application/json', 'Accept' => 'application/json' );
   $req->content($ssJsonString);
   my $res = $userAgent->request($req);
 
