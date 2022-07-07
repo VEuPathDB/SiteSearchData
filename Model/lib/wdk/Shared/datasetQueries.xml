@@ -7,7 +7,7 @@
         <![CDATA[
           select dataset_presenter_id as dataset_id
           from apidbTuning.DatasetPresenter
-          where category is null OR category != 'Link outs'
+          where (category is null OR category != 'Link outs')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -33,7 +33,7 @@
                  display_name, display_name as hyperlinkName, description, summary, acknowledgement,
                  nvl(display_category, category) as newcategory
           from apidbTuning.DatasetPresenter
-          where category is null OR category != 'Link outs'
+          where (category is null OR category != 'Link outs')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
