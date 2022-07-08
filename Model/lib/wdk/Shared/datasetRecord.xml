@@ -15,7 +15,16 @@
         <columnRef>dataset_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Name">
+      <idAttribute name="primary_key" displayName="Name" excludeProjects="ClinEpiDB">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[ $$display_name$$ ]]>
+        </text>
+      </idAttribute>
+
+      <idAttribute name="primary_key" displayName="Study Name" includeProjects="ClinEpiDB">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
@@ -38,9 +47,9 @@
           <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
             <value>20</value>
           </propertyList>
-	</columnAttribute>	
+	</columnAttribute>
         <columnAttribute name="acknowledgement" displayName="Acknowledgement">
-          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">
+          <propertyList name="boost" includeProjects="MicrobiomeDB">
             <value>20</value>
           </propertyList>
 	</columnAttribute>		
@@ -53,7 +62,7 @@
           </propertyList>
 	</columnAttribute>		
         <columnAttribute name="newcategory" displayName="Category">
-          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">
+          <propertyList name="boost" includeProjects="ClinEpiDB">
             <value>20</value>
           </propertyList>
 	</columnAttribute>				
@@ -135,7 +144,7 @@
         <columnAttribute name="name" displayName="Attribute name"/>
         <columnAttribute name="provider_label" displayName="Provider label"/>
       </table>
-
+-->
       <table name="StudyCharacteristics"
              displayName="Study Characteristics"
              queryRef="DatasetTables.StudyCharacteristics">
@@ -157,7 +166,32 @@
         <columnAttribute name="WHO"/>
         <columnAttribute name="projectName" displayName="Project name"/>
       </table>
--->
+
+      <table name="StudyAccess"
+             displayName="Data accessibility"
+             queryRef="DatasetTables.StudyAccess">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="study_access"/>
+      </table>
+
+      <table name="DataAccessRecords"
+             displayName="Data access records"
+             queryRef="DatasetTables.DataAccessRecords">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="name"/>
+        <columnAttribute name="organization"/>
+        <columnAttribute name="start_date"/>
+        <columnAttribute name="purpose"/>
+        <columnAttribute name="dataset_name"/>
+      </table>
 
       <!-- special internal field for organism filtering -->
       <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
