@@ -5,44 +5,46 @@
     <sqlQuery name="Apollo">
       <column name="source_id"/>
       <column name="apollo_transcript_id"/>
-      <column name="attr_owner"/>
-      <column name="dbxref"/>
-      <column name="symbol"/>
       <column name="apollo_description"/>
+      <column name="apollo_owner"/>
+      <column name="apollo_dbxref"/>
+      <column name="apollo_symbol"/>
+      <column name="apollo_go_term"/>
+
       <sql>
         <![CDATA[
-		select source_id
-		, apollo_transcript_id
-		, attr_owner
-		, dbxref
-		, symbol
-	, case when gene_product is null then description else gene_product end as apollo_description
-from (
-     select ga.representative_transcript
-     , ga.source_id
-     , ga.project_id
-     , au.na_sequence_id, au.mapping_start, au.mapping_end
-     , au.attr
-     , case when au.attr like '%gene_product%' then 'gene product found' else 'gene product not found' end as gpfound
-     , replace( replace(regexp_substr ( ( utl_url.unescape (replace(regexp_substr ( au.attr, 'gene_product=(.+?);'), 'gene_product=', '') ) ), 'term=(.+?);'), 'term=', '') , ';', '') as gene_product
-     , case when au.attr like '%description%' then 'description found' else 'description not found' end as dfound
-     , case when au.attr like '%Name%' then 'name found' else 'name not found' end as nfound
-     , case when au.attr like '%owner%' then 'owner found' else 'owner not found' end as ofound
-     , case when au.attr like '%db_xref%' then 'db_xref found' else 'db_xref not found' end as dbxfound
-     , case when au.attr like '%symbol%' then 'symbol found' else 'symbol not found' end as sfound
-     , cast(utl_url.unescape(replace( replace(regexp_substr(au.attr, 'description=[^;]*;'), 'description=', ''), ';', '')) as varchar2(400)) as description    
-     , cast(utl_url.unescape(replace( replace(regexp_substr(au.attr, 'Name=[^;]*;'), 'Name=', ''), ';', '')) as varchar2(400)) as apollo_transcript_id
-     , cast(utl_url.unescape(replace( replace(regexp_substr(au.attr, 'owner=[^;]*;'), 'owner=', ''), ';', '')) as varchar2(400)) as attr_owner
-     , cast(utl_url.unescape(replace( replace(regexp_substr(au.attr, 'db_xref=[^;]*;'), 'db_xref=', ''), ';', '')) as varchar2(400)) as dbxref
-     , cast(utl_url.unescape(replace( replace(regexp_substr(au.attr, 'symbol=[^;]*;'), 'symbol=', ''), ';', '')) as varchar2(400)) as symbol
-     from apidbtuning.ApolloUpdate au, ApidbTuning.GeneAttributes ga
+    select ga.source_id
+                , cast(utl_url.unescape(replace( replace(regexp_substr(au.attr, 'Name=[^;]*;'), 'Name=', ''), ';', '')) as varchar2(400)) as apollo_transcript_id
+                , apolloproduct as apollo_description
+                , apolloowner as apollo_owner
+                , apollopmid as apollo_dbxref
+                , apollosymbol as apollo_symbol
+                , apollogoterm as apollo_go_term
+from  apidbtuning.ApolloUpdate au, ApidbTuning.GeneAttributes ga
      where au.type = 'gene'
      and (au.attr like '%gene_product=%'
           or au.attr like '%description=%')
      and ga.na_sequence_id = au.na_sequence_id
      and ga.start_min <= au.mapping_end 
      and ga.end_max >= au.mapping_start
-    )
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="ApolloCommentIDs">
+      <column name="source_id"/>
+      <column name="id_attr"/>
+      <sql>
+        <![CDATA[
+    select distinct ga.source_id
+                ,id_attr
+from  apidbtuning.ApolloUpdate au, ApidbTuning.GeneAttributes ga
+     where au.type = 'gene'
+     and (au.attr like '%gene_product=%'
+          or au.attr like '%description=%')
+     and ga.na_sequence_id = au.na_sequence_id
+     and ga.start_min <= au.mapping_end 
+     and ga.end_max >= au.mapping_start
         ]]>
       </sql>
     </sqlQuery>

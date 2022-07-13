@@ -15,9 +15,12 @@
         <columnRef>variable_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Name">
+      <idAttribute name="primary_key" displayName="Variable name">
+        <propertyList name="boost">
+          <value>5</value>
+        </propertyList>        
         <text>
-          <![CDATA[ $$name$$ ]]>
+          <![CDATA[ $$hyperlinkName$$ ]]>
         </text>
       </idAttribute>
 
@@ -32,7 +35,7 @@
       </attributeQueryRef>
 
       <attributeQueryRef ref="VariableAttributes.CategoriesPath">
-        <columnAttribute name="path" displayName="Categories path">
+        <columnAttribute name="path" displayName="Category">
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -40,7 +43,7 @@
       </attributeQueryRef>
 
       <table name="StudyInfo"
-             displayName="Study Info"
+             displayName="Study specific variable information"
              queryRef="VariableTables.StudyInfo">
        <propertyList name="isSummary">
           <value>true</value>
