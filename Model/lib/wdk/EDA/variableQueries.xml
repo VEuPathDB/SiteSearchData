@@ -13,6 +13,22 @@
             and stable_id
                 in (select stable_id
                     from eda.Attribute)
+            and study_id
+                not in (select s.study_id
+                        from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                        where s.stable_id = sidi.study_stable_id
+                          and sidi.dataset_id
+                              in (  select dataset_presenter_id
+                                    from apidbTuning.DatasetProperty
+                                    where property = 'isPublic'
+                                      and value = 'false'
+                                  union
+                                    select dataset_presenter_id
+                                    from apidbTuning.DatasetProperty
+                                    where property = 'studyAccess'
+                                      and value in ('private', 'prerelease')
+                                 )
+                       )
         ]]>
       </sql>
     </sqlQuery>
@@ -41,6 +57,22 @@
                   and stable_id
                       in (select stable_id
                           from eda.Attribute)
+                  and study_id
+                      not in (select s.study_id
+                              from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                              where s.stable_id = sidi.study_stable_id
+                                and sidi.dataset_id
+                                    in (  select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'isPublic'
+                                            and value = 'false'
+                                        union
+                                          select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'studyAccess'
+                                            and value in ('private', 'prerelease')
+                                       )
+                             )
                )
           group by attribute_id
         ]]>
@@ -65,6 +97,22 @@
                             where (hidden is null
                                    or (hidden != '["everywhere"]'
                                        and hidden != '["variableTree"]'))
+                                  and study_id
+                                      not in (select s.study_id
+                                              from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                                              where s.stable_id = sidi.study_stable_id
+                                                and sidi.dataset_id
+                                                    in (  select dataset_presenter_id
+                                                          from apidbTuning.DatasetProperty
+                                                          where property = 'isPublic'
+                                                            and value = 'false'
+                                                        union
+                                                          select dataset_presenter_id
+                                                          from apidbTuning.DatasetProperty
+                                                          where property = 'studyAccess'
+                                                            and value in ('private', 'prerelease')
+                                                       )
+                                             )
                             start with stable_id
                                        in (select stable_id
                                            from eda.Attribute) -- has values
@@ -117,6 +165,23 @@
             and (ag.hidden is null
                  or (ag.hidden != '["everywhere"]'
                      and ag.hidden != '["variableTree"]'))
+            and ag.study_id
+                not in (select s.study_id
+                        from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                        where s.stable_id = sidi.study_stable_id
+                          and sidi.dataset_id
+                              in (  select dataset_presenter_id
+                                    from apidbTuning.DatasetProperty
+                                    where property = 'isPublic'
+                                      and value = 'false'
+                                  union
+                                    select dataset_presenter_id
+                                    from apidbTuning.DatasetProperty
+                                    where property = 'studyAccess'
+                                      and value in ('private', 'prerelease')
+                                 )
+                       )
+          order by dsp.display_name, etg.display_name
         ]]>
       </sql>
     </sqlQuery>

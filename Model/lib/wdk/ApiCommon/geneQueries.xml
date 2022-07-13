@@ -108,6 +108,7 @@
 
     <sqlQuery name="ApolloCommentIds">
       <column name="source_id"/>
+      <column name="id_attr"/>
       <sql>
         <![CDATA[
           select distinct source_id, id_attr from apidbtuning.ApolloSiteSearch

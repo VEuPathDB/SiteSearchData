@@ -115,6 +115,7 @@ def getWdkDocumentFieldsJson(wdkServiceUrl):
             tableJson['name'] = MULTITEXT_PREFIX + recordTypeName + "_" + table['name']
             tableJson['displayName'] = table['displayName']
             tableJson['isSummary'] = getFieldIsSummary(table)
+            tableJson['isSearchable'] = getFieldIsSearchable(table)
             if getFieldIncludeProjects(table) is not None:
                 tableJson['includeProjects'] = getFieldIncludeProjects(table)
             tableJson['boost'] = getFieldBoostFactor(table)
