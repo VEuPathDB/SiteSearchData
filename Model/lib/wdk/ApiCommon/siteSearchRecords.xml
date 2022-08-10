@@ -435,6 +435,7 @@
         <columnAttribute name="apollo_symbol"/>
         <columnAttribute name="apollo_description"/>
         <columnAttribute name="apollo_go_term"/>
+        <columnAttribute name="apollo_owner_details"/>
       </table>
 
       <!-- special internal field for organism filtering -->
