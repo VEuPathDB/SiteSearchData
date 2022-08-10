@@ -10,7 +10,7 @@
       <column name="apollo_dbxref"/>
       <column name="apollo_symbol"/>
       <column name="apollo_go_term"/>
-
+      <column name="apollo_owner_details"/>
       <sql>
         <![CDATA[
     select ga.source_id
@@ -20,31 +20,51 @@
                 , apollopmid as apollo_dbxref
                 , apollosymbol as apollo_symbol
                 , apollogoterm as apollo_go_term
-from  apidbtuning.ApolloUpdate au, ApidbTuning.GeneAttributes ga
+                , (select firstname.value || ' ' ||  lastname.value || ',' || address.value from
+                (select uap.value
+                from useraccounts.accounts@acctdbn.profile uaa,  useraccounts.account_properties@acctdbn.profile uap
+                where uaa.user_id = uap.user_id
+                and uaa.stable_id = apolloowner
+                and uap.key = 'first_name') firstname,
+                (select uap.value
+                from useraccounts.accounts@acctdbn.profile uaa,  useraccounts.account_properties@acctdbn.profile uap
+                where uaa.user_id = uap.user_id
+                and uaa.stable_id = apolloowner
+                and uap.key = 'last_name') lastname,
+                (select uap.value
+                from useraccounts.accounts@acctdbn.profile uaa,  useraccounts.account_properties@acctdbn.profile uap
+                where uaa.user_id = uap.user_id
+                and uaa.stable_id = apolloowner
+                and uap.key = 'organization') address) as apollo_owner_details
+from  apidbtuning.ApolloUpdate au, ApidbTuning.GeneAttributes ga, apidbtuning.transcriptattributes ta
      where au.type = 'gene'
      and (au.attr like '%gene_product=%'
           or au.attr like '%description=%')
      and ga.na_sequence_id = au.na_sequence_id
      and ga.start_min <= au.mapping_end 
      and ga.end_max >= au.mapping_start
+     and ta.source_id = au.apolloTranscript
+     and ga.strand_plus_minus = au.strand
         ]]>
       </sql>
     </sqlQuery>
 
     <sqlQuery name="ApolloCommentIDs">
       <column name="source_id"/>
-      <column name="id_attr"/>
+      <column name="comment_id"/>
       <sql>
         <![CDATA[
     select distinct ga.source_id
-                ,id_attr
-from  apidbtuning.ApolloUpdate au, ApidbTuning.GeneAttributes ga
+                ,id_attr as comment_id
+from  apidbtuning.ApolloUpdate au, ApidbTuning.GeneAttributes ga, apidbtuning.transcriptattributes ta
      where au.type = 'gene'
      and (au.attr like '%gene_product=%'
           or au.attr like '%description=%')
      and ga.na_sequence_id = au.na_sequence_id
      and ga.start_min <= au.mapping_end 
      and ga.end_max >= au.mapping_start
+     and ta.source_id = au.apolloTranscript
+     and ga.strand_plus_minus = au.strand
         ]]>
       </sql>
     </sqlQuery>
