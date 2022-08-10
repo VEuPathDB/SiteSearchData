@@ -108,10 +108,10 @@
 
     <sqlQuery name="ApolloCommentIds">
       <column name="source_id"/>
-      <column name="id_attr"/>
+      <column name="comment_id"/>
       <sql>
         <![CDATA[
-          select distinct source_id, id_attr from apidbtuning.ApolloSiteSearch
+          select distinct source_id, id_attr as comment_id from apidbtuning.ApolloSiteSearch
         ]]>
       </sql>
     </sqlQuery>
