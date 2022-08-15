@@ -26,6 +26,16 @@
                        or (ag.hidden != '["everywhere"]'
                            and ag.hidden != '["variableTree"]'))
                   and s.stable_id
+                      in (select s.study_id
+                          from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                          where s.stable_id = sidi.study_stable_id
+                            and sidi.dataset_id
+                                in (select dataset_presenter_id
+                                    from apidbTuning.DatasetPresenter
+                                    where project_id = '@PROJECT_ID@'
+                                   )
+                         )
+                  and s.stable_id
                       not in (select study_stable_id
                               from apidbTuning.StudyIdDatasetId
                               where dataset_id
@@ -85,6 +95,16 @@
                                           where property = 'studyAccess' and value in ('private', 'prerelease')
                                        )
                              )
+                  and s.stable_id
+                      in (select s.study_id
+                          from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                          where s.stable_id = sidi.study_stable_id
+                            and sidi.dataset_id
+                                in (select dataset_presenter_id
+                                    from apidbTuning.DatasetPresenter
+                                    where project_id = '@PROJECT_ID@'
+                                   )
+                         )
                )
         ]]>
       </sql>
