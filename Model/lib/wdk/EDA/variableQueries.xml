@@ -29,6 +29,16 @@
                                       and value in ('private', 'prerelease')
                                  )
                        )
+            and study_id
+                in (select s.study_id
+                    from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                    where s.stable_id = sidi.study_stable_id
+                      and sidi.dataset_id
+                          in (select dataset_presenter_id
+                              from apidbTuning.DatasetPresenter
+                              where project_id = '@PROJECT_ID@'
+                             )
+                   )
         ]]>
       </sql>
     </sqlQuery>
@@ -73,6 +83,16 @@
                                             and value in ('private', 'prerelease')
                                        )
                              )
+                  and study_id
+                      in (select s.study_id
+                          from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                          where s.stable_id = sidi.study_stable_id
+                            and sidi.dataset_id
+                                in (select dataset_presenter_id
+                                    from apidbTuning.DatasetPresenter
+                                    where project_id = '@PROJECT_ID@'
+                                   )
+                         )
                )
           group by attribute_id
         ]]>
@@ -113,6 +133,16 @@
                                                             and value in ('private', 'prerelease')
                                                        )
                                              )
+                                  and study_id
+                                      in (select s.study_id
+                                          from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                                          where s.stable_id = sidi.study_stable_id
+                                            and sidi.dataset_id
+                                                in (select dataset_presenter_id
+                                                    from apidbTuning.DatasetPresenter
+                                                    where project_id = '@PROJECT_ID@'
+                                                   )
+                                         )
                             start with stable_id
                                        in (select stable_id
                                            from eda.Attribute) -- has values
