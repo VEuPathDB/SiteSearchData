@@ -192,6 +192,7 @@
             and ag.study_id = s.study_id
             and s.stable_id = etg.study_stable_id
             and sd.dataset_id = dsp.dataset_presenter_id
+            and dsp.project_id = '@PROJECT_ID@'
             and (ag.hidden is null
                  or (ag.hidden != '["everywhere"]'
                      and ag.hidden != '["variableTree"]'))

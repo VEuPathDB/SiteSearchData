@@ -247,8 +247,16 @@
       <sql>
         <![CDATA[
           select dataset_presenter_id as dataset_id, value as study_access
-          from apidbTuning.DatasetProperty
-          where property = 'studyAccess'
+          from apidbTuning.DatasetProperty dprop
+          where dprop.property = 'studyAccess'
+            and dprop.dataset_presenter_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@')
+            and dprop.dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>
@@ -295,6 +303,14 @@
           where t1.user_id = t2.user_id
             and t1.user_id = t3.user_id
             and t3.dataset_presenter_id = t4.dataset_presenter_id
+            and t3.dataset_presenter_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@')
+            and t3.dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
         ]]>
       </sql>
     </sqlQuery>
