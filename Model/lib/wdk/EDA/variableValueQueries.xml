@@ -26,7 +26,7 @@
                        or (ag.hidden != '["everywhere"]'
                            and ag.hidden != '["variableTree"]'))
                   and s.stable_id
-                      in (select s.study_id
+                      in (select s.stable_id
                           from apidbTuning.StudyIdDatasetId sidi, eda.Study s
                           where s.stable_id = sidi.study_stable_id
                             and sidi.dataset_id
@@ -96,7 +96,7 @@
                                        )
                              )
                   and s.stable_id
-                      in (select s.study_id
+                      in (select s.stable_id
                           from apidbTuning.StudyIdDatasetId sidi, eda.Study s
                           where s.stable_id = sidi.study_stable_id
                             and sidi.dataset_id
@@ -148,6 +148,7 @@ where a.entity_type_id = etg.entity_type_id
            and ag.hidden != '["variableTree"]'))
   and etg.study_stable_id = sd.study_stable_id
   and sd.dataset_id = dsp.dataset_presenter_id
+  and dsp.project_id = '@PROJECT_ID@'
   and s.stable_id
       not in (select study_stable_id
               from apidbTuning.StudyIdDatasetId
