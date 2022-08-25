@@ -43,14 +43,11 @@
       </attributeQueryRef>
 
       <table name="StudyInfo"
-             displayName="Study specific variable information"
+             displayName="Study specific variable information table"
              queryRef="VariableTables.StudyInfo">
        <propertyList name="isSummary">
           <value>true</value>
-        </propertyList>
-       <propertyList name="isSearchable">
-          <value>false</value>
-        </propertyList>        
+        </propertyList>     
         <columnAttribute name="study_id" displayName="Study ID"/>
         <columnAttribute name="study_name" displayName="Study name"/>
         <columnAttribute name="entity_type_id" displayName="Entity type ID"/>
