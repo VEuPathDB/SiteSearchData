@@ -8,7 +8,8 @@
           select dataset_presenter_id as dataset_id
           from apidbTuning.DatasetPresenter
           where (category is null OR category != 'Link outs')
-            and project_id = '@PROJECT_ID@'
+            and (project_id = '@PROJECT_ID@'
+                 or '@PROJECT_ID@' = 'VEuPathDB')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -35,7 +36,8 @@
                  nvl(display_category, category) as newcategory
           from apidbTuning.DatasetPresenter
           where (category is null OR category != 'Link outs')
-            and project_id = '@PROJECT_ID@'
+            and (project_id = '@PROJECT_ID@'
+                 or '@PROJECT_ID@' = 'VEuPathDB')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -60,7 +62,8 @@
           where dataset_presenter_id
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@')
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -81,7 +84,8 @@
             and dataset_presenter_id
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@')
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -102,7 +106,8 @@
             and dataset_presenter_id
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@')
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -127,7 +132,8 @@
             and sd.dataset_id
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@')
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
             and sd.dataset_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -151,7 +157,8 @@
             and sd.dataset_id
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@')
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
             and sd.dataset_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -232,7 +239,8 @@
             and dsp.dataset_presenter_id
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@')
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
             and dsp.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -252,7 +260,8 @@
             and dprop.dataset_presenter_id
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@')
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
             and dprop.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -306,7 +315,8 @@
             and t3.dataset_presenter_id
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@')
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
             and t3.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
