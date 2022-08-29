@@ -68,8 +68,6 @@ node ('centos8') {
       tag = "${env.BRANCH_NAME}"
     }
 
-    steps.usernamePassword(credentialsId: '3cf5388f-54e2-491b-a7fc-83160dcab3e3', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN'),
-
     withCredentials([usernamePassword(credentialsId: '0f11d4d1-6557-423c-b5ae-693cc87f7b4b', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
       // build the release container, which copies the built gus_home into it
       sh 'podman build --format=docker -t site-search-data -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile .'
