@@ -46,7 +46,7 @@ COPY dockerfiles/entrypoint.sh .
 
 # Run after the copy to prevent issues with cached image layers.
 RUN mkdir -p ${GUS_HOME}/config \
- && cp ${PROJECT_HOME}/install/gus.config.sample ${GUS_HOME}/config/gus.config \
+ && cp ${PROJECT_HOME}/install/config/gus.config.sample ${GUS_HOME}/config/gus.config \
  && env \
  && /bin/bash bld SiteSearchData
 
