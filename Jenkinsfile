@@ -71,6 +71,7 @@ node ('centos8') {
     withCredentials([usernamePassword(credentialsId: '0f11d4d1-6557-423c-b5ae-693cc87f7b4b', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
       // build the release container, which copies the built gus_home into it
 
+      sh 'echo "podman build --format=docker --build-arg=GITHUB_USERNAME=$GITHUB_USERNAME --build-arg=GITHUB_TOKEN=$GITHUB_TOKEN -t site-search-data -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile ." > /tmp/command_debug'
       sh 'podman build --format=docker --build-arg=GITHUB_USERNAME=$GITHUB_USERNAME --build-arg=GITHUB_TOKEN=$GITHUB_TOKEN -t site-search-data -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile .'
     }
 
