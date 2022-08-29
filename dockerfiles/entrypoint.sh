@@ -3,6 +3,18 @@
 # Populate config templates
 # this should be a loop, or something more sane, but we're dealing with sh here.
 
+# the portal uses Portal/SiteSearchData model, but only here.  This is
+# templated to use the COHORT var, but COHORT for the portal is Apicommon,
+# which is not used here.
+
+# which leads us to this exception, where we set the COHORT var if PROJECT_ID
+# is EupathDB
+
+if [ "${PROJECT_ID}" = "EuPathDB" ]
+then
+    export COHORT=Portal
+fi
+
 if [ ! -f ${GUS_HOME}/config/SiteSearchData/model-config.xml ];
 then
     envsubst < ${GUS_HOME}/config/SiteSearchData/model-config.xml.tmpl > ${GUS_HOME}/config/SiteSearchData/model-config.xml 
