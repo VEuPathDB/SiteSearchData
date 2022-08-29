@@ -567,6 +567,7 @@
         <propertyList name="includeProjects">
           <value>PlasmoDB</value>
           <value>UniDB</value>
+          <value>EuPathDB</value>
         </propertyList>
         <columnAttribute name="rmgmid"/>
         <columnAttribute name="pubmed_id"/>
@@ -583,6 +584,7 @@
           <value>FungiDB</value>
           <value>TriTrypDB</value>
           <value>UniDB</value>
+          <value>EuPathDB</value>
         </propertyList>
         <columnAttribute name="pubmed_id"/>
         <columnAttribute name="modification_type"/>
@@ -603,6 +605,7 @@
           <value>GiardiaDB</value>
           <value>TriTrypDB</value>
           <value>UniDB</value>
+          <value>EuPathDB</value>
         </propertyList>
         <columnAttribute name="note"/>
         <columnAttribute name="image_type"/>
