@@ -152,8 +152,6 @@
           <value>EDA</value>
           <value>ClinEpiDB</value>
           <value>MicrobiomeDB</value>
-          <value>EuPathDB</value>
-          <value>VEuPathDB</value>
         </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="disease"/>
