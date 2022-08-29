@@ -106,6 +106,7 @@
           <value>VectorBase</value>
           <value>GiardiaDB</value>
           <value>AmoebaDB</value>
+          <value>EuPathDB</value>
         </propertyList>
         <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
           <value>20</value>
