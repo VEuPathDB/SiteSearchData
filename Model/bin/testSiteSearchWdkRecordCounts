@@ -54,6 +54,7 @@ my $foundError;
 foreach my $recordTypeName (keys %$recordTypes) {
   my $wdkCount = getWdkRecordCount($siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
   my $ssCount = $docCountMap->{$recordTypeName};
+  print STDERR "WDK count: $wdkCount, SS count: $ssCount\n";
   if ($ssCount != $wdkCount) {
     print "FAIL\t$recordTypeName\t$wdkCount\t$ssCount\n";
     $foundError = 1;
