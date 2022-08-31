@@ -13,33 +13,38 @@ Each record class must:
 - include exactly one reporter, the `SolrLoaderReporter`
 - have a `displayName` using sentence case
 - have a `<propertyList>` with a "batch" property, indicating what type of batch that record class should be bundled with
+  - the allowed list of batch values comes from [enumsConfig.xml](https://github.com/VEuPathDB/SolrDeployment/blob/master/configsets/site-search/conf/enumsConfig.xml)
 - should have only `<attributeQueryRef>`s and `<table>`s
-- might include an internal `project` attribute if in solr we should segment these records by project
-- might include an internal `organismsForFilter` table if searches for this record can be filtered by organism(s)
-- might include an internal `display_name` attribute.  This is used when we need to include display_name in the primary key attribute.
+- must include an internal `project` attribute if and only if in solr we should segment these records by project.  (These are records that cannot be segmented by organism, for example Pathways or News).
+- must include an internal `organismsForFilter` table if and only if searches for this record can be filtered by organism(s).  (For, eg, Genes)
+- must include an internal `display_name` attribute.  This is used when include `display_name` in the `<idAttribute name="primary_key">`
   
-We want only one searchable `display_name`, so we make the original attribute `internal="true"`  (see the Dataset record for an example)
+We want only one searchable `display_name`.  The primary key attriute is searchable, so if it includes `$$display_name$$` we make the original attribute `internal="true"`  (see the Dataset record for an example)
   
-Each `<querySet>` must set `isCacheable="false"`.  No queries should set isCacheable to true.
+Each `<querySet>` must set `isCacheable="false"`.  No queries should set `isCacheable="true"`.
   
 Each `<attributeQueryRef>` must:
-- always and only include `name` and `displayName`.
-- never have its name changed.  Doing so will invalidate strategies in the UserDB.  (They are used as parameter values)
+- always and only include `name` and `displayName` as xml properties.
+- never have its `name` changed.  Doing so will invalidate strategies in the UserDB.  (They are used as values in the `Fields` vocabulary parameter)
 - the `displayName` should use sentence case
-- may use a few special attributes are labeled `internal=true`.  These serve special purposes in site search land, and are commented accordingly.  They are not exposed to end users in presentations of searchable fields.
-  - `project`: for recordclasses that stored in solr separately per project (eg pathways)
+- may use a few special attributes that are labeled `internal=true`.  These serve special purposes in site search land, and are commented accordingly.  They are not exposed to end users.
+  - `project`: for recordclasses that are stores in solr separately per project (eg pathways)
   - `organism`: for recordclasses that can be filtered on organism
-  - `hyperlinkName`: non-searchable attribute to use as text in the hyperlink for this recordclass in search results
-- may include a `<propertyList>` for `isSummary` indicating that this field is used in the UI to briefly describe this record
-- may include a `<propertyList>` for `isSubtitle` indicating that this field is used in the UI to briefly describe this record, and displays as a subtitle
-- may include a `<propertyList>` for `isSearchable` indicating, when 'false', that this field can be returned as a summary field (isSummary), but is not searchable.
-- may include a `<propertyList>` for `includeProjects` indicating which projects to include this field in.  default is all, if absent
-- may include a `<propertyList>` for `boost` indicating a multiplier used to boost score of documents that match this field (default is 1)
+  - `hyperlinkName`: a non-searchable attribute to use as text in the hyperlink for this recordclass in search results
+- may include a `<propertyList name="isSummary">` with value `true` indicating that this field is used in the site search results UI to briefly describe this record
+- may include a `<propertyList name="isSubtitle">` with value `true` indicating that this field is used in the site search results UI to briefly describe this record. (It is and displayed as a subtitle.)
+- may include a `<propertyList name="isSearchable">` indicating, when `false`, that this field *can* be returned as a summary field (isSummary), but is *not* searchable.
+- may include a `<propertyList name="includeProjects">` indicating which projects to include this field in.  Default is all, if absent.
+  - We use this in the rare case that an attribute applies only to a few projects.  An example is Rodent Malaria Phenotype, which is only available in PlasmoDB.  By using this property we indicate that:
+    - this field should only be included in solr documents of this specified projects
+    - the Site Search UI should only show this field in the **Fields** filter option for the specified projects.
+    - the WDK Text Search should only include this field in its **Fields to Search** parameter for the specified projects.
+- may include a `<propertyList name="boost">` indicating a multiplier used to boost score of documents that match this field (default is 1)
 
 Each `<table>` must follow the same rules as `attributeQueryRef>`s, plus:
-- the table's `<columnAttribute>`s should include only name.  (The user will never see their display name or help, etc)
-- property `isSubtitle` is not applicable, because tables can't sensibly be a subtitle
-- only include text-searchable columns (no numbers, eg)
+- the table's `<columnAttribute>`s should include only the `name` xml property.  (The user will never see the display name or help, etc)
+- the property `isSubtitle` is not applicable, because tables can't sensibly be a subtitle
+- only include text-searchable columns (eg, no numbers)
 
 Each `<Question>` must:
 - have exactly zero or one parameters
