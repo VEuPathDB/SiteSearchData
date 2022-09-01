@@ -16,10 +16,8 @@ Each record class must:
   - the allowed list of batch values comes from [enumsConfig.xml](https://github.com/VEuPathDB/SolrDeployment/blob/master/configsets/site-search/conf/enumsConfig.xml)
 - should have only `<attributeQueryRef>`s and `<table>`s
 - must include an internal `project` attribute if and only if in solr we should segment these records by project.  (These are records that cannot be segmented by organism, for example Pathways or News).
-- must include an internal `organismsForFilter` table if and only if searches for this record can be filtered by organism(s).  (For, eg, Genes)
-- must include an internal `display_name` attribute.  This is used when include `display_name` in the `<idAttribute name="primary_key">`
-  
-We want only one searchable `display_name`.  The primary key attriute is searchable, so if it includes `$$display_name$$` we make the original attribute `internal="true"`  (see the Dataset record for an example)
+- must include an internal `organismsForFilter` table if and only if searches for this record can be filtered by organism(s).  (For, eg, Genes.)  The Site Search Service explicitly uses this field to filter organisms..
+- must include an internal `display_name` attribute.  This is used when we include `display_name` in the `<idAttribute name="primary_key">`. We want only one searchable `display_name`.  The primary key attriute is searchable, so if it includes `$$display_name$$` we make the original attribute `internal="true"`  (see the Dataset record for an example)
   
 Each `<querySet>` must set `isCacheable="false"`.  No queries should set `isCacheable="true"`.
   
