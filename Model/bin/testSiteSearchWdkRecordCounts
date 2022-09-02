@@ -160,7 +160,7 @@ Usage: testSiteSearchWdkRecordCounts website_url project webapp_name
 
 Example: testSiteSearchWdkRecordCounts https://qa.plasmodb.org PlasmoDB plasmo.bld49
 
-Uses a hard-coded list of record types expected in Solr.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
+Uses a hard-coded list of record types expected in Solr, and for each, the Question to call to get all IDs.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
 
 ";
 }
