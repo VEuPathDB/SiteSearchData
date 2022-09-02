@@ -7,7 +7,7 @@ Each script provides detailed usage when called with no arguments.
 
 Here is a summary
 
-### Used to produce Solr-ready JSON files
+### Produce Solr-ready JSON files
 * `dumpXXXXWdkBatchesForSolr`
   * dumps all WDK record classes for the given cohort (XXXX), using the [Site Search WDK Model](../lib/wdk).  Is hard-coded to know which batches to dump for the cohort.  Calls `ssCreateWdkRecordsBatch` for each batch.  Connects to the component database found in $GUS_HOME/config/gus.config, and queries it to find the list of organisms to dump.  Connects to a running SiteSearchData wdk service to generate the reports.  Calls 
 * `ssCreateDocumentCategoriesBatch`
@@ -22,14 +22,14 @@ Here is a summary
 * `ssCreateWdkRecordsBatch`
   * creates a batch describing wdk records.  Uses the SiteSearchData WDK Model (via a WDK service running that model) to run WDK reports (the SolrJsonReporter) to dump the wdk records in solr-ready json format.  Is parameterized by a batch-type, and includes only record-types from the SiteSearchData model that have that batch-type as a property.  For example, the batch-type "organism" includes Genes, ESTs and Genomic Sequences.
   
-### Used to load JSON files into Solr   
+### load JSON files into Solr   
 * `ssLoadBatch`
   * loads a batch of files into solr.  Validates the batch, ensuring that all document files contain only documents with the same batch type, name and timestamp as is found in the batch's `batch.json` file.  If a batch of this type, name and timestamp is already in solr, does not load the batch.  If a batch of this type and name, but a different timestamp, is in solr, throws an error, unless the `--replace` flag is set; if set, it replaces the batch in solr.
   * this script has a testing script located at [SiteSearchData/Model/test/test_ssLoadBatch](SiteSearchData/Model/test/test_ssLoadBatch). Run the testing script after making any changes to this one.
 * `ssLoadMultipleBatches`
   * reads a directory structure and recursively discovers solr batch directories.  For each one, calls `ssLoadBatch`.
   
-### Testing
+### Test loaded documents
 * `testApiCommonQaSites`
   * Iterates through genomics QA sites and calls `testSiteSearchWdkRecordCounts` on each.
 * `testSiteSearchWdkRecordCounts`
