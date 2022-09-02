@@ -14,6 +14,9 @@ Here is a summary
   * creates a (metadata) batch describing the types of documents we will have in solr, and their categories.  Reads the [../data/documentTypeCategories.json](../data/documentTypeCategories.json) file and includes its contents in a `jsonblob` field in a `document-types.json` solr-ready file.  This metadata is used by the SiteSearchService to form its solr queries, and by the web client to format the left **Filter results** panel.
 * `ssCreateDocumentFieldsBatch`
   * creates a (metadata) batch describing the fields in each solr document.  Queries the SiteSearchData WDK Model (via a WDK service running that model) to discover the fields (attributes and tables) in each record type, and their properties.  Also reads the [../data/nonWdkDocumentFields.json](../data/nonWdkDocumentFields.json) file to discover field metadata for documents that are not supplied by the SiteSearchData WDK model (e.g., Jekyll documents).  Writes this information to a `document-fields.json` solr-ready file.  This metadata is used by the SiteSearchService to form its solr queries, and by the web client to format the left **Filter results** panel.
+* `ssCreatePublicStrategiesBatch`
+  * Read the WDK public strategies endpoint from an application website (eg, PlasmoDB) and create a solr-compatible JSON file with searchable information about that site's public strategies.
+  * Not currently in use, but should be.
 * `ssCreateWdkMetaBatch`
   * could be renamed `ssCreateWdkSearchesBatch.  Creates a batch describing meta information about WDK  website's WDK model.  So far this only includes the WDK searches.  (This is not used for EDA sites, as they don't include WDK searches.)  Outputs a `wdkmeta.json` solr-ready file.  This information is used for standard Site Search Service searches.
 * `ssCreateWdkRecordsBatch`
@@ -27,7 +30,11 @@ Here is a summary
   * reads a directory structure and recursively discovers solr batch directories.  For each one, calls `ssLoadBatch`.
   
 ### Testing
+* `testApiCommonQaSites`
+  * Iterates through genomics QA sites and calls `testSiteSearchWdkRecordCounts` on each.
+* `testSiteSearchWdkRecordCounts`
+  * Test the wdk records installed in a website's site search by comparing against the WDK records found by querying the WDK. Uses a hard-coded list of record types expected in Solr, and for each, the Question to call to get all IDs.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
 
 ### Legacy
 * `dumpApiCommonQaWdkMetaBatches`
-  * calls `ssCreateWdkMetaBatch` for a hard-coded list of genomics components.  Accesses each component's QA site REST service.  This is a legacy script.
+  * calls `ssCreateWdkMetaBatch` for a hard-coded list of genomics components.  Accesses each component's QA site REST service.  This is a legacy script, replaced by a nightly Jenkins job that does the same work as part of a website build.
