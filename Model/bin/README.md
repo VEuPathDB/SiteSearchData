@@ -1,9 +1,9 @@
 ## Site Search Data Scripts
 The files in this directory are executable programs used to create solr-compatible json files, from various sources, and to load those files into solr. 
 
-Since all site search data is loaded into solr in trackable batches, these commands all deal in such batches. (See [SiteSearchData](../../../..))
+Since all site search data is loaded into solr in trackable batches, these commands all deal in such batches. (See the [SiteSearchData](../../../..) README)
 
-Each file has a help option explaining its usage in detail.
+Each script provides detailed usage when called with no arguments.
 
 Here is a summary
 
