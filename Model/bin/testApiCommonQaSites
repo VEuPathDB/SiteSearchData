@@ -1,9 +1,14 @@
 #!/usr/bin/perl
 use strict;
+use FindBin;
 
 my ($buildNum) = @ARGV;
 
 usage() unless $buildNum;
+
+# adjust PATH so we can find testSiteSearchWdkRecordCounts
+my $binDir = $FindBin::Bin;
+local $ENV{PATH} = "$ENV{PATH}:$binDir";
 
 my %projectsMap = ('AmoebaDB', 'amoeba', 'CryptoDB', 'cryptodb',
   'FungiDB', 'fungidb', 'GiardiaDB', 'giardiadb',
@@ -34,6 +39,8 @@ sub usage {
 Test all apicommon qa sites, to see if site search agrees with wdk.
 
 Usage: testApiCommonQaSites build_number
+
+MUST BE RUN FROM WITHIN VEUPATHDB FIREWALL (so that we can connect to QA sites without authentication).
 
 ";
 }
