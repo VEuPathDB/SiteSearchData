@@ -27,7 +27,8 @@ RUN apk add -u --no-cache \
     npm \
     nodejs \
     git \
-    perl
+    perl \
+    bash
 
 #
 # Project Build
