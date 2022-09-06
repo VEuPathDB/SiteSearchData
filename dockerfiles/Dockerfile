@@ -4,7 +4,7 @@
 #
 ############################################################
 
-FROM veupathdb/alpine-dev-base:latest AS build
+FROM veupathdb/alpine-dev-base:jdk-15 AS build
 
 #
 #  Install Apache Ant
@@ -56,7 +56,7 @@ RUN mkdir -p ${GUS_HOME}/config \
 #
 ############################################################
 
-FROM foxcapades/alpine-oracle:1.3
+FROM foxcapades/alpine-oracle:1.6
 
 ENV BASE_GUS=/tmp/base_gus 
 ENV GUS_HOME=${BASE_GUS}/gus_home
