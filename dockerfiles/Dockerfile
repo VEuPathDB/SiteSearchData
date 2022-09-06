@@ -14,6 +14,9 @@ ENV ANT_VERSION=1.10.8 \
     ANT_HOME=/opt/ant \
     PATH=${PATH}:/opt/ant/bin
 
+ARG GITHUB_USERNAME
+ARG GITHUB_TOKEN
+
 RUN wget http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
  && tar -xzf apache-ant-${ANT_VERSION}-bin.tar.gz \
  && mv apache-ant-${ANT_VERSION} ${ANT_HOME} \
