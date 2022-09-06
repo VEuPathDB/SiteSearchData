@@ -62,11 +62,13 @@
       <column name="organism_full"/>
       <column name="organism"/>
       <column name="orthomcl_name"/>
+      <column name="projectAux"/> <!-- needed for Apollo Site Search Updater -->
       <sql>
         <![CDATA[
           select source_id, product, name, gene_type,
                  sequence_id, organism as organism_full, organism,
-                 orthomcl_name
+                 orthomcl_name, 
+                 '@PROJECT_ID@' as projectAux 
           from apidbTuning.GeneAttributes
         ]]>
       </sql>
