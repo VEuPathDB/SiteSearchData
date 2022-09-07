@@ -3,11 +3,6 @@ import org.veupathdb.lib.Builder
 
 node ('centos8') {
 
-  // default tag to latest, only override if branch isn't master.  This
-  // allows the tag to work outside of multibranch (it will just always be
-  // latest in that case)
-  def tag = "latest"
-
   stage('checkout') {
     dir('project_home/install') {
       checkout([$class: 'GitSCM',
@@ -60,13 +55,13 @@ node ('centos8') {
     }
   }
 
-  stage('build') {
+  stage('setup') {
     sh 'cp -rt $WORKSPACE $WORKSPACE/project_home/SiteSearchData/dockerfiles $WORKSPACE/project_home/SiteSearchData/config'
-
-    def builder = new Builder(this)
-    builder.buildContainers([
-      [ name: 'site-search-data', dockerfile: 'dockerfiles/Dockerfile' ]
-    ])
-
   }
+
+  def builder = new Builder(this)
+  builder.buildContainers([
+    [ name: 'site-search-data', dockerfile: 'dockerfiles/Dockerfile' ]
+  ])
+
 }
