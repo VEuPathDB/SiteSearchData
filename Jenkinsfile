@@ -65,7 +65,7 @@ node ('centos8') {
 
     def builder = new Builder(this)
     builder.buildContainers([
-      [ name: 'site-search-data', path: 'project_home/SiteSearchData/dockerfiles/Dockerfile' ]
+      [ name: 'site-search-data', dockerFile: 'project_home/SiteSearchData/dockerfiles/Dockerfile' ]
     ])
 
   }
