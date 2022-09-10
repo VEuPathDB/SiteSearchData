@@ -401,6 +401,9 @@
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
+          <propertyList name="boost">
+            <value>5</value>
+          </propertyList>
         </columnAttribute>
 
         <columnAttribute name="gene_type" displayName="Gene type"/>
