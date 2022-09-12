@@ -2,9 +2,9 @@
 use strict;
 use FindBin;
 
-my ($buildNum) = @ARGV;
+my ($qaOrProd, $buildNum) = @ARGV;
 
-usage() unless $buildNum;
+usage() unless $qaOrProd && ($qaOrProd eq 'qa' || $qaOrProd eq 'prod') && $buildNum;
 
 # adjust PATH so we can find testSiteSearchWdkRecordCounts
 my $binDir = $FindBin::Bin;
@@ -22,7 +22,9 @@ foreach my $project (keys %projectsMap) {
   my $org = "org";
   $org = "net" if $project eq 'SchistoDB';
   my $webApp = $projectsMap{$project};
-  my $cmd = "testSiteSearchWdkRecordCounts https://qa.$project.$org $project $webApp.b$buildNum";
+  my $cmd = $qaOrProd eq 'prod'?
+    "testSiteSearchWdkRecordCounts https://$project.$org $project $webApp" :
+    "testSiteSearchWdkRecordCounts https://qa.$project.$org $project $webApp.b$buildNum";
   print STDERR "\n-----------------------------------------------------------\n";
   print STDERR $cmd . "\n";
   my $status = system($cmd);
@@ -36,11 +38,11 @@ if $failure;
 
 sub usage {
   die "
-Test all apicommon qa sites, to see if site search agrees with wdk.
+Test all apicommon sites, to see if site search agrees with wdk.
 
-Usage: testApiCommonQaSites build_number
+Usage: testApiCommonSites qa|prod build_number
 
-MUST BE RUN FROM WITHIN VEUPATHDB FIREWALL (so that we can connect to QA sites without authentication).
+If QA, must be run on VEuPathDB server (so that we can connect to QA sites without authentication).
 
 ";
 }
