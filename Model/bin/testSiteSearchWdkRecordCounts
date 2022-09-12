@@ -10,6 +10,13 @@ my ($siteUrl, $project, $webappName) = @ARGV;
 
 &usage unless $siteUrl && $project && $webappName;
 
+print STDERR "
+******************************************************
+When testing QA, this must be run on VEuPathDB servers
+******************************************************
+
+" if $siteUrl =~ /qa/;
+
 my $apiCommonRecordTypes =
   {'gene' => 'AllGenes',
    'est' => 'AllEsts',
@@ -47,20 +54,19 @@ my $organisms = getOrganisms($siteUrl, $webappName);
 my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $organisms);
 
 my $results;
-print "Status\tRecord Type\tWDK Count\tSite Search Count\n";
 
 my $foundError;
 
 foreach my $recordTypeName (keys %$recordTypes) {
+  print STDERR "Testing $recordTypeName\n";
   my $wdkCount = getWdkRecordCount($siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
   my $ssCount = $docCountMap->{$recordTypeName};
-  print STDERR "WDK count: $wdkCount, SS count: $ssCount\n";
+  my $status = "PASS";
   if ($ssCount != $wdkCount) {
-    print "FAIL\t$recordTypeName\t$wdkCount\t$ssCount\n";
+    $status = "FAIL";
     $foundError = 1;
-  } else {
-    print "PASS\t$recordTypeName\n";
   }
+  print "$project $recordTypeName $status --- WDK count: $wdkCount, SS count: $ssCount\n";
 }
 
 if ($foundError) {
@@ -68,7 +74,7 @@ if ($foundError) {
 TEST FAILURE: counts differ for at least one record type\n";
 }
 
-print STDERR "Test completed.  No failures.\n";
+print "Test completed.  No failures.\n";
 
 
 #############################################################################################
@@ -81,6 +87,8 @@ sub getSiteSearchDocumentTypeCounts {
 
   my $organismsJson = to_json($organisms);
 
+  print STDERR "Getting site search document counts\n";
+  my $start = time();
   my $userAgent = LWP::UserAgent->new;
   my $ssUrl = "$siteUrl/site-search";
   my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project", "restrictSearchToOrganisms": $organismsJson});
@@ -101,13 +109,15 @@ sub getSiteSearchDocumentTypeCounts {
   foreach my $docType (@$resultDocTypes) {
     $map->{$docType->{'id'}} = $docType->{'count'};
   }
-
+  print STDERR "Done (" . (time() - $start) . " seconds)\n";
   return $map;
 }
 
 sub getWdkRecordCount {
   my ($siteUrl, $webappName, $searchName, $recordType) = @_;
 
+  print STDERR "Getting WDK record counts\n";
+  my $start = time();
   $recordType = 'transcript' if $recordType eq 'gene';
 
   my $jsonString = qq({"pagination": { "offset": 0, "numRecords": 0 },"attributes":["primary_key"],"tables":[]});
@@ -121,6 +131,8 @@ sub getWdkRecordCount {
   }
 
   my $wdkResult = from_json($contents);
+
+  print STDERR "Done (" . (time() - $start) . " seconds)\n";
 
   return $wdkResult->{meta}->{displayTotalCount};
 }
@@ -158,9 +170,13 @@ Test the wdk records installed in a website's site search by comparing against t
 
 Usage: testSiteSearchWdkRecordCounts website_url project webapp_name
 
-Example: testSiteSearchWdkRecordCounts https://qa.plasmodb.org PlasmoDB plasmo.bld49
+Examples:
+  testSiteSearchWdkRecordCounts https://qa.plasmodb.org PlasmoDB plasmo.bld49
+  testSiteSearchWdkRecordCounts https://plasmodb.org PlasmoDB plasmo
 
 Uses a hard-coded list of record types expected in Solr, and for each, the Question to call to get all IDs.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
+
+CAUTION: if testing QA sites, must be run on VEuPathDB servers (behind the firewall).
 
 ";
 }
