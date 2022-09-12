@@ -388,6 +388,7 @@
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="GeneAttributes.Bfmv">
+        <columnAttribute name="projectAux" displayName="dontcare" internal="true"/>  <!-- special field used by Apollo Site Search Updater -->
         <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
 
         <columnAttribute name="product" displayName="Preferred product description" >
@@ -399,6 +400,9 @@
           </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
+          </propertyList>
+          <propertyList name="boost">
+            <value>5</value>
           </propertyList>
         </columnAttribute>
 
