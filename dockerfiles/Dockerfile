@@ -4,7 +4,7 @@
 #
 ############################################################
 
-FROM veupathdb/alpine-dev-base:latest AS build
+FROM veupathdb/alpine-dev-base:jdk-15 AS build
 
 #
 #  Install Apache Ant
@@ -13,6 +13,9 @@ FROM veupathdb/alpine-dev-base:latest AS build
 ENV ANT_VERSION=1.10.8 \
     ANT_HOME=/opt/ant \
     PATH=${PATH}:/opt/ant/bin
+
+ARG GITHUB_USERNAME
+ARG GITHUB_TOKEN
 
 RUN wget http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
  && tar -xzf apache-ant-${ANT_VERSION}-bin.tar.gz \
@@ -27,7 +30,8 @@ RUN apk add -u --no-cache \
     npm \
     nodejs \
     git \
-    perl
+    perl \
+    bash
 
 #
 # Project Build
@@ -56,7 +60,7 @@ RUN mkdir -p ${GUS_HOME}/config \
 #
 ############################################################
 
-FROM foxcapades/alpine-oracle:1.3
+FROM foxcapades/alpine-oracle:1.6
 
 ENV BASE_GUS=/tmp/base_gus 
 ENV GUS_HOME=${BASE_GUS}/gus_home

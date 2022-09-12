@@ -31,7 +31,7 @@ Here is a summary
   
 ### Test loaded documents
 * `testApiCommonQaSites`
-  * Iterates through genomics QA sites and calls `testSiteSearchWdkRecordCounts` on each.
+  * Iterates through genomics QA sites and calls `testSiteSearchWdkRecordCounts` on each. *Must be run from a VEuPathDB server (to avoid need for authentication).*
 * `testSiteSearchWdkRecordCounts`
   * Test the wdk records installed in a website's site search by comparing against the WDK records found by querying the WDK. Uses a hard-coded list of record types expected in Solr, and for each, the Question to call to get all IDs.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
 

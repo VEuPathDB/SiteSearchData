@@ -1,9 +1,7 @@
-node ('centos8') {
+@Library('pipelib')
+import org.veupathdb.lib.Builder
 
-  // default tag to latest, only override if branch isn't master.  This
-  // allows the tag to work outside of multibranch (it will just always be
-  // latest in that case)
-  def tag = "latest"
+node ('centos8') {
 
   stage('checkout') {
     dir('project_home/install') {
@@ -57,26 +55,13 @@ node ('centos8') {
     }
   }
 
-  stage('build') {
+  stage('setup') {
     sh 'cp -rt $WORKSPACE $WORKSPACE/project_home/SiteSearchData/dockerfiles $WORKSPACE/project_home/SiteSearchData/config'
   }
 
-  stage('package') {
+  def builder = new Builder(this)
+  builder.buildContainers([
+    [ name: 'site-search-data', dockerfile: 'dockerfiles/Dockerfile' ]
+  ])
 
-    // set tag to branch if it isn't master
-    if (env.BRANCH_NAME != 'master') {
-      tag = "${env.BRANCH_NAME}"
-    }
-
-    withCredentials([usernamePassword(credentialsId: '3cf5388f-54e2-491b-a7fc-83160dcab3e3', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
-      // build the release container, which copies the built gus_home into it
-
-      sh 'podman build --format=docker --build-arg=GITHUB_USERNAME=$GITHUB_USERNAME --build-arg=GITHUB_TOKEN=$GITHUB_TOKEN -t site-search-data -f $WORKSPACE/project_home/SiteSearchData/dockerfiles/Dockerfile .'
-    }
-
-    withCredentials([usernameColonPassword(credentialsId: '0f11d4d1-6557-423c-b5ae-693cc87f7b4b', variable: 'HUB_LOGIN')]) {
-      // push to dockerhub (for now)
-      sh "podman push --creds \"$HUB_LOGIN\" site-search-data docker://docker.io/veupathdb/site-search-data:${tag}"
-    }
-  }
 }
