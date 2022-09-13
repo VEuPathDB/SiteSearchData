@@ -36,6 +36,7 @@ my $portalRecordTypes =
   {'gene' => 'AllGenes',
    'organism' => 'AllOrganisms',
    'genomic-sequence' => 'AllGenomicSeqs',
+   'dataset' => 'AllDatasets',
    };
 
 my $orthoRecordTypes =
@@ -66,7 +67,7 @@ foreach my $recordTypeName (keys %$recordTypes) {
     $status = "FAIL";
     $foundError = 1;
   }
-  print "$status $project $recordTypeName --- WDK count: $wdkCount, SS count: $ssCount\n";
+  printf("%s  %-16s %-18s %-20s %s\n", $status, $project, $recordTypeName, "WDK count: $wdkCount", "SS count: $ssCount");
 }
 
 if ($foundError) {
