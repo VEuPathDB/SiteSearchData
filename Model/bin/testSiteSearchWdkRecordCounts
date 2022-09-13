@@ -44,9 +44,12 @@ my $orthoRecordTypes =
    'sequence' => 'AllSequences',
    };
 
+my $edaRecordTypes = {'dataset' => 'AllDatasets'};
+
 my $recordTypes = $apiCommonRecordTypes;
 $recordTypes = $portalRecordTypes if $project eq 'VEuPathDB';
 $recordTypes = $orthoRecordTypes if $project eq 'OrthoMCL';
+$recordTypes = $edaRecordTypes if $project eq 'ClinEpiDB' || $project eq 'MicrobiomeDB';
 
 my $hasOrganisms = $project ne 'OrthoMCL' && $project ne 'ClinEpiDB' && $project ne 'MicrobiomeDB';
 my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $hasOrganisms);
