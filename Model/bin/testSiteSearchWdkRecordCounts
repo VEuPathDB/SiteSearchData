@@ -44,18 +44,14 @@ my $orthoRecordTypes =
    'sequence' => 'AllSequences',
    };
 
-
 my $recordTypes = $apiCommonRecordTypes;
-
 $recordTypes = $portalRecordTypes if $project eq 'VEuPathDB';
 $recordTypes = $orthoRecordTypes if $project eq 'OrthoMCL';
 
-my $organisms = getOrganisms($siteUrl, $webappName);
-
-my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $organisms);
+my $hasOrganisms = $project ne 'OrthoMCL' && $project ne 'ClinEpiDB' && $project ne 'MicrobiomeDB';
+my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $hasOrganisms);
 
 my $results;
-
 my $foundError;
 
 foreach my $recordTypeName (keys %$recordTypes) {
@@ -84,15 +80,20 @@ print "$project test complete.  No failures.\n";
 # run a site search for '*', asking for 0 rows back.  This gives us the metadata about the result.
 # Return a map of document type to count
 sub getSiteSearchDocumentTypeCounts {
-  my ($siteUrl, $organisms) = @_;
+  my ($siteUrl, $hasOrganisms) = @_;
 
-  my $organismsJson = to_json($organisms);
+  my $restrictOrganisms = "";
+  if ($hasOrganisms) {
+    my $organisms = getOrganisms($siteUrl, $webappName);
+    my $organismsJson = to_json($organisms);
+    $restrictOrganisms = qq(, "restrictSearchToOrganisms": $organismsJson});
+  }
 
   print STDERR "Getting site search document counts\n";
   my $start = time();
   my $userAgent = LWP::UserAgent->new;
   my $ssUrl = "$siteUrl/site-search";
-  my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project", "restrictSearchToOrganisms": $organismsJson});
+  my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project" $restrictOrganisms});
 
   my $req = HTTP::Request->new(POST => $ssUrl);
   $req->header( 'Content-Type' => 'application/json', 'Accept' => 'application/json' );
