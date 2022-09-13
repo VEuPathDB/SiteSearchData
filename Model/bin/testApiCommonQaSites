@@ -18,7 +18,7 @@ my %projectsMap = ('AmoebaDB', 'amoeba', 'CryptoDB', 'cryptodb',
   'TriTrypDB', 'tritrypdb', 'VectorBase', 'vectorbase', 'VEuPathDB', 'veupathdb');
 
 my $failure;
-foreach my $project (keys %projectsMap) {
+foreach my $project (sort keys %projectsMap) {
   my $org = "org";
   $org = "net" if $project eq 'SchistoDB';
   my $webApp = $projectsMap{$project};
@@ -31,10 +31,12 @@ foreach my $project (keys %projectsMap) {
   $failure |= $status;
 }
 
-die "
-FAILURE: At least one site failed
-"
-if $failure;
+if ($failure) {
+ print "All Sites Done.  FAILURE: At least one site failed\n";
+ exit(1);
+}
+
+print "All Sites Done\n";
 
 sub usage {
   die "
