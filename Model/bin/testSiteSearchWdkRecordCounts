@@ -66,15 +66,15 @@ foreach my $recordTypeName (keys %$recordTypes) {
     $status = "FAIL";
     $foundError = 1;
   }
-  print "$project $recordTypeName $status --- WDK count: $wdkCount, SS count: $ssCount\n";
+  print "$status $project $recordTypeName --- WDK count: $wdkCount, SS count: $ssCount\n";
 }
 
 if ($foundError) {
-  die "
-TEST FAILURE: counts differ for at least one record type\n";
+  print "$project test complete.  FAILURE: counts differ for at least one record type\n";
+  exit(1);
 }
 
-print "Test completed.  No failures.\n";
+print "$project test complete.  No failures.\n";
 
 
 #############################################################################################
@@ -120,7 +120,7 @@ sub getWdkRecordCount {
   my $start = time();
   $recordType = 'transcript' if $recordType eq 'gene';
 
-  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": 0 },"attributes":["primary_key"],"tables":[]});
+  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": 1 },"attributes":["primary_key"],"tables":[]});
 
   my $wdkSearchUrl = "$siteUrl/$webappName/service/record-types/$recordType/searches/$searchName/reports/standard?reportConfig=$jsonString";
 
