@@ -8,7 +8,7 @@ SERVER_PORT=7782
 DESTINATION_DIRECTORY=/tmp/output
 
 # start server
-wdkServer SiteSearchData -cleanCacheAtStartup $SERVER_PORT &
+wdkServer SiteSearchData $SERVER_PORT -cleanCacheAtStartup &
 
 echo 'waiting for server to be available'
 
