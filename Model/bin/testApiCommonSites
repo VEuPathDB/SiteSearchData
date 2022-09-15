@@ -4,7 +4,7 @@ use FindBin;
 
 my ($qaOrProd, $buildNum) = @ARGV;
 
-usage() unless $qaOrProd && ($qaOrProd eq 'qa' || $qaOrProd eq 'prod') && $buildNum;
+usage() unless $qaOrProd && ($qaOrProd eq 'qa' || $qaOrProd eq 'prod' || $qaOrProd eq 'w2' || $qaOrProd eq 'w1') && $buildNum;
 
 # adjust PATH so we can find testSiteSearchWdkRecordCounts
 my $binDir = $FindBin::Bin;
@@ -14,7 +14,7 @@ my %projectsMap = ('AmoebaDB', 'amoeba', 'CryptoDB', 'cryptodb',
   'FungiDB', 'fungidb', 'GiardiaDB', 'giardiadb',
   'HostDB', 'hostdb', 'MicrosporidiaDB', 'micro',
   'PiroplasmaDB', 'piro', 'PlasmoDB', 'plasmo',
-  'SchistoDB', 'schisto', 'ToxoDB', 'toxo', 'TrichDB', 'trichdb',
+  'ToxoDB', 'toxo', 'TrichDB', 'trichdb',
   'TriTrypDB', 'tritrypdb', 'VectorBase', 'vectorbase', 'VEuPathDB', 'veupathdb');
 
 my $failure;
@@ -22,7 +22,7 @@ foreach my $project (sort keys %projectsMap) {
   my $org = "org";
   $org = "net" if $project eq 'SchistoDB';
   my $webApp = $projectsMap{$project};
-  my $cmd = $qaOrProd eq 'prod'?
+  my $cmd = $qaOrProd eq 'prod' || $qaOrProd eq 'w2' || $qaOrProd eq 'w1'?
     "testSiteSearchWdkRecordCounts https://$project.$org $project $webApp" :
     "testSiteSearchWdkRecordCounts https://qa.$project.$org $project $webApp.b$buildNum";
   print STDERR "\n-----------------------------------------------------------\n";
@@ -40,9 +40,9 @@ print "All Sites Done\n";
 
 sub usage {
   die "
-Test all apicommon sites, to see if site search agrees with wdk.
+Test all apicommon sites, to see if site search agrees with wdk. (Calls testSiteSearchWdkRecordCounts on multiple projects.)
 
-Usage: testApiCommonSites qa|prod build_number
+Usage: testApiCommonSites qa|prod|w1|w2 build_number
 
 If QA, must be run on VEuPathDB server (so that we can connect to QA sites without authentication).
 

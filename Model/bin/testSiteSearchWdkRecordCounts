@@ -104,7 +104,8 @@ sub getSiteSearchDocumentTypeCounts {
   my $res = $userAgent->request($req);
 
   if (!$res->is_success) {
-    die "ERROR reading solr '$ssUrl': ", $res->status_line, "\n";
+    print "FAIL ERROR reading solr '$ssUrl': ", $res->status_line, "\n";
+    exit(1);
   }
 
   my $ssResults = from_json($res->content);
@@ -132,7 +133,8 @@ sub getWdkRecordCount {
   my $contents = get($wdkSearchUrl);
 
   if (! defined $contents) {
-    die "ERROR running wdk search with url ", $wdkSearchUrl, " ", "\n";
+    print "FAIL ERROR running wdk search with url ", $wdkSearchUrl, " ", "\n";
+    exit(1);
   }
 
   my $wdkResult = from_json($contents);
@@ -153,7 +155,8 @@ sub getOrganisms {
   my $contents = get($wdkOrganismsUrl);
 
   if (! defined $contents) {
-    die "ERROR getting wdk organisms with url ", $wdkOrganismsUrl, " ", "\n";
+    print "FAIL ERROR getting wdk organisms with url ", $wdkOrganismsUrl, " ", "\n";
+    exit(1);
   }
 
   my $wdkResult = from_json($contents);
