@@ -1,0 +1,91 @@
+<wdkModel>
+
+  <querySet name="OrganismIdQueries" queryType="id" isCacheable="true">
+
+    <sqlQuery name="Organisms">
+      <column name="source_id"/>
+      <sql>
+        <![CDATA[
+          select distinct oa.source_id
+          from apidbTuning.OrganismAttributes oa, apidb.Organism o
+          where oa.component_taxon_id = o.taxon_id
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+  <querySet name="OrganismAttributes" queryType="attribute" isCacheable="false">
+
+    <sqlQuery name="OrganismAlias">
+      <column name="source_id"/>
+      <column name="old_source_id"/>
+      <sql>
+        <![CDATA[
+          select source_id, source_id as old_source_id
+          from apidbTuning.OrganismAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="organismAttrs">
+      <column name="source_id"/>
+      <column name="data_source"/>
+      <column name="species"/>
+      <column name="organism_full"/>
+      <column name="organism"/>
+      <column name="hyperlinkName"/>
+      <column name="genome_dataset_id"/>
+      <sql>
+        <![CDATA[
+                 select oa.source_id, oa.species, oa.organism_name AS organism_full,
+                        oa. organism_name AS organism, oa.organism_name AS hyperlinkName,
+                        decode(genome_source, 'gb', 'GenBank',
+                               'jkissinger', 'Kissinger Lab', genome_source)
+                          as data_source,
+                        genome_dataset.genome_dataset_id
+                 from apidbTuning.OrganismAttributes oa,
+                      (select oa.source_id, dsp.description,
+                              dsp.dataset_presenter_id as genome_dataset_id
+                       from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetNameTaxon dnt,
+                            apidbTuning.OrganismAttributes oa
+                       where dsp.type = 'genome'
+                         and dsp.dataset_presenter_id = dnt.dataset_presenter_id
+                         and oa.component_taxon_id = dnt.taxon_id) genome_dataset
+                 where genome_dataset.source_id = oa.source_id(+)
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="OrganismTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="Organisms">
+      <column name="source_id"/>
+      <column name="organism"/>
+      <sql>
+        <![CDATA[
+          select source_id, organism_name AS organism
+          from apidbTuning.OrganismAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="GenomeSequencingAndAnnotation">
+      <column name="source_id"/>
+      <column name="description"/>
+      <sql>
+        <![CDATA[
+          select oa.source_id, dsp.description
+          from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetNameTaxon dnt,
+               apidbTuning.OrganismAttributes oa
+          where dsp.type = 'genome'
+            and dsp.dataset_presenter_id = dnt.dataset_presenter_id
+            and oa.component_taxon_id = dnt.taxon_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+</wdkModel>

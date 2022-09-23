@@ -1,0 +1,428 @@
+#!/usr/bin/python3
+
+'''
+NOTICE: This script has an associated testing script located at
+SiteSearchData/Model/test/test_ssLoadBatch. After making changes to this
+script, please run the testing script to test its functionality.
+'''
+
+import argparse
+import json
+import os
+import sys
+import traceback
+import time
+import pathlib
+
+import requests
+
+# Configuration
+BATCH_ID_FIELD = 'batch-id'
+UNIQUE_KEY_FIELD = 'id'
+
+# Authentication
+USER = os.environ['SOLR_USER'] if ('SOLR_USER' in os.environ) else ''
+PASS = os.environ['SOLR_PASSWORD'] if ('SOLR_PASSWORD' in os.environ) else ''
+AUTH = (USER, PASS)
+
+# Parse the arguments
+def parse_args():
+    help = """
+Add, update, or remove batches from Solr's index.
+
+Commits on success. If an error occurs, the script exits with a nonzero exit
+code. If changes were staged before the script failed, they may still be staged
+or they may have been already committed. For the former case, use the rollback
+subcommand to rollback changes. For the latter case, use the provided delete
+command to delete the corrupted batch.
+
+Examples:
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-type-name BATCH_TYPE BATCH_NAME
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 [BATCH_ID_2 ...]
+"""
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=help)
+
+    parser.add_argument('solr_url', help='The URL of the Solr instance, including core, but not including operation (ex: http://localhost:8080/solr/site_search).')
+
+    subparsers = parser.add_subparsers(title='subcommands', help='Add a subcommand name followed by -h for specific help on it.')
+
+    # Index subparser
+    parser_index = subparsers.add_parser('index', help='Index batches into Solr.')
+    parser_index.set_defaults(func=index)
+    parser_index.add_argument('--batch-dir', help="Index a new batch contained in the given directory. The directory must contain a batch.json file and the JSON files containing the data must have a '.json' extension. Each data file must be a JSON-formatted list of Solr documents, that is, a JSON array containing JSON objects. The data files will be loaded first, and batch.json last, indicating a successful load. Batch validation is performed before loading, which involves checking for a DONE file in the bach directory and making sure that the following fields in all data documents match the values of those fields in batch.json: batch-type, batch-name, batch-id, batch-timestamp. If validation fails, an error is thrown. If a batch-meta document with batch-id equal to the batch-id of this batch exists in Solr, we assume this batch has already been successfully loaded and skip it. If a batch-meta document with the same batch-type and batch-name but different timestamp is found, an error is thrown (add --replace to replace the batch, instead). If no matching batch-meta document is found but other documents with the same batch-type and batch-name are found, this constitutes a data integrity problem and we throw an error.")
+    parser_index.add_argument('--replace', action='store_true', help='Use in combination with --batch-dir to replace a batch that already exists in Solr. If the batch is not found in Solr, it gets added as normal.')
+    parser_index.add_argument('--validate-only', action='store_true', help='Validate the batch provided with --batch-dir, but do not index it.')
+
+    # Delete subparser
+    parser_delete = subparsers.add_parser('delete', help='Delete batches from Solr.')
+    parser_delete.set_defaults(func=delete)
+    parser_delete.add_argument('--batch-type-name', nargs=2, metavar=('BATCH_TYPE', 'BATCH_NAME'), help='Delete a batch of documents with the given batch type and batch name. Provide the batch type followed by the batch name, separated by a space (ex: --batch-type-name organism pberANKA).')
+    parser_delete.add_argument('--batch-id', nargs='+', metavar='BATCH_ID', dest='batch_ids', help='Delete a batch of documents by batch ID.')
+
+    # Rollback subparser
+    parser_rollback = subparsers.add_parser('rollback', help='Rollback Solr. This unstages any staged (uncommitted) changes that may exist in Solr.')
+    parser_rollback.set_defaults(func=rollback)
+
+    args = parser.parse_args()
+
+    # Validate arguments
+    if 'func' not in args:
+        parser.print_usage()
+        sys.exit(2)
+
+    if args.func == index:
+        if not args.batch_dir:
+            parser.error('To index, please provide --batch-dir. Add -h for help.')
+        if args.replace and not args.batch_dir:
+            parser.error('--replace can only be used with --batch-dir')
+        if args.validate_only and not args.batch_dir:
+            parser.error('--validate-only can only be used with --batch-dir')
+
+    if args.func == delete and not (args.batch_type_name or args.batch_ids or args.doc_keys):
+        parser.error('To delete, please provide at least one of: --batch-type-name, --batch-id, --doc-key. Add -h for help.')
+
+    return args
+
+def run(func, solr_url, **kwargs):
+    """
+    A wrapper for running commands.
+
+    Args:
+        func (function): The function to run. One of index, delete, or
+            rollback.
+        solr_url (str): The URL to the Solr core to update.
+        kwargs: Arguments to pass to func.
+    """
+    # If func is rollback, just do it
+    if func is rollback:
+        func(solr_url)
+
+    # Otherwise, execute func with safeguards
+    else:
+        try:
+            # Run the command
+            func(solr_url, **kwargs)
+            exit_code = 0
+
+        except Exception as e:
+            print(traceback.format_exc(), file=sys.stderr)
+            error_text = \
+"""An error has occurred. It's possible that this has resulted in either
+staged (uncommitted) changes or a corrupted batch existing in Solr.
+
+If you think there are uncommitted changes staged in Solr, use the
+rollback function to drop these changes.
+
+If you think there is a corrupted batch in Solr, you'll need to purge
+the corrupted batch."""
+            print(error_text, file=sys.stderr, flush=True)
+
+            if func is index:
+                try:
+                    # Attempt to get the batch info
+                    batch_json_path = kwargs['batch_dir'] + '/batch.json'
+
+                    with open(batch_json_path) as batch_json_file:
+                        batch_json = json.load(batch_json_file)[0]
+
+                    batch_type = batch_json['batch-type']
+                    batch_name = batch_json['batch-name']
+                    script_path = pathlib.Path(__file__)
+
+                    # Build the delete command
+                    cmd = f'./{script_path} {solr_url} delete --batch-type-name {batch_type} {batch_name}'
+
+                    print(f'Use the following command to do so:\n{cmd}\n', file=sys.stderr, flush=True)
+
+                # If batch.json is missing, nothing was staged anyway, so we're good
+                except FileNotFoundError:
+                    pass
+
+            elif func is delete:
+                print('To do so, successfully rerun the original delete command.', file=sys.stderr, flush=True)
+
+            exit_code = 1
+
+        finally:
+            # Commit
+            print('Committing', flush=True)
+            solr_request('POST', solr_url + '/update', data='<commit/>', auth=AUTH, headers={'content-type':'application/xml'})
+            print('Commit successful', flush=True)
+
+            try:
+                sys.exit(exit_code)
+            except UnboundLocalError:
+                # If exit_code hasn't been set, then Houston, we've had a problem
+                sys.exit(1)
+
+def index(solr_url, batch_dir=None, replace=False, validate_only=False):
+    """Index a batch.
+
+    Args:
+        solr_url (str): The URL to the Solr core to update.
+        batch_dir (str): Index a new batch located in this directory.
+        replace (bool): Replace the version of the batch in Solr with
+            the version provided in batch_dir.
+        validate_only (bool): Only validate the batch provided in
+            batch_dir - do not index it.
+    """
+    select_url = solr_url + '/select'
+
+    if batch_dir:
+        # Validate the batch
+        validate_batch(batch_dir)
+
+        if not validate_only:
+            # Read batch.json
+            batch_json_path = batch_dir + '/batch.json'
+            with open(batch_json_path) as batch_json_file:
+                batch_json = json.load(batch_json_file)[0]
+
+            batch_type = batch_json['batch-type']
+            batch_name = batch_json['batch-name']
+            batch_timestamp = batch_json['batch-timestamp']
+            batch_id = batch_json['batch-id']
+
+            # Search for a batch-meta doc with same batch type and name
+            url = select_url + f'?q=batch-type:{batch_type} AND batch-name:{batch_name} AND document-type:batch-meta'
+            print('Checking for matching batch-meta in Solr', flush=True)
+            response_json = solr_request('GET', url, auth=AUTH).json()
+
+            # If some matching batch-meta exists in Solr
+            if response_json['response']['numFound']:
+                batch_meta_doc = response_json['response']['docs'][0]
+
+                # If this exact batch version exists in Solr, skip it
+                if batch_meta_doc['batch-timestamp'] == batch_timestamp:
+                    print(f'Skipping batch {batch_id} - already loaded in Solr', flush=True)
+                # If a different version of this batch exists
+                else:
+                    # If we're updating, do it
+                    if replace:
+                        query_text = f'batch-type:{batch_type} AND batch-name:{batch_name}'
+                        batch_text = f"'{batch_type} {batch_name}'"
+                        delete_batch(query_text, solr_url, batch_text)
+                        index_batch(batch_dir, solr_url)
+                    # If we're not, throw an error
+                    else:
+                        sys.exit(f"Error: Another version of batch '{batch_type} {batch_name}' already exists in Solr. Add --replace to replace it.")
+
+            # If no matching batch-meta exists in Solr
+            else:
+                # Make sure that there are no documents belonging to this batch in Solr
+                url = select_url + f'?q=batch-type:{batch_type} AND batch-name:{batch_name}&rows=0'
+                print(f"Checking for the absence of any batch '{batch_type} {batch_name}' documents in Solr", flush=True)
+                response = solr_request('GET', url, auth=AUTH)
+
+                if response.json()['response']['numFound']:
+                    sys.exit(f"Error: Documents with batch-type '{batch_type}' and batch-name '{batch_name}' exist in Solr, but there is no batch-meta document signifying the existence of the batch. Delete the existing documents before loading this batch.")
+
+                # Index the batch
+                index_batch(batch_dir, solr_url)
+
+def delete(solr_url, batch_type_name=None, batch_ids=None):
+    """Delete batches.
+
+    Args:
+        solr_url (str): The URL to the Solr core to update.
+        batch_type_name (tuple[str]): Delete the batch with the given
+            type and name. The tuple should have two elements: the
+            batch type followed by the batch name.
+        batch_ids (list[str]): Delete the batches with these IDs.
+    """
+
+    # Delete batches using batch_type and batch_name
+    if batch_type_name:
+        batch_type, batch_name = batch_type_name
+        query_text = f'batch-type:{batch_type} AND batch-name:{batch_name}'
+        batch_text = f"'{batch_type} {batch_name}'"
+        delete_batch(query_text, solr_url, batch_text)
+
+    # Delete batches using batch_ids
+    if batch_ids:
+        for batch_id in batch_ids:
+            query_text = f'{BATCH_ID_FIELD}:{batch_id}'
+            delete_batch(query_text, solr_url, batch_id)
+
+def rollback(solr_url):
+    """Roll back Solr.
+
+    Args:
+        solr_url (str): The URL to the Solr core.
+    """
+    print('Rolling back', flush=True)
+
+    try:
+        solr_request('POST', solr_url + '/update', data='<rollback/>', auth=AUTH, headers={'content-type':'application/xml'})
+        print('Rollback successful', flush=True)
+
+    except Exception as e:
+        print('Error: Unable to roll back', file=sys.stderr, flush=True)
+        raise
+
+def validate_batch(batch_dir):
+    """Validate a batch.
+
+    This involves making sure that a DONE file exists in batch_dir and that
+    certain fields are identical in all documents in the batch.
+
+    Args:
+        batch_dir (str): The path to the batch.
+    """
+    print('Validating batch', flush=True)
+
+    # Look for a DONE file in batch_dir
+    if not os.path.isfile(batch_dir + '/DONE'):
+        raise ValueError('No DONE file present in batch directory')
+
+    # Read batch.json
+    batch_json_path = batch_dir + '/batch.json'
+
+    with open(batch_json_path) as batch_json_file:
+        batch_json = json.load(batch_json_file)[0]
+
+    # Get all file objects in the directory
+    dir_files = [obj for obj in os.scandir(batch_dir) if obj.is_file()]
+    # Define the fields that should be identical in all files
+    batch_meta_fields = ['batch-type', 'batch-name', 'batch-id', 'batch-timestamp']
+
+    # Validate each data file
+    for file_obj in dir_files:
+        if file_obj.name.endswith('.json') and file_obj.name != 'batch.json':
+            with open(file_obj) as f:
+                docs = json.load(f)
+                # The fields that didn't match, if any
+                mismatched_fields = []
+
+                # Validate each document
+                for doc in docs:
+                    for field in batch_meta_fields:
+                        if doc[field] != batch_json[field]:
+                            mismatched_fields.append(field)
+
+                    # If any fields didn't match, error out
+                    if mismatched_fields:
+                        error_str = f"Document '{doc['id']}' in file '{file_obj.name}' contains batch meta fields that don't match batch.json:\n"
+                        str_list = []
+
+                        for field in mismatched_fields:
+                            str_list.append(f'  "{field}": "{doc[field]}" (data file) != "{field}": "{batch_json[field]}" (batch.json)')
+
+                        raise ValueError(error_str + '\n'.join(str_list))
+
+    print('Batch is valid', flush=True)
+
+def index_file(path_like, solr_url):
+    """Index a file.
+
+    Args:
+        path_like (path-like): The path to the file.
+        solr_url (str): The URL to the Solr core.
+    """
+    with open(path_like) as f:
+        print('Indexing file ' + f.name, flush=True)
+        data = f.read()
+        solr_request('POST', solr_url + '/update', data=data, auth=AUTH, headers={'content-type':'application/json'})
+
+def index_batch(batch_dir, solr_url):
+    """Index a batch.
+
+    Args:
+        batch_dir (str): The path to the batch.
+        solr_url (str): The URL to the Solr core.
+    """
+    start_time = time.time()
+
+    # Index all data files
+    for obj in os.scandir(batch_dir):
+        if obj.is_file():
+            if obj.name == 'batch.json':
+                batch_json_file = obj
+            elif obj.name.endswith('.json'):
+                index_file(obj, solr_url)
+
+    # Finally, index batch.json
+    index_file(batch_json_file, solr_url)
+    end_time = time.time()
+
+    print(f'Time to index batch: {(end_time - start_time):.2f}s', flush=True)
+
+def delete_batch(query_text, solr_url, batch_text):
+    """Delete a batch.
+
+    Args:
+        query_text (str): The Solr query that will be used to find the
+            matching batch.
+        solr_url (str): The URL to the Solr core.
+        batch_text (str): The text that will be printed to refer to the
+            batch.
+    """
+    url = solr_url + '/update'
+
+    # First, check for the existence of matching batch documents
+    print(f'Checking for documents matching batch {batch_text}', flush=True)
+
+    if count_docs(query_text, solr_url):
+        # Then delete the batch-meta document
+        print('Deleting batch-meta document for batch ' + batch_text, flush=True)
+        data = f'<delete><query>{query_text} AND document-type:batch-meta</query></delete>'
+        solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+
+        # Then delete the data documents
+        print('Deleting batch ' + batch_text, flush=True)
+        data = f'<delete><query>{query_text}</query></delete>'
+        solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+
+    else:
+        print(f'No matching documents for batch {batch_text}', flush=True)
+
+def count_docs(query_text, solr_url):
+    """Counter the number of documents matching a query.
+
+    Args:
+        query_text (str): The query to use.
+        solr_url (str): The URL to the Solr core.
+
+    Returns:
+        int: The number of documents matching the query.
+    """
+    url = f'{solr_url}/select?rows=0&q={query_text}'
+    response = solr_request('GET', url, auth=AUTH)
+    count = response.json()['response']['numFound']
+
+    return count
+
+def solr_request(method, url, data=None, auth=None, headers=None):
+    """Make a request to Solr.
+
+    This is a wrapper to requests.request. All params are passed to it.
+    Returns the request object.
+    """
+    if data:
+        data = data.encode('utf-8')
+
+    request = requests.request(method, url, data=data, verify=False, auth=auth, headers=headers, )
+
+    try:
+        request.raise_for_status()
+        print('Solr response:')
+        print(request.text, flush=True)
+    except Exception:
+        print('Solr response:', file=sys.stderr)
+        print(request.text, file=sys.stderr, flush=True)
+        raise
+
+    return request
+
+if __name__ == '__main__':
+    # Get arguments
+    kwargs = vars(parse_args())
+
+    # Pop required args
+    func = kwargs.pop('func')
+    solr_url = kwargs.pop('solr_url')
+
+    # Run the function
+    run(func, solr_url, **kwargs)

@@ -1,0 +1,84 @@
+#!/usr/bin/perl
+
+use lib "$ENV{GUS_HOME}/lib/perl";
+use Getopt::Long;
+use strict;
+use DBI;
+use SiteSearchData::Model::Utils;
+
+my $BATCH_DIR_PREFIX = "solr-json-batch";
+
+my $ORG_ABBREV_SQL = "select distinct abbrev AS internal from apidb.Organism order by abbrev";
+
+my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
+&GetOptions("targetDir=s" => \$targetDir,
+            "wdkServiceUrl=s" => \$wdkServiceUrl,
+            "numberOfOrganisms=i" => \$numberOfOrganisms,
+	    "verbose!" => \$verbose);
+
+$| = 1;
+
+&usage unless ($targetDir && $wdkServiceUrl);
+
+die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
+
+my $gusProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
+my $modelProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
+
+my $dbh = SiteSearchData::Model::Utils::getDbh($gusProps);
+
+SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "pathway", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "popset-isolate", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "compound", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "dataset-presenter", $modelProps->{PROJECT_ID});
+
+my $organismCount = 0;
+foreach my $organismAbbrev (getOrganisms($dbh)) {
+  if ($numberOfOrganisms && $organismCount == $numberOfOrganisms) {
+    print STDOUT "Reached $numberOfOrganisms organisms.  Quitting\n";
+    last;
+  }
+  $organismCount += SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "organism", $organismAbbrev, $organismAbbrev);
+}
+print STDOUT "Done.\n";
+exit 0;
+
+sub getOrganisms {
+  my ($dbh) = @_;
+
+  my $sth = $dbh->prepare($ORG_ABBREV_SQL) || die "Couldn't prepare the SQL statement: " . $dbh->errstr;
+  $sth->execute ||  die "Failed to  execute statement: " . $sth->errstr;
+
+  my @orgs;
+  while (my @row = $sth->fetchrow_array()) {
+    push(@orgs, $row[0]);
+  }
+  return @orgs;
+}
+
+
+sub usage {
+
+  die
+"Dump ApiCommon batches to be loaded into solr from data produced by the workflow.  
+
+usage:  dumpApiCommonWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--numberOfOrganisms NUMBER] [--verbose]
+
+Dump wdk records as Solr compatible Json
+
+Dumps data in hard-coded set of batches:
+ - organisms (one batch per organism)
+ - pathways
+ - compounds
+ - datasets
+ - popset isolates
+
+Connects to the appDb found in $ENV{GUS_HOME}/config/gus.config, and queries it to find the list of organisms to dump.
+
+Connects to a running SiteSearchData wdk service to generate the reports.
+
+If numberOfOrganisms provided, dump at most that many in this run (doesn't count skipped organisms).
+
+Calls the createWdkRecordsSolrBatch command to do the work.
+";
+}

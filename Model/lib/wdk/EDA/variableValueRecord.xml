@@ -1,0 +1,55 @@
+<wdkModel>
+
+  <recordClassSet name="variableValueRecordClasses">
+
+    <!-- ################################################################### -->
+    <!-- ########################  VariableValue Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="variableValue" urlName="variableValue" displayName="Value">
+      <propertyList name="batch">
+        <value>dataset-presenter</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>value</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Variable value">
+        <text>
+          <![CDATA[ $$value$$ ]]>
+        </text>
+      </idAttribute>
+
+      <attributeQueryRef ref="VariableValueAttributes.All">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
+      </attributeQueryRef>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+      <table name="All"
+             displayName="Variables having this value"
+             queryRef="VariableValueTables.All">
+        <propertyList name="isSummary">
+          <value>true</value>
+        </propertyList>
+       <propertyList name="isSearchable">
+          <value>false</value>
+        </propertyList>        
+        <columnAttribute name="variable_id"/>
+        <columnAttribute name="study_id"/>
+        <columnAttribute name="entity_type_id"/>
+        <columnAttribute name="study_name"/>
+        <columnAttribute name="entity_type"/>
+        <columnAttribute name="variable_name"/>
+      </table>
+
+    </recordClass>
+
+  </recordClassSet>
+
+</wdkModel>

@@ -1,0 +1,330 @@
+<wdkModel>
+
+  <querySet name="DatasetIdQueries" queryType="id" isCacheable="true">
+    <sqlQuery name="AllDatasets">
+      <column name="dataset_id"/>
+      <sql>
+        <![CDATA[
+          select dataset_presenter_id as dataset_id
+          from apidbTuning.DatasetPresenter
+          where (category is null OR category != 'Link outs')
+            and (project_id = '@PROJECT_ID@'
+                 or '@PROJECT_ID@' = 'VEuPathDB')
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+  <querySet name="DatasetAttributes" queryType="attribute" isCacheable="false">
+    <sqlQuery name="All">
+      <column name="hyperlinkName"/>
+      <column name="dataset_id"/>
+      <column name="display_name"/>
+      <column name="project"/>
+      <column name="description"/>
+      <column name="summary"/>
+      <column name="acknowledgement"/>
+      <column name="newcategory"/>
+      <sql>
+        <![CDATA[
+          select dataset_presenter_id as dataset_id, '@PROJECT_ID@' as project,
+                 display_name, display_name as hyperlinkName, description, summary, acknowledgement,
+                 nvl(display_category, category) as newcategory
+          from apidbTuning.DatasetPresenter
+          where (category is null OR category != 'Link outs')
+            and (project_id = '@PROJECT_ID@'
+                 or '@PROJECT_ID@' = 'VEuPathDB')
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="DatasetTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="Contacts">
+      <column name="dataset_id"/>
+      <column name="contact_name"/>
+      <column name="affiliation"/>
+      <sql>
+        <![CDATA[
+          select dataset_presenter_id as dataset_id,
+                 name as contact_name, affiliation
+          from apidbTuning.DatasetContact
+          where dataset_presenter_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Publications">
+      <column name="dataset_id"/>
+      <column name="pmid"/>
+      <column name="citation"/>
+      <sql>
+        <![CDATA[
+          select dataset_presenter_id as dataset_id, 'PMID:' || pmid as pmid, citation
+          from apidbTuning.DatasetPublication
+          where pmid is not null
+            and dataset_presenter_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Organisms"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="organism"/>
+      <sql>
+        <![CDATA[
+          select dnt.dataset_presenter_id as dataset_id, tn.name as organism
+          from apidbTuning.DatasetNameTaxon dnt, sres.TaxonName tn
+          where dnt.taxon_id = tn.taxon_id
+            and tn.name_class = 'scientific name'
+            and dataset_presenter_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
+            and dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="AttributeValues"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select distinct sd.dataset_id, av.string_value as value
+          from eda.AttributeValue av, eda.EntityTypeGraph etg, apidbTuning.StudyIdDatasetId sd
+          where av.entity_type_id = etg.entity_type_id
+            and etg.study_stable_id = sd.study_stable_id
+            and av.number_value is null
+            and av.date_value is null
+            and lower(av.string_value) != 'yes'
+            and lower(av.string_value) != 'no'
+            and sd.dataset_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
+            and sd.dataset_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="AttributeNames"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="name"/>
+      <column name="provider_label"/>
+      <sql>
+        <![CDATA[
+          select distinct sd.dataset_id, ag.display_name as name, ag.provider_label
+          from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
+               apidbTuning.StudyIdDatasetId sd
+          where ag.stable_id = a.stable_id
+            and a.entity_type_id = etg.entity_type_id
+            and etg.study_stable_id = sd.study_stable_id
+            and sd.dataset_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
+            and sd.dataset_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="StudyCharacteristics"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="disease"/>
+      <column name="sample_type"/>
+      <column name="participant_type"/>
+      <column name="study_type"/>
+      <column name="study_design"/>
+      <column name="country"/>
+      <column name="additionalData"/>
+      <column name="WHO"/>
+      <column name="projectName"/>
+      <sql>
+        <![CDATA[
+          with etypes
+               as (select sd.study_stable_id, sd.dataset_id as dataset_id,
+                          etg.display_name, etg.stable_id,
+                          count(*) as entity_type_count
+                   from eda.EntityAttributes ea, eda.EntityTypeGraph etg,
+                        apidbTuning.StudyIdDatasetId sd
+                   where ea.entity_type_id = etg.entity_type_id
+                     and etg.study_stable_id = sd.study_stable_id
+                   group by sd.study_stable_id, sd.dataset_id, etg.stable_id,
+                            etg.display_name
+                  ),
+               syn
+               as (select s.ontology_term_id, ot.source_id,
+                          s.ontology_synonym as label
+                   from sres.ontologySynonym s
+                      left join sres.ExternalDataBaseRelease edr
+                        on s.external_database_release_ID = edr.external_database_release_id
+                      left join sres.ExternaldataBase ed
+                        on edr.external_database_id = ed.external_database_id
+                      left join sres.OntologyTerm ot
+                        on s.ontology_term_id = ot.ontology_term_id
+                   where ed.name = 'OntologyTerm_classifications_RSRC'
+                  ),
+               study_chars
+               as (select dataset_id, disease, sample_type, participant_type,
+                          study_type, study_design, country, additionalData,
+                          WHO, projectName 
+                   from (  select sd.dataset_id, syn.label, sc.value
+                           from eda.StudyCharacteristic sc, eda.Study s,
+                                apidbTuning.StudyIdDatasetId sd, syn
+                           where sc.attribute_id = syn.ontology_term_id
+                             and s.stable_id = sd.study_stable_id
+                             and sc.study_id = s.study_id)
+                         pivot
+                          (listagg(value, ', ')
+                           for label in ('Disease' as Disease
+                                       , 'Sample type' as Sample_Type
+                                       , 'Sex' as Sex
+                                       , 'Population included' as Participant_Type
+                                       , 'Investigation type' as Study_Type
+                                       , 'Study design' as Study_Design
+                                       , 'Country' as Country
+                                       , 'Years' as Years
+                                       , 'Additional data' as AdditionalData
+                                       , 'Age' as Age
+                                       , 'WHO indicator subdomain' as WHO
+                                       , 'Project name' as ProjectName)
+                          )
+                  )
+          select dsp.dataset_presenter_id as dataset_id, study_chars.disease,
+                 study_chars.sample_type, study_chars.participant_type,
+                 study_chars.study_type, study_chars.study_design,
+                 study_chars.country, study_chars.additionalData,
+                 study_chars.WHO, study_chars.projectName
+          from apidbTuning.DatasetPresenter dsp, study_chars
+          where dsp.dataset_presenter_id = study_chars.dataset_id(+)
+            and dsp.dataset_presenter_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
+            and dsp.dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="StudyAccess"  isCacheable='false'>
+      <column name="dataset_id"/>
+      <column name="study_access"/>
+      <sql>
+        <![CDATA[
+          select dataset_presenter_id as dataset_id, value as study_access
+          from apidbTuning.DatasetProperty dprop
+          where dprop.property = 'studyAccess'
+            and dprop.dataset_presenter_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
+            and dprop.dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="DataAccessRecords">
+      <column name="dataset_id"/>
+      <column name="name"/>
+      <column name="organization"/>
+      <column name="start_date"/>
+      <column name="purpose"/>
+      <column name="dataset_name"/>
+      <sql>
+        <![CDATA[
+          select t1.name,t2.value as organization,
+                 to_char(CAST(t3.start_date AS DATE), 'YYYY-MM-DD' )
+                    as start_date,
+                 t3.purpose, t4.dataset_presenter_id as dataset_id,
+                 t4.name as dataset_name
+          from (select user_id,
+                       listagg(value,' ') within group( order by key ) as name
+                from (select *
+                      from (select user_id, key, value
+                            from userAccounts.account_properties@acctdbn.profile
+                            where key in ('first_name', 'last_name')
+                           )
+                     )
+                group by user_id
+               ) t1,
+               (select user_id, value
+                from userAccounts.account_properties@acctdbn.profile
+                where key in ('organization')
+               ) t2,
+               (select user_id, dataset_presenter_id, start_date, purpose,
+                       a.name as approval_status
+                from studyaccess.end_users@acctdbn.profile v
+                     inner join studyaccess.approval_status@acctdbn.profile a
+                       on v.approval_status_id = a.approval_status_id
+                where purpose is not null
+                  and a.name = 'approved'
+               ) t3,
+               (select dataset_presenter_id, name
+                from apidbtuning.datasetpresenter
+               ) t4
+          where t1.user_id = t2.user_id
+            and t1.user_id = t3.user_id
+            and t3.dataset_presenter_id = t4.dataset_presenter_id
+            and t3.dataset_presenter_id
+                in (select dataset_presenter_id
+                    from apidbTuning.DatasetPresenter
+                    where project_id = '@PROJECT_ID@'
+                       or '@PROJECT_ID@' = 'VEuPathDB')
+            and t3.dataset_presenter_id
+                not in (select dataset_presenter_id
+                        from apidbTuning.DatasetProperty
+                        where property = 'isPublic' and value = 'false')
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+</wdkModel>

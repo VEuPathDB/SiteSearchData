@@ -1,0 +1,218 @@
+<wdkModel>
+
+  <recordClassSet name="datasetRecordClasses">
+
+    <!-- ################################################################### -->
+    <!-- #########################  Dataset Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="dataset" urlName="dataset" displayName="Data set">
+      <propertyList name="batch">
+        <value>dataset-presenter</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>dataset_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Name" excludeProjects="ClinEpiDB">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[ $$display_name$$ ]]>
+        </text>
+      </idAttribute>
+
+      <idAttribute name="primary_key" displayName="Study Name" includeProjects="ClinEpiDB">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[ $$display_name$$ ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+      <!-- for ClinEpi and mbio, boost all fields in dataset record, so that Studies generally come out on top of search results -->	    
+      <attributeQueryRef ref="DatasetAttributes.All">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
+        <columnAttribute name="display_name" internal="true"/>
+        <columnAttribute name="description" displayName="Description">
+          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>
+        <columnAttribute name="acknowledgement" displayName="Acknowledgement">
+          <propertyList name="boost" includeProjects="MicrobiomeDB">
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>		
+        <columnAttribute name="summary" displayName="Summary">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">  
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>		
+        <columnAttribute name="newcategory" displayName="Category">
+          <propertyList name="boost" includeProjects="ClinEpiDB">
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>				
+      </attributeQueryRef>
+
+      <table name="Contacts"
+             displayName="Principal Investigator and Collaborators"
+             queryRef="DatasetTables.Contacts">
+        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <value>20</value>
+        </propertyList>   	      
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="contact_name" displayName="Investigator"/>
+        <columnAttribute name="affiliation" displayName="Affiliation"/>  
+      </table>
+
+      <table name="Publications"
+             displayName="Associated publications"
+             queryRef="DatasetTables.Publications">
+        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <value>20</value>
+        </propertyList>   	      
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="pmid" displayName="Pubmed ID"/>
+        <columnAttribute name="citation"/> 
+      </table>
+
+      <table name="Organisms"
+             displayName="Organisms"
+             queryRef="DatasetTables.Organisms">
+        <propertyList name="includeProjects">
+          <value>MicrosporidiaDB</value>
+          <value>TrichDB</value>
+          <value>FungiDB</value>
+          <value>PlasmoDB</value>
+          <value>PiroplasmaDB</value>
+          <value>TriTrypDB</value>
+          <value>HostDB</value>
+          <value>ToxoDB</value>
+          <value>CryptoDB</value>
+          <value>VectorBase</value>
+          <value>GiardiaDB</value>
+          <value>AmoebaDB</value>
+          <value>EuPathDB</value>
+        </propertyList>
+        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <value>20</value>
+        </propertyList>   	      
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="organism"/>
+	      
+      </table>
+
+<!--
+      <table name="AttributeValues"
+             displayName="Attribute values"
+             queryRef="DatasetTables.AttributeValues">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+          <value>MicrobiomeDB</value>
+          <value>EuPathDB</value>
+          <value>VEuPathDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="value"/>
+      </table>
+
+      <table name="AttributeNames"
+             displayName="Attribute names"
+             queryRef="DatasetTables.AttributeNames">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+          <value>MicrobiomeDB</value>
+          <value>EuPathDB</value>
+          <value>VEuPathDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="name" displayName="Attribute name"/>
+        <columnAttribute name="provider_label" displayName="Provider label"/>
+      </table>
+-->
+      <table name="StudyCharacteristics"
+             displayName="Study Characteristics"
+             queryRef="DatasetTables.StudyCharacteristics">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+          <value>MicrobiomeDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="disease"/>
+        <columnAttribute name="sample_type" displayName="Sample type"/>
+        <columnAttribute name="participant_type" displayName="Participant type"/>
+        <columnAttribute name="study_type" displayName="Study type"/>
+        <columnAttribute name="study_design" displayName="Study design"/>
+        <columnAttribute name="country"/>
+        <columnAttribute name="additionalData" displayName="Additional data"/>
+        <columnAttribute name="WHO"/>
+        <columnAttribute name="projectName" displayName="Project name"/>
+      </table>
+
+      <table name="StudyAccess"
+             displayName="Data accessibility"
+             queryRef="DatasetTables.StudyAccess">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="study_access"/>
+      </table>
+
+      <table name="DataAccessRecords"
+             displayName="Data access records"
+             queryRef="DatasetTables.DataAccessRecords">
+        <propertyList name="includeProjects">
+          <value>EDA</value>
+          <value>ClinEpiDB</value>
+        </propertyList>
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="name"/>
+        <columnAttribute name="organization"/>
+        <columnAttribute name="start_date"/>
+        <columnAttribute name="purpose"/>
+        <columnAttribute name="dataset_name"/>
+      </table>
+
+      <!-- special internal field for organism filtering -->
+      <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
+        <propertyList name="includeProjects">
+          <value>MicrosporidiaDB</value>
+          <value>TrichDB</value>
+          <value>FungiDB</value>
+          <value>PlasmoDB</value>
+          <value>PiroplasmaDB</value>
+          <value>TriTrypDB</value>
+          <value>HostDB</value>
+          <value>ToxoDB</value>
+          <value>CryptoDB</value>
+          <value>VectorBase</value>
+          <value>GiardiaDB</value>
+          <value>AmoebaDB</value>
+        </propertyList>
+	<columnAttribute name="organism"/>  
+      </table>
+      
+    </recordClass>
+
+  </recordClassSet>
+
+</wdkModel>

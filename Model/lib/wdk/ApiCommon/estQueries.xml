@@ -1,0 +1,126 @@
+<wdkModel>
+
+  <querySet name="EstIdQueries" queryType="id" isCacheable="true">
+
+    <sqlQuery name="EstsByOrganismAbbrev">
+      <paramRef ref="estParams.organismAbbrev"/>
+      <column name="source_id"/>
+      <sql>
+        <![CDATA[
+          select distinct ea.source_id
+          from apidb.Organism o,
+               sres.TaxonName tn, apidbTuning.EstAttributes ea,
+               (
+                  select ts.taxon_id as representative_taxon_id,
+                         ts.species_taxon_id as taxon_id
+                  from apidbTuning.TaxonSpecies ts
+                  where ts.taxon_id
+                        in (select taxon_id
+                            from apidb.Organism
+                            where is_reference_strain = 1
+                           )
+                union
+                  select uplink.taxon_id as representative_taxon_id,
+                         downlink.taxon_id
+                  from apidbTuning.TaxonSpecies uplink,
+                       apidbTuning.TaxonSpecies downlink
+                  where uplink.species_taxon_id = downlink.species_taxon_id
+                    and uplink.taxon_id
+                        in (select taxon_id
+                            from apidb.Organism
+                            where is_reference_strain = 1
+                           )
+                    and downlink.taxon_id
+                        not in (select taxon_id
+                                from apidb.Organism)
+                union
+                   select taxon_id as representative_taxon_id, taxon_id
+                   from apidb.Organism
+               ) taxmap
+          where o.taxon_id = taxmap.representative_taxon_id
+            and taxmap.taxon_id = tn.taxon_id
+            and tn.name = ea.organism
+            and o.abbrev = $$organismAbbrev$$
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+  <querySet name="EstParamQueries" queryType="vocab"  isCacheable="false">
+    <sqlQuery name="organismAbbrevs">
+      <column name="internal"/>
+      <column name="term"/>
+      <sql>
+        <![CDATA[
+          select distinct abbrev as internal, abbrev as term
+          from apidb.Organism
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <paramSet name="estParams">
+    <flatVocabParam name="organismAbbrev"
+                    queryRef="EstParamQueries.organismAbbrevs"
+                    multiPick="false"
+                    prompt="Organism abbrev"
+                    quote="true">
+    </flatVocabParam>
+  </paramSet>
+
+
+  <querySet name="EstAttributeQueries" queryType="table" isCacheable="false">
+
+    <sqlQuery name="Bfmv">
+      <column name="source_id"/>
+      <column name="dbest_name"/>
+      <column name="vector"/>
+      <column name="stage"/>
+      <column name="organism"/>
+      <column name="project"/>
+      <sql>
+        <![CDATA[
+          select source_id, dbest_name, vector, stage, organism, '@PROJECT_ID@' as project
+          from apidbTuning.EstAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="EstTableQueries" queryType="table" isCacheable="false">
+
+    <sqlQuery name="EstAlias">
+      <column name="source_id"/>
+      <column name="old_source_id"/>
+      <sql>
+        <![CDATA[
+          select source_id, source_id as old_source_id
+          from apidbTuning.EstAttributes
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="Reference">
+      <column name="source_id"/>
+      <column name="author"/>
+      <column name="affiliation"/>
+      <sql>
+        <![CDATA[
+          select e.accession as source_id,
+                 case when (c.name is not null) then c.name else c.last end as author,
+                 c.address1 as affiliation
+          from dots.Est e, sres.Contact c,
+               dots.ExternalNaSequence ens, sres.OntologyTerm ot
+          where e.contact_id = c.contact_id
+            and ens.na_sequence_id = e.na_sequence_id
+            and ens.sequence_ontology_id = ot.ontology_term_id
+            and ot.name = 'EST'
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+</wdkModel>

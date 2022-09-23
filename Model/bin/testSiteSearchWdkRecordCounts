@@ -1,0 +1,191 @@
+#!/usr/bin/perl
+use strict;
+
+use JSON;
+use LWP::UserAgent;
+use LWP::Simple;
+use Data::Dumper;
+
+my ($siteUrl, $project, $webappName) = @ARGV;
+
+&usage unless $siteUrl && $project && $webappName;
+
+print STDERR "
+******************************************************
+When testing QA, this must be run on VEuPathDB servers
+******************************************************
+
+" if $siteUrl =~ /qa/;
+
+my $apiCommonRecordTypes =
+  {'gene' => 'AllGenes',
+   'est' => 'AllEsts',
+   'popsetSequence' => 'AllPopsetSeqs',
+   'organism' => 'AllOrganisms',
+   'genomic-sequence' => 'AllGenomicSeqs',
+   'compound' => 'AllCompounds',
+ #  'popbio-sample' => '',
+   'pathway' => 'AllPathways',
+   'dataset' => 'AllDatasets',
+   };
+
+delete($apiCommonRecordTypes->{popsetSequence}) if $project eq "HostDB" or $project eq "VectorBase";
+delete($apiCommonRecordTypes->{est}) if $project eq "HostDB";
+
+my $portalRecordTypes =
+  {'gene' => 'AllGenes',
+   'organism' => 'AllOrganisms',
+   'genomic-sequence' => 'AllGenomicSeqs',
+   'dataset' => 'AllDatasets',
+   };
+
+my $orthoRecordTypes =
+  {'group' => 'AllGroups',
+   'sequence' => 'AllSequences',
+   };
+
+my $edaRecordTypes = {'dataset' => 'AllDatasets'};
+
+my $recordTypes = $apiCommonRecordTypes;
+$recordTypes = $portalRecordTypes if $project eq 'VEuPathDB';
+$recordTypes = $orthoRecordTypes if $project eq 'OrthoMCL';
+$recordTypes = $edaRecordTypes if $project eq 'ClinEpiDB' || $project eq 'MicrobiomeDB';
+
+my $hasOrganisms = $project ne 'OrthoMCL' && $project ne 'ClinEpiDB' && $project ne 'MicrobiomeDB';
+my $docCountMap = getSiteSearchDocumentTypeCounts($siteUrl, $hasOrganisms);
+
+my $results;
+my $foundError;
+
+foreach my $recordTypeName (keys %$recordTypes) {
+  print STDERR "Testing $recordTypeName\n";
+  my $wdkCount = getWdkRecordCount($siteUrl, $webappName, $recordTypes->{$recordTypeName}, $recordTypeName);
+  my $ssCount = $docCountMap->{$recordTypeName};
+  my $status = "PASS";
+  if ($ssCount != $wdkCount) {
+    $status = "FAIL";
+    $foundError = 1;
+  }
+  printf("%s  %-16s %-18s %-20s %s\n", $status, $project, $recordTypeName, "WDK count: $wdkCount", "SS count: $ssCount");
+}
+
+if ($foundError) {
+  print "$project test complete.  FAILURE: counts differ for at least one record type\n";
+  exit(1);
+}
+
+print "$project test complete.  No failures.\n";
+
+
+#############################################################################################
+#############################################################################################
+
+# run a site search for '*', asking for 0 rows back.  This gives us the metadata about the result.
+# Return a map of document type to count
+sub getSiteSearchDocumentTypeCounts {
+  my ($siteUrl, $hasOrganisms) = @_;
+
+  my $restrictOrganisms = "";
+  if ($hasOrganisms) {
+    my $organisms = getOrganisms($siteUrl, $webappName);
+    my $organismsJson = to_json($organisms);
+    $restrictOrganisms = qq(, "restrictSearchToOrganisms": $organismsJson});
+  }
+
+  print STDERR "Getting site search document counts\n";
+  my $start = time();
+  my $userAgent = LWP::UserAgent->new;
+  my $ssUrl = "$siteUrl/site-search";
+  my $ssJsonString = qq({"searchText": "*", "pagination": {"offset": 0, "numRecords": 0}, "restrictToProject": "$project" $restrictOrganisms});
+
+  my $req = HTTP::Request->new(POST => $ssUrl);
+  $req->header( 'Content-Type' => 'application/json', 'Accept' => 'application/json' );
+  $req->content($ssJsonString);
+  my $res = $userAgent->request($req);
+
+  if (!$res->is_success) {
+    print "FAIL ERROR reading solr '$ssUrl': ", $res->status_line, "\n";
+    exit(1);
+  }
+
+  my $ssResults = from_json($res->content);
+
+  my $map;
+  my $resultDocTypes = $ssResults->{documentTypes};
+  foreach my $docType (@$resultDocTypes) {
+    $map->{$docType->{'id'}} = $docType->{'count'};
+  }
+  print STDERR "Done (" . (time() - $start) . " seconds)\n";
+  return $map;
+}
+
+sub getWdkRecordCount {
+  my ($siteUrl, $webappName, $searchName, $recordType) = @_;
+
+  print STDERR "Getting WDK record counts\n";
+  my $start = time();
+  $recordType = 'transcript' if $recordType eq 'gene';
+
+  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": 1 },"attributes":["primary_key"],"tables":[]});
+
+  my $wdkSearchUrl = "$siteUrl/$webappName/service/record-types/$recordType/searches/$searchName/reports/standard?reportConfig=$jsonString";
+
+  my $contents = get($wdkSearchUrl);
+
+  if (! defined $contents) {
+    print "FAIL ERROR running wdk search with url ", $wdkSearchUrl, " ", "\n";
+    exit(1);
+  }
+
+  my $wdkResult = from_json($contents);
+
+  print STDERR "Done (" . (time() - $start) . " seconds)\n";
+
+  return $wdkResult->{meta}->{displayTotalCount};
+}
+
+sub getOrganisms {
+  my ($siteUrl, $webappName) = @_;
+
+
+  my $jsonString = qq({"pagination": { "offset": 0, "numRecords": -1 },"attributes":["organism_name"],"tables":[]});
+
+  my $wdkOrganismsUrl = "$siteUrl/$webappName/service/record-types/organism/searches/GenomeDataTypes/reports/standard?reportConfig=$jsonString";
+
+  my $contents = get($wdkOrganismsUrl);
+
+  if (! defined $contents) {
+    print "FAIL ERROR getting wdk organisms with url ", $wdkOrganismsUrl, " ", "\n";
+    exit(1);
+  }
+
+  my $wdkResult = from_json($contents);
+
+  my $organisms = $wdkResult->{records};
+
+  my $organismNames;
+  foreach my $organism (@$organisms) {
+    my $organismName = $organism->{attributes}->{organism_name};
+    push(@$organismNames, $organismName);
+  }
+
+  return $organismNames;
+}
+
+sub usage {
+  die "
+Test the wdk records installed in a website's site search by comparing against the WDK records found by querying the WDK
+
+Usage: testSiteSearchWdkRecordCounts website_url project webapp_name
+
+Examples:
+  testSiteSearchWdkRecordCounts https://qa.plasmodb.org PlasmoDB plasmo.bld49
+  testSiteSearchWdkRecordCounts https://plasmodb.org PlasmoDB plasmo
+
+Uses a hard-coded list of record types expected in Solr, and for each, the Question to call to get all IDs.  (It has separate lists for component databases, VEuPathDB and OrthoMCL).
+
+CAUTION: if testing QA sites, must be run on VEuPathDB servers (behind the firewall).
+
+";
+}
+

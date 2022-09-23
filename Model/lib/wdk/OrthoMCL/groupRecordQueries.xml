@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wdkModel>
+
+    <!-- 
+    Group ID Queries
+    -->
+
+    <querySet name="GroupIdQueries" queryType="id" isCacheable="true">
+
+      <!-- an id query that returns groups ending with the provided numeral.  This is easy way to divide groups into chunks, to avoid massive JSON files -->
+      <sqlQuery name="GroupsByLastNumeral">
+        <paramRef ref="groupParams.numeral"/>
+        <column name="group_name"/>
+        <sql>
+          <![CDATA[
+            select distinct name as group_name
+            from apidb.OrthologGroup
+            where core_peripheral_residual in ('P','R')
+            and name like '%' || $$numeral$$
+          ]]>
+        </sql>
+      </sqlQuery>
+
+      <sqlQuery name="Alias">
+        <column name="group_name"/>
+        <column name="old_group_name"/>
+        <sql>
+          <![CDATA[
+            select distinct name as group_name, name as old_group_name
+            from apidb.OrthologGroup
+            where core_peripheral_residual in ('P','R')
+          ]]>
+        </sql>
+      </sqlQuery>
+
+    </querySet>
+
+    <paramSet name="groupParams">
+          <stringParam name="numeral"
+                       prompt="numeral"
+                       number="false"/>
+      </paramSet>
+
+
+    <!-- 
+    Group Attribute Queries
+    -->
+    
+    <querySet name="GroupAttributes" queryType="attribute" isCacheable="false">
+
+
+        <sqlQuery name="GroupAttrs">
+            <column name="group_name"/>
+            <column name="group_type"/>
+            <column name="project"/>
+            <column name="number_of_members"/>
+            <column name="avg_percent_identity"/>
+            <column name="number_of_match_pairs"/>
+            <column name="percent_match_pairs"/>
+            <column name="avg_percent_match"/>
+            <column name="evalue"/>
+            <column name="evalue_display"/>
+            <column name="avg_connectivity"/>
+            <sql>
+            <![CDATA[
+		     SELECT pr.group_name, number_of_members, number_of_match_pairs,
+                            avg_percent_identity, percent_match_pairs, avg_percent_match,
+                            evalue, evalue_display, avg_connectivity, 'OrthoMCL' as project
+		     FROM (SELECT name as group_name, number_of_members, number_of_match_pairs,
+		                  decode(avg_percent_identity,null,'',round(avg_percent_identity,1)) as avg_percent_identity,
+				  decode(percent_match_pairs,null,'',round(percent_match_pairs,1)) as percent_match_pairs,
+				  decode(avg_percent_match,null,'',round(avg_percent_match,1)) as avg_percent_match,
+				  CASE WHEN (number_of_members=1) THEN 1 WHEN (avg_evalue_mant IS NULL OR avg_evalue_exp IS NULL) THEN 0 ELSE ROUND(avg_evalue_mant,1) * power(10,avg_evalue_exp) END AS evalue,
+				  CASE WHEN (number_of_members=1) THEN NULL WHEN (avg_evalue_mant IS NULL OR avg_evalue_exp IS NULL) THEN '0' ELSE ROUND(avg_evalue_mant,1) || 'E' || avg_evalue_exp END AS evalue_display
+		           FROM apidb.OrthologGroup
+			   WHERE core_peripheral_residual in ('P','R') ) pr,
+			  (SELECT name as group_name,
+			          decode(avg_connectivity,null,'',round(100*avg_connectivity/(number_of_members-1),1)) as avg_connectivity
+			   FROM apidb.OrthologGroup
+			   WHERE core_peripheral_residual = 'C' ) c
+	             WHERE pr.group_name = c.group_name(+)
+			]]>
+            </sql>
+        </sqlQuery>
+
+        <sqlQuery name="MSA">
+            <column name="group_name"/>
+            <column name="msa"/>
+            <sql>
+            <![CDATA[
+                SELECT g.name AS group_name, g.multiple_sequence_alignment AS msa
+                FROM apidb.OrthologGroup g
+		where core_peripheral_residual in ('C','R') 
+                        ]]>
+            </sql>
+        </sqlQuery>
+
+
+        <sqlQuery name="MaxSequenceLength">
+          <column name="group_name"/>
+          <column name="max_length"/>
+          <sql>
+            <![CDATA[
+              select group_name, max(length) AS max_length
+              from ApidbTuning.SequenceAttributes
+              group by group_name
+            ]]>
+          </sql>
+        </sqlQuery>
+
+
+        <sqlQuery name="Layout">
+            <column name="group_name"/>
+            <column name="layout"/>
+            <sql>
+            <![CDATA[
+                SELECT g.name AS group_name, l.layout
+                FROM apidb.OrthologGroup g, apidb.OrthologGroupLayoutCore l 
+		WHERE g.ortholog_group_id = l.ortholog_group_id(+)
+		     and g.core_peripheral_residual in ('P','R')
+                        ]]>
+            </sql>
+        </sqlQuery>
+
+	<sqlQuery name="EcNumbers">
+	  <column name="group_name" />
+	  <column name="ec_numbers" />
+	  <sql>
+<!-- formatted in SQL Developer -->
+SELECT og.name AS group_name,
+  ecListMap.ec_list as ec_numbers
+FROM apidb.OrthologGroup og,
+  (SELECT ec_map.peripheral_ortholog_group_id,
+    listagg(ec.ec_number
+    || ' ('
+    || ec_count
+    || ')', ', ') within GROUP (
+  ORDER BY ec.ec_number) AS ec_list
+  FROM sres.EnzymeClass ec,
+    (SELECT ogs.peripheral_ortholog_group_id,
+      asec.enzyme_class_id,
+      COUNT(*) AS ec_count
+    FROM ApidbTuning.SequenceAttributes ogs,
+      dots.AaSequenceEnzymeClass asec
+    WHERE asec.aa_sequence_id = ogs.aa_sequence_id
+    GROUP BY ogs.peripheral_ortholog_group_id,
+      asec.enzyme_class_id
+    ) ec_map
+  WHERE ec_map.enzyme_class_id = ec.enzyme_class_id
+  GROUP BY ec_map.peripheral_ortholog_group_id
+  ) ecListMap
+WHERE og.ortholog_group_id = ecListMap.peripheral_ortholog_group_id(+)
+      and og.core_peripheral_residual in ('P','R')
+	  </sql>
+	</sqlQuery>
+
+	<sqlQuery name="Keywords">
+	  <column name="group_name" />
+	  <column name="keywords" />
+	  <sql>
+            <![CDATA[
+              select og.name as group_name, verbiage.keywords
+              from apidb.OrthologGroup og,
+                   (select ortholog_group_id,
+                           listagg(keyword, '; ') within group (order by to_number(frequency) desc) as keywords
+                    from apidb.OrthomclGroupKeyword
+                    group by ortholog_group_id
+                   ) verbiage
+              where og.ortholog_group_id = verbiage.ortholog_group_id(+)
+	      and og.core_peripheral_residual in ('P','R')
+            ]]>
+	  </sql>
+	</sqlQuery>
+
+	<sqlQuery name="Domains">
+	  <column name="group_name" />
+	  <column name="descriptions" />
+	  <sql>
+            <![CDATA[
+              select og.name as group_name, domains.descriptions
+              from apidb.OrthologGroup og,
+                   (select ortholog_group_id,
+                           listagg(description, '; ') within group (order by frequency desc) as descriptions
+                    from apidb.OrthomclGroupDomain
+                    group by ortholog_group_id
+                   ) domains
+              where og.ortholog_group_id = domains.ortholog_group_id(+)
+	      and og.core_peripheral_residual in ('P','R') 
+            ]]>
+	  </sql>
+	</sqlQuery>
+
+    </querySet>
+
+    <!-- 
+    Group Table Queries                                     
+    -->
+
+    <querySet name="GroupTables" queryType="table"  isCacheable="false">
+
+        <sqlQuery name="Proteins">
+            <column name="core_peripheral"/>
+            <column name="group_name"/>
+            <column name="full_id"/>
+            <column name="source_id"/>
+            <column name="taxon_name"/>
+            <column name="taxon_abbrev"/>
+            <column name="length"/>
+            <column name="previous_groups"/>
+            <column name="description"/>
+            <column name="ec_numbers"/>
+            <sql>
+              <![CDATA[
+                select case sa.core_peripheral when 'C' then 'Core' when 'P' then 'Peripheral' else '' end as core_peripheral,
+		       sa.group_name, sa.full_id, sa.organism_name AS taxon_name, sa.taxon_abbreviation AS taxon_abbrev,
+                       sa.length, sa.product as description,
+                       sa.old_groups as previous_groups, sa.ec_numbers, sa.source_id
+                from ApidbTuning.SequenceAttributes sa
+              ]]>
+            </sql>
+        </sqlQuery>
+
+        <sqlQuery name="PFams">
+          <column name="group_name"/>
+          <column name="accession"/>
+          <column name="symbol"/>
+          <column name="description"/>
+          <column name="num_proteins"/>
+          <column name="domain_index"/>
+          <column name="max_index"/>
+          <sql>
+            <![CDATA[
+     SELECT group_name, accession, symbol, description, domain_index, COUNT(distinct full_id) as num_proteins,
+            (SELECT MAX(domain_index) FROM ApidbTuning.DomainAssignment) AS max_index
+     FROM ApidbTuning.DomainAssignment
+     GROUP BY group_name, accession, symbol, description, domain_index
+     ORDER BY accession
+            ]]>
+          </sql>
+        </sqlQuery>
+
+        <sqlQuery name="ProteinPFams">
+          <column name="group_name"/>
+          <column name="accession"/>
+          <column name="symbol"/>
+          <column name="full_id"/>
+          <column name="protein_length"/>
+          <column name="core_peripheral"/>
+          <column name="domain_index"/>
+          <column name="start_min"/>
+          <column name="end_max"/>
+          <sql>
+<!-- The ProteinPFams query did not work correctly on the website because of the SQL wrapped around it.
+     The minimum of all lengths was shown for each protein. The original phrase that resulted in this
+     error was sa.length, but the current phrase round(sa.length,0) fixed this in an unknown way.  -->
+            <![CDATA[
+     SELECT sa.group_name, sa.full_id, round(sa.length,0) as protein_length,
+     case sa.core_peripheral when 'C' then 'Core' when 'P' then 'Peripheral' else '' end as core_peripheral,
+     da.accession, da.symbol, da.domain_index, da.start_min, da.end_max
+     from ApidbTuning.SequenceAttributes sa            
+     Left outer join ApidbTuning.DomainAssignment da
+     on da.full_id = sa.full_id
+     ORDER BY sa.full_id, da.start_min
+            ]]>
+          </sql>
+        </sqlQuery>
+
+        <sqlQuery name="EcNumber">
+          <column name="group_name"/>
+          <column name="ec_number"/>
+          <column name="description"/>
+          <column name="sequence_count"/>
+          <sql>
+            <![CDATA[
+              select sa.group_name, ec_map.ec_number, ec_map.description, count(*) as sequence_count
+              from ApidbTuning.SequenceAttributes sa,
+                   (select distinct asec.aa_sequence_id, ec.ec_number, ec.description
+                    from dots.AaSequenceEnzymeClass asec, sres.enzymeClass ec
+                    where asec.enzyme_class_id = ec.enzyme_class_id) ec_map
+              where ec_map.aa_sequence_id = sa.aa_sequence_id
+              group by sa.group_name, ec_map.ec_number, ec_map.description
+              order by sa.group_name, sequence_count desc
+            ]]>
+          </sql>
+        </sqlQuery>
+
+        <sqlQuery name="GroupName">
+          <column name="group_name"/>
+          <column name="name_string"/>
+
+          <sql>
+            <![CDATA[
+              select name as group_name, name as name_string
+              from apidb.OrthologGroup
+	      where core_peripheral_residual in ('P','R')
+            ]]>
+          </sql>
+        </sqlQuery>
+
+
+        <sqlQuery name="KeywordFrequency">
+          <column name="group_name" />
+          <column name="keyword" />
+          <column name="frequency" />
+          <sql>
+            <![CDATA[
+              select og.name as group_name, k.keyword, k.frequency
+              from apidb.OrthologGroup og, apidb.OrthomclGroupKeyword k
+              WHERE og.ortholog_group_id = k.ortholog_group_id
+	            and og.core_peripheral_residual in ('P','R')
+            ]]>
+          </sql>
+        </sqlQuery>
+
+        <sqlQuery name="DomainFrequency">
+          <column name="group_name" />
+          <column name="keyword" />
+          <column name="frequency" />
+          <sql>
+            <![CDATA[
+              select og.name as group_name, d.description AS keyword, d.frequency
+              from apidb.OrthologGroup og, apidb.OrthomclGroupDomain d
+              WHERE og.ortholog_group_id = d.ortholog_group_id
+	           and og.core_peripheral_residual in ('P','R')
+            ]]>
+          </sql>
+        </sqlQuery>
+
+
+    </querySet>
+</wdkModel>

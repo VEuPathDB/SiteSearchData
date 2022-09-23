@@ -1,0 +1,61 @@
+[{ "document-type": "search",
+  "fields": [
+    {"name":"TEXT__search_record-type",
+     "displayName": "Record type",
+     "isSummary": false,
+     "boost": 1
+    },
+    {"name":"TEXT__search_displayName",
+     "displayName": "Search name",
+     "isSummary": false,
+     "boost": 1
+    },
+    {"name":"TEXT__search_summary",
+     "displayName": "Search summary",
+     "isSummary": true,
+     "boost": 1
+    },
+    {"name":"TEXT__search_description",
+     "displayName": "Search description",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ },
+ { "document-type": "tutorial",
+  "fields": [
+    {"name":"TEXT__tutorial_content",
+     "displayName": "Content",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ },
+ { "document-type": "news",
+  "fields": [
+    {"name":"TEXT__news_content",
+     "displayName": "Content",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ },
+ { "document-type": "general",
+  "fields": [
+    {"name":"TEXT__general_content",
+     "displayName": "Content",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ },
+ { "document-type": "workshop-exercise",
+  "fields": [
+    {"name":"TEXT__workshop-exercise_content",
+     "displayName": "Content",
+     "isSummary": false,
+     "boost": 1
+    }
+  ]
+ }
+]

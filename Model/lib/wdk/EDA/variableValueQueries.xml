@@ -1,0 +1,172 @@
+<wdkModel>
+
+  <querySet name="VariableValueIdQueries" queryType="id" isCacheable="true">
+
+    <sqlQuery name="AllVariableValues">
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+          select distinct value
+          from (with attributes
+                     as (select att.entity_type_id, att.ontology_term_id, v.value
+                         from eda.Attribute att,
+                              json_table(att.ordered_values , '$[*]' COLUMNS (value PATH '$')) as v
+                         where att.data_type = 'string'
+                           and  lower(trim(v.value)) not in ('yes', 'no')
+                           and not regexp_like(v.value, '^[[:digit:]]+$')
+                        )
+                select s.stable_id as study_id, etg.stable_id as entity_type_id,
+                       ag.stable_id as variable_id, a.value
+                from eda.Study s, eda.EntityTypeGraph etg, attributes a, eda.Attributegraph ag
+                where a.entity_type_id = etg.entity_type_id
+                  and etg.study_id = s.study_id
+                  and ag.study_id = s.study_id
+                  and ag.ontology_term_id = a.ontology_term_id
+                  and (ag.hidden is null
+                       or (ag.hidden != '["everywhere"]'
+                           and ag.hidden != '["variableTree"]'))
+                  and s.stable_id
+                      in (select s.stable_id
+                          from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                          where s.stable_id = sidi.study_stable_id
+                            and sidi.dataset_id
+                                in (select dataset_presenter_id
+                                    from apidbTuning.DatasetPresenter
+                                    where project_id = '@PROJECT_ID@'
+                                   )
+                         )
+                  and s.stable_id
+                      not in (select study_stable_id
+                              from apidbTuning.StudyIdDatasetId
+                              where dataset_id
+                                    in (  select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'isPublic' and value = 'false'
+                                        union
+                                          select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'studyAccess' and value in ('private', 'prerelease')
+                                       )
+                             )
+               )
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="VariableValueAttributes" queryType="attribute" isCacheable="false">
+
+    <sqlQuery name="All">
+      <column name="value"/>
+      <column name="project"/>
+      <column name="hyperlinkName"/>
+      <sql>
+        <![CDATA[
+          select distinct value, value as hyperlinkName, '@PROJECT_ID@' as project
+          from (with attributes
+                     as (select att.entity_type_id, att.ontology_term_id, v.value
+                         from eda.Attribute att,
+                              json_table(att.ordered_values , '$[*]' COLUMNS (value PATH '$')) as v
+                         where att.data_type = 'string'
+                           and  v.value not in ('Yes', 'No')
+                           and not regexp_like(v.value, '^[[:digit:]]+$')
+                        )
+                select s.stable_id as study_id, etg.stable_id as entity_type_id,
+                       ag.stable_id as variable_id, a.value
+                from eda.Study s, eda.EntityTypeGraph etg, attributes a, eda.Attributegraph ag
+                where a.entity_type_id = etg.entity_type_id
+                  and etg.study_id = s.study_id
+                  and ag.study_id = s.study_id
+                  and ag.ontology_term_id = a.ontology_term_id
+                  and (ag.hidden is null
+                       or (ag.hidden != '["everywhere"]'
+                           and ag.hidden != '["variableTree"]'))
+                  and s.stable_id
+                      not in (select study_stable_id
+                              from apidbTuning.StudyIdDatasetId
+                              where dataset_id
+                                    in (  select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'isPublic' and value = 'false'
+                                        union
+                                          select dataset_presenter_id
+                                          from apidbTuning.DatasetProperty
+                                          where property = 'studyAccess' and value in ('private', 'prerelease')
+                                       )
+                             )
+                  and s.stable_id
+                      in (select s.stable_id
+                          from apidbTuning.StudyIdDatasetId sidi, eda.Study s
+                          where s.stable_id = sidi.study_stable_id
+                            and sidi.dataset_id
+                                in (select dataset_presenter_id
+                                    from apidbTuning.DatasetPresenter
+                                    where project_id = '@PROJECT_ID@'
+                                   )
+                         )
+               )
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="VariableValueTables" queryType="table" isCacheable="false">
+
+    <sqlQuery name="All">
+      <column name="value"/>
+      <column name="variable_id"/>
+      <column name="study_id"/>
+      <column name="entity_type_id"/>
+      <column name="study_name"/>
+      <column name="entity_type"/>
+      <column name="variable_name"/>
+      <sql>
+        <![CDATA[
+with attributes
+     as (select att.entity_type_id, att.ontology_term_id, v.value
+         from eda.Attribute att,
+              json_table(att.ordered_values , '$[*]' COLUMNS (value PATH '$')) as v
+         where att.data_type = 'string'
+           and v.value not in ('Yes', 'No')
+           and not regexp_like(v.value, '^[[:digit:]]+$')
+        )
+select s.stable_id as study_id, etg.stable_id as entity_type_id,
+       ag.stable_id as variable_id, a.value,
+       nvl(etg.display_name, 'n/a') as entity_type,
+       nvl(ag.display_name, 'n/a') as variable_name,
+       nvl(dsp.display_name, 'n/a') as study_name
+from eda.Study s, eda.EntityTypeGraph etg, attributes a, eda.Attributegraph ag,
+     apidbTuning.StudyIdDatasetId sd, apidbTuning.DatasetPresenter dsp
+where a.entity_type_id = etg.entity_type_id
+  and etg.study_id = s.study_id
+  and ag.study_id = s.study_id
+  and ag.ontology_term_id = a.ontology_term_id
+  and (ag.hidden is null
+       or (ag.hidden != '["everywhere"]'
+           and ag.hidden != '["variableTree"]'))
+  and etg.study_stable_id = sd.study_stable_id
+  and sd.dataset_id = dsp.dataset_presenter_id
+  and dsp.project_id = '@PROJECT_ID@'
+  and s.stable_id
+      not in (select study_stable_id
+              from apidbTuning.StudyIdDatasetId
+              where dataset_id
+                    in (  select dataset_presenter_id
+                          from apidbTuning.DatasetProperty
+                          where property = 'isPublic' and value = 'false'
+                        union
+                          select dataset_presenter_id
+                          from apidbTuning.DatasetProperty
+                          where property = 'studyAccess' and value in ('private', 'prerelease')
+                       )
+             )
+order by dsp.display_name, etg.display_name, ag.display_name
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+</wdkModel>

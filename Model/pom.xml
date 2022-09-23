@@ -16,7 +16,12 @@
 
     <dependency>
       <groupId>org.gusdb</groupId>
-      <artifactId>fgputil-util</artifactId>
+      <artifactId>fgputil-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.gusdb</groupId>
+      <artifactId>fgputil-json</artifactId>
     </dependency>
 
     <dependency>
@@ -45,8 +50,8 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-server</artifactId>
     </dependency>
 
     <dependency>
@@ -56,8 +61,12 @@
     </dependency>
 
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-1.2-api</artifactId>
     </dependency>
 
   </dependencies>

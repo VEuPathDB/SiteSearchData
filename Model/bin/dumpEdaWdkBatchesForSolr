@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+
+use lib "$ENV{GUS_HOME}/lib/perl";
+use Getopt::Long;
+use strict;
+use DBI;
+use SiteSearchData::Model::Utils;
+
+my $BATCH_DIR_PREFIX = "solr-json-batch";
+
+my ($wdkServiceUrl, $targetDir, $verbose);
+&GetOptions("targetDir=s" => \$targetDir,
+            "wdkServiceUrl=s" => \$wdkServiceUrl,
+	    "verbose!" => \$verbose);
+
+$| = 1;
+
+&usage unless ($targetDir && $wdkServiceUrl);
+
+die "Error: targetDir '$targetDir' is not a directory\n" unless -d $targetDir;
+
+my $gusProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/gus.config");
+my $modelProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/config/SiteSearchData/model.prop");
+
+SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "dataset-presenter", $modelProps->{PROJECT_ID});
+
+print STDOUT "Done.\n";
+exit 0;
+
+sub usage {
+
+  die
+"Dump EDA batches to be loaded into solr from data produced by the workflow.  
+
+usage:  dumpEdaWdkBatchesForSolr --wdkServiceUrl SERVICE_URL --targetDir TARGET_DIR [--verbose]
+
+Dump wdk records as Solr compatible Json
+
+Dumps data in hard-coded set of batches:
+ - dataset-presenter
+
+Connects to a running SiteSearchData wdk service to generate the reports.
+
+Calls the createWdkRecordsSolrBatch command to do the work.
+";
+}

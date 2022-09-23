@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE xml [
+  <!ENTITY nbsp "&#160;">
+  <!ENTITY lt   "&#60;">
+  <!ENTITY gt   "&#62;">
+  ]>
+
+<wdkModel>
+
+  <modelName displayName="SiteSearch"
+             version="%%buildNumber%%"
+             releaseDate="%%releaseDate%%"
+             buildNumber="%%buildNumber%%"/>
+
+  <questionSet name="Questions" displayName="dontcare">
+
+    <question name="Datasets" displayName="dontcare"
+              queryRef="DatasetIdQueries.AllDatasets"
+              recordClassRef="datasetRecordClasses.dataset">
+    </question>
+
+    <question name="Variables" displayName="dontcare"
+              queryRef="VariableIdQueries.AllVariables"
+              recordClassRef="variableRecordClasses.variable">
+    </question>
+
+    <question name="VariableValues" displayName="dontcare"
+              queryRef="VariableValueIdQueries.AllVariableValues"
+              recordClassRef="variableValueRecordClasses.variableValue">
+    </question>
+  </questionSet>
+
+
+  <import file="Shared/datasetRecord.xml"/>
+  <import file="Shared/datasetQueries.xml"/>
+
+  <import file="EDA/variableRecord.xml"/>
+  <import file="EDA/variableQueries.xml"/>
+
+  <import file="EDA/variableValueRecord.xml"/>
+  <import file="EDA/variableValueQueries.xml"/>
+
+</wdkModel>

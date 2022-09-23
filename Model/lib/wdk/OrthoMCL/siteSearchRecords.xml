@@ -1,0 +1,226 @@
+<wdkModel>
+
+  <questionSet name="Questions" displayName="dontcare">
+
+    <question name="SequencesByAlphabet" displayName="dontcare"
+              queryRef="SequenceId.SequencesByAlphabet"
+              recordClassRef="recordClasses.sequence">
+    </question>
+
+    <question name="GroupsByLastNumeral" displayName="dontcare"
+              queryRef="GroupIdQueries.GroupsByLastNumeral"
+              recordClassRef="recordClasses.group">
+    </question>
+
+  </questionSet>
+
+  <recordClassSet name="recordClasses">
+
+    <!-- ################################################################### -->
+    <!-- ########################  Sequence Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="sequence" urlName="sequence" displayName="Protein sequence">
+      <propertyList name="batch">
+        <value>sequence</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="SequenceId.Alias">
+        <columnRef>full_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Accession">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[
+                   $$full_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <attributeQueryRef ref="SequenceAttributes.SequenceAttrs">  
+        <!-- columnAttribute name="full_id" displayName="Full ID"/ -->
+        <!-- special field for project filtering -->
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>
+        <columnAttribute name="source_id" displayName="Source ID">
+          <propertyList name="boost">
+            <value>100</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="product" displayName="Product">
+          <propertyList name="isSubtitle">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="boost">
+            <value>10</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="ec_numbers" displayName="EC Numbers">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="pfam_domains" displayName="PFam Domains">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="abbreviation" displayName="Taxon Abbreviation"/>
+        <columnAttribute name="taxon_name" displayName="Taxon Name">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+      </attributeQueryRef>
+
+      <attributeQueryRef ref="SequenceAttributes.SequenceGroup">
+        <columnAttribute name="group_name" displayName="Ortholog group" internal="false" inReportMaker="true" >
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+      </attributeQueryRef>
+
+      <table name="CurrentAndOldGroups"
+             displayName="Current/previous group(s)"
+             queryRef="SequenceTables.CurrentAndOldGroups">
+          <columnAttribute name="current_old_groups" displayName="Current/previous group(s)"/>
+      </table>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+    </recordClass>
+
+    <!-- ################################################################### -->
+    <!-- ########################  Group Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="group" urlName="group" displayName="Ortholog group">
+      <propertyList name="batch">
+        <value>group</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="GroupIdQueries.Alias">
+        <columnRef>group_name</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Ortholog group">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[
+            $$group_name$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <attributeQueryRef ref="GroupAttributes.GroupAttrs">
+        <!-- columnAttribute name="group_name" displayName="Group Name" / -->
+        <!-- special field for project filtering -->
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>
+      </attributeQueryRef>
+
+      <attributeQueryRef ref="GroupAttributes.Keywords">
+        <columnAttribute name="keywords" displayName="Keywords">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+
+      </attributeQueryRef>
+
+      <!-- commenting out "Domains" to favor "PFam Domains"
+      <attributeQueryRef ref="GroupAttributes.Domains">
+        <columnAttribute name="descriptions" displayName="Domains"/>
+      </attributeQueryRef>
+        -->
+
+      <!-- =============================================================== -->
+      <!-- Tables -->
+      <!-- =============================================================== -->
+
+      <table name="ProteinTaxonAbbrev" displayName="Protein Taxon Abbreviation"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="taxon_abbrev" displayName="Protein Taxon Abbreviation" />
+      </table>
+
+      <table name="ProteinID"
+             displayName="Protein ID"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="full_id">
+            <propertyList name="boost">
+              <value>10</value>
+             </propertyList>
+          </columnAttribute>
+          <columnAttribute name="source_id">
+            <propertyList name="boost">
+              <value>10</value>
+             </propertyList>
+          </columnAttribute>
+      </table>
+
+      <table name="ProteinDescription"
+             displayName="Protein Description"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="description" displayName="Protein Description" />
+      </table>
+
+      <table name="ProteinTaxonName"
+             displayName="Protein Taxon Name"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="taxon_name" displayName="Protein Taxon Name" />
+      </table>
+
+      <table name="ProteinPreviousGroups"
+             displayName="Protein Previous Groups"
+             queryRef="GroupTables.Proteins">
+          <columnAttribute name="previous_groups" displayName="Protein Previous Groups" />
+      </table>
+      
+      <table name="PFams"
+             displayName="Pfam Domains"
+             queryRef="GroupTables.PFams">
+          <columnAttribute name="accession" displayName="Accession Number" />
+          <columnAttribute name="symbol" displayName="Symbol" />
+          <columnAttribute name="description" displayName="Description" />
+      </table>
+
+      <table name="EcNumber"
+             displayName="EC Number"
+             queryRef="GroupTables.EcNumber">
+        <columnAttribute name="ec_number" />
+        <columnAttribute displayName="EC Description"
+                         name="description"/>
+      </table>
+
+<!--
+      <table name="KeywordFrequency" internal="true"
+             queryRef="GroupTables.KeywordFrequency">
+        <columnAttribute name="keyword" displayName="Keyword"/>
+      </table>
+
+      <table name="DomainFrequency" internal="true"
+             queryRef="GroupTables.DomainFrequency">
+        <columnAttribute name="keyword" displayName="Domain"/>
+      </table>
+ -->
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+    </recordClass>
+
+  </recordClassSet>
+
+</wdkModel>
