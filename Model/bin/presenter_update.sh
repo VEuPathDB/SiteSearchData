@@ -24,10 +24,26 @@ do
 done
   
 # make output dir and run commands to produce output
+#   OrthoMCL only needs WDK Meta (ie, Searches)
+#   EDA sites only need dataset presenters
+#   genomics sites, including portal need both
+if [ "$PROJECT_ID" = "OrthoMCL" ]; 
+then
+  mkdir $DESTINATION_DIRECTORY &&\
+  ssCreateWdkMetaBatch $SITE_BASE_URL/service/ $PROJECT_ID $DESTINATION_DIRECTORY
 
+elif [ "$PROJECT_ID" = "ClinEpiDB" ] || [ "$PROJECT_ID" = "MicrobiomeDB" ];
+then
 mkdir $DESTINATION_DIRECTORY &&\
-ssCreateWdkRecordsBatch dataset-presenter $PROJECT_ID http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY &&\
-ssCreateWdkMetaBatch $SITE_BASE_URL/service/ $PROJECT_ID $DESTINATION_DIRECTORY
+  ssCreateWdkRecordsBatch dataset-presenter $PROJECT_ID http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY
+
+else
+  mkdir $DESTINATION_DIRECTORY &&\
+  ssCreateWdkRecordsBatch dataset-presenter $PROJECT_ID http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY &&\
+  ssCreateWdkMetaBatch $SITE_BASE_URL/service/ $PROJECT_ID $DESTINATION_DIRECTORY
+fi
+
+
 
 echo "produced files:"
 echo
