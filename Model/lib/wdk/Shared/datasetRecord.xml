@@ -1,5 +1,9 @@
 <wdkModel>
 
+  <constant name="datasetRecordName" includeProjects="ClinEpiDB">Study Name</constant>
+  <constant name="datasetRecordName" excludeProjects="ClinEpiDB">Name</constant>
+
+
   <recordClassSet name="datasetRecordClasses">
 
     <!-- ################################################################### -->
@@ -15,7 +19,7 @@
         <columnRef>dataset_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Name" excludeProjects="ClinEpiDB">
+      <idAttribute name="primary_key" displayName="%%datasetRecordName%%" excludeProjects="ClinEpiDB">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
