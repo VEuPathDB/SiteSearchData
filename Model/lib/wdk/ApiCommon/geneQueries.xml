@@ -113,7 +113,7 @@
       <column name="comment_id"/>
       <sql>
         <![CDATA[
-          select distinct source_id, id_attr as comment_id from apidbtuning.ApolloSiteSearch
+          select distinct source_id, id_attr as comment_id from apidbtuning.ApolloUpdateGene
         ]]>
       </sql>
     </sqlQuery>
@@ -123,7 +123,7 @@
       <column name="ApolloComment"/>
       <sql>
         <![CDATA[
-        select source_id, attr as ApolloComment from apidbTuning.ApolloSiteSearch
+          select source_id, attr as ApolloComment from apidbTuning.ApolloUpdateGene
         ]]>
       </sql>
     </sqlQuery>
