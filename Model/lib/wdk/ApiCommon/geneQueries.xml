@@ -429,9 +429,9 @@
                  from  dots.GoAssocInstEvidCode gaiec, sres.OntologyTerm ot
                  where ot.ontology_term_id = gaiec.go_evidence_code_id)
           select ta.gene_source_id as source_id, tp.product, ta.project_id,
-                 listagg(source_id, ', ') within group(order by source_id)
+                 listagg(source_id, ', ' on overflow truncate) within group(order by source_id)
                    as transcript_ids,
-                 listagg(publication, ', ') within group(order by source_id)
+                 listagg(publication, ', ' on overflow truncate) within group(order by source_id)
                    as reference,
                  e.name as evidence_code,
                  tp.with_from AS evidence_code_parameter
@@ -456,7 +456,7 @@
         union
           select *
           from (select ta.gene_source_id as source_id, ta.transcript_product, ta.project_id,
-                       listagg(source_id, ', ') within group(order by source_id)
+                       listagg(source_id, ', ' on overflow truncate) within group(order by source_id)
                          as transcript_ids,
                        cast (null as varchar2(1)) as reference,
                        cast (null as varchar2(1)) as evidence_code,
