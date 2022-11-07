@@ -548,14 +548,13 @@
         <columnAttribute name="ortho_name"/>  <!-- gene name -->
       </table>
 
-      <table name="Products"
+      <table name="PreferredProducts"
              displayName="Product descriptions"
-             queryRef="GeneTables.Products">
+             queryRef="GeneTables.PreferredProducts">
           <propertyList name="boost">
             <value>1.5</value>
           </propertyList>
         <columnAttribute name="product"/>
-        <columnAttribute name="reference"/>
       </table>
 
       <table name="AlternateProducts"
