@@ -120,7 +120,6 @@
 	      
       </table>
 
-<!--
       <table name="AttributeValues"
              displayName="Attribute values"
              queryRef="DatasetTables.AttributeValues">
@@ -149,7 +148,7 @@
         <columnAttribute name="name" displayName="Attribute name"/>
         <columnAttribute name="provider_label" displayName="Provider label"/>
       </table>
--->
+
       <table name="StudyCharacteristics"
              displayName="Study Characteristics"
              queryRef="DatasetTables.StudyCharacteristics">
