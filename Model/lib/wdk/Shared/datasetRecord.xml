@@ -120,7 +120,7 @@
 	      
       </table>
 
-      <table name="AttributeValues"
+      <table name="AttributeValues" excludeProjects="VEuPathDB"
              displayName="Attribute values"
              queryRef="DatasetTables.AttributeValues">
         <propertyList name="includeProjects">
@@ -134,7 +134,7 @@
         <columnAttribute name="value"/>
       </table>
 
-      <table name="AttributeNames"
+      <table name="AttributeNames" excludeProjects="VEuPathDB"
              displayName="Attribute names"
              queryRef="DatasetTables.AttributeNames">
         <propertyList name="includeProjects">
@@ -149,7 +149,7 @@
         <columnAttribute name="provider_label" displayName="Provider label"/>
       </table>
 
-      <table name="StudyCharacteristics"
+      <table name="StudyCharacteristics" excludeProjects="VEuPathDB"
              displayName="Study Characteristics"
              queryRef="DatasetTables.StudyCharacteristics">
         <propertyList name="includeProjects">
