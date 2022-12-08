@@ -15,7 +15,7 @@
         <columnRef>value</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Variable value">
+      <idAttribute name="primary_key" displayName="Value">
         <text>
           <![CDATA[ $$value$$ ]]>
         </text>
