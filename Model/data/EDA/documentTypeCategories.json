@@ -16,8 +16,8 @@
         "hasOrganismField": false
       },
       { "id": "variableValue",
-        "displayName": "Variable value",
-        "displayNamePlural": "Variable values",
+        "displayName": "Value",
+        "displayNamePlural": "Values",
         "hasOrganismField": false
       }      
     ]
