@@ -94,6 +94,12 @@
         <columnAttribute name="description"/>
       </table>
 
+      <table name="GenomeVersionHistory"
+             displayName="Genome version history"
+             queryRef="OrganismTables.GenomeVersionHistory">
+        <columnAttribute name="genome_version"/>
+      </table>
+
     </recordClass>
 
     <!-- ################################################################### -->
@@ -395,8 +401,8 @@
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
-          <propertyList name="isSearchable"> <!-- instead search the Products table -->
-            <value>false</value>
+          <propertyList name="isSearchable"> <!-- in addition to the PreferredProducts and AlternateProducts tables -->
+            <value>true</value>
           </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
