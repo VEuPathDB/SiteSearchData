@@ -99,7 +99,7 @@
             and dsp.dataset_presenter_id = dnt.dataset_presenter_id
             and dsh.dataset_presenter_id = dnt.dataset_presenter_id
             and oa.component_taxon_id = dnt.taxon_id
-            and dsh.genome_version like 'GCA_%'
+            and dsh.genome_version like 'GC%'
         ]]>
       </sql>
     </sqlQuery>
