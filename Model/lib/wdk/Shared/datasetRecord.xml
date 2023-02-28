@@ -213,6 +213,13 @@
         </propertyList>
 	<columnAttribute name="organism"/>  
       </table>
+
+      <table name="ExternalResources"
+             displayName="External resources"
+             queryRef="DatasetTables.ExternalResources">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="url"/>
+      </table>
       
     </recordClass>
 

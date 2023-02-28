@@ -325,6 +325,17 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="ExternalResources">
+      <column name="dataset_id"/>
+      <column name="url"/>
+      <sql>
+        <![CDATA[
+          select dataset_presenter_id as dataset_id, url
+          from apidbTuning.DatasetHyperlink
+        ]]>
+      </sql>
+    </sqlQuery>
+
   </querySet>
 
 </wdkModel>
