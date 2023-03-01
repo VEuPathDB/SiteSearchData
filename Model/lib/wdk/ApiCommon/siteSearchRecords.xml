@@ -412,7 +412,12 @@
           </propertyList>
         </columnAttribute>
 
-        <columnAttribute name="gene_type" displayName="Gene type"/>
+        <columnAttribute name="gene_type" displayName="Gene type">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+	      
         <columnAttribute name="name" displayName="Gene name or symbol">
           <propertyList name="isSummary">
             <value>true</value>
