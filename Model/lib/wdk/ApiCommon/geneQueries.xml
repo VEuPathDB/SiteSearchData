@@ -489,7 +489,7 @@
                    )
       ]]>
       </sql>
-    </sqlQuery> 
+    </sqlQuery>
 
     <sqlQuery name="AlternateProducts" >
       <column name="source_id"/>
@@ -691,9 +691,9 @@
         and pr.life_cycle_stage_term_id = ols.ontology_term_id (+)
        ]]>
       </sql>
-  </sqlQuery>
+    </sqlQuery>
 
- <sqlQuery name="CellularLocalization">
+    <sqlQuery name="CellularLocalization">
       <column name="source_id"/>
       <column name="note"/>
       <column name="image_type"/>
@@ -713,5 +713,19 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="GeneModelCharacteristics">
+      <column name="source_id"/>
+      <column name="characteristic_value"/>
+      <sql>
+        <![CDATA[
+        select ta.gene_source_id as source_id, gmc.string_value as characteristic_value
+        from apidbTuning.GeneModelCharMD gmc, apidbTuning.TranscriptAttributes ta
+        where gmc.source_id = ta.source_id
+          and string_value not in ('No', 'NA')
+       ]]>
+      </sql>
+    </sqlQuery>
+
   </querySet>
+
 </wdkModel>

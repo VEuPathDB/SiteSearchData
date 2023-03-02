@@ -625,6 +625,12 @@
         <columnAttribute name="image_type"/>
       </table>
 
+      <table name="GeneModelCharacteristics"
+             displayName="GeneModel Characteristics"
+             queryRef="GeneTables.GeneModelCharacteristics">
+        <columnAttribute name="characteristic_value"/>
+      </table>
+
     </recordClass>
 
 
