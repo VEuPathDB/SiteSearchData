@@ -432,6 +432,8 @@
           </propertyList>
         </columnAttribute>
         <columnAttribute name="orthomcl_name" displayName="Ortholog group"/>
+        <columnAttribute name="so_id" displayName="Sequence Ontology ID"/>
+        <columnAttribute name="so_term_name" displayName="Sequence Ontology term"/>
       </attributeQueryRef>
 
       <!-- needed for the apollo comment updater. -->
