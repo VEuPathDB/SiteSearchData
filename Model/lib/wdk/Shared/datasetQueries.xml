@@ -330,7 +330,8 @@
       <column name="url"/>
       <sql>
         <![CDATA[
-          select dataset_presenter_id as dataset_id, url
+          select dataset_presenter_id as dataset_id,
+                 replace(replace(replace(url, '/', ' '), '=', ' '), '?', ' ') as url
           from apidbTuning.DatasetHyperlink
         ]]>
       </sql>
