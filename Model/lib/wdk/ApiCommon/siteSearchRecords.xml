@@ -143,6 +143,7 @@
           </propertyList>
         </columnAttribute>
         <columnAttribute name="genbank_accession" displayName="GenBank"/>
+        <columnAttribute name="sequence_type" displayName="Sequence type"/>
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
