@@ -58,6 +58,7 @@
       <column name="source_id"/>
       <column name="organism_full"/>
       <column name="organism"/>
+      <column name="sequence_type"/>
       <column name="genbank_accession"/>
       <sql excludeProjects="EuPathDB">
         <![CDATA[
@@ -68,7 +69,8 @@
                    when (chromosome is not null)
                      then organism || ' - Chromosome ' || chromosome_order_num
                    else organism
-                 end as description
+                 end as description,
+                 replace(sequence_type, '_', ' ') as sequence_type
           from apidbTuning.GenomicSeqAttributes
         ]]>
       </sql>
