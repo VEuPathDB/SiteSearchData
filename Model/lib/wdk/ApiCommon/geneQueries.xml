@@ -288,7 +288,7 @@
       <sql>
         <![CDATA[
           select distinct source_id, ortho_product, ortho_name
-          from apidbTuning.OrthologousGenes
+          from apidbTuning.OrthologousTranscripts
         ]]>
       </sql>
     </sqlQuery>
