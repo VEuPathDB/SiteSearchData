@@ -437,6 +437,12 @@
         <columnAttribute name="so_term_name" displayName="Sequence Ontology term"/>
       </attributeQueryRef>
 
+      <table name="GeneIds"
+             displayName="Gene IDs"
+             queryRef="GeneAttributes.GeneAlias">
+        <columnAttribute name="old_source_id"/>
+      </table>
+
       <!-- needed for the apollo comment updater. -->
       <table name="apolloCommentIds"
              internal="true"
