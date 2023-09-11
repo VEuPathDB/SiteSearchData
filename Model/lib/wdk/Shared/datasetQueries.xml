@@ -121,23 +121,36 @@
       <column name="value"/>
       <sql>
         <![CDATA[
-          select distinct sd.dataset_id, av.string_value as value
-          from eda.AttributeValue av, eda.EntityTypeGraph etg, apidbTuning.StudyIdDatasetId sd
-          where av.entity_type_id = etg.entity_type_id
+          with attributes
+               as (select att.entity_type_id, att.ontology_term_id, v.value
+                   from eda.Attribute att,
+                        json_table(att.ordered_values , '$[*]' COLUMNS (value PATH '$')) as v
+                   where att.data_type = 'string'
+                     and v.value not in ('Yes', 'No')
+                     and not regexp_like(v.value, '^[[:digit:]]+$')
+                  )
+          select sd.dataset_id, a.value
+          from eda.Study s, eda.EntityTypeGraph etg, attributes a, eda.Attributegraph ag,
+               apidbTuning.StudyIdDatasetId sd, apidbTuning.DatasetPresenter dsp
+          where a.entity_type_id = etg.entity_type_id
+            and etg.study_id = s.study_id
+            and ag.study_id = s.study_id
+            and ag.ontology_term_id = a.ontology_term_id
+            and (ag.hidden is null
+                 or (ag.hidden != '["everywhere"]'
+                     and ag.hidden != '["variableTree"]'))
             and etg.study_stable_id = sd.study_stable_id
-            and av.number_value is null
-            and av.date_value is null
-            and lower(av.string_value) != 'yes'
-            and lower(av.string_value) != 'no'
+            and sd.dataset_id = dsp.dataset_presenter_id
+            and dsp.project_id = '@PROJECT_ID@'
             and sd.dataset_id
-                in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
-                    where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'VEuPathDB')
-            and sd.dataset_id
-                not in (select dataset_presenter_id
-                        from apidbTuning.DatasetProperty
-                        where property = 'isPublic' and value = 'false')
+                not in (  select dataset_presenter_id
+                          from apidbTuning.DatasetProperty
+                          where property = 'isPublic' and value = 'false'
+                        union
+                          select dataset_presenter_id
+                          from apidbTuning.DatasetProperty
+                          where property = 'studyAccess' and value in ('private', 'prerelease')
+                       )
         ]]>
       </sql>
     </sqlQuery>
