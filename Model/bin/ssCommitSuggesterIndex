@@ -1,0 +1,13 @@
+#/bin/bash
+
+SOLR_URL=$1
+
+if [ -z "$SOLR_URL" ]; then
+  echo ""
+  echo "Usage:"
+  echo "  ./ssCommitSuggesterIndex https://some.url.for.solr/solr/site_search"
+  echo ""
+  exit 1
+fi
+
+curl "$SOLR_URL/suggest?suggest.build=true"
