@@ -7,6 +7,10 @@ if [ -z "$SOLR_URL" ]; then
   echo "Usage:"
   echo "  ./ssCommitSuggesterIndex https://some.url.for.solr/solr/site_search"
   echo ""
+  echo "  This script commits the Solr Suggester index used for the site-search"
+  echo "typeahead.  This script should be executed as the last step of building"
+  echo "the site-search core."
+  echo ""
   exit 1
 fi
 
