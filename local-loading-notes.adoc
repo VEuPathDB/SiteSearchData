@@ -1,0 +1,103 @@
+= Local SOLR Loading Notes
+:source-highlighter: highlight.js
+
+Notes and instructions for running and loading a Solr instance from your local
+machine.
+
+== GUS_HOME Setup
+
+If you don't have a GUS_HOME set up already, a minimal setup is described here:
+
+. Create a directory for your GUS_HOME.
++
+[source, bash]
+----
+mkdir -p ~/gus_home/lib/python/SiteSearchData/Model
+----
+. Copy the lib file from `Model/lib/python` into the GUS_HOME path we just
+  created.
++
+[source, bash]
+----
+cp -t ~/gus_home/lib/python/SiteSearchData/Model Model/lib/python/BatchReportUtils.py
+----
+
+You should now be able to run the Solr loading scripts.
+
+== SOLR Setup
+
+. `make build`
+. `make run`
+. `docker exec -it <container-name> bash`
++
+[source, bash]
+----
+mkdir -p ~/site_search/conf
+cp -rt ~/site_search/conf/ /opt/solr/server/solr/configsets/site-search/conf/*
+----
+. From http://localhost:8983/ go to Core Admin
+. Use the following configuration options:
++
+[cols=2]
+|===
+h| name | `site_search`
+h| instanceDir | `/home/solr/site_search/`
+h| dataDir | `/home/solr`
+h| config | `/home/solr/site_search/conf/solrconfig.xml`
+h| schema | `/home/solr/site_search/conf/schema.xml`
+|===
+. Press "Add Core"
+
+== Loading
+
+Download the target files from yew a build and project directory under the root
+`/eupath/data/EuPathDB/siteSearchDataDumps/` into a local directory.  For the
+following examples we will use build-65 and ToxoDB
+
+=== Using SFTP
+
+. Create a local directory to contain the batches for the target project, then
+  `cd` into that directory.
++
+[source, bash]
+----
+mkdir ~/ToxoDB
+cd ~/ToxoDB
+----
+. Open an SFTP connection to yew.
++
+[source, bash]
+----
+sftp <connection info for yew>
+----
+. Run the following SFTP commands:
++
+[source, bash]
+----
+cd /eupath/data/EuPathDB/siteSearchDataDumps/bld65/ToxoDB
+get -R .
+exit
+----
+
+At this point you should now have a mirror of the ToxoDB batches in your local
+ToxoDB directory.  From here you can run the target `Model/bin` loading
+script(s) to populate the `site_search` Solr core in your local instance.
+
+For this example we will use the multi-batch loading script for our downloaded
+files:
+
+[source, bash]
+----
+# Go to the directory with the bin scripts
+cd /path/to/SiteSearchData/Model/bin
+
+# Export the necessary env vars
+export GUS_HOME=/path/to/local/gus_home
+export PATH=$PATH:$PWD
+
+# Load the batches into Solr
+./ssLoadMultipleBatches https://localhost:8983/solr/site_search ~/ToxoDB
+
+# Commit the typeahead index
+./ssCommitSuggesterIndex
+----
