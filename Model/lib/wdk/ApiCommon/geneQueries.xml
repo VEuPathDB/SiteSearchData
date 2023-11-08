@@ -412,6 +412,35 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="Products" isCacheable="false" >
+      <column name="source_id"/>
+      <column name="product"/>
+      <sql>
+      <![CDATA[
+          select 'dots.GeneFeature' as source, source_id, product
+          from dots.GeneFeature
+          where product is not null
+        union
+          select 'dots.TranscriptFeature' as source, gf.source_id, t.product
+          from dots.GeneFeature gf, dots.Transcript t
+          where gf.na_feature_id = t.parent_id
+            and t.product is not null
+        union
+          select 'apidb.GeneFeatureProduct' as source, gf.source_id, gfp.product
+          from dots.GeneFeature gf, apidb.GeneFeatureProduct gfp
+          where gfp.na_feature_id = gf.na_feature_id
+        union
+          select 'apidb.TranscriptProduct' as source, gf.source_id, tp.product
+          from dots.GeneFeature gf, dots.Transcript t,
+               apidb.TranscriptProduct tp
+          where t.parent_id = gf.na_feature_id
+            and tp.na_feature_id = t.na_feature_id
+      ]]>
+      </sql>
+    </sqlQuery>
+
+
+<!--
     <sqlQuery name="PreferredProducts" isCacheable="false" >
       <column name="source_id"/>
       <column name="transcript_ids"/>
@@ -518,6 +547,7 @@
         ]]>
       </sql>
     </sqlQuery>
+-->
 
     <sqlQuery name="gene_dbrefs">
       <column name="source_id"/>
