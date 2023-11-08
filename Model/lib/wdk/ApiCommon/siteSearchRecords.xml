@@ -398,7 +398,7 @@
         <columnAttribute name="projectAux" displayName="dontcare" internal="true"/>  <!-- special field used by Apollo Site Search Updater -->
         <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
 
-        <columnAttribute name="product" displayName="Preferred product description" >
+        <!-- all in products table columnAttribute name="product" displayName="Preferred product description" !-->
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
@@ -562,20 +562,13 @@
         <columnAttribute name="ortho_name"/>  <!-- gene name -->
       </table>
 
-      <table name="PreferredProducts"
+      <table name="Products"
              displayName="Product descriptions"
-             queryRef="GeneTables.PreferredProducts">
+             queryRef="GeneTables.Products">
           <propertyList name="boost">
             <value>1.5</value>
           </propertyList>
         <columnAttribute name="product"/>
-      </table>
-
-      <table name="AlternateProducts"
-             displayName="Alternate product descriptions"
-             queryRef="GeneTables.AlternateProducts">
-        <columnAttribute name="product"/>
-        <columnAttribute name="reference"/>
       </table>
 
       <table name="RodMalPhenotype"
