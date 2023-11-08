@@ -398,7 +398,7 @@
         <columnAttribute name="projectAux" displayName="dontcare" internal="true"/>  <!-- special field used by Apollo Site Search Updater -->
         <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
 
-        <!-- all in products table columnAttribute name="product" displayName="Preferred product description" !-->
+        <columnAttribute name="product" displayName="Preferred product description">
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
