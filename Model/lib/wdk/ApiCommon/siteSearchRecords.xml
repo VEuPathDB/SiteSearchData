@@ -563,7 +563,7 @@
       </table>
 
       <table name="Products"
-             displayName="Product descriptions"
+             displayName="Product descriptions (all)"
              queryRef="GeneTables.Products">
           <propertyList name="boost">
             <value>1.5</value>
