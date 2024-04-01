@@ -86,6 +86,24 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="GenomeVersionHistory">
+      <column name="source_id"/>
+      <column name="genome_version"/>
+      <sql>
+        <![CDATA[
+          select distinct oa.source_id, dsh.genome_version
+          from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetHistory dsh,
+               apidbTuning.DatasetNameTaxon dnt,
+               apidbTuning.OrganismAttributes oa
+          where dsp.type = 'genome'
+            and dsp.dataset_presenter_id = dnt.dataset_presenter_id
+            and dsh.dataset_presenter_id = dnt.dataset_presenter_id
+            and oa.component_taxon_id = dnt.taxon_id
+            and dsh.genome_version like 'GC%'
+        ]]>
+      </sql>
+    </sqlQuery>
+
   </querySet>
 
 </wdkModel>
