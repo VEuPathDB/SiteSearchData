@@ -94,6 +94,12 @@
         <columnAttribute name="description"/>
       </table>
 
+      <table name="GenomeVersionHistory"
+             displayName="Genome version history"
+             queryRef="OrganismTables.GenomeVersionHistory">
+        <columnAttribute name="genome_version"/>
+      </table>
+
     </recordClass>
 
     <!-- ################################################################### -->
@@ -137,6 +143,7 @@
           </propertyList>
         </columnAttribute>
         <columnAttribute name="genbank_accession" displayName="GenBank"/>
+        <columnAttribute name="sequence_type" displayName="Sequence type"/>
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
@@ -391,12 +398,12 @@
         <columnAttribute name="projectAux" displayName="dontcare" internal="true"/>  <!-- special field used by Apollo Site Search Updater -->
         <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
 
-        <columnAttribute name="product" displayName="Preferred product description" >
+        <columnAttribute name="product" displayName="Product description">
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
-          <propertyList name="isSearchable"> <!-- instead search the Products table -->
-            <value>false</value>
+          <propertyList name="isSearchable"> <!-- in addition to the Products table -->
+            <value>true</value>
           </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
@@ -406,7 +413,12 @@
           </propertyList>
         </columnAttribute>
 
-        <columnAttribute name="gene_type" displayName="Gene type"/>
+        <columnAttribute name="gene_type" displayName="Gene type">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+	      
         <columnAttribute name="name" displayName="Gene name or symbol">
           <propertyList name="isSummary">
             <value>true</value>
@@ -421,6 +433,8 @@
           </propertyList>
         </columnAttribute>
         <columnAttribute name="orthomcl_name" displayName="Ortholog group"/>
+        <columnAttribute name="so_id" displayName="Sequence Ontology ID"/>
+        <columnAttribute name="so_term_name" displayName="Sequence Ontology term"/>
       </attributeQueryRef>
 
       <!-- needed for the apollo comment updater. -->
@@ -548,20 +562,13 @@
         <columnAttribute name="ortho_name"/>  <!-- gene name -->
       </table>
 
-      <table name="PreferredProducts"
-             displayName="Product descriptions"
-             queryRef="GeneTables.PreferredProducts">
+      <table name="Products"
+             displayName="Product descriptions (all)"
+             queryRef="GeneTables.Products">
           <propertyList name="boost">
             <value>1.5</value>
           </propertyList>
         <columnAttribute name="product"/>
-      </table>
-
-      <table name="AlternateProducts"
-             displayName="Alternate product descriptions"
-             queryRef="GeneTables.AlternateProducts">
-        <columnAttribute name="product"/>
-        <columnAttribute name="reference"/>
       </table>
 
       <table name="RodMalPhenotype"
@@ -612,6 +619,12 @@
         </propertyList>
         <columnAttribute name="note"/>
         <columnAttribute name="image_type"/>
+      </table>
+
+      <table name="GeneModelCharacteristics"
+             displayName="GeneModel Characteristics"
+             queryRef="GeneTables.GeneModelCharacteristics">
+        <columnAttribute name="characteristic_value"/>
       </table>
 
     </recordClass>
