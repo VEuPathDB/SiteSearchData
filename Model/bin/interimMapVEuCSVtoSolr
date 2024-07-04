@@ -41,6 +41,8 @@ my $batch_timestamp = time();
 my $batch_id = sprintf "%s_%s_%d", $batch_type, $batch_name, $batch_timestamp;
 my $document_type = "popbio-sample";
 
+my $chunk_size = 500000;
+
 my $output_dir = "solr-json-batch_${batch_id}";
 mkdir $output_dir || die;
 
@@ -101,8 +103,8 @@ while (my $row = $csv->getline($collections_fh)) {
 close($collections_fh);
 
 # Open samples.txt and process it
-open my $fh, "<:encoding(utf8)", $samples_file or die "$samples_file: $!";
-my $headers = $csv->getline($fh);
+open my $samples_fh, "<:encoding(utf8)", $samples_file or die "$samples_file: $!";
+my $headers = $csv->getline($samples_fh);
 
 # header to index
 my %h2i;
@@ -163,19 +165,34 @@ my %SolrField2function = (
     }
 );
 
-open(my $samples_fh, ">:encoding(utf8)", "$output_dir/$batch_type.json") || die "can't open output json";
+my $chunk_number = 1;
+my $json_output_fh;
 
 my $count;
-print $samples_fh "[\n";
-while (my $row = $csv->getline($fh)) {
+while (my $row = $csv->getline($samples_fh)) {
     my $doc = {};
     foreach my $SolrField (keys %SolrField2function) {
         $doc->{$SolrField} = $SolrField2function{$SolrField}($row);
     }
-    print $samples_fh ",\n" if ($count++);
-    print $samples_fh $json->encode($doc);
-}
-print $samples_fh "]\n";
 
+    # if not yet opened or if filehandle closed at the end of a chunk, open a new file
+    if (!defined $json_output_fh || !defined(fileno($json_output_fh))) {
+      open($json_output_fh, ">:encoding(utf8)", "$output_dir/$batch_type.$chunk_number.json") || die "can't open output json";
+      print $json_output_fh "[\n";
+      $count = 0;
+    }
+
+    print $json_output_fh ",\n" if ($count++);
+    print $json_output_fh $json->encode($doc);
+
+    if ($count == $chunk_size) {
+      print $json_output_fh "\n]\n";
+      close($json_output_fh);
+      $chunk_number++;
+    }
+}
+print $json_output_fh "\n]\n";
+
+close($json_output_fh);
 close($samples_fh);
-close($fh);
+
