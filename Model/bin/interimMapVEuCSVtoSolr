@@ -1,0 +1,198 @@
+#!/usr/bin/env perl
+#  -*- mode: cperl -*-
+
+#
+# interim interim script for b68
+#
+# download from Megastudy MapVEu the following files
+#
+# ./interimMapVEuCSVtoSolr studies.txt collection_sites.txt collections.txt samples.txt
+#
+# make sure these columns are included:
+#
+#==> studies.txt <==
+#Study_ID	PubMed ID [OBI_0001617]	DOI [OBI_0002110]	PopBio Study ID [POPBIO_8000215]	Tags [POPBIO_8000214]	Institution [POPBIO_8000185]
+#
+#==> collection_sites.txt <==
+#Collection_site_ID	Study_ID	provider name for collection site [EUPATH_0000542]	town [POPBIO_8000015]	Administrative region, level 2 [ENVO_00000006]	Administrative region, level 1 [ENVO_00000005]	country [OBI_0001627]	continent [GAZ_00000013]
+#
+#==> collections.txt <==
+#Collection_ID	Collection_site_ID	Study_ID	protocol [OBI_0000272]	specimen collection date(s) (raw) [OBI_0001619]
+#
+#==> samples.txt <==
+#Sample_ID	Collection_ID	Collection_site_ID	Study_ID	species [OBI_0001909]
+#
+#
+#
+
+use strict;
+use warnings;
+use Text::CSV_XS;
+use JSON;
+use utf8::all;
+
+my ($studies_file, $collection_sites_file, $collections_file, $samples_file) = @ARGV;
+
+die "Must provide MapVEu files as arguments\n" unless ($studies_file && -s $studies_file && $collection_sites_file && -s $collection_sites_file && $collections_file && -s $collections_file && $samples_file && -s $samples_file);
+
+my $batch_name = "popbio";
+my $batch_type = "samples";
+my $batch_timestamp = time();
+my $batch_id = sprintf "%s_%s_%d", $batch_type, $batch_name, $batch_timestamp;
+my $document_type = "popbio-sample";
+
+my $chunk_size = 500000;
+
+my $output_dir = "solr-json-batch_${batch_id}";
+mkdir $output_dir || die;
+
+my $json = JSON->new;
+
+# output batch info JSON
+my $batch_info = [
+    {
+        "batch-type" => $batch_type,
+        "batch-name" => $batch_name,
+        "document-type" => "batch-meta",
+        "batch-timestamp" => $batch_timestamp,
+        "batch-id" => $batch_id,
+        "id" => $batch_id,
+    }
+];
+
+if (open(my $batch_info_fh, ">$output_dir/batch.json")) {
+    print $batch_info_fh $json->encode($batch_info);
+    close($batch_info_fh);
+} else {
+    die "couldn't write $output_dir/batch.json\n";
+}
+
+my $csv = Text::CSV_XS->new({ sep_char => "\t", allow_loose_quotes => 1, binary => 1, auto_diag => 1 });
+
+# Load studies.txt into a hash
+open my $studies_fh, "<:encoding(utf8)", $studies_file or die "$studies_file: $!";
+my $studies_headers = $csv->getline($studies_fh);
+my %studies;
+while (my $row = $csv->getline($studies_fh)) {
+    my %data;
+    @data{@$studies_headers} = @$row;
+    $studies{$data{"Study_ID"}} = \%data;
+}
+close($studies_fh);
+
+# Load collection_sites.txt into a hash
+open my $collection_sites_fh, "<:encoding(utf8)", $collection_sites_file or die "$collection_sites_file: $!";
+my $collection_sites_headers = $csv->getline($collection_sites_fh);
+my %collection_sites;
+while (my $row = $csv->getline($collection_sites_fh)) {
+    my %data;
+    @data{@$collection_sites_headers} = @$row;
+    $collection_sites{$data{"Collection_site_ID"}} = \%data;
+}
+close($collection_sites_fh);
+
+# Load collections.txt into a hash
+open my $collections_fh, "<:encoding(utf8)", $collections_file or die "$collections_file: $!";
+my $collections_headers = $csv->getline($collections_fh);
+my %collections;
+while (my $row = $csv->getline($collections_fh)) {
+    my %data;
+    @data{@$collections_headers} = @$row;
+    $collections{$data{"Collection_ID"}} = \%data;
+}
+close($collections_fh);
+
+# Open samples.txt and process it
+open my $samples_fh, "<:encoding(utf8)", $samples_file or die "$samples_file: $!";
+my $headers = $csv->getline($samples_fh);
+
+# header to index
+my %h2i;
+for (my $i = 0; $i < @$headers; $i++) {
+    $h2i{$headers->[$i]} = $i;
+}
+
+my %SolrField2function = (
+    "id" => sub { $document_type . "_" . $_[0]->[$h2i{"Sample_ID"}] },
+    "document-type" => sub { $document_type },
+    "project" => sub { 'VectorBase' },
+    "primaryKey" => sub { $_[0]->[$h2i{"Sample_ID"}] },
+
+    "batch-id" => sub { $batch_id },
+    "batch-type" => sub { $batch_type },
+    "batch-timestamp" => sub { $batch_timestamp },
+    "batch-name" => sub { $batch_name },
+
+    "TEXT__popbio_species" => sub { $_[0]->[$h2i{"species [OBI_0001909]"}] || '' },
+    "TEXT__popbio_sample_id" => sub { $_[0]->[$h2i{"Sample_ID"}] || '' },
+    "TEXT__popbio_sample_name" => sub { $_[0]->[$h2i{"Sample_ID"}] || '' },
+    "TEXT__popbio_collection_id" => sub { $_[0]->[$h2i{"Collection_ID"}] || '' },
+    
+    "TEXT__popbio_collection_location" => sub {
+        my $collection_site = $collection_sites{$_[0]->[$h2i{"Collection_site_ID"}]};
+        return $collection_site ? (grep { $_ } @$collection_site{("provider name for collection site [EUPATH_0000542]", "town [POPBIO_8000015]", "Administrative region, level 2 [ENVO_00000006]", "Administrative region, level 1 [ENVO_00000005]", "country [OBI_0001627]", "continent [GAZ_00000013]")})[0] : '';
+    },
+    
+    "TEXT__popbio_computed_description" => sub {
+        my $collection = $collections{$_[0]->[$h2i{"Collection_ID"}]};
+        my $collection_site = $collection_sites{$_[0]->[$h2i{"Collection_site_ID"}]};
+        return sprintf "Sample %s collected from %s on %s",
+            $_[0]->[$h2i{"Sample_ID"}] || '',
+            $collection_site ? (grep { $_ } @$collection_site{("provider name for collection site [EUPATH_0000542]", "town [POPBIO_8000015]", "Administrative region, level 2 [ENVO_00000006]", "Administrative region, level 1 [ENVO_00000005]", "country [OBI_0001627]", "continent [GAZ_00000013]")})[0] || '' : '',
+            $collection ? ($collection->{"specimen collection date(s) (raw) [OBI_0001619]"} || '') : '';
+      },
+    
+    "MULTITEXT__popbio_collection_protocols" => sub {
+        my $collection = $collections{$_[0]->[$h2i{"Collection_ID"}]};
+        return $collection && $collection->{"protocol [OBI_0000272]"} ? decode_json($collection->{"protocol [OBI_0000272]"}) : [];
+    },
+    
+    "MULTITEXT__popbio_project_ids" => sub {
+        my $study = $studies{$_[0]->[$h2i{"Study_ID"}]};
+        return $study && $study->{"PopBio Study ID [POPBIO_8000215]"} ? [$study->{"PopBio Study ID [POPBIO_8000215]"}] : [];
+    },
+    
+    "MULTITEXT__popbio_citations" => sub {
+        my $study = $studies{$_[0]->[$h2i{"Study_ID"}]};
+        return $study ? [grep { $_ } @{$study}{"PubMed ID [OBI_0001617]", "DOI [OBI_0002110]"}] : [];
+    },
+    
+    "MULTITEXT__popbio_tags" => sub {
+        my $study = $studies{$_[0]->[$h2i{"Study_ID"}]};
+        return $study ? [grep { $_ } ($study->{"Tags [POPBIO_8000214]"},
+				      $study->{"Institution [POPBIO_8000185]"} ? @{from_json($study->{"Institution [POPBIO_8000185]"}, { utf8 => 0 })} : undef
+				     )] : [];
+    }
+);
+
+my $chunk_number = 1;
+my $json_output_fh;
+
+my $count;
+while (my $row = $csv->getline($samples_fh)) {
+    my $doc = {};
+    foreach my $SolrField (keys %SolrField2function) {
+        $doc->{$SolrField} = $SolrField2function{$SolrField}($row);
+    }
+
+    # if not yet opened or if filehandle closed at the end of a chunk, open a new file
+    if (!defined $json_output_fh || !defined(fileno($json_output_fh))) {
+      open($json_output_fh, ">:encoding(utf8)", "$output_dir/$batch_type.$chunk_number.json") || die "can't open output json";
+      print $json_output_fh "[\n";
+      $count = 0;
+    }
+
+    print $json_output_fh ",\n" if ($count++);
+    print $json_output_fh $json->encode($doc);
+
+    if ($count == $chunk_size) {
+      print $json_output_fh "\n]\n";
+      close($json_output_fh);
+      $chunk_number++;
+    }
+}
+print $json_output_fh "\n]\n";
+
+close($json_output_fh);
+close($samples_fh);
+
