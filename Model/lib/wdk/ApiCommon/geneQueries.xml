@@ -62,12 +62,14 @@
       <column name="organism_full"/>
       <column name="organism"/>
       <column name="orthomcl_name"/>
+      <column name="so_id"/>
+      <column name="so_term_name"/>
       <column name="projectAux"/> <!-- needed for Apollo Site Search Updater -->
       <sql>
         <![CDATA[
           select source_id, product, name, gene_type,
                  sequence_id, organism as organism_full, organism,
-                 orthomcl_name, 
+                 orthomcl_name, so_id, so_term_name,
                  '@PROJECT_ID@' as projectAux 
           from apidbTuning.GeneAttributes
         ]]>
@@ -113,7 +115,7 @@
       <column name="comment_id"/>
       <sql>
         <![CDATA[
-          select distinct source_id, id_attr as comment_id from apidbtuning.ApolloSiteSearch
+          select distinct source_id, id_attr as comment_id from apidbtuning.ApolloUpdateGene
         ]]>
       </sql>
     </sqlQuery>
@@ -123,7 +125,7 @@
       <column name="ApolloComment"/>
       <sql>
         <![CDATA[
-        select source_id, attr as ApolloComment from apidbTuning.ApolloSiteSearch
+          select source_id, attr as ApolloComment from apidbTuning.ApolloUpdateGene
         ]]>
       </sql>
     </sqlQuery>
@@ -286,7 +288,7 @@
       <sql>
         <![CDATA[
           select distinct source_id, ortho_product, ortho_name
-          from apidbTuning.OrthologousGenes
+          from apidbTuning.OrthologousTranscripts
         ]]>
       </sql>
     </sqlQuery>
@@ -410,70 +412,14 @@
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="Products" >
+    <sqlQuery name="Products" isCacheable="false" >
       <column name="source_id"/>
       <column name="product"/>
-      <column name="reference"/>
       <sql>
-        <![CDATA[
-                select ta.gene_source_id as source_id,
-                       tp.product,
-                       listagg(tp.publication, ', ')
-                         within group(order by tp.publication) as reference
-                from apidbTuning.TranscriptAttributes ta, apidb.TranscriptProduct tp
-                where ta.na_feature_id = tp.na_feature_id
-                and tp.is_preferred = 1
-                group by ta.gene_source_id, ta.source_id, tp.product
-              union
-                select gf.source_id,
-                       gfp.product,
-                       cast (null as varchar2(12)) as reference
-                from dots.GeneFeature gf, apidb.GeneFeatureProduct gfp
-                where gf.na_feature_id = gfp.na_feature_id
-                and gfp.is_preferred = 1
-                group by gf.source_id, gfp.product
-              union
-                select gf.source_id,
-                       t.product,
-                       cast (null as varchar2(12)) as reference
-                from dots.Transcript t, dots.GeneFeature gf
-                where t.parent_id = gf.na_feature_id
-                  and t.product is not null
-                group by gf.source_id, t.source_id, t.product
-              union
-                select gf.source_id,
-                       gf.product,
-                       cast (null as varchar2(12)) as reference
-                from dots.GeneFeature gf
-                where gf.product is not null
-                group by gf.source_id, gf.product
-        ]]>
-      </sql>
-    </sqlQuery>
-
-    <sqlQuery name="AlternateProducts" >
-      <column name="source_id"/>
-      <column name="product"/>
-      <column name="reference"/>
-      <sql>
-        <![CDATA[
-                select ta.gene_source_id as source_id,
-                       tp.product,
-                       listagg(tp.publication, ', ')
-                         within group(order by tp.publication) as reference
-                from apidbTuning.TranscriptAttributes ta, apidb.TranscriptProduct tp
-                where ta.na_feature_id = tp.na_feature_id
-                and tp.is_preferred = 0
-                group by ta.gene_source_id, ta.source_id, tp.product
-              union
-                select gf.source_id,
-                       gfp.product,
-                       cast (null as varchar2(12)) as reference
-                from dots.GeneFeature gf, apidb.GeneFeatureProduct gfp
-                where gf.na_feature_id = gfp.na_feature_id
-                and gfp.is_preferred = 0
-                group by gf.source_id, gfp.product
-        ]]>
+      <![CDATA[
+          select source_id, product
+          from apidbTuning.AllGeneProducts
+      ]]>
       </sql>
     </sqlQuery>
 
@@ -651,9 +597,9 @@
         and pr.life_cycle_stage_term_id = ols.ontology_term_id (+)
        ]]>
       </sql>
-  </sqlQuery>
+    </sqlQuery>
 
- <sqlQuery name="CellularLocalization">
+    <sqlQuery name="CellularLocalization">
       <column name="source_id"/>
       <column name="note"/>
       <column name="image_type"/>
@@ -673,5 +619,19 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="GeneModelCharacteristics">
+      <column name="source_id"/>
+      <column name="characteristic_value"/>
+      <sql>
+        <![CDATA[
+        select ta.gene_source_id as source_id, gmc.string_value as characteristic_value
+        from apidbTuning.GeneModelCharMD gmc, apidbTuning.TranscriptAttributes ta
+        where gmc.source_id = ta.source_id
+          and string_value not in ('No', 'NA')
+       ]]>
+      </sql>
+    </sqlQuery>
+
   </querySet>
+
 </wdkModel>

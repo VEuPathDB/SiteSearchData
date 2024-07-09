@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.gusdb.fgputil.functional.FunctionalInterfaces.Procedure;
 import org.gusdb.fgputil.json.JsonWriter;
 import org.gusdb.wdk.core.api.JsonKeys;
 import org.gusdb.wdk.model.WdkModelException;
@@ -82,7 +83,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   }
 
   @Override
-  protected void write(OutputStream out) throws WdkModelException {
+  protected void writeResponseBody(OutputStream out, Procedure checkResponseSize) throws WdkModelException {
     
     Map<String, TableField> tablesForThisProject = filterFieldsByProject(_tables);
     Map<String, AttributeField> attrsForThisProject = filterFieldsByProject(_attributes);
@@ -94,6 +95,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       writer.array();
       for (RecordInstance record : records) {
         writer.value(formatRecord(record, attrsForThisProject.keySet(), tablesForThisProject.keySet(), _batchType, _batchId, _batchName, _batchTimestamp));
+        checkResponseSize.perform();
       }
       writer.endArray();
     }

@@ -1,5 +1,9 @@
 <wdkModel>
 
+  <constant name="datasetRecordName" includeProjects="ClinEpiDB">Study Name</constant>
+  <constant name="datasetRecordName" excludeProjects="ClinEpiDB">Name</constant>
+
+
   <recordClassSet name="datasetRecordClasses">
 
     <!-- ################################################################### -->
@@ -15,7 +19,7 @@
         <columnRef>dataset_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Name" excludeProjects="ClinEpiDB">
+      <idAttribute name="primary_key" displayName="%%datasetRecordName%%" excludeProjects="ClinEpiDB">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
@@ -116,8 +120,7 @@
 	      
       </table>
 
-<!--
-      <table name="AttributeValues"
+      <table name="AttributeValues" excludeProjects="VEuPathDB"
              displayName="Attribute values"
              queryRef="DatasetTables.AttributeValues">
         <propertyList name="includeProjects">
@@ -131,7 +134,7 @@
         <columnAttribute name="value"/>
       </table>
 
-      <table name="AttributeNames"
+      <table name="AttributeNames" excludeProjects="VEuPathDB"
              displayName="Attribute names"
              queryRef="DatasetTables.AttributeNames">
         <propertyList name="includeProjects">
@@ -145,8 +148,8 @@
         <columnAttribute name="name" displayName="Attribute name"/>
         <columnAttribute name="provider_label" displayName="Provider label"/>
       </table>
--->
-      <table name="StudyCharacteristics"
+
+      <table name="StudyCharacteristics" excludeProjects="VEuPathDB"
              displayName="Study Characteristics"
              queryRef="DatasetTables.StudyCharacteristics">
         <propertyList name="includeProjects">
@@ -209,6 +212,13 @@
           <value>AmoebaDB</value>
         </propertyList>
 	<columnAttribute name="organism"/>  
+      </table>
+
+      <table name="ExternalResources"
+             displayName="External resources"
+             queryRef="DatasetTables.ExternalResources">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="url"/>
       </table>
       
     </recordClass>

@@ -5,6 +5,9 @@
              smtpServer="127.0.0.1"
              supportEmail=""
              wdkTempDir="/tmp/wdk"
+             oauthUrl="$OAUTH_URL"
+             oauthClientId="$OAUTH_CLIENT_ID"
+             oauthClientSecret="$OAUTH_CLIENT_SECRET"
              >
 
     <appDb login="$APPDB_LOGIN"
@@ -21,19 +24,6 @@
             platform="Oracle"
             userSchema="userlogins5"
             />
-
-    <accountDb login="$ACCTDB_LOGIN"
-            password="$ACCTDB_PASSWORD"
-            connectionUrl="$ACCTDB_CONNECTION"
-            platform="Oracle"
-            accountSchema="useraccounts"
-                  >
-      <userProperty name="firstName" displayName="First Name" dbKey="first_name" required="true"/>
-      <userProperty name="middleName" displayName="Middle Name" dbKey="middle_name"/>
-      <userProperty name="lastName" displayName="Last Name" dbKey="last_name" required="true"/>
-      <userProperty name="organization" displayName="Organization" dbKey="organization" required="true"/>
-
-    </accountDb>
 
     <emailSubject>
       <![CDATA[
