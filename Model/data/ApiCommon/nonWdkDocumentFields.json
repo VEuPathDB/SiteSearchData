@@ -92,8 +92,8 @@
       "boost": 1
      },
      {"name":"MULTITEXT__popbio_project_ids",
-      "isSummary": false,
-      "displayName": "Project IDs",
+      "isSummary": true,
+      "displayName": "PopBio Study ID",
       "boost": 1
      },
      {"name":"MULTITEXT__popbio_citations",
