@@ -42,8 +42,9 @@
 
       <attributeQueryRef ref="SequenceAttributes.SequenceAttrs">  
         <!-- columnAttribute name="full_id" displayName="Full ID"/ -->
-        <!-- special field for project filtering -->
+        <!-- special field for project filtering
         <columnAttribute name="project" displayName="dontcare" internal="true"/>
+ -->
         <columnAttribute name="source_id" displayName="Source ID">
           <propertyList name="boost">
             <value>100</value>
@@ -125,8 +126,9 @@
 
       <attributeQueryRef ref="GroupAttributes.GroupAttrs">
         <!-- columnAttribute name="group_name" displayName="Group Name" / -->
-        <!-- special field for project filtering -->
+        <!-- special field for project filtering
         <columnAttribute name="project" displayName="dontcare" internal="true"/>
+ -->
       </attributeQueryRef>
 
       <attributeQueryRef ref="GroupAttributes.Keywords">
