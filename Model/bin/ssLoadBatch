@@ -410,7 +410,7 @@ def solr_request(method, url, data=None, auth=None, headers=None):
         print('Solr response:')
         print(request.text, flush=True)
     except Exception:
-        print('Solr error response:', file=sys.stderr)
+        print('Solr error response for url ' + str(url) + ": ", file=sys.stderr)
         print(request.text, file=sys.stderr, flush=True)
         raise
 
