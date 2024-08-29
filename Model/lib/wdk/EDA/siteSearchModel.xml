@@ -20,6 +20,11 @@
               recordClassRef="datasetRecordClasses.dataset">
     </question>
 
+    <question name="CommunityDatasets" displayName="dontcare"
+              queryRef="CommunityDatasetIdQueries.AllCommunityDatasets"
+              recordClassRef="communityDatasetRecordClasses.communityDataset">
+    </question>
+
     <question name="Variables" displayName="dontcare"
               queryRef="VariableIdQueries.AllVariables"
               recordClassRef="variableRecordClasses.variable">
@@ -34,6 +39,9 @@
 
   <import file="Shared/datasetRecord.xml"/>
   <import file="Shared/datasetQueries.xml"/>
+
+  <import file="Shared/commDatasetRecord.xml"/>
+  <import file="Shared/commDatasetQueries.xml"/>
 
   <import file="EDA/variableRecord.xml"/>
   <import file="EDA/variableQueries.xml"/>

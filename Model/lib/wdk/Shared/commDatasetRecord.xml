@@ -1,0 +1,70 @@
+<wdkModel>
+
+  <constant name="datasetRecordName" includeProjects="ClinEpiDB">Study Name</constant>
+  <constant name="datasetRecordName" excludeProjects="ClinEpiDB">Name</constant>
+
+
+  <recordClassSet name="communityDatasetRecordClasses">
+
+    <!-- ################################################################### -->
+    <!-- #####################  Community Dataset Record ################### -->
+    <!-- ################################################################### -->
+
+    <recordClass name="communityDataset" urlName="communitydataset" displayName="Community Study">
+      <propertyList name="batch">
+        <value>community-datasets</value>
+      </propertyList>
+
+      <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
+        <columnRef>dataset_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="%%datasetRecordName%%" excludeProjects="ClinEpiDB">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[ $$display_name$$ ]]>
+        </text>
+      </idAttribute>
+
+      <idAttribute name="primary_key" displayName="Study Name" includeProjects="ClinEpiDB">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[ $$display_name$$ ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+      <!-- for ClinEpi and mbio, boost all fields in dataset record, so that Studies generally come out on top of search results -->	    
+      <attributeQueryRef ref="DatasetAttributes.CommunityDatasetAttrs">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
+        <columnAttribute name="display_name" internal="true"/>
+        <columnAttribute name="description" displayName="Description">
+          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>
+        <columnAttribute name="summary" displayName="Summary">
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">  
+            <value>20</value>
+          </propertyList>
+	</columnAttribute>		
+      </attributeQueryRef>
+
+    </recordClass>
+    
+
+  </recordClassSet>
+
+</wdkModel>

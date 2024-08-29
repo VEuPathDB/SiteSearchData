@@ -1,0 +1,42 @@
+<wdkModel>
+
+  <querySet name="CommunityDatasetIdQueries" queryType="id" isCacheable="true">
+
+    <!-- REPLACE WITH PROCESS QUERY -->
+    <sqlQuery name="AllCommunityDatasets">
+      <column name="dataset_id"/>
+      <column name="owner"/>
+      <column name="institution"/>
+      <sql>
+        <![CDATA[
+          select user_dataset_id as dataset_id
+          from @VDI_CONTROL_SCHEMA@.AvailableUserDatasets
+          where is_public = 1
+          and project_id = '@PROJECT_ID@'
+        ]]>
+      </sql>
+    </sqlQuery>
+  </querySet>
+
+  <querySet name="CommunityDatasetAttributes" queryType="attribute" isCacheable="false">
+    <sqlQuery name="All">
+      <column name="hyperlinkName"/>
+      <column name="dataset_id"/>
+      <column name="display_name"/>
+      <column name="project"/>
+      <column name="description"/>
+      <column name="summary"/>
+      <sql>
+        <![CDATA[
+          select user_dataset_id as dataset_id, '@PROJECT_ID@' as project,
+                 name, name as hyperlinkName, description, summary, 
+          from VDI_CONTROL_@VDI_SCHEMA_SUFFIX@
+          where is_public = 1
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+
+</wdkModel>
