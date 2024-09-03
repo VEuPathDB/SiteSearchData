@@ -80,15 +80,18 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
 
         if (! wdkModel.getProperties().containsKey(VDI_SCHEMA_SUFFIX_PROP_KEY))
             throw new PluginModelException("Can't find property'" + VDI_SCHEMA_SUFFIX_PROP_KEY + "' in model.prop file");
+
         String vdiSchemaSuffix = wdkModel.getProperties().get(VDI_SCHEMA_SUFFIX_PROP_KEY);
+
         String[] projectsPropList = question.getPropertyList(PROJECT_ID_PROPLIST);
         if (projectsPropList == null)
             throw new PluginModelException("Can't find <propertyList> '" + PROJECT_ID_PROPLIST + "' in ID question for community datasets");
         if (projectsPropList.length != 1)
             throw new PluginModelException("Error: require a single value in <propertyList> '" + PROJECT_ID_PROPLIST + "' in ID question for community datasets");
         String projectId = projectsPropList[0];
+
         DataSource appDs = wdkModel.getAppDb().getDataSource();
-        String sql = "select distinct dataset_id, user_id " +
+        String sql = "select distinct user_dataset_id, owner " +
                 "from vdi_control_" + vdiSchemaSuffix + ".publicUserDatasets " +
                 "where project_id = '" + projectId + "'";
         try {
@@ -98,7 +101,6 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
                     String datasetId = rs.getString(1);
                     Long ownerUserId = rs.getLong(2);
                     ownerDatasetMap.put(ownerUserId, datasetId);
-
                 }
                 return ownerDatasetMap;
             });
