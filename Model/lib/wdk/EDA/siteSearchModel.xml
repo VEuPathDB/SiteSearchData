@@ -8,6 +8,8 @@
 
 <wdkModel>
 
+  <constant name="projectIdProp">projectId</constant>  <!-- used by the community studies process query -->
+
   <modelName displayName="SiteSearch"
              version="%%buildNumber%%"
              releaseDate="%%releaseDate%%"
@@ -23,6 +25,12 @@
     <question name="CommunityDatasets" displayName="dontcare"
               queryRef="CommunityDatasetIdQueries.AllCommunityDatasets"
               recordClassRef="communityDatasetRecordClasses.communityDataset">
+      <!-- need to add a project id property to pass through to the process query -->
+      <!-- the string "projectId" is used by the process query to find this property -->
+      <propertyList name="%%projectIdProp%%">
+        <value>@PROJECT_ID@</value>
+      </propertyList>
+
     </question>
 
     <question name="Variables" displayName="dontcare"
