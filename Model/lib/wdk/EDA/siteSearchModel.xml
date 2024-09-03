@@ -8,7 +8,7 @@
 
 <wdkModel>
 
-  <constant name="projectIdProp">projectId</constant>  <!-- used by the community studies process query -->
+  <constant name="projectIdPropList">projectId</constant>  <!-- used by the community studies process query -->
 
   <modelName displayName="SiteSearch"
              version="%%buildNumber%%"
@@ -27,7 +27,7 @@
               recordClassRef="communityDatasetRecordClasses.communityDataset">
       <!-- need to add a project id property to pass through to the process query -->
       <!-- the string "projectId" is used by the process query to find this property -->
-      <propertyList name="%%projectIdProp%%">
+      <propertyList name="%%projectIdPropList%%">
         <value>@PROJECT_ID@</value>
       </propertyList>
       <dynamicAttributes>
