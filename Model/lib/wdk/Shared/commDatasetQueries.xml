@@ -2,7 +2,7 @@
 
   <querySet name="CommunityDatasetIdQueries" queryType="id" isCacheable="true">
 
-    <!-- REPLACE WITH PROCESS QUERY -->
+    <!-- TEMPORARY -->
     <sqlQuery name="AllCommunityDatasets">
       <column name="dataset_id"/>
       <sql>
@@ -16,6 +16,14 @@
       </sql>
     </sqlQuery>
   </querySet>
+
+    <!-- REPLACE WITH PROCESS QUERY 
+    <processQuery name="AllCommunityDatasets"
+        processName=org.eupathdb.sitesearch.wsfplugin.CommunityStudyIdsPlugin">
+      <wsColumn name="dataset_id" width="50" wsName="dataset_id"/>
+      <wsColumn name="owner_name" width="100" wsName="owner_name"/>
+      <wsColumn name="owner_name" width="100" wsName="owner_institution"/>
+    -->
 
   <querySet name="CommunityDatasetAttributes" queryType="attribute" isCacheable="false">
     <sqlQuery name="All">
