@@ -80,7 +80,6 @@ def getSearchInfo(recordType, recordTypeName, paramName):
             dynAttrs.append(dynAttr['name'])
     paramNames = search['paramNames']
     validateSearchParam(paramName, search['urlSegment'], paramNames)
-    searchInfo = {}
     return {'urlSegment': search['urlSegment'], 'dynAttrs': dynAttrs}
 
 def composeUrlParams(paramName, paramValue, recordType, dynAttrs, batchType, batchName, batchTimestamp, batchId):
