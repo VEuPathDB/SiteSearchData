@@ -30,7 +30,10 @@
       <propertyList name="%%projectIdProp%%">
         <value>@PROJECT_ID@</value>
       </propertyList>
-
+      <dynamicAttributes>
+          <columnAttribute name="owner_name" displayName="Owner name"/>
+          <columnAttribute name="owner_institution" displayName="Owner institution"/>
+      </dynamicAttributes>
     </question>
 
     <question name="Variables" displayName="dontcare"
