@@ -5,13 +5,12 @@
     <!-- REPLACE WITH PROCESS QUERY -->
     <sqlQuery name="AllCommunityDatasets">
       <column name="dataset_id"/>
-      <column name="owner"/>
-      <column name="institution"/>
       <sql>
         <![CDATA[
           select user_dataset_id as dataset_id
-          from @VDI_CONTROL_SCHEMA@.AvailableUserDatasets
+          from vdi_control_@VDI_SCHEMA_SUFFIX@.AvailableUserDatasets
           where is_public = 1
+          and user_id is not null  -- temporarily compensate for bug in AvailableUserDatasets view defintion
           and project_id = '@PROJECT_ID@'
         ]]>
       </sql>
@@ -29,9 +28,11 @@
       <sql>
         <![CDATA[
           select user_dataset_id as dataset_id, '@PROJECT_ID@' as project,
-                 name, name as hyperlinkName, description, summary, 
-          from VDI_CONTROL_@VDI_SCHEMA_SUFFIX@
+                 name, name as display_name, name as hyperlinkName, description, 'no summary yet' as summary
+          from vdi_control_@VDI_SCHEMA_SUFFIX@.AvailableUserDatasets
           where is_public = 1
+          and user_id is not null -- temporarily compensate for bug in AvailableUserDatasets view defintion
+          and project_id = '@PROJECT_ID@'            
         ]]>
       </sql>
     </sqlQuery>

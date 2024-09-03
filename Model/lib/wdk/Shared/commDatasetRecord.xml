@@ -43,7 +43,7 @@
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <!-- for ClinEpi and mbio, boost all fields in dataset record, so that Studies generally come out on top of search results -->	    
-      <attributeQueryRef ref="DatasetAttributes.CommunityDatasetAttrs">
+      <attributeQueryRef ref="CommunityDatasetAttributes.All">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="display_name" internal="true"/>

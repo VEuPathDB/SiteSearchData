@@ -13,6 +13,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.log4j.Logger;
+
 
 import org.gusdb.fgputil.functional.FunctionalInterfaces.Procedure;
 import org.gusdb.fgputil.json.JsonWriter;
@@ -59,6 +61,9 @@ import org.json.JSONObject;
  * @author rdoherty, sfischer
  */
 public class SolrLoaderReporter extends AnswerDetailsReporter {
+
+  private static final Logger LOG = Logger.getLogger(SolrLoaderReporter.class);
+
 
   private String _batchType; // eg "organism"
   private int _batchTimestamp;
@@ -143,8 +148,10 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-id", batchId);
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
+
       for (String attributeName: attributeNames) {
-        String name = record.getRecordClass().getAttributeFieldMap().get(attributeName).isInternal()?
+	if (attributeName.equals("wdk_weight")) continue;
+        String name = recordClass.getAttributeFieldMap().get(attributeName).isInternal()?
               attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
         String value = record.getAttributeValue(attributeName).getValue();
         obj.put(name, value);
