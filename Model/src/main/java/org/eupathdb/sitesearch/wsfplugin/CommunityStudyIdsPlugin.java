@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CommunityStudyIdsPlugin extends AbstractPlugin {
 
@@ -59,15 +60,12 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
     protected int execute(PluginRequest request, PluginResponse response) throws PluginModelException, PluginUserException {
         Question question = getQuestion(request);
         WdkModel wdkModel = question.getRecordClass().getWdkModel();
-        Map<Long, String> communityDatasetIds = getCommunityDatasetIds(request, question, wdkModel);
+        List<UserDatasetIds> communityDatasetIds = getCommunityDatasetIds(request, question, wdkModel);
         UserFactory userFactory = new UserFactory(wdkModel);
-        List<Long> userIds = new ArrayList<>(communityDatasetIds.keySet());
+        List<Long> userIds = communityDatasetIds.stream().map(udi -> udi.ownerId).collect(Collectors.toList());
         Map<Long, User> userMap = userFactory.getUsersById(userIds);
-        for (Long ownerId : userMap.keySet())  {
-            String datasetId = communityDatasetIds.get(ownerId);
-            String ownerName = userMap.get(ownerId).getDisplayName();
-            String institution = userMap.get(ownerId).getOrganization();
-            String[] row = {datasetId, ownerName, institution};
+        for (UserDatasetIds udi : communityDatasetIds) {
+            String[] row = {udi.datasetId, userMap.get(udi.ownerId).getDisplayName(), userMap.get(udi.ownerId).getOrganization()};
             response.addRow(row);
         }
         return 0;
@@ -76,7 +74,7 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
     /* we store in memory a map of ownerUserId to VDI dataset id, for each community dataset.
        We assume there are not too many to fit comfortably into memory.  (100k at absolute most)
     */
-    protected Map<Long, String> getCommunityDatasetIds(PluginRequest request, Question question, WdkModel wdkModel) throws PluginModelException, PluginUserException {
+     List<UserDatasetIds> getCommunityDatasetIds(PluginRequest request, Question question, WdkModel wdkModel) throws PluginModelException, PluginUserException {
 
         if (! wdkModel.getProperties().containsKey(VDI_SCHEMA_SUFFIX_PROP_KEY))
             throw new PluginModelException("Can't find property'" + VDI_SCHEMA_SUFFIX_PROP_KEY + "' in model.prop file");
@@ -96,13 +94,13 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
                 "where project_id = '" + projectId + "'";
         try {
             return new SQLRunner(appDs, sql).executeQuery(rs -> {
-                Map<Long, String> ownerDatasetMap = new HashMap<>();
+               List<UserDatasetIds> ownerDatasetIds = new ArrayList<>();
                 while (rs.next()) {
                     String datasetId = rs.getString(1);
                     Long ownerUserId = rs.getLong(2);
-                    ownerDatasetMap.put(ownerUserId, datasetId);
+                    ownerDatasetIds.add(new UserDatasetIds(ownerUserId, datasetId));
                 }
-                return ownerDatasetMap;
+                return ownerDatasetIds;
             });
         }
         catch (SQLRunnerException e) {
@@ -120,5 +118,14 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
         String questionFullName = request.getContext().get(Utilities.QUERY_CTX_QUESTION);
         WdkModel wdkModel = InstanceManager.getInstance(WdkModel.class, GusHome.getGusHome(), request.getProjectId());
         return wdkModel.getQuestionByFullName(questionFullName).orElseThrow(() -> new PluginModelException("Could not find context question: " + questionFullName));
+    }
+
+    class UserDatasetIds {
+        UserDatasetIds(Long ownerId, String datasetId) {
+            this.ownerId = ownerId;
+            this.datasetId = datasetId;
+        }
+        Long ownerId;
+        String datasetId;
     }
 }

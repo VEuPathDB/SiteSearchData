@@ -98,7 +98,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     try (JsonWriter writer = new JsonWriter(out);
          RecordStream records = RecordStreamFactory.getRecordStream (
             _baseAnswer, attrsForThisProject.values(), tablesForThisProject.values())) {
-      Question question = _baseAnswer.getIdsQueryInstance().getQuery().getContextQuestion();
+      Question question = _baseAnswer.getAnswerSpec().getQuestion();
       writer.array();
       for (RecordInstance record : records) {
         writer.value(formatRecord(record, question, attrsForThisProject.keySet(), tablesForThisProject.keySet(), _batchType, _batchId, _batchName, _batchTimestamp));
