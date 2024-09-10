@@ -21,9 +21,10 @@
       <sql>
         <![CDATA[
           select user_dataset_id as dataset_id, project_id as project,
-                 name, name as display_name, name as hyperlinkName, description, 'no summary yet' as summary
-          from vdi_control_@VDI_SCHEMA_SUFFIX@.PublicUserDatasets
-          where project_id = '@PROJECT_ID@'            
+                 name, name as display_name, name as hyperlinkName, description, summary
+          from @VDI_CONTROL_SCHEMA@.AvailableUserDatasets
+          where project_id = '@PROJECT_ID@'
+          and is_public = 1 and is_owner = 1            
         ]]>
       </sql>
     </sqlQuery>

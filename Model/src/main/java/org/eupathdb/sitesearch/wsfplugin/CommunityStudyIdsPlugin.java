@@ -32,7 +32,7 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
     private static final Logger LOG = Logger.getLogger(CommunityStudyIdsPlugin.class);
 
     static final String PROJECT_ID_PROPLIST = "projectId";  // this is a <propertyList> used in the model xml
-    static final String VDI_SCHEMA_SUFFIX_PROP_KEY = "VDI_SCHEMA_SUFFIX";  // this is in model.prop
+    static final String VDI_CONTROL_SCHEMA_PROP_KEY = "VDI_CONTROL_SCHEMA";  // this is in model.prop
     static final String OAUTH_SERVICE_URL_PROP_KEY = "OAUTH_SERVICE_URL";  // this is in model.prop
 
     @Override
@@ -75,10 +75,10 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
     */
      List<UserDatasetIds> getCommunityDatasetIds(PluginRequest request, Question question, WdkModel wdkModel) throws PluginModelException, PluginUserException {
 
-        if (! wdkModel.getProperties().containsKey(VDI_SCHEMA_SUFFIX_PROP_KEY))
-            throw new PluginModelException("Can't find property'" + VDI_SCHEMA_SUFFIX_PROP_KEY + "' in model.prop file");
+        if (! wdkModel.getProperties().containsKey(VDI_CONTROL_SCHEMA_PROP_KEY))
+            throw new PluginModelException("Can't find property'" + VDI_CONTROL_SCHEMA_PROP_KEY + "' in model.prop file");
 
-        String vdiSchemaSuffix = wdkModel.getProperties().get(VDI_SCHEMA_SUFFIX_PROP_KEY);
+        String vdiControlSchema = wdkModel.getProperties().get(VDI_CONTROL_SCHEMA_PROP_KEY);
 
         String[] projectsPropList = question.getPropertyList(PROJECT_ID_PROPLIST);
         if (projectsPropList == null)
@@ -88,9 +88,10 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
         String projectId = projectsPropList[0];
 
         DataSource appDs = wdkModel.getAppDb().getDataSource();
-        String sql = "select distinct user_dataset_id, owner " +
-                "from vdi_control_" + vdiSchemaSuffix + ".publicUserDatasets " +
-                "where project_id = '" + projectId + "'";
+        String sql = "select distinct user_dataset_id, user_id " +
+                "from " + vdiControlSchema + ".AvailableUserDatasets " +
+                "where project_id = '" + projectId + "' " +
+                "and is_public = 1 and is_owner = 1";
         try {
             return new SQLRunner(appDs, sql).executeQuery(rs -> {
                List<UserDatasetIds> ownerDatasetIds = new ArrayList<>();
