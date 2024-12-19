@@ -153,6 +153,11 @@
           <columnAttribute name="taxon_abbrev" displayName="Protein Taxon Abbreviation" />
       </table>
 
+      <table name="PreviousGroups" displayName="Previous Groups"
+             queryRef="GroupTables.PreviousGroups">
+          <columnAttribute name="previous_group" displayName="Previous Group" />
+      </table>
+
       <table name="ProteinID"
              displayName="Protein ID"
              queryRef="GroupTables.Proteins">
