@@ -24,6 +24,8 @@ my $modelProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/
 
 SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "dataset-presenter", $modelProps->{PROJECT_ID});
 
+SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "community-datasets", $modelProps->{PROJECT_ID});
+
 print STDOUT "Done.\n";
 exit 0;
 
