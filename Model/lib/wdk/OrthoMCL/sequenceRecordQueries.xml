@@ -73,34 +73,17 @@
             <column name="full_id"/>
             <column name="source_id"/>
             <column name="project"/>
-            <column name="length"/>
             <column name="product"/>
-            <column name="molecular_weight"/>
             <column name="abbreviation"/>
             <column name="taxon_name"/>          
-            <column name="ec_numbers"/>          
-            <column name="pfam_domains"/>          
             <sql>
 		<![CDATA[
-SELECT eas.secondary_identifier AS full_id, eas.source_id,
-       eas.length, eas.description AS product,
-       eas.molecular_weight,
-       ot.three_letter_abbrev AS abbreviation, 
-       ot.name AS taxon_name,
-       (SELECT  apidb.tab_to_string(set(cast(collect(ec.description || ' (' || ec.ec_number || ')') as apidb.varchartab)), ', ')
-                    FROM dots.AaSequenceEnzymeClass asec, sres.enzymeClass ec
-                   WHERE eas.aa_sequence_id = asec.aa_sequence_id
-                     AND asec.enzyme_class_id = ec.enzyme_class_id
-               GROUP by eas.secondary_identifier
-              ) as ec_numbers,
-       (SELECT apidb.tab_to_string(set(cast(collect(da.description || ' (' || da.accession || ')') as apidb.varchartab)), ', ')
-        FROM ApidbTuning.DomainAssignment da
-        WHERE da.aa_sequence_id = eas.aa_sequence_id
-        GROUP BY da.full_id ) as pfam_domains,
+select full_id, source_id,
+       product, organism_name, group_name,
+       taxon_abbreviation as abbreviation, 
+       organism_name as taxon_name,
        'OrthoMCL' as project
-FROM dots.ExternalAaSequence eas, apidb.orthomcltaxon ot
-WHERE NVL(SUBSTR(eas.secondary_identifier, 0, INSTR(eas.secondary_identifier, '|')-1), eas.secondary_identifier)
-       = ot.three_letter_abbrev
+from apidbTuning.SequenceAttributes
  		]]>
             </sql>
         </sqlQuery>
@@ -115,10 +98,7 @@ WHERE NVL(SUBSTR(eas.secondary_identifier, 0, INSTR(eas.secondary_identifier, '|
            <column name="link_text"/>
            <sql>
              <![CDATA[
-               SELECT sa.full_id, sa.group_name, sa.source_url,
-	              CASE sa.core_peripheral WHEN 'C' THEN 'Core' WHEN 'P' THEN 'Peripheral' END AS core_peripheral,
-		      CASE WHEN sa.group_name LIKE 'OG%r%_%' THEN 0 ELSE sa.group_size END AS num_core,
-		      CASE WHEN sa.group_name LIKE 'OG%r%_%' THEN sa.group_size ELSE sa.peripheral_group_size-sa.group_size END AS num_peripheral, 
+               SELECT sa.full_id, sa.group_name, sa.source_url as url,
                       CASE WHEN sa.source_url is null THEN null ELSE sa.full_id END AS link_text
                FROM ApidbTuning.SequenceAttributes sa
              ]]>
@@ -169,7 +149,6 @@ WHERE NVL(SUBSTR(eas.secondary_identifier, 0, INSTR(eas.secondary_identifier, '|
         <sqlQuery name="PFamDomains">
             <column name="full_id"/>
             <column name="accession"/>
-            <column name="symbol"/>
             <column name="description"/>
             <column name="domain_index"/>
             <column name="max_index"/>
@@ -178,7 +157,7 @@ WHERE NVL(SUBSTR(eas.secondary_identifier, 0, INSTR(eas.secondary_identifier, '|
             <column name="length"/>
             <sql>
                         <![CDATA[
-     SELECT da.full_id, da.accession, da.symbol, da.description, da.domain_index,
+     SELECT da.full_id, da.accession, da.description, da.domain_index,
             (SELECT MAX(domain_index) FROM ApidbTuning.DomainAssignment) AS max_index,
             da.start_min, da.end_max, sa.length
      FROM ApidbTuning.DomainAssignment da, ApidbTuning.SequenceAttributes sa
