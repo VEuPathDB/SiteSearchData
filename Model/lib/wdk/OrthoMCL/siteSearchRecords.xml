@@ -42,8 +42,9 @@
 
       <attributeQueryRef ref="SequenceAttributes.SequenceAttrs">  
         <!-- columnAttribute name="full_id" displayName="Full ID"/ -->
-        <!-- special field for project filtering -->
+        <!-- special field for project filtering
         <columnAttribute name="project" displayName="dontcare" internal="true"/>
+ -->
         <columnAttribute name="source_id" displayName="Source ID">
           <propertyList name="boost">
             <value>100</value>
@@ -60,6 +61,7 @@
             <value>10</value>
           </propertyList>
         </columnAttribute>
+<!--
         <columnAttribute name="ec_numbers" displayName="EC Numbers">
           <propertyList name="isSummary">
             <value>true</value>
@@ -70,6 +72,7 @@
             <value>true</value>
           </propertyList>
         </columnAttribute>
+-->
         <columnAttribute name="abbreviation" displayName="Taxon Abbreviation"/>
         <columnAttribute name="taxon_name" displayName="Taxon Name">
           <propertyList name="isSummary">
@@ -125,8 +128,9 @@
 
       <attributeQueryRef ref="GroupAttributes.GroupAttrs">
         <!-- columnAttribute name="group_name" displayName="Group Name" / -->
-        <!-- special field for project filtering -->
+        <!-- special field for project filtering
         <columnAttribute name="project" displayName="dontcare" internal="true"/>
+ -->
       </attributeQueryRef>
 
       <attributeQueryRef ref="GroupAttributes.Keywords">
@@ -185,17 +189,19 @@
           <columnAttribute name="taxon_name" displayName="Protein Taxon Name" />
       </table>
 
+<!--
       <table name="ProteinPreviousGroups"
              displayName="Protein Previous Groups"
              queryRef="GroupTables.Proteins">
           <columnAttribute name="previous_groups" displayName="Protein Previous Groups" />
       </table>
+-->
       
       <table name="PFams"
              displayName="Pfam Domains"
              queryRef="GroupTables.PFams">
           <columnAttribute name="accession" displayName="Accession Number" />
-          <columnAttribute name="symbol" displayName="Symbol" />
+    <!--  <columnAttribute name="symbol" displayName="Symbol" /> -->
           <columnAttribute name="description" displayName="Description" />
       </table>
 
