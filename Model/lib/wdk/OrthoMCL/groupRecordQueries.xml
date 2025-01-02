@@ -242,6 +242,18 @@
           </sql>
         </sqlQuery>
 
+        <sqlQuery name="PreviousGroups">
+          <column name="group_name" />
+          <column name="prev_group" />
+          <sql>
+            <![CDATA[
+               select new_group_id as group_name, old_group_id as previous_group
+                  from apidb.groupmapping 
+                  where new_group_id <> old_group_id		  
+            ]]>
+          </sql>
+        </sqlQuery>
+
         <sqlQuery name="DomainFrequency">
           <column name="group_name" />
           <column name="keyword" />
