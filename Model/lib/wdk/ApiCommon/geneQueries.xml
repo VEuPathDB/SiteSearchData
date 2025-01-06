@@ -368,7 +368,7 @@
                (select nfc.na_feature_comment_id,
                        ta.gene_source_id as source_id
                 from dots.NaFeatureComment nfc, apidbTuning.TranscriptAttributes ta
-                where ta.gene_na_feature_id = nfc.na_feature_id
+                where ta.na_feature_id = nfc.na_feature_id
                    or ta.gene_na_feature_id = nfc.na_feature_id
                 group by nfc.na_feature_comment_id, ta.gene_source_id
                ) ci
