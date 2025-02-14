@@ -155,6 +155,7 @@ the corrupted batch."""
                 sys.exit(exit_code)
             except UnboundLocalError:
                 # If exit_code hasn't been set, then Houston, we've had a problem
+                print('Error: exit code has not been set', flush=True)
                 sys.exit(1)
 
 def index(solr_url, batch_dir=None, replace=False, validate_only=False):

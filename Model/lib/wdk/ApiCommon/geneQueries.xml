@@ -89,6 +89,7 @@
           from apidb.TextSearchableComment@COMMENT_DBLINK@ tsc,
                @COMMENT_SCHEMA@MappedComment@COMMENT_DBLINK@ mc
           where mc.comment_id = tsc.comment_id
+            and tsc.comment_target_type = 'gene'
             and mc.review_status_id != 'rejected'
             and mc.is_visible = 1
         ]]>
@@ -104,6 +105,7 @@
           from apidb.textsearchablecomment@COMMENT_DBLINK@ tsc,
                @COMMENT_SCHEMA@mappedComment@COMMENT_DBLINK@ mc
           where mc.comment_id = tsc.comment_id
+            and tsc.comment_target_type = 'gene'
             and mc.review_status_id != 'rejected'
             and mc.is_visible = 1
         ]]>
