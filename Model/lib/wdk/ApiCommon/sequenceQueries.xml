@@ -103,6 +103,39 @@
       </sql>
     </sqlQuery>
 
+    <!-- needed for commentupdater -->
+    <sqlQuery name="UserCommentIDs">
+      <column name="source_id"/>
+      <column name="comment_id"/>
+      <sql>
+        <![CDATA[
+          select tsc.source_id, tsc.comment_id
+          from apidb.TextSearchableComment@COMMENT_DBLINK@ tsc,
+               @COMMENT_SCHEMA@MappedComment@COMMENT_DBLINK@ mc
+          where mc.comment_id = tsc.comment_id
+            and tsc.comment_target_type = 'genome'
+            and mc.review_status_id != 'rejected'
+            and mc.is_visible = 1
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="UserCommentContent">
+      <column name="source_id"/>
+      <column name="comment_content"/>
+      <sql>
+        <![CDATA[
+          select tsc.source_id, tsc.content
+          from apidb.TextSearchableComment@COMMENT_DBLINK@ tsc,
+               @COMMENT_SCHEMA@MappedComment@COMMENT_DBLINK@ mc
+          where mc.comment_id = tsc.comment_id
+            and tsc.comment_target_type = 'genome'
+            and mc.review_status_id != 'rejected'
+            and mc.is_visible = 1
+        ]]>
+      </sql>
+    </sqlQuery>
+
   </querySet>
 
 </wdkModel>

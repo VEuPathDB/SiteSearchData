@@ -151,6 +151,19 @@
 	<columnAttribute name="organism"/>  
       </table>
       
+      <!-- needed for the user comment updater. -->
+      <table name="userCommentIds"
+             internal="true"
+             queryRef="SequenceTables.UserCommentIDs">
+        <columnAttribute name="comment_id"/>
+      </table>
+
+      <table name="userCommentContent"
+             displayName="User Comments"
+             queryRef="SequenceTables.UserCommentContent">
+        <columnAttribute name="content"/>
+      </table>
+
       <table name="Aliases"
              displayName="Previous IDs and aliases"
              queryRef="SequenceTables.Aliases">
