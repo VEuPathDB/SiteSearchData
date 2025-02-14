@@ -79,7 +79,12 @@
         "displayName": "Search",
         "displayNamePlural": "Searches",
         "hasOrganismField": false
-      }
+      },
+      { "id": "community-dataset",
+        "displayName": "Community Dataset",
+        "displayNamePlural": "Community Datasets",
+        "hasOrganismField": true
+      }		
     ]
   },
   { "name": "Instructional",
