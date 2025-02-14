@@ -91,7 +91,7 @@
         </propertyList>   	      
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="pmid" displayName="Pubmed ID"/>
-        <columnAttribute name="citation"/> 
+        <columnAttribute name="citation" displayName="Citation"/> 
       </table>
 
       <table name="Organisms"
