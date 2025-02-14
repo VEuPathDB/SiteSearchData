@@ -13,6 +13,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.log4j.Logger;
+
 
 import org.gusdb.fgputil.functional.FunctionalInterfaces.Procedure;
 import org.gusdb.fgputil.json.JsonWriter;
@@ -21,6 +23,7 @@ import org.gusdb.wdk.model.WdkModelException;
 import org.gusdb.wdk.model.WdkUserException;
 import org.gusdb.wdk.model.answer.stream.RecordStream;
 import org.gusdb.wdk.model.answer.stream.RecordStreamFactory;
+import org.gusdb.wdk.model.question.Question;
 import org.gusdb.wdk.model.record.Field;
 import org.gusdb.wdk.model.record.RecordClass;
 import org.gusdb.wdk.model.record.RecordInstance;
@@ -60,6 +63,9 @@ import org.json.JSONObject;
  */
 public class SolrLoaderReporter extends AnswerDetailsReporter {
 
+  private static final Logger LOG = Logger.getLogger(SolrLoaderReporter.class);
+
+
   private String _batchType; // eg "organism"
   private int _batchTimestamp;
   private String _batchId;
@@ -92,9 +98,10 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     try (JsonWriter writer = new JsonWriter(out);
          RecordStream records = RecordStreamFactory.getRecordStream (
             _baseAnswer, attrsForThisProject.values(), tablesForThisProject.values())) {
+      Question question = _baseAnswer.getAnswerSpec().getQuestion();
       writer.array();
       for (RecordInstance record : records) {
-        writer.value(formatRecord(record, attrsForThisProject.keySet(), tablesForThisProject.keySet(), _batchType, _batchId, _batchName, _batchTimestamp));
+        writer.value(formatRecord(record, question, attrsForThisProject.keySet(), tablesForThisProject.keySet(), _batchType, _batchId, _batchName, _batchTimestamp));
         checkResponseSize.perform();
       }
       writer.endArray();
@@ -124,10 +131,10 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
    
-  private static JSONObject formatRecord(RecordInstance record,
-      Set<String> attributeNames, Set<String> tableNames, String batchType, String batchId, String batchName, int batchTimestamp) throws WdkModelException {
+  private static JSONObject formatRecord(RecordInstance record, Question question,
+                                         Set<String> attributeNames, Set<String> tableNames, String batchType, String batchId, String batchName, int batchTimestamp) throws WdkModelException {
     try {
-      RecordClass recordClass = record.getRecordClass();
+      RecordClass recordClass = question.getRecordClass();
       Collection<String> pkValues = record.getPrimaryKey().getValues().values();
       String urlSegment = recordClass.getUrlSegment();
       Collection<String> idValues = new ArrayList<String>();
@@ -143,8 +150,12 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-id", batchId);
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
+
       for (String attributeName: attributeNames) {
-        String name = record.getRecordClass().getAttributeFieldMap().get(attributeName).isInternal()?
+        if (attributeName.equals("wdk_weight")) continue;
+        if (!question.getAttributeFieldMap().containsKey(attributeName))
+          throw new WdkModelException ("Invalid attribute name '" + attributeName + "'");
+        String name = question.getAttributeFieldMap().get(attributeName).isInternal()?
               attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
         String value = record.getAttributeValue(attributeName).getValue();
         obj.put(name, value);

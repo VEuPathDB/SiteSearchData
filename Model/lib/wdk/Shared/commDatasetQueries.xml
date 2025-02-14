@@ -1,0 +1,104 @@
+<wdkModel>
+
+  <querySet name="CommunityDatasetIdQueries" queryType="id" isCacheable="true">
+
+    <processQuery name="AllCommunityDatasets"
+        processName="org.eupathdb.sitesearch.wsfplugin.CommunityStudyIdsPlugin">
+      <wsColumn name="dataset_id" width="50" wsName="dataset_id"/>
+      <wsColumn name="owner_name" width="100" wsName="owner_name"/>
+      <wsColumn name="owner_institution" width="200" wsName="owner_institution"/>
+    </processQuery>
+  </querySet>
+
+  <querySet name="CommunityDatasetAttributes" queryType="attribute" isCacheable="false">
+    <sqlQuery name="All">
+      <column name="hyperlinkName"/>
+      <column name="dataset_id"/>
+      <column name="display_name"/>
+      <column name="project"/>
+      <column name="description"/>
+      <column name="summary"/>
+      <sql>
+        <![CDATA[
+          select user_dataset_id as dataset_id, project_id as project,
+                 name, name as display_name, name as hyperlinkName, description, summary
+          from @VDI_CONTROL_SCHEMA@.AvailableUserDatasets
+          where project_id = '@PROJECT_ID@'
+          and is_public = 1 and is_owner = 1            
+        ]]>
+      </sql>
+    </sqlQuery>
+
+  </querySet>
+
+  <querySet name="CommunityDatasetTables" queryType="table" isCacheable="false">
+    <sqlQuery name="publications">
+      <column name="dataset_id"/>
+      <column name="pubmed_id"/>
+      <column name="citation"/>
+      <sql>
+        <![CDATA[
+          select aud.user_dataset_id as dataset_id, pubmed_id, citation
+          from @VDI_CONTROL_SCHEMA@.AvailableUserDatasets aud,
+	  @VDI_CONTROL_SCHEMA@.dataset_publication dp	 
+          where aud.project_id = '@PROJECT_ID@'
+          and aud.is_public = 1 and aud.is_owner = 1
+          and aud.dataset_id = dp.dataset_id
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="hyperlinks">
+      <column name="dataset_id"/>
+      <column name="url"/>
+      <column name="text"/>
+      <column name="description"/>
+      <sql>
+        <![CDATA[
+          select aud.user_dataset_id as dataset_id, url, text, description
+          from @VDI_CONTROL_SCHEMA@.AvailableUserDatasets aud,
+	  @VDI_CONTROL_SCHEMA@.dataset_hyperlinks dh	 
+          where aud.project_id = '@PROJECT_ID@'
+          and aud.is_public = 1 and aud.is_owner = 1
+          and aud.dataset_id = dh.dataset_id
+        ]]>
+      </sql>
+    </sqlQuery>
+    
+    <sqlQuery name="organisms">
+      <column name="dataset_id"/>
+      <column name="organism_name"/>
+      <sql>
+        <![CDATA[
+          select aud.user_dataset_id as dataset_id, organism_name
+          from @VDI_CONTROL_SCHEMA@.AvailableUserDatasets aud,
+	  @VDI_CONTROL_SCHEMA@.dataset_organism do, apidbtuning.organismAttributes oa	 
+          where aud.project_id = '@PROJECT_ID@'
+          and aud.is_public = 1 and aud.is_owner = 1
+          and aud.dataset_id = do.dataset_id
+	  and do.organism_abbrev = oa.internal_abbrev
+        ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="contacts">
+      <column name="dataset_id"/>
+      <column name="contact_name"/>
+      <column name="affiliation"/>
+      <sql>
+        <![CDATA[
+          select aud.user_dataset_id as dataset_id,
+          dc.name as contact_name, affiliation
+          from @VDI_CONTROL_SCHEMA@.AvailableUserDatasets aud,
+	  @VDI_CONTROL_SCHEMA@.dataset_contact dc	 
+          where aud.project_id = '@PROJECT_ID@'
+          and aud.is_public = 1 and aud.is_owner = 1
+          and aud.dataset_id = dh.dataset_id
+        ]]>
+      </sql>
+    </sqlQuery>
+    
+    
+  </querySet>
+
+</wdkModel>

@@ -8,6 +8,8 @@
 
 <wdkModel>
 
+  <constant name="projectIdPropList">projectId</constant>  <!-- used by the community studies process query -->
+
   <modelName displayName="SiteSearch"
              version="%%buildNumber%%"
              releaseDate="%%releaseDate%%"
@@ -18,6 +20,20 @@
     <question name="Datasets" displayName="dontcare"
               queryRef="DatasetIdQueries.AllDatasets"
               recordClassRef="datasetRecordClasses.dataset">
+    </question>
+
+    <question name="CommunityDatasets" displayName="dontcare"
+              queryRef="CommunityDatasetIdQueries.AllCommunityDatasets"
+              recordClassRef="communityDatasetRecordClasses.communityDataset">
+      <!-- use a property list to pass model.prop's PROJECT_ID through to the process query -->
+      <!-- the string "projectId" is used by the process query to find this property list-->
+      <propertyList name="%%projectIdPropList%%">
+        <value>@PROJECT_ID@</value>
+      </propertyList>
+      <dynamicAttributes>
+          <columnAttribute name="owner_name" displayName="Owner name"/>
+          <columnAttribute name="owner_institution" displayName="Owner institution"/>
+      </dynamicAttributes>
     </question>
 
     <question name="Variables" displayName="dontcare"
@@ -34,6 +50,9 @@
 
   <import file="Shared/datasetRecord.xml"/>
   <import file="Shared/datasetQueries.xml"/>
+
+  <import file="Shared/commDatasetRecord.xml"/>
+  <import file="Shared/commDatasetQueries.xml"/>
 
   <import file="EDA/variableRecord.xml"/>
   <import file="EDA/variableQueries.xml"/>
