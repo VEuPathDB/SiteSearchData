@@ -13,8 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.log4j.Logger;
-
 
 import org.gusdb.fgputil.functional.FunctionalInterfaces.Procedure;
 import org.gusdb.fgputil.json.JsonWriter;
@@ -63,8 +61,7 @@ import org.json.JSONObject;
  */
 public class SolrLoaderReporter extends AnswerDetailsReporter {
 
-  private static final Logger LOG = Logger.getLogger(SolrLoaderReporter.class);
-
+  //private static final Logger LOG = Logger.getLogger(SolrLoaderReporter.class);
 
   private String _batchType; // eg "organism"
   private int _batchTimestamp;
@@ -98,7 +95,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     try (JsonWriter writer = new JsonWriter(out);
          RecordStream records = RecordStreamFactory.getRecordStream (
             _baseAnswer, attrsForThisProject.values(), tablesForThisProject.values())) {
-      Question question = _baseAnswer.getAnswerSpec().getQuestion();
+      Question question = _baseAnswer.getQuestion();
       writer.array();
       for (RecordInstance record : records) {
         writer.value(formatRecord(record, question, attrsForThisProject.keySet(), tablesForThisProject.keySet(), _batchType, _batchId, _batchName, _batchTimestamp));

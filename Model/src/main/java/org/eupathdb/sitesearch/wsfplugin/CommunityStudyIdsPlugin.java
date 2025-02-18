@@ -1,31 +1,31 @@
 package org.eupathdb.sitesearch.wsfplugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
+import org.apache.log4j.Logger;
 import org.gusdb.fgputil.ArrayUtil;
 import org.gusdb.fgputil.FormatUtil;
+import org.gusdb.fgputil.db.runner.SQLRunner;
+import org.gusdb.fgputil.db.runner.SQLRunnerException;
+import org.gusdb.fgputil.runtime.GusHome;
+import org.gusdb.fgputil.runtime.InstanceManager;
+import org.gusdb.oauth2.client.veupathdb.UserInfo;
+import org.gusdb.wdk.model.Utilities;
+import org.gusdb.wdk.model.WdkModel;
 import org.gusdb.wdk.model.question.Question;
 import org.gusdb.wdk.model.record.PrimaryKeyDefinition;
 import org.gusdb.wdk.model.record.RecordClass;
-import org.gusdb.wdk.model.user.User;
+import org.gusdb.wdk.model.user.UserFactory;
 import org.gusdb.wsf.plugin.AbstractPlugin;
 import org.gusdb.wsf.plugin.PluginModelException;
 import org.gusdb.wsf.plugin.PluginRequest;
 import org.gusdb.wsf.plugin.PluginResponse;
 import org.gusdb.wsf.plugin.PluginUserException;
-import org.gusdb.fgputil.db.runner.SQLRunner;
-import org.gusdb.fgputil.db.runner.SQLRunnerException;
-import org.gusdb.wdk.model.user.UserFactory;
-
-import org.gusdb.fgputil.runtime.GusHome;
-import org.gusdb.fgputil.runtime.InstanceManager;
-import org.gusdb.wdk.model.Utilities;
-import org.gusdb.wdk.model.WdkModel;
-import org.apache.log4j.Logger;
-
-import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CommunityStudyIdsPlugin extends AbstractPlugin {
 
@@ -62,7 +62,7 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
         List<UserDatasetIds> communityDatasetIds = getCommunityDatasetIds(request, question, wdkModel);
         UserFactory userFactory = new UserFactory(wdkModel);
         List<Long> userIds = communityDatasetIds.stream().map(udi -> udi.ownerId).collect(Collectors.toList());
-        Map<Long, User> userMap = userFactory.getUsersById(userIds);
+        Map<Long, UserInfo> userMap = userFactory.getUsersById(userIds);
         for (UserDatasetIds udi : communityDatasetIds) {
             String[] row = {udi.datasetId, userMap.get(udi.ownerId).getDisplayName(), userMap.get(udi.ownerId).getOrganization()};
             response.addRow(row);
@@ -73,7 +73,7 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
     /* we store in memory a map of ownerUserId to VDI dataset id, for each community dataset.
        We assume there are not too many to fit comfortably into memory.  (100k at absolute most)
     */
-     List<UserDatasetIds> getCommunityDatasetIds(PluginRequest request, Question question, WdkModel wdkModel) throws PluginModelException, PluginUserException {
+     List<UserDatasetIds> getCommunityDatasetIds(PluginRequest request, Question question, WdkModel wdkModel) throws PluginModelException {
 
         if (! wdkModel.getProperties().containsKey(VDI_CONTROL_SCHEMA_PROP_KEY))
             throw new PluginModelException("Can't find property'" + VDI_CONTROL_SCHEMA_PROP_KEY + "' in model.prop file");
@@ -115,7 +115,7 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
     public void validateParameters(PluginRequest request) throws PluginModelException, PluginUserException { }
 
     static Question getQuestion(PluginRequest request) throws PluginModelException {
-        String questionFullName = request.getContext().get(Utilities.QUERY_CTX_QUESTION);
+        String questionFullName = request.getContext().get(Utilities.CONTEXT_KEY_QUESTION_FULL_NAME);
         WdkModel wdkModel = InstanceManager.getInstance(WdkModel.class, GusHome.getGusHome(), request.getProjectId());
         return wdkModel.getQuestionByFullName(questionFullName).orElseThrow(() -> new PluginModelException("Could not find context question: " + questionFullName));
     }
