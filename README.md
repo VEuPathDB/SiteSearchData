@@ -1,4 +1,7 @@
 # SiteSearchData
+ATTN: make a new tag everytime the model is updated, and add to tagger qa versions file.
+this is necessary to rebuild the image in the SiteSearchData container that runs upon site rebuild va the jenkins_presenter_updater job.
+
 This project contains the fixings to produce data for a VEuPathDB site search solr core, and to load that data.
 
 All data produced and loaded complies with the [VEuPathDB Site Search solr schema](https://github.com/VEuPathDB/SolrDeployment/blob/master/configsets/site-search/conf#schemaxml-and-friends).
