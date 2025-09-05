@@ -46,11 +46,11 @@
                  from apidbTuning.OrganismAttributes oa,
                       (select oa.source_id, dsp.description,
                               dsp.dataset_presenter_id as genome_dataset_id
-                       from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetNameTaxon dnt,
+                       from apidbTuning.DatasetPresenter dsp, apidbTuning.Datasetdatasource dd,
                             apidbTuning.OrganismAttributes oa
                        where dsp.type = 'genome'
-                         and dsp.dataset_presenter_id = dnt.dataset_presenter_id
-                         and oa.component_taxon_id = dnt.taxon_id) genome_dataset
+                         and dsp.dataset_presenter_id = dd.dataset_presenter_id
+                         and oa.component_taxon_id = dd.taxon_id) genome_dataset
                  where genome_dataset.source_id = oa.source_id(+)
         ]]>
       </sql>
@@ -77,11 +77,11 @@
       <sql>
         <![CDATA[
           select oa.source_id, dsp.description
-          from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetNameTaxon dnt,
+          from apidbTuning.DatasetPresenter dsp, apidbTuning.Datasetdatasource dd,
                apidbTuning.OrganismAttributes oa
           where dsp.type = 'genome'
-            and dsp.dataset_presenter_id = dnt.dataset_presenter_id
-            and oa.component_taxon_id = dnt.taxon_id
+            and dsp.dataset_presenter_id = dd.dataset_presenter_id
+            and oa.component_taxon_id = dd.taxon_id
         ]]>
       </sql>
     </sqlQuery>
@@ -93,12 +93,12 @@
         <![CDATA[
           select distinct oa.source_id, dsh.genome_version
           from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetHistory dsh,
-               apidbTuning.DatasetNameTaxon dnt,
+               apidbTuning.Datasetsource dd,
                apidbTuning.OrganismAttributes oa
           where dsp.type = 'genome'
-            and dsp.dataset_presenter_id = dnt.dataset_presenter_id
-            and dsh.dataset_presenter_id = dnt.dataset_presenter_id
-            and oa.component_taxon_id = dnt.taxon_id
+            and dsp.dataset_presenter_id = dd.dataset_presenter_id
+            and dsh.dataset_presenter_id = dd.dataset_presenter_id
+            and oa.component_taxon_id = dd.taxon_id
             and dsh.genome_version like 'GC%'
         ]]>
       </sql>
