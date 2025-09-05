@@ -99,9 +99,9 @@
       <column name="organism"/>
       <sql>
         <![CDATA[
-          select dnt.dataset_presenter_id as dataset_id, tn.name as organism
-          from apidbTuning.DatasetNameTaxon dnt, sres.TaxonName tn
-          where dnt.taxon_id = tn.taxon_id
+          select dd.dataset_presenter_id as dataset_id, tn.name as organism
+          from apidbTuning.Datasetdatasource dd, sres.TaxonName tn
+          where dd.taxon_id = tn.taxon_id
             and tn.name_class = 'scientific name'
             and dataset_presenter_id
                 in (select dataset_presenter_id
