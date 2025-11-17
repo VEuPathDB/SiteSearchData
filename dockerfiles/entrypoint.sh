@@ -10,14 +10,18 @@
 # which leads us to this exception, where we set the COHORT var if PROJECT_ID
 # is EupathDB
 
-if [ "${PROJECT_ID}" = "EuPathDB" ]
-then
-    export COHORT=Portal
-fi
+export MODEL_DIR=$COHORT
 
-if [ "${PROJECT_ID}" = "ClinEpiDB" ]
+# expect COHORT to be ApiCommon|ClinEpi|Microbiome|OrthoMCL
+
+#if [ "${PROJECT_ID}" = "EuPathDB" ]
+#then
+#    export MODEL_LOCATION=Portal
+#fi
+
+if [ "${COHORT}" = "ClinEpi" ]
 then
-    export COHORT=EDA
+    export MODEL_DIR=EDA
 fi
 
 if [ ! -f ${GUS_HOME}/config/SiteSearchData/model-config.xml ];
