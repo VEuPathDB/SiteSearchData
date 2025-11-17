@@ -15,6 +15,11 @@ then
     export COHORT=Portal
 fi
 
+if [ "${PROJECT_ID}" = "ClinEpiDB" ]
+then
+    export COHORT=EDA
+fi
+
 if [ ! -f ${GUS_HOME}/config/SiteSearchData/model-config.xml ];
 then
     envsubst < ${GUS_HOME}/config/SiteSearchData/model-config.xml.tmpl > ${GUS_HOME}/config/SiteSearchData/model-config.xml 
