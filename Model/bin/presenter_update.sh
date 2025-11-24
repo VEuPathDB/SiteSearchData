@@ -12,7 +12,9 @@ wdkServer SiteSearchData $SERVER_PORT -cleanCacheAtStartup &
 
 echo "waiting for server to be available"
 
-while true
+start=$(date +%s)
+while [ $(($(date +%s) - $start)) -lt 180 ]
+# while true
 do
   echo "checking port $SERVER_PORT..."
   if nc -zv localhost:$SERVER_PORT 
