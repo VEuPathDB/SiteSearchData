@@ -10,19 +10,21 @@
              oauthClientSecret="$OAUTH_CLIENT_SECRET"
              >
 
-    <appDb login="$APPDB_LOGIN"
+    <appDb ldapServer="$APPDB_LDAP_SERVER"
+           ldapBaseDn="$APPDB_LDAP_BASE_DN"
+           ldapCommonName="$APPDB_LDAP_CN"
+           login="$APPDB_LOGIN"
            password="$APPDB_PASSWORD"
-           connectionUrl="$APPDB_CONNECTION"
-           platform="Oracle"
-           userDbLink="devn.login_comment"
-           remoteUserDataSchema="userlogins5"
+           userDbLink=""
+           remoteUserDataSchema="$APPDB_REMOTE_USER_SCHEMA"
            />
 
-    <userDb login="$USERDB_LOGIN"
+    <userDb ldapServer="$USERDB_LDAP_SERVER"
+            ldapBaseDn="$USERDB_LDAP_BASE_DN"
+            ldapCommonName="$USERDB_LDAP_CN"
+            login="$USERDB_LOGIN"
             password="$USERDB_PASSWORD"
-            connectionUrl="$USERDB_CONNECTION"
-            platform="Oracle"
-            userSchema="userlogins5"
+            userSchema="$USERDB_USER_SCHEMA"
             />
 
     <emailSubject>
