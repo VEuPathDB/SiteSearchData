@@ -9,7 +9,7 @@
         <![CDATA[
           select distinct ea.source_id
           from apidb.Organism o,
-               sres.TaxonName tn, apidbTuning.EstAttributes ea,
+               sres.TaxonName tn, webready.EstAttributes_p ea,
                (
                   select ts.taxon_id as representative_taxon_id,
                          ts.species_taxon_id as taxon_id
@@ -41,6 +41,7 @@
             and taxmap.taxon_id = tn.taxon_id
             and tn.name = ea.organism
             and o.abbrev = $$organismAbbrev$$
+            and ea.org_abbrev = $$organismAbbrev$$
         ]]>
       </sql>
     </sqlQuery>
@@ -82,7 +83,8 @@
       <sql>
         <![CDATA[
           select source_id, dbest_name, vector, stage, organism, '@PROJECT_ID@' as project
-          from apidbTuning.EstAttributes
+          from webready.EstAttributes_p
+	  where org_abbrev in (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -97,7 +99,8 @@
       <sql>
         <![CDATA[
           select source_id, source_id as old_source_id
-          from apidbTuning.EstAttributes
+          from webready.EstAttributes_p
+	  where org_abbrev in (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>

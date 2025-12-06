@@ -47,8 +47,9 @@
       <sql>
         <![CDATA[
           select a.gene AS source_id, a.id as old_source_id
-          from apidbTuning.GeneId a
+          from webready.GeneId_p a
           where a.unique_mapping = 1
+            and a.org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -70,8 +71,9 @@
           select source_id, product, name, gene_type,
                  sequence_id, organism as organism_full, organism,
                  orthomcl_name, so_id, so_term_name,
-                 '@PROJECT_ID@' as projectAux 
-          from apidbTuning.GeneAttributes
+                 '@PROJECT_ID@' as projectAux
+          from webready.GeneAttributes_p
+          where org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -138,7 +140,8 @@
       <sql>
         <![CDATA[
           select ta.gene_source_id as source_id, ta.protein_source_id
-          from apidbTuning.TranscriptAttributes ta
+          from webready.TranscriptAttributes_p ta
+          where ta.org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -151,7 +154,8 @@
         <!-- transcripts must be ordered alphabetically, as expected by client -->
         <![CDATA[
           select gene_source_id as source_id, source_id as transcript_id
-          from apidbTuning.TranscriptAttributes
+          from webready.TranscriptAttributes_p
+          where org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -162,7 +166,8 @@
       <sql>
         <![CDATA[
           select source_id, organism
-          from apidbTuning.GeneAttributes
+          from webready.GeneAttributes_p
+          where org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -197,10 +202,11 @@
                              null, null,
                              chr(38) || 'field4=' || ec.ec_number_4)
                    as expasy_url
-          from apidbTuning.TranscriptAttributes ta, sres.enzymeclass ec,
+          from webready.TranscriptAttributes_p ta, sres.enzymeclass ec,
                dots.AaSequenceEnzymeClass asec
           where ta.aa_sequence_id = asec.aa_sequence_id
             and asec.enzyme_class_id = ec.enzyme_class_id
+            and ta.org_abbrev IN (%%PARTITION_KEYS%%)
           group by ta.gene_source_id, ec.ec_number, ec.description,
                    asec.evidence_code,
                    ec.ec_number_1, ec.ec_number_2, ec.ec_number_3, ec.ec_number_4
@@ -310,7 +316,8 @@
                       , ir.interpro_secondary_id
                       , ir.interpro_desc
                       , ir.interpro_family_id
-                 from ApidbTuning.interproresults ir
+                 from Webready.interproresults_p ir
+                 where ir.org_abbrev IN (%%PARTITION_KEYS%%)
                  group by ir.gene_source_id
                         , ir.interpro_db_name
                         , ir.interpro_primary_id
@@ -344,9 +351,10 @@
                    else 'alternate ID'
                  end as id_type,
                  gi.gene AS source_id
-          from apidbTuning.GeneId gi
+          from webready.GeneId_p gi
           where regexp_like(gi.id, '(\D)')
             and gi.database_name not like '%gene2Uniprot_RSRC'
+            and gi.org_abbrev IN (%%PARTITION_KEYS%%)
             -- and gi.union_member != 'same ID' 
          )
      select * from alias_query
@@ -369,9 +377,10 @@
           from dots.NaFeatureComment nfc,
                (select nfc.na_feature_comment_id,
                        ta.gene_source_id as source_id
-                from dots.NaFeatureComment nfc, apidbTuning.TranscriptAttributes ta
-                where ta.na_feature_id = nfc.na_feature_id
-                   or ta.gene_na_feature_id = nfc.na_feature_id
+                from dots.NaFeatureComment nfc, webready.TranscriptAttributes_p ta
+                where (ta.na_feature_id = nfc.na_feature_id
+                   or ta.gene_na_feature_id = nfc.na_feature_id)
+                  and ta.org_abbrev IN (%%PARTITION_KEYS%%)
                 group by nfc.na_feature_comment_id, ta.gene_source_id
                ) ci
           where ci.na_feature_comment_id = nfc.na_feature_comment_id
@@ -391,7 +400,8 @@
         <![CDATA[
             select gene_source_id AS source_id, pathway_source,
                    pathway_source_id, pathway_name
-            from apidbTuning.PathwaysGeneTable
+            from webready.PathwaysGeneTable_p
+            where org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -408,8 +418,9 @@
         <![CDATA[
           select es.iedb_id, to_char(es.sequence) AS sequence, es.name,
                  ta.source_id as transcript_id, ta.gene_source_id as source_id
-          from apidbTuning.EpitopeSummary es, apidbTuning.TranscriptAttributes ta
+          from apidbTuning.EpitopeSummary es, webready.TranscriptAttributes_p ta
           where es.source_id = ta.source_id
+            and ta.org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -434,9 +445,9 @@
         <![CDATA[
             select edd.dataset_presenter_display_name AS dataset, ga.source_id,
                    db.primary_identifier AS ext_id
-            from sres.DbRef db, dots.DbRefNaFeature dbna,
+            from sres.DbRef db, webready.DbRefNaFeature_p dbna,
                  apidbTuning.ExternalDbDatasetPresenter edd,
-                 apidbTuning.GeneAttributes ga
+                 webready.GeneAttributes_p ga
             where db.external_database_release_id = edd.external_database_release_id
               and dbna.db_ref_id = db.db_ref_id
               and ga.na_feature_id = dbna.na_feature_id
@@ -444,13 +455,15 @@
               and lower(edd.dataset_presenter_name) not like '%nafeature_aliases%'
               and edd.dataset_presenter_name not like '%dbxref_simple_gene2HagaiPathway%'
               and lower(edd.dataset_presenter_name) not like '%pubmed%'
+              and dbna.org_abbrev IN (%%PARTITION_KEYS%%)
+              and ga.org_abbrev IN (%%PARTITION_KEYS%%)
           union
             select edd.dataset_presenter_display_name AS dataset,
                    ta.gene_source_id as source_id,
                    db.primary_identifier AS ext_id
-            from sres.DbRef db, dots.DbRefNaFeature dbna,
+            from sres.DbRef db, webready.DbRefNaFeature_p dbna,
                  apidbTuning.ExternalDbDatasetPresenter edd,
-                 apidbTuning.TranscriptAttributes ta
+                 webready.TranscriptAttributes_p ta
             where db.external_database_release_id = edd.external_database_release_id
               and dbna.db_ref_id = db.db_ref_id
               and ta.na_feature_id = dbna.na_feature_id
@@ -458,37 +471,43 @@
               and lower(edd.dataset_presenter_name) not like '%nafeature_aliases%'
               and edd.dataset_presenter_name not like '%dbxref_simple_gene2HagaiPathway%'
               and lower(edd.dataset_presenter_name) not like '%pubmed%'
+              and dbna.org_abbrev IN (%%PARTITION_KEYS%%)
+              and ta.org_abbrev IN (%%PARTITION_KEYS%%)
           union
               select replace(substr(ed.name, instr(ed.name, '_', 1, 3)+1), '_geneMapping_RSRC', '') as dataset,
                      ga.source_id, sref.primary_identifier as ext_id
-	      from sres.DbRef sref, dots.DbRefNaFeature refea, sres.ExternalDatabase ed,
-                   sres.ExternalDatabaseRelease edr, apidbTuning.GeneAttributes ga
+	      from sres.DbRef sref, webready.DbRefNaFeature_p refea, sres.ExternalDatabase ed,
+                   sres.ExternalDatabaseRelease edr, webready.GeneAttributes_p ga
 	      WHERE sref.external_database_release_id  = edr.external_database_release_id
 	      AND ed.external_database_id = edr.external_database_id
 	      AND ed.name like '%geneMapping%'
 	      AND refea.db_ref_id = sref.db_ref_id
 	      AND refea.na_feature_id = ga.na_feature_id
+	      AND refea.org_abbrev IN (%%PARTITION_KEYS%%)
+	      AND ga.org_abbrev IN (%%PARTITION_KEYS%%)
           union
               select d.name as dataset, ga.source_id, dbr.primary_identifier as ext_id
               from sres.dbref dbr, dots.DbRefNaFeature dbrf,
                    sres.ExternalDatabaseRelease r, sres.ExternalDatabase d,
-                   apidbTuning.GeneAttributes ga
+                   webready.GeneAttributes_p ga
               where dbr.external_database_release_id = r.external_database_release_id
                 and r.external_database_id = d.external_database_id
                 and dbr.db_ref_id = dbrf.db_ref_id
                 and dbrf.na_feature_id = ga.na_feature_id
                 and d.name not in ('PUBMED')
+                and ga.org_abbrev IN (%%PARTITION_KEYS%%)
           union
               select d.name as dataset, ga.source_id, dbr.primary_identifier as ext_id
               from sres.dbref dbr, dots.DbRefNaFeature dbrf, dots.Transcript t,
                    sres.ExternalDatabaseRelease r, sres.ExternalDatabase d,
-                   apidbTuning.geneAttributes ga
+                   webready.geneAttributes_p ga
               where dbr.external_database_release_id = r.external_database_release_id
                 and r.external_database_id = d.external_database_id
                 and dbr.db_ref_id = dbrf.db_ref_id
                 and dbrf.na_feature_id = t.na_feature_id
                 and t.parent_id = ga.na_feature_id
                 and d.name != 'PUBMED'
+                and ga.org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -505,8 +524,9 @@
                 pdb_chain, pdb_id, taxon, pdb_title
           from (select distinct ps.pdb_chain, ps.pdb_title, ps.pdb_id, ps.taxon,
                                 ta.source_id, ta.gene_source_id
-                from apidbTuning.PdbSimilarity ps, apidbTuning.TranscriptAttributes ta
-                where ps.source_id = ta.source_id)
+                from webready.PdbSimilarity ps, webready.TranscriptAttributes_p ta
+                where ps.source_id = ta.source_id
+                  and ta.org_abbrev IN (%%PARTITION_KEYS%%))
           group by gene_source_id, pdb_chain, pdb_id, taxon, pdb_title
         ]]>
       </sql>
@@ -627,9 +647,11 @@
       <sql>
         <![CDATA[
         select ta.gene_source_id as source_id, gmc.string_value as characteristic_value
-        from apidbTuning.GeneModelCharMD gmc, apidbTuning.TranscriptAttributes ta
+        from webready.GeneModelCharacteristics_p gmc, webready.TranscriptAttributes_p ta
         where gmc.source_id = ta.source_id
           and string_value not in ('No', 'NA')
+          and gmc.org_abbrev IN (%%PARTITION_KEYS%%)
+          and ta.org_abbrev IN (%%PARTITION_KEYS%%)
        ]]>
       </sql>
     </sqlQuery>

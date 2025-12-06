@@ -44,14 +44,13 @@
                           as data_source,
                         genome_dataset.genome_dataset_id
                  from apidbTuning.OrganismAttributes oa,
-                      (select oa.source_id, dsp.description,
+                 left join (select oa.source_id, dsp.description,
                               dsp.dataset_presenter_id as genome_dataset_id
                        from apidbTuning.DatasetPresenter dsp, apidbTuning.Datasetdatasource dd,
                             apidbTuning.OrganismAttributes oa
-                       where dsp.type = 'genome'
+                       where dd.category = 'Genomes'
                          and dsp.dataset_presenter_id = dd.dataset_presenter_id
-                         and oa.component_taxon_id = dd.taxon_id) genome_dataset
-                 where genome_dataset.source_id = oa.source_id(+)
+                         and oa.component_taxon_id = dd.taxon_id) genome_dataset on genome_dataset.source_id = oa.source_id
         ]]>
       </sql>
     </sqlQuery>
@@ -79,7 +78,7 @@
           select oa.source_id, dsp.description
           from apidbTuning.DatasetPresenter dsp, apidbTuning.Datasetdatasource dd,
                apidbTuning.OrganismAttributes oa
-          where dsp.type = 'genome'
+          where dd.category = 'Genomes'
             and dsp.dataset_presenter_id = dd.dataset_presenter_id
             and oa.component_taxon_id = dd.taxon_id
         ]]>
@@ -95,7 +94,7 @@
           from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetHistory dsh,
                apidbTuning.Datasetsource dd,
                apidbTuning.OrganismAttributes oa
-          where dsp.type = 'genome'
+          where dd.category = 'Genomes'
             and dsp.dataset_presenter_id = dd.dataset_presenter_id
             and dsh.dataset_presenter_id = dd.dataset_presenter_id
             and oa.component_taxon_id = dd.taxon_id

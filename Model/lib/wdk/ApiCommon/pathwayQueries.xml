@@ -8,7 +8,7 @@
       <sql>
         <![CDATA[
           select source_id, pathway_source
-          from apidbTuning.PathwayAttributes
+          from webready.PathwayAttributes
         ]]>
       </sql>
     </sqlQuery>
@@ -26,7 +26,7 @@
           select source_id, pathway_source,
                  source_id as old_source_id,
                  pathway_source as old_pathway_source
-          from apidbTuning.PathwayAttributes
+          from webready.PathwayAttributes
         ]]>
       </sql>
     </sqlQuery>
@@ -39,7 +39,7 @@
       <sql>
         <![CDATA[
           select pa.source_id, pa.pathway_source, pa.name, '@PROJECT_ID@' as project
-          from apidbTuning.PathwayAttributes pa
+          from webready.PathwayAttributes pa
         ]]>
       </sql>
     </sqlQuery>
@@ -64,16 +64,16 @@
                           pr.substrates_text, pr.products_text,
                           pc.compound_source_id, pc.chebi_accession,
                           cid.id as compound_other_id
-          from apidbTuning.PathwayAttributes pa, apidbTuning.PathwayCompounds pc,
-               apidbTuning.PathwayReactions pr,
+          from webready.PathwayAttributes pa, webready.PathwayCompounds pc,
+               webready.PathwayReactions pr
+	  left join
                (select compound, id
-                from apidbTuning.CompoundId
+                from webready.CompoundId
                 where compound != id
-               ) cid
+               ) cid on pc.compound_source_id = cid.compound
           where pc.pathway_id = pa.pathway_id
             and pr.reaction_id = pc.reaction_id
             and pr.ext_db_name = pc.ext_db_name
-            and pc.compound_source_id = cid.compound(+)
         ]]>
       </sql>
     </sqlQuery>
