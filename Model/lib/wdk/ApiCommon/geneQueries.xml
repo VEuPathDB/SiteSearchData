@@ -431,7 +431,8 @@
       <sql>
       <![CDATA[
           select source_id, product
-          from apidbTuning.AllGeneProducts
+          from apidbTuning.AllGeneProducts_p
+	  where org_abbrev IN (%%PARTITION_KEYS%%)
       ]]>
       </sql>
     </sqlQuery>
@@ -542,7 +543,8 @@
         <![CDATA[
           select distinct gene_source_id as source_id,  'PMID:' || pubmed_id as pubmed_id, doi, title,
                           authors
-          from apidbTuning.GenePubmed
+          from apidbTuning.GenePubmed_p
+	  WHERE org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
