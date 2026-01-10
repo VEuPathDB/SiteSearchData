@@ -41,6 +41,18 @@
 
   <querySet name="GeneAttributes" queryType="attribute" isCacheable="false">
 
+  <querySet name="SequenceAttributes" queryType="attribute" isCacheable="false">
+    <!-- Used by WDK to replace %%PARTITION_KEYS%% macro with the keys for a result set -->
+    <sqlQuery name="PartitionKeys">
+      <column name="source_id"/>
+      <column name="partition_id"/>
+      <sql>
+        <![CDATA[
+         select source_id, org_abbrev as partition_key from apidbtuning.GeneOrgAbbrev
+        ]]>
+      </sql>  
+    </sqlQuery>
+
     <sqlQuery name="GeneAlias">
       <column name="source_id"/>
       <column name="old_source_id"/>

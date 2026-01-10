@@ -40,6 +40,17 @@
   </paramSet>
 
   <querySet name="SequenceAttributes" queryType="attribute" isCacheable="false">
+    <!-- Used by WDK to replace %%PARTITION_KEYS%% macro with the keys for a result set -->
+    <sqlQuery name="PartitionKeys">
+      <column name="source_id"/>
+      <column name="partition_id"/>
+      <sql>
+        <![CDATA[
+         select source_id, org_abbrev as partition_key from apidbtuning.GenomicSeqOrgAbbrev
+        ]]>
+      </sql>  
+    </sqlQuery>
+
     <sqlQuery name="SequenceAlias">
       <column name="source_id"/>
       <column name="old_source_id"/>

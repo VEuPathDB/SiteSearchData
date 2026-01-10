@@ -106,7 +106,7 @@
     <!-- ########################  Sequence Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="sequence" urlName="genomic-sequence" displayName="Genomic sequence">
+    <recordClass name="sequence" urlName="genomic-sequence" displayName="Genomic sequence" partitionKeysQueryRef="SequenceAttributes.PartitionKeys">
       <propertyList name="batch">
         <value>organism</value>
       </propertyList>
@@ -383,7 +383,7 @@
     <!-- ##########################  Gene Record  ########################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="gene" urlName="gene">
+    <recordClass name="gene" urlName="gene" partitionKeysQueryRef="GeneAttributes.PartitionKeys">
 
       <propertyList name="batch">
         <value>organism</value>
