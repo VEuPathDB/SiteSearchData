@@ -39,11 +39,10 @@
         <![CDATA[
                  select oa.source_id, oa.species, oa.organism_name AS organism_full,
                         oa. organism_name AS organism, oa.organism_name AS hyperlinkName,
-                        decode(genome_source, 'gb', 'GenBank',
-                               'jkissinger', 'Kissinger Lab', genome_source)
+                        CASE genome_source WHEN 'gb' THEN 'GenBank' WHEN 'jkissinger' THEN 'Kissinger Lab' ELSE genome_source END
                           as data_source,
                         genome_dataset.genome_dataset_id
-                 from apidbTuning.OrganismAttributes oa,
+                 from apidbTuning.OrganismAttributes oa
                  left join (select oa.source_id, dsp.description,
                               dsp.dataset_presenter_id as genome_dataset_id
                        from apidbTuning.DatasetPresenter dsp, apidbTuning.Datasetdatasource dd,
