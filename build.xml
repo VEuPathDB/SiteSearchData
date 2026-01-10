@@ -1,16 +1,22 @@
 <project name="SiteSearchData" basedir=".">
 
+
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooo  Dependencies  oooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 
-	<import file="${projectsDir}/WDK/build.xml" />
+  <import file="${projectsDir}/WDK/build.xml" />
+  <import file="${projectsDir}/EbrcWebsiteCommon/build.xml" />
 
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooo  Installation  oooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 
-	<target name="SiteSearchData-Installation" depends="WDK-Installation,
+  <target name="SiteSearchData-Installation" depends="WDK-Installation,
+                                                      EbrcWebsiteCommon/Site-Installation,
+                                                      EbrcWebsiteCommon/Model-Installation,
+                                                      EbrcWebsiteCommon/View-Installation,
+                                                      EbrcWebsiteCommon/Watar-Installation,
                                                       SiteSearchData/Model-Installation">
     <ant target="defaultProjectInstall">
       <property name="project" value="SiteSearchData" />
