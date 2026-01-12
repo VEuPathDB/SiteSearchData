@@ -12,11 +12,7 @@
   <!-- oooooooooooooooooooooooooo  Installation  oooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 
-  <target name="SiteSearchData-Installation" depends="WDK-Installation,
-                                                      EbrcWebsiteCommon/Site-Installation,
-                                                      EbrcWebsiteCommon/Model-Installation,
-                                                      EbrcWebsiteCommon/View-Installation,
-                                                      EbrcWebsiteCommon/Watar-Installation,
+  <target name="SiteSearchData-Installation" depends="EbrcWebsiteCommon-Installation,
                                                       SiteSearchData/Model-Installation">
     <ant target="defaultProjectInstall">
       <property name="project" value="SiteSearchData" />

@@ -7,9 +7,9 @@
       <column name="source_id"/>
       <sql>
         <![CDATA[
-          select distinct sa.source_id
+          select distinct source_id
           from webready.GenomicSeqAttributes_p
-            where o.abbrev = $$organismAbbrev$$
+            where org_abbrev = $$organismAbbrev$$
         ]]>
       </sql>
     </sqlQuery>
@@ -139,7 +139,7 @@
       <sql>
         <![CDATA[
           select tsc.stable_id as source_id, tsc.cntnt
-          from @REMOTE_COMMENT_SCHEMA@usercomments.MappedComment mc,
+          from @REMOTE_COMMENT_SCHEMA@MappedComment mc,
 	  (select stable_id, comment_target_id, c.comment_id,
 	   concat(headline, '|', content, '|', first_name, ' ', last_name, '(', organization, ')', authors) as cntnt
 	   from @REMOTE_COMMENT_SCHEMA@comments c

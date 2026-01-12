@@ -5,12 +5,13 @@
       <column name="dataset_id"/>
       <sql>
         <![CDATA[
-          select dataset_presenter_id as dataset_id
-          from apidbTuning.DatasetPresenter
+          select distinct dp.dataset_presenter_id as dataset_id
+          from apidbTuning.DatasetPresenter dp, apidbtuning.datasetdatasource dd
           where (category is null OR category != 'Link outs')
+            and dp.dataset_presenter_id = dd.dataset_presenter_id
             and (project_id = '@PROJECT_ID@'
-                 or '@PROJECT_ID@' = 'VEuPathDB')
-            and dataset_presenter_id
+                 or '@PROJECT_ID@' = 'UniDB')
+            and dp.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
                         where property = 'isPublic' and value = 'false')
@@ -31,14 +32,19 @@
       <column name="newcategory"/>
       <sql>
         <![CDATA[
-          select dataset_presenter_id as dataset_id, '@PROJECT_ID@' as project,
+         select dp.dataset_presenter_id as
+                 dataset_id, '@PROJECT_ID@' as project,
                  display_name, display_name as hyperlinkName, description, summary, acknowledgement,
-                 nvl(display_category, category) as newcategory
-          from apidbTuning.DatasetPresenter
-          where (category is null OR category != 'Link outs')
-            and (project_id = '@PROJECT_ID@'
-                 or '@PROJECT_ID@' = 'VEuPathDB')
-            and dataset_presenter_id
+                 newcategory
+          from apidbTuning.DatasetPresenter dp,
+	    (select dataset_presenter_id, string_agg(category, ', ') as newcategory
+             from apidbtuning.datasetdatasource dd
+             where (category is null OR category != 'Link outs')
+             and (project_id = '@PROJECT_ID@'
+             or 'UniDB' = '@PROJECT_ID@')   
+	     group by dataset_presenter_id) cat
+	   where dp.dataset_presenter_id = cat.dataset_presenter_id
+            and dp.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
                         where property = 'isPublic' and value = 'false')
@@ -61,9 +67,9 @@
           from apidbTuning.DatasetContact
           where dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'VEuPathDB')
+                       or '@PROJECT_ID@' = 'UniDB')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -83,9 +89,9 @@
           where pmid is not null
             and dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'VEuPathDB')
+                       or '@PROJECT_ID@' = 'UniDB')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -105,9 +111,9 @@
             and tn.name_class = 'scientific name'
             and dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'VEuPathDB')
+                       or '@PROJECT_ID@' = 'UniDB')
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -171,7 +177,7 @@
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'VEuPathDB')
+                       or '@PROJECT_ID@' = 'UniDB')
             and sd.dataset_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -253,7 +259,7 @@
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'VEuPathDB')
+                       or '@PROJECT_ID@' = 'UniDB')
             and dsp.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -274,7 +280,7 @@
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'VEuPathDB')
+                       or '@PROJECT_ID@' = 'UniDB')
             and dprop.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -329,7 +335,7 @@
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetPresenter
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'VEuPathDB')
+                       or '@PROJECT_ID@' = 'UniDB')
             and t3.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty

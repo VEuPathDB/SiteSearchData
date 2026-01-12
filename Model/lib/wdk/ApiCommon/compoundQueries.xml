@@ -51,7 +51,7 @@
       <column name="value"/>
       <sql>
         <![CDATA[
-            select ca.source_id, struct.type, to_char(struct.structure) as value
+            select ca.source_id, struct.type, struct.structure::text as value
             from webready.CompoundAttributes ca, chebi.Structures struct
             where ca.id = struct.compound_id
               and struct.dimension = '1D'

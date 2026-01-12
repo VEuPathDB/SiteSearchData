@@ -40,8 +40,6 @@
 
 
   <querySet name="GeneAttributes" queryType="attribute" isCacheable="false">
-
-  <querySet name="SequenceAttributes" queryType="attribute" isCacheable="false">
     <!-- Used by WDK to replace %%PARTITION_KEYS%% macro with the keys for a result set -->
     <sqlQuery name="PartitionKeys">
       <column name="source_id"/>
@@ -82,10 +80,11 @@
         <![CDATA[
           select source_id, product, name, gene_type,
                  sequence_id, organism as organism_full, organism,
-                 orthomcl_name, so_id, so_term_name,
+                 group_id as orthomcl_name, so_id, so_term_name,
                  '@PROJECT_ID@' as projectAux
-          from webready.GeneAttributes_p
-          where org_abbrev IN (%%PARTITION_KEYS%%)
+          from webready.GeneAttributes_p ga 
+          left join webready.geneorthologgroup g ON ga.source_id = g.gene_id
+          where ga.org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -234,69 +233,12 @@
       <column name="source_id"/>
       <column name="go_id"/>
       <column name="go_term_name"/>
-      <column name="ontology"/>
-      <column name="source"/>
-      <column name="evidence_code"/>
       <column name="reference"/>
-      <column name="evidence_code_parameter"/>
-      <column name="sort_key"/>
       <sql>
         <![CDATA[
-          select source_id, go_id,  go_term_name, ontology,
-                 source, evidence_code, reference, evidence_code_parameter
-          from (-- makeup of GeneGoTable tuning table
-                select source_id, go_id,
-                       max(go_term_name) as go_term_name, ontology, source, evidence_code,
-                       reference, evidence_code_parameter
-                from (select distinct ggt.gene_source_id as source_id,
-                                      replace(ggt.go_id, 'GO_', 'GO:') as go_id,
-                                      ggt.transcript_source_id,
-                                      ggt.go_term_name, ggt.ontology, ggt.source,
-                                      ggt.evidence_code, ggt.reference,
-                                      ggt.evidence_code_parameter
-                      from (-- makeup of GeneGoTerms tuning table
-                            with root_term
-                                 as (select ontology_term_id,
-                                            cast(initcap(replace(name, '_', ' ')) as varchar2(20))
-                                              as ontology
-                                     from sres.OntologyTerm
-                                     where source_id
-                                           in ('GO_0008150','GO_0003674','GO_0005575'))
-                            select gf.source_id as gene_source_id,
-                                   t.source_id as transcript_source_id,
-                                   cast (gt.source_id as varchar2(20)) as go_id,
-                                   rt.ontology,
-                                   cast(gt.name as varchar2(250)) as go_term_name,
-                                   cast(gail.name as varchar2(24)) as source,
-                                   cast(gec.name as varchar2(12)) as evidence_code,
-                                   cast(gaiec.reference as varchar2(250)) as reference,
-                                   cast(gaiec.evidence_code_parameter as varchar2(80))
-                                     as evidence_code_parameter
-                            from dots.GeneFeature gf, dots.Transcript t,
-                                 dots.TranslatedAaFeature taf, dots.GoAssociation ga,
-                                 sres.OntologyTerm gt, dots.GoAssociationInstance gai,
-                                 dots.GoAssociationInstanceLoe gail,
-                                 dots.GoAssocInstEvidCode gaiec, sres.OntologyTerm gec,
-                                 root_term rt, dots.NaSequence ns
-                            where t.parent_id = gf.na_feature_id
-                              and gf.na_sequence_id = ns.na_sequence_id
-                              and t.na_feature_id = taf.na_feature_id
-                              and taf.aa_sequence_id = ga.row_id
-                              and ga.table_id = (select table_id
-                                                 from core.TableInfo
-                                                 where name = 'TranslatedAASequence')
-                              and ga.go_term_id = gt.ontology_term_id
-                              and ga.go_association_id = gai.go_association_id
-                              and gai.go_assoc_inst_loe_id = gail.go_assoc_inst_loe_id
-                              and gai.go_association_instance_id
-                                  = gaiec.go_association_instance_id
-                              and gaiec.go_evidence_code_id = gec.ontology_term_id
-                              and gt.ancestor_term_id = rt.ontology_term_id(+)
-                           ) ggt
-                     )
-                group by source_id, go_id, ontology,
-                         source, evidence_code, reference, evidence_code_parameter
-               )
+          SELECT source_id, go_id, go_term_name, reference
+          FROM webready.GeneGoTable_p
+          where org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -428,11 +370,18 @@
       <column name="name"/>
       <sql>
         <![CDATA[
-          select es.iedb_id, to_char(es.sequence) AS sequence, es.name,
-                 ta.source_id as transcript_id, ta.gene_source_id as source_id
-          from apidbTuning.EpitopeSummary es, webready.TranscriptAttributes_p ta
-          where es.source_id = ta.source_id
-            and ta.org_abbrev IN (%%PARTITION_KEYS%%)
+          SELECT DISTINCT ae.iedb_id
+	  , ta.source_id as transcript_id
+	  , ta.gene_source_id as source_id
+	  , mt.sequence
+	  , ta.organism as name
+          FROM    dots.motifaasequence mt
+           	      , webready.aasequenceepitope_p ae 
+		      , webready.TranscriptAttributes_p ta
+          WHERE   ae.iedb_id = mt.source_id::integer and
+		      ae.aa_sequence_id = ta.aa_sequence_id
+            AND ta.org_abbrev IN (%%PARTITION_KEYS%%)
+            AND ae.org_abbrev IN (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -618,19 +567,19 @@
                   ols.name as cycle_stage, phenotype_post_composition,
                   phenotype_comment, pr.chebi_annotation_extension
         from dots.GeneFeature gf, apidb.PhenotypeModel pm,
-             apidb.PhenotypeResult pr, sres.OntologyTerm oen,
-             sres.OntologyTerm opq, sres.OntologyTerm ols,
              (  select phenotype_model_id, na_feature_id
                 from apidb.PhenotypeModel
               union
                 select phenotype_model_id, na_feature_id
-                from apidb.NaFeaturePhenotypeModel) pmodel_feature
-	      where gf.na_feature_id = pmodel_feature.na_feature_id
+                from apidb.NaFeaturePhenotypeModel
+             ) pmodel_feature,
+             apidb.PhenotypeResult pr
+        left join sres.OntologyTerm oen on pr.phenotype_entity_term_id = oen.ontology_term_id 
+        left join sres.OntologyTerm opq on pr.phenotype_quality_term_id = opq.ontology_term_id
+        left join sres.OntologyTerm ols on pr.life_cycle_stage_term_id = ols.ontology_term_id
+        where gf.na_feature_id = pmodel_feature.na_feature_id
         and pm.phenotype_model_id = pmodel_feature.phenotype_model_id
         and pm.phenotype_model_id = pr.phenotype_model_id
-        and pr.phenotype_entity_term_id = oen.ontology_term_id (+)
-        and pr.phenotype_quality_term_id = opq.ontology_term_id (+)
-        and pr.life_cycle_stage_term_id = ols.ontology_term_id (+)
        ]]>
       </sql>
     </sqlQuery>

@@ -37,11 +37,6 @@
               recordClassRef="recordClasses.sequence">
     </question>
 
-    <question name="PopsetIsolates" displayName="dontcare"
-              queryRef="PopsetIds.AllPopsetIsolates"
-              recordClassRef="recordClasses.PopsetRecordClass">
-    </question>
-
   </questionSet>
 
   <recordClassSet name="recordClasses">
@@ -634,93 +629,12 @@
         <columnAttribute name="image_type"/>
       </table>
 
-      <table name="GeneModelCharacteristics"
+<!--      <table name="GeneModelCharacteristics"
              displayName="GeneModel Characteristics"
              queryRef="GeneTables.GeneModelCharacteristics">
         <columnAttribute name="characteristic_value"/>
       </table>
-
-    </recordClass>
-
-
-    <!-- ################################################################### -->
-    <!-- #########################  Popset Record  ######################### -->
-    <!-- ################################################################### -->
-
-    <recordClass name="PopsetRecordClass" urlName="popsetSequence" displayName="Popset isolate sequence">
-      <propertyList name="batch">
-        <value>popset-isolate</value>
-      </propertyList>
-
-      <primaryKey aliasQueryRef="PopsetAttributes.PopsetAlias">
-        <columnRef>source_id</columnRef>
-      </primaryKey>
-
-      <idAttribute name="primary_key" displayName="Popset ID">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[
-                   $$source_id$$
-          ]]>
-        </text>
-      </idAttribute>
-
-      <reporter name="solrjson"
-                displayName="solr json: choose from columns and/or tables"
-                scopes=""
-                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
-
-      <attributeQueryRef ref="PopsetAttributes.Attributes">
-        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
-        <columnAttribute name="organism" displayName="Organism" />
-        <columnAttribute name="description" displayName="Description">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="isolation_source" displayName="Isolation source"/>
-        <columnAttribute name="curated_isolation_source" displayName="Curated isolation source"/>
-        <columnAttribute name="note" displayName="Note"/>
-        <columnAttribute name="product" displayName="Product">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="geographic_location" displayName="Geographic location">
-          <propertyList name="isSummary">
-            <value>true</value>
-          </propertyList>
-          <propertyList name="boost">
-            <value>1.5</value>
-          </propertyList>
-        </columnAttribute>
-        <columnAttribute name="curated_geographic_location" displayName="Curated geographic location"/>
-        <columnAttribute name="specific_host" displayName="Host"/>
-        <columnAttribute name="popset" displayName="Popset"/>
-        <columnAttribute name="strain" displayName="Strain"/>
-      </attributeQueryRef>
-
-      <table name="References"  displayName="References" queryRef="PopsetTables.References">
-        <columnAttribute name="title"/>
-        <columnAttribute name="authors"/>
-        <columnAttribute name="journal"/>
-      </table>
-
-    <!--  THIS QUERY IS TOO SLOW  - 10 minutes in plasmo  - not worth it
-      <table name="GeneOverlap" 
-             displayName="Blast Similarity Alignments and Overlapping Genes" queryRef="PopsetTables.GeneOverlap">
-        <columnAttribute name="source_id"/>
-        <columnAttribute name="gene"/>
-        <columnAttribute name="organism"/>
-        <columnAttribute name="gene_product"/>
-      </table>
 -->
-
     </recordClass>
 
   </recordClassSet>

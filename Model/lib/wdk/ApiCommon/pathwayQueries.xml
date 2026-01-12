@@ -64,8 +64,8 @@
                           pr.substrates_text, pr.products_text,
                           pc.compound_source_id, pc.chebi_accession,
                           cid.id as compound_other_id
-          from webready.PathwayAttributes pa, webready.PathwayCompounds pc,
-               webready.PathwayReactions pr
+          from webready.PathwayAttributes pa, webready.PathwayReactions pr,
+               webready.PathwayCompounds pc
 	  left join
                (select compound, id
                 from webready.CompoundId

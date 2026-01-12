@@ -91,7 +91,7 @@
         <![CDATA[
           select distinct oa.source_id, dsh.genome_version
           from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetHistory dsh,
-               apidbTuning.Datasetsource dd,
+               apidbTuning.DatasetDatasource dd,
                apidbTuning.OrganismAttributes oa
           where dd.category = 'Genomes'
             and dsp.dataset_presenter_id = dd.dataset_presenter_id

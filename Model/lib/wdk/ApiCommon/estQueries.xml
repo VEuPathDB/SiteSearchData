@@ -84,7 +84,7 @@
         <![CDATA[
           select source_id, dbest_name, vector, stage, organism, '@PROJECT_ID@' as project
           from webready.EstAttributes_p
---	  where org_abbrev in (%%PARTITION_KEYS%%)
+--	  where org_abbrev in (%%xxxxPARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -100,7 +100,7 @@
         <![CDATA[
           select source_id, source_id as old_source_id
           from webready.EstAttributes_p
---	  where org_abbrev in (%%PARTITION_KEYS%%)
+--	  where org_abbrev in (%%xxxxPARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
