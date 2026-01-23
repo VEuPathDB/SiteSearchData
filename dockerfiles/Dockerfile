@@ -48,6 +48,9 @@ WORKDIR /tmp
 COPY project_home/ ${PROJECT_HOME}
 COPY dockerfiles/entrypoint.sh .
 
+# Clone EbrcWebsiteCommon repository
+RUN git clone https://github.com/VEuPathDB/EbrcWebsiteCommon.git ${PROJECT_HOME}/EbrcWebsiteCommon
+
 # Run after the copy to prevent issues with cached image layers.
 RUN mkdir -p ${GUS_HOME}/config \
  && cp ${PROJECT_HOME}/install/config/gus.config.sample ${GUS_HOME}/config/gus.config \
