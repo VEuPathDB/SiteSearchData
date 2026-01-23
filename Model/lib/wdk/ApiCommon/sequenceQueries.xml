@@ -7,10 +7,9 @@
       <column name="source_id"/>
       <sql>
         <![CDATA[
-          select distinct sa.source_id
-          from apidbTuning.GenomicSeqAttributes sa, apidb.Organism o
-          where sa.taxon_id = o.taxon_id
-            and o.abbrev = $$organismAbbrev$$
+          select distinct source_id
+          from webready.GenomicSeqAttributes_p
+            where org_abbrev = $$organismAbbrev$$
         ]]>
       </sql>
     </sqlQuery>
@@ -41,13 +40,25 @@
   </paramSet>
 
   <querySet name="SequenceAttributes" queryType="attribute" isCacheable="false">
+    <!-- Used by WDK to replace %%PARTITION_KEYS%% macro with the keys for a result set -->
+    <sqlQuery name="PartitionKeys">
+      <column name="source_id"/>
+      <column name="partition_id"/>
+      <sql>
+        <![CDATA[
+         select source_id, org_abbrev as partition_key from apidbtuning.GenomicSeqOrgAbbrev
+        ]]>
+      </sql>  
+    </sqlQuery>
+
     <sqlQuery name="SequenceAlias">
       <column name="source_id"/>
       <column name="old_source_id"/>
       <sql>
         <![CDATA[
           select distinct sequence as source_id, id as old_source_id
-          from apidbTuning.GenomicSequenceId
+          from webready.GenomicSequenceId_p
+          where org_abbrev in (%%PARTITION_KEYS%%)
         ]]>
       </sql>
 
@@ -71,7 +82,8 @@
                    else organism
                  end as description,
                  replace(sequence_type, '_', ' ') as sequence_type
-          from apidbTuning.GenomicSeqAttributes
+          from webready.GenomicSeqAttributes_p
+          where org_abbrev in (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -86,7 +98,8 @@
       <sql>
         <![CDATA[
           select source_id, organism
-          from apidbTuning.GenomicSeqAttributes
+          from webready.GenomicSeqAttributes_p
+          where org_abbrev in (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -98,7 +111,8 @@
       <sql>
         <![CDATA[
           select si.sequence as source_id, si.id as seq_id
-          from apidbTuning.GenomicSequenceId si
+          from webready.GenomicSequenceId_p si
+          where org_abbrev in (%%PARTITION_KEYS%%)
         ]]>
       </sql>
     </sqlQuery>
@@ -109,13 +123,12 @@
       <column name="comment_id"/>
       <sql>
         <![CDATA[
-          select tsc.source_id, tsc.comment_id
-          from apidb.TextSearchableComment@COMMENT_DBLINK@ tsc,
-               @COMMENT_SCHEMA@MappedComment@COMMENT_DBLINK@ mc
-          where mc.comment_id = tsc.comment_id
-            and tsc.comment_target_type = 'genome'
+          select c.stable_id as source_id, c.comment_id
+          from @REMOTE_COMMENT_SCHEMA@MappedComment mc, @REMOTE_COMMENT_SCHEMA@comments c
+          where mc.comment_id = c.comment_id
+            and c.comment_target_id = 'genome'
             and mc.review_status_id != 'rejected'
-            and mc.is_visible = 1
+            and mc.is_visible = true
         ]]>
       </sql>
     </sqlQuery>
@@ -125,13 +138,21 @@
       <column name="comment_content"/>
       <sql>
         <![CDATA[
-          select tsc.source_id, tsc.content
-          from apidb.TextSearchableComment@COMMENT_DBLINK@ tsc,
-               @COMMENT_SCHEMA@MappedComment@COMMENT_DBLINK@ mc
+          select tsc.stable_id as source_id, tsc.cntnt
+          from @REMOTE_COMMENT_SCHEMA@MappedComment mc,
+	  (select stable_id, comment_target_id, c.comment_id,
+	   concat(headline, '|', content, '|', first_name, ' ', last_name, '(', organization, ')', authors) as cntnt
+	   from @REMOTE_COMMENT_SCHEMA@comments c
+	   left join @REMOTE_COMMENT_SCHEMA@comment_users u on  c.user_id = u.user_id
+	   left join (select comment_id, string_agg(source_id, ', ' order by source_id) as authors
+                      from @REMOTE_COMMENT_SCHEMA@CommentReference
+                      where database_name = 'author'
+		      group by comment_id) a on a.comment_id = c.comment_id
+	  ) tsc
           where mc.comment_id = tsc.comment_id
-            and tsc.comment_target_type = 'genome'
+            and tsc.comment_target_id = 'genome'
             and mc.review_status_id != 'rejected'
-            and mc.is_visible = 1
+            and mc.is_visible = true
         ]]>
       </sql>
     </sqlQuery>

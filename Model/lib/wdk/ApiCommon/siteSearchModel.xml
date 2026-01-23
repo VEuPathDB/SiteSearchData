@@ -30,8 +30,6 @@
 
   <import file="ApiCommon/sequenceQueries.xml"/>
 
-  <import file="ApiCommon/popsetQueries.xml"/>
-
   <import file="ApiCommon/apolloTrackQueries.xml"/>
 
 </wdkModel>

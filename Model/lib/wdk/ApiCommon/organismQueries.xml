@@ -39,19 +39,17 @@
         <![CDATA[
                  select oa.source_id, oa.species, oa.organism_name AS organism_full,
                         oa. organism_name AS organism, oa.organism_name AS hyperlinkName,
-                        decode(genome_source, 'gb', 'GenBank',
-                               'jkissinger', 'Kissinger Lab', genome_source)
+                        CASE genome_source WHEN 'gb' THEN 'GenBank' WHEN 'jkissinger' THEN 'Kissinger Lab' ELSE genome_source END
                           as data_source,
                         genome_dataset.genome_dataset_id
-                 from apidbTuning.OrganismAttributes oa,
-                      (select oa.source_id, dsp.description,
+                 from apidbTuning.OrganismAttributes oa
+                 left join (select oa.source_id, dsp.description,
                               dsp.dataset_presenter_id as genome_dataset_id
                        from apidbTuning.DatasetPresenter dsp, apidbTuning.Datasetdatasource dd,
                             apidbTuning.OrganismAttributes oa
-                       where dsp.type = 'genome'
+                       where dd.category = 'Genomes'
                          and dsp.dataset_presenter_id = dd.dataset_presenter_id
-                         and oa.component_taxon_id = dd.taxon_id) genome_dataset
-                 where genome_dataset.source_id = oa.source_id(+)
+                         and oa.component_taxon_id = dd.taxon_id) genome_dataset on genome_dataset.source_id = oa.source_id
         ]]>
       </sql>
     </sqlQuery>
@@ -79,7 +77,7 @@
           select oa.source_id, dsp.description
           from apidbTuning.DatasetPresenter dsp, apidbTuning.Datasetdatasource dd,
                apidbTuning.OrganismAttributes oa
-          where dsp.type = 'genome'
+          where dd.category = 'Genomes'
             and dsp.dataset_presenter_id = dd.dataset_presenter_id
             and oa.component_taxon_id = dd.taxon_id
         ]]>
@@ -93,9 +91,9 @@
         <![CDATA[
           select distinct oa.source_id, dsh.genome_version
           from apidbTuning.DatasetPresenter dsp, apidbTuning.DatasetHistory dsh,
-               apidbTuning.Datasetsource dd,
+               apidbTuning.DatasetDatasource dd,
                apidbTuning.OrganismAttributes oa
-          where dsp.type = 'genome'
+          where dd.category = 'Genomes'
             and dsp.dataset_presenter_id = dd.dataset_presenter_id
             and dsh.dataset_presenter_id = dd.dataset_presenter_id
             and oa.component_taxon_id = dd.taxon_id

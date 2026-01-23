@@ -28,7 +28,7 @@ my $modelProps = SiteSearchData::Model::Utils::getPropsFromFile("$ENV{GUS_HOME}/
 my $dbh = SiteSearchData::Model::Utils::getDbh($gusProps);
 
 SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "pathway", $modelProps->{PROJECT_ID});
-SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "popset-isolate", $modelProps->{PROJECT_ID});
+#SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "popset-isolate", $modelProps->{PROJECT_ID});
 SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "compound", $modelProps->{PROJECT_ID});
 SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "dataset-presenter", $modelProps->{PROJECT_ID});
 
