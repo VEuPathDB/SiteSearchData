@@ -120,6 +120,7 @@
 	      
       </table>
 
+<!--
       <table name="AttributeValues" excludeProjects="VEuPathDB"
              displayName="Attribute values"
              queryRef="DatasetTables.AttributeValues">
@@ -194,7 +195,7 @@
         <columnAttribute name="purpose"/>
         <columnAttribute name="dataset_name"/>
       </table>
-
+-->
       <!-- special internal field for organism filtering -->
       <table name="organismsForFilter" displayName="dontcare" queryRef="DatasetTables.Organisms" internal="true">
         <propertyList name="includeProjects">

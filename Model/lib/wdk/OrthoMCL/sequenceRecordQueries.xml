@@ -214,7 +214,7 @@ from apidbTuning.SequenceAttributes
                          ot.three_letter_abbrev AS abbreviation,
                          ot.name AS taxon
                   FROM dots.ExternalAaSequence eas, apidb.orthomcltaxon ot
-                  WHERE NVL(SUBSTR(eas.secondary_identifier, 0, INSTR(eas.secondary_identifier, '|')-1), eas.secondary_identifier) = ot.three_letter_abbrev
+                  WHERE COALESCE(SUBSTRING(eas.secondary_identifier, 1, POSITION('|' IN eas.secondary_identifier)-1), eas.secondary_identifier) = ot.three_letter_abbrev
  		]]>
             </sql>
         </sqlQuery>

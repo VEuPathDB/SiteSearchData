@@ -83,7 +83,7 @@
 	  <sql>
             <![CDATA[
               select group_name,
-                     listagg(ec_number, ', ') within group (order by ec_number) as ec_numbers
+                     string_agg(ec_number, ', ' order by ec_number) as ec_numbers
               from (select distinct sa.group_name, ec.ec_number
                     from sres.EnzymeClass ec, dots.AaSequenceEnzymeClass asec, apidbTuning.SequenceAttributes sa
                     where ec.enzyme_class_id = asec.enzyme_class_id
@@ -99,13 +99,13 @@
 	  <sql>
             <![CDATA[
               select og.group_id as group_name, verbiage.keywords
-              from apidb.OrthologGroup og,
-                   (select ortholog_group_id,
-                           listagg(keyword, '; ') within group (order by to_number(frequency) desc) as keywords
+              from apidb.OrthologGroup og
+              left join (select ortholog_group_id,
+                           string_agg(keyword, '; ' order by frequency::numeric desc) as keywords
                     from apidb.OrthomclGroupKeyword
                     group by ortholog_group_id
                    ) verbiage
-              where og.group_id = verbiage.ortholog_group_id(+)
+              on og.group_id = verbiage.ortholog_group_id
             ]]>
 	  </sql>
 	</sqlQuery>
@@ -116,13 +116,13 @@
 	  <sql>
             <![CDATA[
               select og.group_id as group_name, domains.descriptions
-              from apidb.OrthologGroup og,
-                   (select ortholog_group_id,
-                           listagg(description, '; ') within group (order by frequency desc) as descriptions
+              from apidb.OrthologGroup og
+              left join (select ortholog_group_id,
+                           string_agg(description, '; ' order by frequency desc) as descriptions
                     from apidb.OrthomclGroupDomain
                     group by ortholog_group_id
                    ) domains
-              where og.ortholog_group_id = domains.ortholog_group_id(+)
+              on og.ortholog_group_id = domains.ortholog_group_id
             ]]>
 	  </sql>
 	</sqlQuery>
