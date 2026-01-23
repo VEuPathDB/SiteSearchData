@@ -24,13 +24,23 @@ node ('centos8') {
       )
     }
 
-    dir('project_home/SiteSearchData') {
+    dir('project_home/FgpUtil') {
+      checkout([$class: 'GitSCM',
+      branches: [[name: '*/master']],
+      doGenerateSubmoduleConfigurations: false,
+      extensions: [],
+      submoduleCfg: [],
+      userRemoteConfigs: [[url: 'https://github.com/EuPathDB/FgpUtil.git']]]
+      )
+    }
+
+    dir('project_home/EbrcWebsiteCommon') {
       checkout([$class: 'GitSCM',
       branches: [[name: env.BRANCH_NAME ]],
       doGenerateSubmoduleConfigurations: false,
       extensions: [],
       submoduleCfg: [],
-      userRemoteConfigs: [[url: 'https://github.com/EuPathDB/SiteSearchData.git']]]
+      userRemoteConfigs: [[url: 'https://github.com/EuPathDB/EbrcWebsiteCommon.git']]]
       )
     }
 

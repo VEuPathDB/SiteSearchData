@@ -5,6 +5,7 @@
   <!-- oooooooooooooooooooooooooo  Dependencies  oooooooooooooooooooooooooo -->
   <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 
+  <!-- depend on EbrcWebsiteCommon for EuPathDbDriverInitializer.java -->
   <import file="${projectsDir}/WDK/build.xml" />
   <import file="${projectsDir}/EbrcWebsiteCommon/build.xml" />
 
