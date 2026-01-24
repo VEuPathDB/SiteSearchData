@@ -1,4 +1,4 @@
-@Library('pipelib@debug')
+@Library('pipelib')
 import org.veupathdb.lib.Builder
 
 node ('centos8') {
