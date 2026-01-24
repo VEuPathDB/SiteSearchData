@@ -26,28 +26,103 @@ if(!params.maxForks) {
 //--------------------------------------------------------------------------
 
 workflow {
-  // Define the list of projects to process
-  projects = Channel.of('PlasmoDB', 'ToxoDB', 'HostDB', 'AmoebaDB',
-                        'CryptoDB', 'FungiDB', 'GiardiaDB', 'MicrosporidiaDB',
-                        'PiroplasmaDB', 'TriTrypDB', 'TrichDB', 'VectorBase')
+  // Define projects grouped by cohort
+  // Each tuple is: [cohort, projectId]
+  projects = Channel.of(
+    ['ApiCommon', 'PlasmoDB'],
+    ['ApiCommon', 'ToxoDB'],
+    ['ApiCommon', 'HostDB'],
+    ['ApiCommon', 'AmoebaDB'],
+    ['ApiCommon', 'CryptoDB'],
+    ['ApiCommon', 'FungiDB'],
+    ['ApiCommon', 'GiardiaDB'],
+    ['ApiCommon', 'MicrosporidiaDB'],
+    ['ApiCommon', 'PiroplasmaDB'],
+    ['ApiCommon', 'TriTrypDB'],
+    ['ApiCommon', 'TrichDB'],
+    ['ApiCommon', 'VectorBase'],
+    ['OrthoMCL', 'OrthoMCL'],
+    ['EDA', 'ClinEpiDB'],
+    ['EDA', 'MicrobiomeDB']
+  )
+
+  // Get unique cohorts for metadata batch creation
+  cohorts = Channel.of('ApiCommon', 'OrthoMCL', 'EDA')
 
   // Generate config files for each project
   configs = generateConfigs(projects, params.dbLdapName)
+
+  // Create metadata batches for each cohort (runs in parallel with project dumps)
+  createMetadataBatches(cohorts)
 
   // Run the workflow for each project
   results = runSiteSearchData(configs)
 }
 
+process createMetadataBatches {
+  container = 'veupathdb/site-search-data:1.2.0'
+  containerOptions "-v ${params.outputDir}:/output"
+  errorStrategy 'ignore'
+
+  input:
+    val cohort
+
+  output:
+    val cohort
+
+  script:
+  // Use ports 8900-8902 for metadata servers (separate from project dump ports 9000+)
+  def port = cohort == 'ApiCommon' ? 8900 : cohort == 'OrthoMCL' ? 8901 : 8902
+  """
+  mkdir -p /output/metadata/${cohort}
+
+  # Start WDK server on dedicated port in the background
+  wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/metadata/${cohort}/server.log &
+  SERVER_PID=\$!
+
+  # Wait for server to be ready
+  echo "Waiting for WDK server to start on port ${port} for ${cohort} metadata..."
+  for i in {1..60}; do
+    if curl -s http://localhost:${port} > /dev/null 2>&1; then
+      echo "Server is ready on port ${port}"
+      break
+    fi
+    sleep 2
+  done
+
+  # Create document categories batch
+  echo "Creating document categories batch for ${cohort}"
+  ssCreateDocumentCategoriesBatch ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docCat.log
+
+  # Create document fields batch
+  echo "Creating document fields batch for ${cohort}"
+  ssCreateDocumentFieldsBatch http://localhost:${port} ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docField.log
+
+  # Stop the server
+  kill \$SERVER_PID || true
+  """
+}
+
 process generateConfigs {
   input:
-    val projectId
+    tuple val(cohort), val(projectId)
     val dbLdapName
 
   output:
-    tuple val(projectId), path('model-config.xml'), path('model.prop')
+    tuple val(cohort), val(projectId), path('gus.config'), path('model-config.xml'), path('model.prop')
 
   script:
   """
+  # Generate gus.config for Postgres
+  cat > gus.config <<EOF
+# provide connection info for the application database.
+# this is used by perl scripts that are part of dumping/loading
+dbiDsn=dbi:Pg:host=\${DB_HOST};port=\${DB_PORT};dbname=${dbLdapName}
+databaseLogin=\${DB_LOGIN}
+databasePassword=\${DB_PASSWORD}
+perl=/usr/bin/perl
+EOF
+
   # Copy model-config.xml template and substitute APPDB_LDAP_CN
   cp ${projectDir}/Model/config/SiteSearchData/model-config.xml.tmpl model-config.xml
   sed -i 's/\$APPDB_LDAP_CN/${dbLdapName}/g' model-config.xml
@@ -62,9 +137,10 @@ process runSiteSearchData {
   container = 'veupathdb/site-search-data:1.2.0'
   containerOptions "-v ${params.outputDir}:/output"
   maxForks params.maxForks
+  errorStrategy 'ignore'
 
   input:
-    tuple val(projectId), path(modelConfig), path(modelProp)
+    tuple val(cohort), val(projectId), path(gusConfig), path(modelConfig), path(modelProp)
 
   output:
     val projectId
@@ -72,10 +148,26 @@ process runSiteSearchData {
   script:
   // Assign port based on parallel execution slot (task.index ranges from 0 to maxForks-1)
   def port = 9000 + task.index
+
+  // Select appropriate dump script and arguments based on cohort
+  def dumpScript
+  def dumpArgs
+  if (cohort == 'ApiCommon') {
+    dumpScript = "dumpApiCommonWdkBatchesForSolr"
+    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId} --numberOfOrganisms ${params.numberOfOrganisms}"
+  } else if (cohort == 'OrthoMCL') {
+    dumpScript = "dumpOrthomclWdkBatchesForSolr"
+    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId}"
+  } else if (cohort == 'EDA') {
+    dumpScript = "dumpEdaWdkBatchesForSolr"
+    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId}"
+  }
+
   """
   mkdir -p /tmp/base_gus/gus_home/config/SiteSearchData
   mkdir -p /output/${projectId}
 
+  cp ${gusConfig} /tmp/base_gus/gus_home/config/gus.config
   cp ${modelConfig} /tmp/base_gus/gus_home/config/SiteSearchData/model-config.xml
   cp ${modelProp} /tmp/base_gus/gus_home/config/SiteSearchData/model.prop
 
@@ -93,8 +185,9 @@ process runSiteSearchData {
     sleep 2
   done
 
-  # Run the dump script for ApiCommon sites, writing directly to mounted volume
-  dumpApiCommonWdkBatchesForSolr --wdkServiceUrl "http://localhost:${port}" --targetDir /output/${projectId} --numberOfOrganisms ${params.numberOfOrganisms} &>> /output/${projectId}/dumper.log
+  # Run the appropriate dump script based on cohort
+  echo "Running ${dumpScript} for ${cohort} cohort, project ${projectId}"
+  ${dumpScript} ${dumpArgs} &>> /output/${projectId}/dumper.log
 
   # Stop the server
   kill \$SERVER_PID || true
