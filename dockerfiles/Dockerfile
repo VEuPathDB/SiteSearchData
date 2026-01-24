@@ -4,7 +4,7 @@
 #
 ############################################################
 
-FROM veupathdb/alpine-dev-base:jdk-15 AS build
+FROM veupathdb/alpine-dev-base:jdk-21-gradle-8.7 AS build
 
 #
 #  Install Apache Ant
