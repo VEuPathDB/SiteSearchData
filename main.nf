@@ -47,60 +47,24 @@ workflow {
   )
 
   // Get unique cohorts for metadata batch creation
-  cohorts = Channel.of('ApiCommon', 'OrthoMCL', 'EDA')
+  // Use a representative project from each cohort for config generation
+  metadataCohorts = Channel.of(
+    ['ApiCommon', 'PlasmoDB'],   // Use PlasmoDB as representative for ApiCommon
+    ['OrthoMCL', 'OrthoMCL'],
+    ['EDA', 'ClinEpiDB']         // Use ClinEpiDB as representative for EDA
+  )
 
   // Generate config files for each project
   configs = generateConfigs(projects, params.dbLdapName)
 
+  // Generate config files for metadata batches
+  metadataConfigs = generateConfigs(metadataCohorts, params.dbLdapName)
+
   // Create metadata batches for each cohort (runs in parallel with project dumps)
-  createMetadataBatches(cohorts)
+  createMetadataBatches(metadataConfigs)
 
   // Run the workflow for each project
   results = runSiteSearchData(configs)
-}
-
-process createMetadataBatches {
-  container = 'veupathdb/site-search-data:1.2.0'
-  containerOptions "-v ${params.outputDir}:/output"
-  errorStrategy 'ignore'
-
-  input:
-    val cohort
-
-  output:
-    val cohort
-
-  script:
-  // Use ports 8900-8902 for metadata servers (separate from project dump ports 9000+)
-  def port = cohort == 'ApiCommon' ? 8900 : cohort == 'OrthoMCL' ? 8901 : 8902
-  """
-  mkdir -p /output/metadata/${cohort}
-
-  # Start WDK server on dedicated port in the background
-  wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/metadata/${cohort}/server.log &
-  SERVER_PID=\$!
-
-  # Wait for server to be ready
-  echo "Waiting for WDK server to start on port ${port} for ${cohort} metadata..."
-  for i in {1..60}; do
-    if curl -s http://localhost:${port} > /dev/null 2>&1; then
-      echo "Server is ready on port ${port}"
-      break
-    fi
-    sleep 2
-  done
-
-  # Create document categories batch
-  echo "Creating document categories batch for ${cohort}"
-  ssCreateDocumentCategoriesBatch ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docCat.log
-
-  # Create document fields batch
-  echo "Creating document fields batch for ${cohort}"
-  ssCreateDocumentFieldsBatch http://localhost:${port} ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docField.log
-
-  # Stop the server
-  kill \$SERVER_PID || true
-  """
 }
 
 process generateConfigs {
@@ -130,6 +94,55 @@ EOF
   # Copy model.prop template and substitute PROJECT_ID
   cp ${projectDir}/Model/config/SiteSearchData/model.prop.tmpl model.prop
   sed -i 's/\$PROJECT_ID/${projectId}/g' model.prop
+  """
+}
+
+process createMetadataBatches {
+  container = 'veupathdb/site-search-data:1.2.0'
+  containerOptions "-v ${params.outputDir}:/output"
+  errorStrategy 'ignore'
+
+  input:
+    tuple val(cohort), val(projectId), path(gusConfig), path(modelConfig), path(modelProp)
+
+  output:
+    val cohort
+
+  script:
+  // Use ports 8900+ for metadata servers (separate from project dump ports 9000+)
+  // task.index assigns unique port per parallel execution slot
+  def port = 8900 + task.index
+  """
+  mkdir -p /output/metadata/${cohort}
+
+  cp ${gusConfig} \${GUS_HOME}/config/gus.config
+  cp ${modelConfig} \${GUS_HOME}/config/SiteSearchData/model-config.xml
+  cp ${modelProp} \${GUS_HOME}/config/SiteSearchData/model.prop
+
+  # Start WDK server on dedicated port in the background
+  wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/metadata/${cohort}/server.log &
+  SERVER_PID=\$!
+
+  # Wait for server to be ready
+  echo "Waiting for WDK server to start on port ${port} for ${cohort} metadata..."
+  for i in {1..60}; do
+    if curl -s http://localhost:${port} > /dev/null 2>&1; then
+      echo "Server is ready on port ${port}"
+      break
+    fi
+    sleep 2
+  done
+
+  # Create document categories batch
+  echo "Creating document categories batch for ${cohort}"
+  ssCreateDocumentCategoriesBatch ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docCat.log
+
+  # Create document fields batch
+  echo "Creating document fields batch for ${cohort}"
+  ssCreateDocumentFieldsBatch http://localhost:${port} ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docField.log
+
+  # Stop the server
+  kill \$SERVER_PID || true
   """
 }
 
@@ -164,12 +177,11 @@ process runSiteSearchData {
   }
 
   """
-  mkdir -p /tmp/base_gus/gus_home/config/SiteSearchData
   mkdir -p /output/${projectId}
 
-  cp ${gusConfig} /tmp/base_gus/gus_home/config/gus.config
-  cp ${modelConfig} /tmp/base_gus/gus_home/config/SiteSearchData/model-config.xml
-  cp ${modelProp} /tmp/base_gus/gus_home/config/SiteSearchData/model.prop
+  cp ${gusConfig} \${GUS_HOME}/config/gus.config
+  cp ${modelConfig} \${GUS_HOME}/config/SiteSearchData/model-config.xml
+  cp ${modelProp} \${GUS_HOME}/config/SiteSearchData/model.prop
 
   # Start WDK server on dedicated port in the background, logging to output dir
   wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/${projectId}/server.log &
