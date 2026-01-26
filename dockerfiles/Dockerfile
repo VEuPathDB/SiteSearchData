@@ -31,6 +31,7 @@ RUN apk add -u --no-cache \
     npm \
     nodejs \
     git \
+    bash \
     perl \
     bash \
     maven
