@@ -47,7 +47,7 @@ WORKDIR ${PROJECT_HOME}
 
 
 #
-# Copy in SiteSearchData from Jenkins workspace
+# Copy in SiteSearchData source
 #
 COPY . SiteSearchData/
 
