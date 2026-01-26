@@ -62,7 +62,7 @@ workflow {
   configs = generateConfigs(projects, params.dbName)
 
   // Generate config files for metadata batches
-  metadataConfigs = generateConfigs(metadataCohorts, params.dbName)
+  metadataConfigs = generateMetaConfigs(metadataCohorts, params.dbName)
 
   // Create metadata batches for each cohort (runs in parallel with project dumps)
   createMetadataBatches(metadataConfigs, params.envFile)
@@ -72,6 +72,36 @@ workflow {
 }
 
 process generateConfigs {
+  input:
+    tuple val(cohort), val(projectId)
+    val dbName
+
+  output:
+    tuple val(cohort), val(projectId), path('gus.config'), path('model-config.xml'), path('model.prop')
+
+  script:
+  """
+  # Generate gus.config for Postgres
+  cat > gus.config <<EOF
+# provide connection info for the application database.
+# this is used by perl scripts that are part of dumping/loading
+dbiDsn=dbi:Pg:host=\${DB_HOST};port=\${DB_PORT};dbname=${dbName}
+databaseLogin=\${DB_LOGIN}
+databasePassword=\${DB_PASSWORD}
+perl=/usr/bin/perl
+EOF
+
+  # Copy model-config.xml template and substitute APPDB_LDAP_CN
+  cp ${projectDir}/Model/config/SiteSearchData/model-config.xml.tmpl model-config.xml
+  sed -i 's/\$APPDB_LDAP_CN/${dbName}/g' model-config.xml
+
+  # Copy model.prop template and substitute PROJECT_ID
+  cp ${projectDir}/Model/config/SiteSearchData/model.prop.tmpl model.prop
+  sed -i 's/\$PROJECT_ID/${projectId}/g' model.prop
+  """
+}
+
+process generateMetaConfigs {
   input:
     tuple val(cohort), val(projectId)
     val dbName

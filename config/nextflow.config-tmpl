@@ -8,7 +8,8 @@ process {
       container = 'veupathdb/site-search-data:latest'
       maxForks = 4
 }
-    singularity {
+podman {
       enabled = true
+      runOptions = '--cgroups=disabled'
 }
 

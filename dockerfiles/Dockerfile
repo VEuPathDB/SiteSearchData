@@ -78,6 +78,7 @@ RUN apk add -u --no-cache \
     python2-dev \
     libffi-dev \
     libressl-dev \
+    bash \
     perl \
     wget \
     openjdk11 \
