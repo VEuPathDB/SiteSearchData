@@ -78,7 +78,7 @@ RUN mkdir -p ${GUS_HOME}/config \
 #
 ############################################################
 
-FROM foxcapades/alpine-oracle:1.6
+FROM amazoncorretto:21-alpine3.23
 
 ENV BASE_GUS=/tmp/base_gus 
 ENV GUS_HOME=${BASE_GUS}/gus_home
@@ -87,18 +87,14 @@ ENV PATH="${GUS_HOME}/bin:${JAVA_HOME}/bin:${PATH}"
 # python3/requests for loading scripts
 RUN apk add -u --no-cache \
     python3 \
-    py3-pip \
+    py3-requests \
     gettext \
     build-base \
-    python2-dev \
     libffi-dev \
     libressl-dev \
     perl \
     wget \
-    openjdk11 \
- && pip3 install requests \
- && mkdir -p ${GUS_HOME}/lib/java/db_driver \
- && cp /jdbc/* ${GUS_HOME}/lib/java/db_driver
+    bash
 
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
 COPY [ \
