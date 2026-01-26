@@ -92,6 +92,7 @@ RUN apk add -u --no-cache \
     python2-dev \
     libffi-dev \
     libressl-dev \
+    bash \
     perl \
     wget \
     openjdk11 \
@@ -111,4 +112,4 @@ RUN chmod +x /tmp/entrypoint.sh
 ENTRYPOINT ["/tmp/entrypoint.sh"]
 EXPOSE 9988
 
-CMD wdkServer SiteSearchData http://0.0.0.0:9988
+CMD wdkServer SiteSearchData http://0.0.0.0:9988 -cleanCacheAtStartup

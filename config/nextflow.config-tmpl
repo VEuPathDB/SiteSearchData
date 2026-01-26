@@ -1,0 +1,15 @@
+params {
+      outputDir = ""
+      envFile = ""
+      dbName = ""
+      numberOfOrganisms =
+}
+process {
+      container = 'veupathdb/site-search-data:latest'
+      maxForks = 4
+}
+podman {
+      enabled = true
+      runOptions = '--cgroups=disabled'
+}
+
