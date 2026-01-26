@@ -1,5 +1,5 @@
 .PHONY: build
-build: project_home/FgpUtil project_home/install project_home/WDK project_home/WSF
+build:
 	@docker build \
 		-t veupathdb/site-search-data \
 		-f project_home/SiteSearchData/dockerfiles/Dockerfile \
