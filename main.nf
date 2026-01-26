@@ -9,16 +9,16 @@ if(!params.outputDir) {
   throw new Exception("Missing params.outputDir")
 }
 
-if(!params.dbLdapName) {
-  throw new Exception("Missing params.dbLdapName (e.g., 'plasmo-inc-n')")
+if(!params.envFile) {
+  throw new Exception("Missing params.envFile")
+}
+
+if(!params.dbName) {
+  throw new Exception("Missing params.dbName (e.g., 'plasmo-inc-n')")
 }
 
 if(!params.numberOfOrganisms) {
   throw new Exception("Missing params.numberOfOrganisms")
-}
-
-if(!params.maxForks) {
-  throw new Exception("Missing params.maxForks (degree of parallelism)")
 }
 
 //--------------------------------------------------------------------------
@@ -46,6 +46,10 @@ workflow {
     ['EDA', 'MicrobiomeDB']
   )
 
+  projects = Channel.of(
+    ['ApiCommon', 'PlasmoDB']
+  )
+
   // Get unique cohorts for metadata batch creation
   // Use a representative project from each cohort for config generation
   metadataCohorts = Channel.of(
@@ -55,22 +59,22 @@ workflow {
   )
 
   // Generate config files for each project
-  configs = generateConfigs(projects, params.dbLdapName)
+  configs = generateConfigs(projects, params.dbName)
 
   // Generate config files for metadata batches
-  metadataConfigs = generateConfigs(metadataCohorts, params.dbLdapName)
+  metadataConfigs = generateConfigs(metadataCohorts, params.dbName)
 
   // Create metadata batches for each cohort (runs in parallel with project dumps)
-  createMetadataBatches(metadataConfigs)
+  createMetadataBatches(metadataConfigs, params.envFile)
 
   // Run the workflow for each project
-  results = runSiteSearchData(configs)
+  results = runSiteSearchData(configs, params.envFile)
 }
 
 process generateConfigs {
   input:
     tuple val(cohort), val(projectId)
-    val dbLdapName
+    val dbName
 
   output:
     tuple val(cohort), val(projectId), path('gus.config'), path('model-config.xml'), path('model.prop')
@@ -81,7 +85,7 @@ process generateConfigs {
   cat > gus.config <<EOF
 # provide connection info for the application database.
 # this is used by perl scripts that are part of dumping/loading
-dbiDsn=dbi:Pg:host=\${DB_HOST};port=\${DB_PORT};dbname=${dbLdapName}
+dbiDsn=dbi:Pg:host=\${DB_HOST};port=\${DB_PORT};dbname=${dbName}
 databaseLogin=\${DB_LOGIN}
 databasePassword=\${DB_PASSWORD}
 perl=/usr/bin/perl
@@ -89,7 +93,7 @@ EOF
 
   # Copy model-config.xml template and substitute APPDB_LDAP_CN
   cp ${projectDir}/Model/config/SiteSearchData/model-config.xml.tmpl model-config.xml
-  sed -i 's/\$APPDB_LDAP_CN/${dbLdapName}/g' model-config.xml
+  sed -i 's/\$APPDB_LDAP_CN/${dbName}/g' model-config.xml
 
   # Copy model.prop template and substitute PROJECT_ID
   cp ${projectDir}/Model/config/SiteSearchData/model.prop.tmpl model.prop
@@ -98,12 +102,12 @@ EOF
 }
 
 process createMetadataBatches {
-  container = 'veupathdb/site-search-data:1.2.0'
   containerOptions "-v ${params.outputDir}:/output"
   errorStrategy 'ignore'
 
   input:
     tuple val(cohort), val(projectId), path(gusConfig), path(modelConfig), path(modelProp)
+    path(envFile)
 
   output:
     val cohort
@@ -113,6 +117,8 @@ process createMetadataBatches {
   // task.index assigns unique port per parallel execution slot
   def port = 8900 + task.index
   """
+  source $envFile
+
   mkdir -p /output/metadata/${cohort}
 
   cp ${gusConfig} \${GUS_HOME}/config/gus.config
@@ -147,13 +153,12 @@ process createMetadataBatches {
 }
 
 process runSiteSearchData {
-  container = 'veupathdb/site-search-data:1.2.0'
   containerOptions "-v ${params.outputDir}:/output"
-  maxForks params.maxForks
   errorStrategy 'ignore'
 
   input:
     tuple val(cohort), val(projectId), path(gusConfig), path(modelConfig), path(modelProp)
+    path(envFile)
 
   output:
     val projectId
@@ -177,6 +182,8 @@ process runSiteSearchData {
   }
 
   """
+  source $envFile
+
   mkdir -p /output/${projectId}
 
   cp ${gusConfig} \${GUS_HOME}/config/gus.config
