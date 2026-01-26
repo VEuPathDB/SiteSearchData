@@ -31,7 +31,6 @@ RUN apk add -u --no-cache \
     npm \
     nodejs \
     git \
-    bash \
     perl \
     bash \
     maven
@@ -93,6 +92,7 @@ RUN apk add -u --no-cache \
     python2-dev \
     libffi-dev \
     libressl-dev \
+    bash \
     perl \
     wget \
     openjdk11 \
