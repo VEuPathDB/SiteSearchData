@@ -86,9 +86,13 @@ process createMetadataBatches {
   # Wait for server to be ready
   echo "Waiting for WDK server to start on port ${port} for ${cohort} metadata..."
   for i in {1..60}; do
-    if curl -s http://localhost:${port} > /dev/null 2>&1; then
+    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${port} 2>/dev/null || echo "000")
+    if [ "\$HTTP_CODE" -ge 200 ] && [ "\$HTTP_CODE" -lt 300 ]; then
       echo "Server is ready on port ${port}"
       break
+    elif [ "\$HTTP_CODE" -ge 400 ] && [ "\$HTTP_CODE" -lt 600 ]; then
+      echo "Server returned error \$HTTP_CODE on port ${port}"
+      exit 1
     fi
     sleep 2
   done
@@ -145,9 +149,13 @@ process runSiteSearchData {
   # Wait for server to be ready
   echo "Waiting for WDK server to start on port ${port}..."
   for i in {1..60}; do
-    if curl -s http://localhost:${port} > /dev/null 2>&1; then
+    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${port} 2>/dev/null || echo "000")
+    if [ "\$HTTP_CODE" -ge 200 ] && [ "\$HTTP_CODE" -lt 300 ]; then
       echo "Server is ready on port ${port}"
       break
+    elif [ "\$HTTP_CODE" -ge 400 ] && [ "\$HTTP_CODE" -lt 600 ]; then
+      echo "Server returned error \$HTTP_CODE on port ${port}"
+      exit 1
     fi
     sleep 2
   done
