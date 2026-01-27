@@ -92,6 +92,7 @@ RUN apk add -u --no-cache \
     libffi-dev \
     libressl-dev \
     bash \
+    curl \
     perl \
     perl-dbi \
     perl-dbd-pg \
