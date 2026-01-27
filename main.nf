@@ -54,59 +54,11 @@ workflow {
     ['EDA', 'ClinEpiDB']         // Use ClinEpiDB as representative for EDA
   )
 
-  // Generate config files for each project
-  configs = generateConfigs(projects)
-
-  // Generate config files for metadata batches
-  metadataConfigs = generateMetaConfigs(metadataCohorts)
-
   // Create metadata batches for each cohort (runs in parallel with project dumps)
-  createMetadataBatches(metadataConfigs, params.envFile)
+  createMetadataBatches(metadataCohorts, params.envFile)
 
   // Run the workflow for each project
-  results = runSiteSearchData(configs, params.envFile)
-}
-
-process generateConfigs {
-  input:
-    tuple val(cohort), val(projectId)
-
-  output:
-    tuple val(cohort), val(projectId), path('gus.config')
-
-  script:
-  """
-  # Generate gus.config for Postgres
-  cat > gus.config <<EOF
-# provide connection info for the application database.
-# this is used by perl scripts that are part of dumping/loading
-dbiDsn=dbi:Pg:host=\${APPDB_HOST};port=\${APPDB_PORT};dbname=\${APPDB_LDAP_CN}
-databaseLogin=\${APPDB_LOGIN}
-databasePassword=\${APPDB_PASSWORD}
-perl=/usr/bin/perl
-EOF
-  """
-}
-
-process generateMetaConfigs {
-  input:
-    tuple val(cohort), val(projectId)
-
-  output:
-    tuple val(cohort), val(projectId), path('gus.config')
-
-  script:
-  """
-  # Generate gus.config for Postgres
-  cat > gus.config <<EOF
-# provide connection info for the application database.
-# this is used by perl scripts that are part of dumping/loading
-dbiDsn=dbi:Pg:host=\${APPDB_HOST};port=\${APPDB_PORT};dbname=\${APPDB_LDAP_CN}
-databaseLogin=\${APPDB_LOGIN}
-databasePassword=\${APPDB_PASSWORD}
-perl=/usr/bin/perl
-EOF
-  """
+  results = runSiteSearchData(projects, params.envFile)
 }
 
 process createMetadataBatches {
@@ -114,7 +66,7 @@ process createMetadataBatches {
   errorStrategy 'ignore'
 
   input:
-    tuple val(cohort), val(projectId), path(gusConfig)
+    tuple val(cohort), val(projectId)
     path(envFile)
 
   output:
@@ -126,8 +78,6 @@ process createMetadataBatches {
   def port = 8900 + task.index
   """
   mkdir -p /output/metadata/${cohort}
-
-  cp ${gusConfig} \${GUS_HOME}/config/gus.config
 
   # Start WDK server on dedicated port in the background
   wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/metadata/${cohort}/server.log &
@@ -161,7 +111,7 @@ process runSiteSearchData {
   errorStrategy 'ignore'
 
   input:
-    tuple val(cohort), val(projectId), path(gusConfig)
+    tuple val(cohort), val(projectId)
     path(envFile)
 
   output:
@@ -187,8 +137,6 @@ process runSiteSearchData {
 
   """
   mkdir -p /output/${projectId}
-
-  cp ${gusConfig} \${GUS_HOME}/config/gus.config
 
   # Start WDK server on dedicated port in the background, logging to output dir
   wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/${projectId}/server.log &
