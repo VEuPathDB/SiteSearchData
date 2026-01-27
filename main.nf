@@ -13,10 +13,6 @@ if(!params.envFile) {
   throw new Exception("Missing params.envFile")
 }
 
-if(!params.dbName) {
-  throw new Exception("Missing params.dbName (e.g., 'plasmo-inc-n')")
-}
-
 if(!params.numberOfOrganisms) {
   throw new Exception("Missing params.numberOfOrganisms")
 }
@@ -59,10 +55,10 @@ workflow {
   )
 
   // Generate config files for each project
-  configs = generateConfigs(projects, params.dbName)
+  configs = generateConfigs(projects)
 
   // Generate config files for metadata batches
-  metadataConfigs = generateMetaConfigs(metadataCohorts, params.dbName)
+  metadataConfigs = generateMetaConfigs(metadataCohorts)
 
   // Create metadata batches for each cohort (runs in parallel with project dumps)
   createMetadataBatches(metadataConfigs, params.envFile)
@@ -74,10 +70,9 @@ workflow {
 process generateConfigs {
   input:
     tuple val(cohort), val(projectId)
-    val dbName
 
   output:
-    tuple val(cohort), val(projectId), path('gus.config'), path('model-config.xml'), path('model.prop')
+    tuple val(cohort), val(projectId), path('gus.config')
 
   script:
   """
@@ -85,29 +80,20 @@ process generateConfigs {
   cat > gus.config <<EOF
 # provide connection info for the application database.
 # this is used by perl scripts that are part of dumping/loading
-dbiDsn=dbi:Pg:host=\${DB_HOST};port=\${DB_PORT};dbname=${dbName}
-databaseLogin=\${DB_LOGIN}
-databasePassword=\${DB_PASSWORD}
+dbiDsn=dbi:Pg:host=\${APPDB_HOST};port=\${APPDB_PORT};dbname=\${APPDB_LDAP_CN}
+databaseLogin=\${APPDB_LOGIN}
+databasePassword=\${APPDB_PASSWORD}
 perl=/usr/bin/perl
 EOF
-
-  # Copy model-config.xml template and substitute APPDB_LDAP_CN
-  cp ${projectDir}/Model/config/SiteSearchData/model-config.xml.tmpl model-config.xml
-  sed -i 's/\$APPDB_LDAP_CN/${dbName}/g' model-config.xml
-
-  # Copy model.prop template and substitute PROJECT_ID
-  cp ${projectDir}/Model/config/SiteSearchData/model.prop.tmpl model.prop
-  sed -i 's/\$PROJECT_ID/${projectId}/g' model.prop
   """
 }
 
 process generateMetaConfigs {
   input:
     tuple val(cohort), val(projectId)
-    val dbName
 
   output:
-    tuple val(cohort), val(projectId), path('gus.config'), path('model-config.xml'), path('model.prop')
+    tuple val(cohort), val(projectId), path('gus.config')
 
   script:
   """
@@ -115,28 +101,20 @@ process generateMetaConfigs {
   cat > gus.config <<EOF
 # provide connection info for the application database.
 # this is used by perl scripts that are part of dumping/loading
-dbiDsn=dbi:Pg:host=\${DB_HOST};port=\${DB_PORT};dbname=${dbName}
-databaseLogin=\${DB_LOGIN}
-databasePassword=\${DB_PASSWORD}
+dbiDsn=dbi:Pg:host=\${APPDB_HOST};port=\${APPDB_PORT};dbname=\${APPDB_LDAP_CN}
+databaseLogin=\${APPDB_LOGIN}
+databasePassword=\${APPDB_PASSWORD}
 perl=/usr/bin/perl
 EOF
-
-  # Copy model-config.xml template and substitute APPDB_LDAP_CN
-  cp ${projectDir}/Model/config/SiteSearchData/model-config.xml.tmpl model-config.xml
-  sed -i 's/\$APPDB_LDAP_CN/${dbName}/g' model-config.xml
-
-  # Copy model.prop template and substitute PROJECT_ID
-  cp ${projectDir}/Model/config/SiteSearchData/model.prop.tmpl model.prop
-  sed -i 's/\$PROJECT_ID/${projectId}/g' model.prop
   """
 }
 
 process createMetadataBatches {
-  containerOptions "-v ${params.outputDir}:/output"
+  containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
   errorStrategy 'ignore'
 
   input:
-    tuple val(cohort), val(projectId), path(gusConfig), path(modelConfig), path(modelProp)
+    tuple val(cohort), val(projectId), path(gusConfig)
     path(envFile)
 
   output:
@@ -147,13 +125,9 @@ process createMetadataBatches {
   // task.index assigns unique port per parallel execution slot
   def port = 8900 + task.index
   """
-  source $envFile
-
   mkdir -p /output/metadata/${cohort}
 
   cp ${gusConfig} \${GUS_HOME}/config/gus.config
-  cp ${modelConfig} \${GUS_HOME}/config/SiteSearchData/model-config.xml
-  cp ${modelProp} \${GUS_HOME}/config/SiteSearchData/model.prop
 
   # Start WDK server on dedicated port in the background
   wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/metadata/${cohort}/server.log &
@@ -183,11 +157,11 @@ process createMetadataBatches {
 }
 
 process runSiteSearchData {
-  containerOptions "-v ${params.outputDir}:/output"
+  containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
   errorStrategy 'ignore'
 
   input:
-    tuple val(cohort), val(projectId), path(gusConfig), path(modelConfig), path(modelProp)
+    tuple val(cohort), val(projectId), path(gusConfig)
     path(envFile)
 
   output:
@@ -212,13 +186,9 @@ process runSiteSearchData {
   }
 
   """
-  source $envFile
-
   mkdir -p /output/${projectId}
 
   cp ${gusConfig} \${GUS_HOME}/config/gus.config
-  cp ${modelConfig} \${GUS_HOME}/config/SiteSearchData/model-config.xml
-  cp ${modelProp} \${GUS_HOME}/config/SiteSearchData/model.prop
 
   # Start WDK server on dedicated port in the background, logging to output dir
   wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/${projectId}/server.log &
