@@ -66,6 +66,7 @@ RUN git clone https://github.com/EuPathDB/install.git \
 # Project Build
 #
 RUN mkdir -p ${GUS_HOME}/config \
+ && cp ${PROJECT_HOME}/install/config/gus.config.sample ${GUS_HOME}/config/gus.config \
  && env \
  && /bin/bash bld SiteSearchData
 
