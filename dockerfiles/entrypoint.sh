@@ -34,6 +34,8 @@ then
     envsubst < ${GUS_HOME}/config/SiteSearchData/model.prop.tmpl > ${GUS_HOME}/config/SiteSearchData/model.prop
 fi
 
+envsubst < ${GUS_HOME}/config/gus.config.tmpl > ${GUS_HOME}/config/gus.config
+
 #envsubst < /tmp/site-search-config.tpl.json > /tmp/site-search-config.json
 
 # run CMD, or whatever is specified by run
