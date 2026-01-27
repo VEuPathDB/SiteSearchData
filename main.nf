@@ -63,7 +63,6 @@ workflow {
 
 process createMetadataBatches {
   containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
-  errorStrategy 'ignore'
 
   input:
     tuple val(cohort), val(projectId)
@@ -122,7 +121,6 @@ process createMetadataBatches {
 
 process runSiteSearchData {
   containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
-  errorStrategy 'ignore'
 
   input:
     tuple val(cohort), val(projectId)
