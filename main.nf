@@ -54,11 +54,31 @@ workflow {
     ['EDA', 'ClinEpiDB']         // Use ClinEpiDB as representative for EDA
   )
 
+  // Recreate WDK cache (runs once at the start)
+  recreateCache(params.envFile)
+
   // Create metadata batches for each cohort (runs in parallel with project dumps)
   createMetadataBatches(metadataCohorts, params.envFile)
 
   // Run the workflow for each project
   results = runSiteSearchData(projects, params.envFile)
+}
+
+process recreateCache {
+  containerOptions "--env-file ${params.envFile} -e COHORT=ApiCommon -e PROJECT_ID=PlasmoDB"
+
+  input:
+    path(envFile)
+
+  output:
+    val true
+
+  script:
+  """
+  echo "Recreating WDK cache..."
+  wdkCache -model SiteSearchData -recreate
+  echo "WDK cache recreated successfully"
+  """
 }
 
 process createMetadataBatches {
@@ -79,7 +99,7 @@ process createMetadataBatches {
   mkdir -p /output/metadata/${cohort}
 
   # Start WDK server on dedicated port in the background
-  wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/metadata/${cohort}/server.log &
+  wdkServer SiteSearchData http://0.0.0.0:${port} &> /output/metadata/${cohort}/server.log &
   SERVER_PID=\$!
 
   # Wait for server to be ready
@@ -151,7 +171,7 @@ process runSiteSearchData {
   mkdir -p /output/${projectId}
 
   # Start WDK server on dedicated port in the background, logging to output dir
-  wdkServer SiteSearchData http://0.0.0.0:${port} -cleanCacheAtStartup &> /output/${projectId}/server.log &
+  wdkServer SiteSearchData http://0.0.0.0:${port}  &> /output/${projectId}/server.log &
   SERVER_PID=\$!
 
   # Wait for server to be ready
