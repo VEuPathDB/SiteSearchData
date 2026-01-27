@@ -93,6 +93,8 @@ RUN apk add -u --no-cache \
     libressl-dev \
     bash \
     perl \
+    perl-dbi \
+    perl-dbd-pg \
     wget \
     bash
 
