@@ -97,13 +97,23 @@ process createMetadataBatches {
     sleep 2
   done
 
-  # Create document categories batch
-  echo "Creating document categories batch for ${cohort}"
-  ssCreateDocumentCategoriesBatch ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docCat.log
+  # Create document categories batch if not already complete
+  CAT_BATCH=\$(ls -d /output/metadata/${cohort}/solr-json-batch_document-categories_all_* 2>/dev/null | tail -1)
+  if [ -n "\$CAT_BATCH" ] && [ -f "\$CAT_BATCH/DONE" ]; then
+    echo "Document categories batch already exists and is complete for ${cohort}, skipping"
+  else
+    echo "Creating document categories batch for ${cohort}"
+    ssCreateDocumentCategoriesBatch ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docCat.log
+  fi
 
-  # Create document fields batch
-  echo "Creating document fields batch for ${cohort}"
-  ssCreateDocumentFieldsBatch http://localhost:${port} ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docField.log
+  # Create document fields batch if not already complete
+  FIELD_BATCH=\$(ls -d /output/metadata/${cohort}/solr-json-batch_document-fields_all_* 2>/dev/null | tail -1)
+  if [ -n "\$FIELD_BATCH" ] && [ -f "\$FIELD_BATCH/DONE" ]; then
+    echo "Document fields batch already exists and is complete for ${cohort}, skipping"
+  else
+    echo "Creating document fields batch for ${cohort}"
+    ssCreateDocumentFieldsBatch http://localhost:${port} ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docField.log
+  fi
 
   # Stop the server
   kill \$SERVER_PID || true
