@@ -105,7 +105,9 @@ COPY [ \
   "/tmp/" \
 ]
 
-RUN chmod +x /tmp/entrypoint.sh
+# remove gus.config from base image, so we can build our own
+RUN chmod +x /tmp/entrypoint.sh \
+  && rm -f ${GUS_HOME}/config/gus.config
 
 ENTRYPOINT ["/tmp/entrypoint.sh"]
 EXPOSE 9988
