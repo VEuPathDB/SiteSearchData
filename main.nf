@@ -54,6 +54,9 @@ workflow {
     ['EDA', 'ClinEpiDB']         // Use ClinEpiDB as representative for EDA
   )
 
+  metadataCohorts = Channel.of(
+    ['ApiCommon', 'PlasmoDB']   // Use PlasmoDB as representative for ApiCommon
+  )
   // Recreate WDK cache (runs once at the start)
   recreateCache(params.envFile)
 
@@ -105,7 +108,8 @@ process createMetadataBatches {
   # Wait for server to be ready
   echo "Waiting for WDK server to start on port ${port} for ${cohort} metadata..."
   for i in {1..60}; do
-    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${port} 2>/dev/null || echo "000")
+    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${port} || echo "000")
+    echo "Attempt \$i: HTTP_CODE=\$HTTP_CODE"
     if [ "\$HTTP_CODE" -ge 200 ] && [ "\$HTTP_CODE" -lt 300 ]; then
       echo "Server is ready on port ${port}"
       break
@@ -177,7 +181,8 @@ process runSiteSearchData {
   # Wait for server to be ready
   echo "Waiting for WDK server to start on port ${port}..."
   for i in {1..60}; do
-    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${port} 2>/dev/null || echo "000")
+    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${port} || echo "000")
+    echo "Attempt \$i: HTTP_CODE=\$HTTP_CODE"
     if [ "\$HTTP_CODE" -ge 200 ] && [ "\$HTTP_CODE" -lt 300 ]; then
       echo "Server is ready on port ${port}"
       break
