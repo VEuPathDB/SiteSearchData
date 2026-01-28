@@ -36,6 +36,7 @@
       </dynamicAttributes>
     </question>
 
+<!--
     <question name="Variables" displayName="dontcare"
               queryRef="VariableIdQueries.AllVariables"
               recordClassRef="variableRecordClasses.variable">
@@ -45,6 +46,7 @@
               queryRef="VariableValueIdQueries.AllVariableValues"
               recordClassRef="variableValueRecordClasses.variableValue">
     </question>
+-->
   </questionSet>
 
 

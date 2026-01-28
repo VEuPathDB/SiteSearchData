@@ -89,9 +89,9 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
 
         DataSource appDs = wdkModel.getAppDb().getDataSource();
         String sql = "select distinct user_dataset_id, user_id " +
-                "from " + vdiControlSchema + ".AvailableUserDatasets " +
+                "from " + vdiControlSchema + "AvailableUserDatasets " +
                 "where project_id = '" + projectId + "' " +
-                "and is_public = 1 and is_owner = 1";
+                "and is_public = true and is_owner = 1";
         try {
             return new SQLRunner(appDs, sql).executeQuery(rs -> {
                List<UserDatasetIds> ownerDatasetIds = new ArrayList<>();
