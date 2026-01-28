@@ -54,10 +54,11 @@
   <import file="Shared/commDatasetRecord.xml"/>
   <import file="Shared/commDatasetQueries.xml"/>
 
+<!--
   <import file="EDA/variableRecord.xml"/>
   <import file="EDA/variableQueries.xml"/>
 
   <import file="EDA/variableValueRecord.xml"/>
   <import file="EDA/variableValueQueries.xml"/>
-
+-->
 </wdkModel>
