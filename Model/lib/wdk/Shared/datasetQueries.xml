@@ -175,7 +175,7 @@
             and etg.study_stable_id = sd.study_stable_id
             and sd.dataset_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
                        or '@PROJECT_ID@' = 'UniDB')
             and sd.dataset_id
@@ -257,7 +257,7 @@
           where dsp.dataset_presenter_id = study_chars.dataset_id(+)
             and dsp.dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
                        or '@PROJECT_ID@' = 'UniDB')
             and dsp.dataset_presenter_id
@@ -278,7 +278,7 @@
           where dprop.property = 'studyAccess'
             and dprop.dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
                        or '@PROJECT_ID@' = 'UniDB')
             and dprop.dataset_presenter_id
@@ -333,7 +333,7 @@
             and t3.dataset_presenter_id = t4.dataset_presenter_id
             and t3.dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
                        or '@PROJECT_ID@' = 'UniDB')
             and t3.dataset_presenter_id

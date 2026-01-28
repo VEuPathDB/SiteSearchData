@@ -579,42 +579,6 @@
         <columnAttribute name="product"/>
       </table>
 
-      <table name="RodMalPhenotype"
-             displayName="Rodent malaria phenotype"
-             queryRef="GeneTables.RodMalPhenotype">
-        <propertyList name="includeProjects">
-          <value>PlasmoDB</value>
-          <value>UniDB</value>
-          <value>VEuPathDB</value>
-        </propertyList>
-        <columnAttribute name="rmgmid"/>
-        <columnAttribute name="pubmed_id"/>
-        <columnAttribute name="mod_type"/>
-        <columnAttribute name="life_cycle_stage"/>
-        <columnAttribute name="phenotype"/>
-        <columnAttribute name="mutation_description"/>
-      </table>
-
-      <table name="Phenotype"
-             displayName="Phenotype"
-             queryRef="GeneTables.Phenotype">
-        <propertyList name="includeProjects">
-          <value>FungiDB</value>
-          <value>TriTrypDB</value>
-          <value>UniDB</value>
-          <value>VEuPathDB</value>
-        </propertyList>
-        <columnAttribute name="pubmed_id"/>
-        <columnAttribute name="modification_type"/>
-        <columnAttribute name="allele"/>
-        <columnAttribute name="entity"/>
-        <columnAttribute name="quality"/>
-        <columnAttribute name="timing"/>
-        <columnAttribute name="cycle_stage"/>
-        <columnAttribute name="phenotype_post_composition"/>
-        <columnAttribute name="phenotype_comment"/>
-        <columnAttribute name="chebi_annotation_extension"/>
-      </table>
 
       <table name="CellularLocalization"
              displayName="Cellular localization"
@@ -623,7 +587,6 @@
           <value>GiardiaDB</value>
           <value>TriTrypDB</value>
           <value>UniDB</value>
-          <value>VEuPathDB</value>
         </propertyList>
         <columnAttribute name="note"/>
         <columnAttribute name="image_type"/>

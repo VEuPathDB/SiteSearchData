@@ -35,7 +35,7 @@
                     where s.stable_id = sidi.study_stable_id
                       and sidi.dataset_id
                           in (select dataset_presenter_id
-                              from apidbTuning.DatasetPresenter
+                              from apidbTuning.DatasetDatasource
                               where project_id = '@PROJECT_ID@'
                              )
                    )
@@ -54,10 +54,10 @@
       <sql>
         <![CDATA[
           select attribute_id as variable_id,
-                 listagg(display_name, ' / ')  within group (order by display_name)
+                 string_agg(display_name, ' / ' order by display_name)
                    as name,
                  '@PROJECT_ID@' as project,
-                 listagg(display_name, ' / ')  within group (order by display_name)
+                 string_agg(display_name, ' / ' order by display_name)
                    as hyperlinkName
           from (select distinct stable_id as attribute_id, display_name
                 from eda.AttributeGraph
@@ -89,7 +89,7 @@
                           where s.stable_id = sidi.study_stable_id
                             and sidi.dataset_id
                                 in (select dataset_presenter_id
-                                    from apidbTuning.DatasetPresenter
+                                    from apidbTuning.DatasetDatasource
                                     where project_id = '@PROJECT_ID@'
                                    )
                          )
@@ -104,58 +104,86 @@
       <column name="path"/>
       <sql>
         <![CDATA[
-          select attribute_id as variable_id,
-                 nvl(listagg(path, '; ') within group (order by path), 'n/a') as path
-          from (select distinct attribute_id,
-                                regexp_replace(path, ' >[^>]*$', '') as path
-                from (select attribute_id, study_id,
-                             listagg(ancestor, ' > ')  within group (order by lvl desc) as path
-                      from (select distinct connect_by_root stable_id as attribute_id, study_id,
-                                            parent_stable_id as ancestor_attribute_id, ag.display_name ancestor,
-                                            level as lvl
-                            from eda.AttributeGraph ag
-                            where (hidden is null
-                                   or (hidden != '["everywhere"]'
-                                       and hidden != '["variableTree"]'))
-                                  and study_id
-                                      not in (select s.study_id
-                                              from apidbTuning.StudyIdDatasetId sidi, eda.Study s
-                                              where s.stable_id = sidi.study_stable_id
-                                                and sidi.dataset_id
-                                                    in (  select dataset_presenter_id
-                                                          from apidbTuning.DatasetProperty
-                                                          where property = 'isPublic'
-                                                            and value = 'false'
-                                                        union
-                                                          select dataset_presenter_id
-                                                          from apidbTuning.DatasetProperty
-                                                          where property = 'studyAccess'
-                                                            and value in ('private', 'prerelease')
-                                                       )
-                                             )
-                                  and study_id
-                                      in (select s.study_id
-                                          from apidbTuning.StudyIdDatasetId sidi, eda.Study s
-                                          where s.stable_id = sidi.study_stable_id
-                                            and sidi.dataset_id
-                                                in (select dataset_presenter_id
-                                                    from apidbTuning.DatasetPresenter
-                                                    where project_id = '@PROJECT_ID@'
-                                                   )
-                                         )
-                            start with stable_id
-                                       in (select stable_id
-                                           from eda.Attribute) -- has values
-                            connect by stable_id = prior parent_stable_id
-                                   and study_id = prior study_id
-                                   -- don't include entity types:
-                                   and stable_id
-                                       not in (select stable_id from eda.EntityTypeGraph)
-                           )
-                      group by attribute_id, study_id
-                     )
-               )
-          group by attribute_id
+WITH RECURSIVE attr_tree AS (
+
+    -- Anchor: root attributes (Oracle: START WITH stable_id IN (SELECT stable_id FROM eda.Attribute))
+    SELECT
+        ag.stable_id,
+        ag.parent_stable_id,
+        ag.study_id,
+        ag.display_name AS ancestor,
+        ag.stable_id AS attribute_id,     
+        1 AS lvl
+    FROM eda.AttributeGraph ag
+    WHERE ag.stable_id IN (SELECT stable_id FROM eda.Attribute)
+      AND (ag.hidden IS NULL
+           OR (ag.hidden != '["everywhere"]'
+               AND ag.hidden != '["variableTree"]'))
+      AND ag.study_id NOT IN (
+            SELECT s.study_id
+            FROM apidbTuning.StudyIdDatasetId sidi
+            JOIN eda.Study s ON s.stable_id = sidi.study_stable_id
+            WHERE sidi.dataset_id IN (
+                SELECT dataset_presenter_id
+                FROM apidbTuning.DatasetProperty
+                WHERE (property = 'isPublic' AND value = 'false')
+                   OR (property = 'studyAccess' AND value IN ('private','prerelease'))
+            )
+      )
+      AND ag.study_id IN (
+            SELECT s.study_id
+            FROM apidbTuning.StudyIdDatasetId sidi
+            JOIN eda.Study s ON s.stable_id = sidi.study_stable_id
+            WHERE sidi.dataset_id IN (
+                SELECT dataset_presenter_id
+                FROM apidbTuning.DatasetDatasource
+                WHERE project_id = '@PROJECT_ID@'
+            )
+      )
+      AND ag.stable_id NOT IN (SELECT stable_id FROM eda.EntityTypeGraph)
+
+    UNION ALL
+
+    -- Recursive step 
+    SELECT
+        child.stable_id,
+        child.parent_stable_id,
+        child.study_id,
+        child.display_name AS ancestor,
+        root.attribute_id,
+        root.lvl + 1
+    FROM eda.AttributeGraph child
+    JOIN attr_tree root
+      ON child.parent_stable_id = root.stable_id
+     AND child.study_id = root.study_id
+    WHERE (child.hidden IS NULL
+           OR (child.hidden != '["everywhere"]'
+               AND child.hidden != '["variableTree"]'))
+      AND child.stable_id NOT IN (SELECT stable_id FROM eda.EntityTypeGraph)
+)
+
+-- Build paths 
+, paths AS (
+    SELECT
+        attribute_id,
+        study_id,
+        string_agg(ancestor, ' > ' ORDER BY lvl DESC) AS path
+    FROM attr_tree
+    GROUP BY attribute_id, study_id
+)
+
+, trimmed AS (
+    SELECT DISTINCT
+        attribute_id,
+        regexp_replace(path, ' >[^>]*$', '') AS path
+    FROM paths
+)
+
+SELECT
+    attribute_id AS variable_id,
+    COALESCE(string_agg(path, '; ' ORDER BY path), 'n/a') AS path
+FROM trimmed
+GROUP BY attribute_id
          ]]>
       </sql>
     </sqlQuery>
@@ -178,21 +206,22 @@
           select distinct sd.dataset_id, sd.study_stable_id as study_id,
                           ag.stable_id as variable_id,
                           a.entity_type_stable_id as entity_type_id,
-                          nvl(ag.display_name, 'n/a') as attribute_name,
-                          nvl(ag.provider_label, 'n/a') as provider_label,
-                          nvl(dsp.display_name, 'n/a') as study_name,
-                          nvl(etg.display_name, 'n/a') as entity_type,
-                          nvl(ag.definition, 'n/a') as attribute_definition
+                          coalesce(ag.display_name, 'n/a') as attribute_name,
+                          coalesce(ag.provider_label, 'n/a') as provider_label,
+                          coalesce(dsp.display_name, 'n/a') as study_name,
+                          coalesce(etg.display_name, 'n/a') as entity_type,
+                          coalesce(ag.definition, 'n/a') as attribute_definition
           from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
                apidbTuning.StudyIdDatasetId sd, eda.Study s,
-               apidbTuning.DatasetPresenter dsp
+               apidbTuning.DatasetPresenter dsp, apidbtuing.datasetdatasource dd
           where ag.stable_id = a.stable_id
             and a.entity_type_id = etg.entity_type_id
             and etg.study_stable_id = sd.study_stable_id
             and ag.study_id = s.study_id
             and s.stable_id = etg.study_stable_id
             and sd.dataset_id = dsp.dataset_presenter_id
-            and dsp.project_id = '@PROJECT_ID@'
+            and dd.dataset_presenter_id = dsp.dataset_presenter_id
+            and dd.project_id = '@PROJECT_ID@'
             and (ag.hidden is null
                  or (ag.hidden != '["everywhere"]'
                      and ag.hidden != '["variableTree"]'))

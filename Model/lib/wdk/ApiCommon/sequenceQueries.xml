@@ -71,7 +71,7 @@
       <column name="organism"/>
       <column name="sequence_type"/>
       <column name="genbank_accession"/>
-      <sql excludeProjects="EuPathDB">
+      <sql>
         <![CDATA[
           select source_id, organism as organism_full, genbank_accession, organism,
                  case
