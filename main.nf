@@ -193,9 +193,15 @@ process runSiteSearchData {
     sleep 2
   done
 
-  # Run the appropriate dump script based on cohort
+  # Run the appropriate dump script(s) based on cohort
   echo "Running ${dumpScript} for ${cohort} cohort, project ${projectId}"
   ${dumpScript} ${dumpArgs} &>> /output/${projectId}/dumper.log
+
+  # For ApiCommon, also run EDA dump script
+  if [ "${cohort}" = "ApiCommon" ]; then
+    echo "Running dumpEdaWdkBatchesForSolr for ${cohort} cohort, project ${projectId}"
+    dumpEdaWdkBatchesForSolr --wdkServiceUrl "http://localhost:${port}" --targetDir /output/${projectId} &>> /output/${projectId}/dumper.log
+  fi
 
   # Stop the server
   kill \$SERVER_PID || true
