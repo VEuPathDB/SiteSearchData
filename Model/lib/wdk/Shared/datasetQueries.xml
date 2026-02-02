@@ -10,7 +10,7 @@
           where (category is null OR category != 'Link outs')
             and dp.dataset_presenter_id = dd.dataset_presenter_id
             and (project_id = '@PROJECT_ID@'
-                 or '@PROJECT_ID@' = 'UniDB')
+                 or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
             and dp.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -41,7 +41,7 @@
              from apidbtuning.datasetdatasource dd
              where (category is null OR category != 'Link outs')
              and (project_id = '@PROJECT_ID@'
-             or 'UniDB' = '@PROJECT_ID@')   
+             or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))   
 	     group by dataset_presenter_id) cat
 	   where dp.dataset_presenter_id = cat.dataset_presenter_id
             and dp.dataset_presenter_id
@@ -69,7 +69,7 @@
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'UniDB')
+                       or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -91,7 +91,7 @@
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'UniDB')
+                       or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -113,7 +113,7 @@
                 in (select dataset_presenter_id
                     from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'UniDB')
+                       or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
             and dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -137,7 +137,7 @@
                   )
           select sd.dataset_id, a.value
           from eda.Study s, eda.EntityTypeGraph etg, attributes a, eda.Attributegraph ag,
-               apidbTuning.StudyIdDatasetId sd, apidbTuning.DatasetPresenter dsp
+               apidbTuning.StudyIdDatasetId sd, apidbTuning.DatasetDatasource dd
           where a.entity_type_id = etg.entity_type_id
             and etg.study_id = s.study_id
             and ag.study_id = s.study_id
@@ -146,8 +146,8 @@
                  or (ag.hidden != '["everywhere"]'
                      and ag.hidden != '["variableTree"]'))
             and etg.study_stable_id = sd.study_stable_id
-            and sd.dataset_id = dsp.dataset_presenter_id
-            and dsp.project_id = '@PROJECT_ID@'
+            and sd.dataset_id = dd.dataset_presenter_id
+            and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
             and sd.dataset_id
                 not in (  select dataset_presenter_id
                           from apidbTuning.DatasetProperty
@@ -175,9 +175,9 @@
             and etg.study_stable_id = sd.study_stable_id
             and sd.dataset_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'UniDB')
+                       or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
             and sd.dataset_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -257,9 +257,9 @@
           where dsp.dataset_presenter_id = study_chars.dataset_id(+)
             and dsp.dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'UniDB')
+                       or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
             and dsp.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -278,9 +278,9 @@
           where dprop.property = 'studyAccess'
             and dprop.dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'UniDB')
+                       or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
             and dprop.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -333,9 +333,9 @@
             and t3.dataset_presenter_id = t4.dataset_presenter_id
             and t3.dataset_presenter_id
                 in (select dataset_presenter_id
-                    from apidbTuning.DatasetPresenter
+                    from apidbTuning.DatasetDatasource
                     where project_id = '@PROJECT_ID@'
-                       or '@PROJECT_ID@' = 'UniDB')
+                       or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
             and t3.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
@@ -349,9 +349,12 @@
       <column name="url"/>
       <sql>
         <![CDATA[
-          select dataset_presenter_id as dataset_id,
+          select dh.dataset_presenter_id as dataset_id,
                  replace(replace(replace(url, '/', ' '), '=', ' '), '?', ' ') as url
-          from apidbTuning.DatasetHyperlink
+          from apidbTuning.DatasetHyperlink dh, apidbTuning.DatasetDatasource dd
+            where dh.dataset_id = dd.dataset_presenter_id
+            and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
+
         ]]>
       </sql>
     </sqlQuery>

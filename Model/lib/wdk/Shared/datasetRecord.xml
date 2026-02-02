@@ -110,7 +110,7 @@
           <value>VectorBase</value>
           <value>GiardiaDB</value>
           <value>AmoebaDB</value>
-          <value>EuPathDB</value>
+          <value>UniDB</value>
         </propertyList>
         <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
           <value>20</value>
@@ -120,37 +120,33 @@
 	      
       </table>
 
-<!--
-      <table name="AttributeValues" excludeProjects="VEuPathDB"
+<!--  Remove EDA queries that use AttributeGraph table, it doesnt exist 
+      <table name="AttributeValues"
              displayName="Attribute values"
              queryRef="DatasetTables.AttributeValues">
         <propertyList name="includeProjects">
           <value>EDA</value>
           <value>ClinEpiDB</value>
           <value>MicrobiomeDB</value>
-          <value>EuPathDB</value>
-          <value>VEuPathDB</value>
         </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="value"/>
       </table>
 
-      <table name="AttributeNames" excludeProjects="VEuPathDB"
+      <table name="AttributeNames"
              displayName="Attribute names"
              queryRef="DatasetTables.AttributeNames">
         <propertyList name="includeProjects">
           <value>EDA</value>
           <value>ClinEpiDB</value>
           <value>MicrobiomeDB</value>
-          <value>EuPathDB</value>
-          <value>VEuPathDB</value>
         </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="name" displayName="Attribute name"/>
         <columnAttribute name="provider_label" displayName="Provider label"/>
       </table>
 
-      <table name="StudyCharacteristics" excludeProjects="VEuPathDB"
+      <table name="StudyCharacteristics"
              displayName="Study Characteristics"
              queryRef="DatasetTables.StudyCharacteristics">
         <propertyList name="includeProjects">

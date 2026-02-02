@@ -1,7 +1,8 @@
 # provide connection info for the application database.
 # this is used by perl scripts that are part of dumping/loading 
 # eg: dbiDsn=dbi:Oracle:plas-inc
-dbiDsn=
-databaseLogin=
-databasePassword=
+dbiDsn=dbi:Pg:host=$APPDB_HOST;port=$APPDB_PORT;dbname=$APPDB_LDAP_CN
+databaseLogin=$APPDB_LOGIN
+databasePassword=$APPDB_PASSWORD
 perl=/usr/bin/perl
+

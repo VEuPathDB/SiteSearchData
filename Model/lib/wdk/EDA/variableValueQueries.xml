@@ -8,13 +8,16 @@
         <![CDATA[
           select distinct value
           from (with attributes
-                     as (select att.entity_type_id, att.ontology_term_id, v.value
-                         from eda.Attribute att,
-                              json_table(att.ordered_values , '$[*]' COLUMNS (value PATH '$')) as v
-                         where att.data_type = 'string'
-                           and  lower(trim(v.value)) not in ('yes', 'no')
-                           and not regexp_like(v.value, '^[[:digit:]]+$')
-                        )
+                  as (SELECT
+                       att.entity_type_id,
+                       att.ontology_term_id,
+                       v.value
+                     FROM eda.Attribute att,
+                     LATERAL json_array_elements_text(att.ordered_values::json) AS v(value)
+                     WHERE att.data_type = 'string'
+                     AND v.value NOT IN ('Yes', 'No')
+                     AND v.value !~ '^[0-9]+$'
+                  )    
                 select s.stable_id as study_id, etg.stable_id as entity_type_id,
                        ag.stable_id as variable_id, a.value
                 from eda.Study s, eda.EntityTypeGraph etg, attributes a, eda.Attributegraph ag
@@ -31,7 +34,7 @@
                           where s.stable_id = sidi.study_stable_id
                             and sidi.dataset_id
                                 in (select dataset_presenter_id
-                                    from apidbTuning.DatasetPresenter
+                                    from apidbTuning.DatasetDatasource
                                     where project_id = '@PROJECT_ID@'
                                    )
                          )
@@ -65,12 +68,15 @@
         <![CDATA[
           select distinct value, value as hyperlinkName, '@PROJECT_ID@' as project
           from (with attributes
-                     as (select att.entity_type_id, att.ontology_term_id, v.value
-                         from eda.Attribute att,
-                              json_table(att.ordered_values , '$[*]' COLUMNS (value PATH '$')) as v
-                         where att.data_type = 'string'
-                           and  v.value not in ('Yes', 'No')
-                           and not regexp_like(v.value, '^[[:digit:]]+$')
+                     as (SELECT
+                           att.entity_type_id,
+                           att.ontology_term_id,
+                           v.value
+                         FROM eda.Attribute att,
+                         LATERAL json_array_elements_text(att.ordered_values::json) AS v(value)
+                         WHERE att.data_type = 'string'
+                         AND v.value NOT IN ('Yes', 'No')
+                         AND v.value !~ '^[0-9]+$'
                         )
                 select s.stable_id as study_id, etg.stable_id as entity_type_id,
                        ag.stable_id as variable_id, a.value
@@ -101,7 +107,7 @@
                           where s.stable_id = sidi.study_stable_id
                             and sidi.dataset_id
                                 in (select dataset_presenter_id
-                                    from apidbTuning.DatasetPresenter
+                                    from apidbTuning.DatasetDatasource
                                     where project_id = '@PROJECT_ID@'
                                    )
                          )
@@ -138,7 +144,7 @@ select s.stable_id as study_id, etg.stable_id as entity_type_id,
        nvl(ag.display_name, 'n/a') as variable_name,
        nvl(dsp.display_name, 'n/a') as study_name
 from eda.Study s, eda.EntityTypeGraph etg, attributes a, eda.Attributegraph ag,
-     apidbTuning.StudyIdDatasetId sd, apidbTuning.DatasetPresenter dsp
+     apidbTuning.StudyIdDatasetId sd, apidbTuning.DatasetPresenter dsp, apidbtuning.datasetdatasource dd
 where a.entity_type_id = etg.entity_type_id
   and etg.study_id = s.study_id
   and ag.study_id = s.study_id
@@ -148,7 +154,8 @@ where a.entity_type_id = etg.entity_type_id
            and ag.hidden != '["variableTree"]'))
   and etg.study_stable_id = sd.study_stable_id
   and sd.dataset_id = dsp.dataset_presenter_id
-  and dsp.project_id = '@PROJECT_ID@'
+  and dd.dataset_presenter_id = dsp.dataset_presenter_id
+  and dd.project_id = '@PROJECT_ID@'
   and s.stable_id
       not in (select study_stable_id
               from apidbTuning.StudyIdDatasetId
