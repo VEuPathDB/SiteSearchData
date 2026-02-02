@@ -37,26 +37,18 @@ workflow {
     ['ApiCommon', 'TriTrypDB'],
     ['ApiCommon', 'TrichDB'],
     ['ApiCommon', 'VectorBase'],
-    ['OrthoMCL', 'OrthoMCL'],
-    ['EDA', 'ClinEpiDB'],
-    ['EDA', 'MicrobiomeDB']
+    ['OrthoMCL', 'OrthoMCL']
+//    ['EDA', 'ClinEpiDB'],
+//    ['EDA', 'MicrobiomeDB']
   )
 
-  projects = Channel.of(
-    ['ApiCommon', 'PlasmoDB']
-  )
-
-  // Get unique cohorts for metadata batch creation
   // Use a representative project from each cohort for config generation
   metadataCohorts = Channel.of(
     ['ApiCommon', 'PlasmoDB'],   // Use PlasmoDB as representative for ApiCommon
     ['OrthoMCL', 'OrthoMCL'],
-    ['EDA', 'ClinEpiDB']         // Use ClinEpiDB as representative for EDA
+    ['EDA', 'PlasmoDB']         // Use PlasmoDB as representative for EDA
   )
 
-  metadataCohorts = Channel.of(
-    ['ApiCommon', 'PlasmoDB']   // Use PlasmoDB as representative for ApiCommon
-  )
   // Recreate WDK cache (runs once at the start)
   recreateCache(params.envFile)
 
