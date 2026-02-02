@@ -4,3 +4,6 @@ target/
 .settings/
 *~
 \#*
+env.sh
+work/
+
