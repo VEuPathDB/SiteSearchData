@@ -4,6 +4,7 @@ target/
 .settings/
 *~
 \#*
+.nextflow*
 env.sh
 work/
 
