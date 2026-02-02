@@ -111,4 +111,4 @@ RUN chmod +x /tmp/entrypoint.sh
 ENTRYPOINT ["/tmp/entrypoint.sh"]
 EXPOSE 9988
 
-CMD wdkServer SiteSearchData http://0.0.0.0:9988 -cleanCacheAtStartup
+CMD wdkServer SiteSearchData http://0.0.0.0:9988

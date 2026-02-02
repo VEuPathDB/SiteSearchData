@@ -5,6 +5,5 @@ target/
 *~
 \#*
 env.sh
-.nextflow*
 work/
 output/
