@@ -1,9 +1,5 @@
 <wdkModel>
 
-  <constant name="datasetRecordName" includeProjects="ClinEpiDB">Study Name</constant>
-  <constant name="datasetRecordName" excludeProjects="ClinEpiDB">Name</constant>
-
-
   <recordClassSet name="communityDatasetRecordClasses">
 
     <!-- ################################################################### -->
@@ -19,16 +15,7 @@
         <columnRef>dataset_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="%%datasetRecordName%%" excludeProjects="ClinEpiDB">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[ $$display_name$$ ]]>
-        </text>
-      </idAttribute>
-
-      <idAttribute name="primary_key" displayName="Study Name" includeProjects="ClinEpiDB">
+      <idAttribute name="primary_key" displayName="Dataset Name">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
@@ -42,13 +29,12 @@
                 scopes=""
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
-      <!-- for ClinEpi and mbio, boost all fields in dataset record, so that Studies generally come out on top of search results -->	    
       <attributeQueryRef ref="CommunityDatasetAttributes.All">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="display_name" internal="true"/>
         <columnAttribute name="description" displayName="Description">
-          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <propertyList name="boost"> 
             <value>20</value>
           </propertyList>
 	</columnAttribute>
@@ -56,7 +42,7 @@
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
-          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">  
+          <propertyList name="boost">  
             <value>20</value>
           </propertyList>
 	</columnAttribute>		
@@ -65,7 +51,7 @@
       <table name="Contacts"
              displayName="Principal Investigator and Collaborators"
              queryRef="DatasetTables.Contacts">
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+        <propertyList name="boost"> 
           <value>20</value>
         </propertyList>   	      
         <columnAttribute name="dataset_id"/>
@@ -76,12 +62,20 @@
       <table name="Publications"
              displayName="Associated publications"
              queryRef="DatasetTables.Publications">
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+        <propertyList name="boost">
           <value>20</value>
-        </propertyList>   	      
+        </propertyList>
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="pmid" displayName="Pubmed ID"/>
-        <columnAttribute name="citation" displayName="Citation"/> 
+        <columnAttribute name="citation" displayName="Citation"/>
+      </table>
+
+      <table name="Hyperlinks"
+             displayName="Related links"
+             queryRef="DatasetTables.Hyperlinks">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="text" displayName="Link text"/>
+        <columnAttribute name="description" displayName="Description"/>
       </table>
 
       <table name="Organisms"
@@ -102,14 +96,63 @@
           <value>AmoebaDB</value>
           <value>UniDB</value>
         </propertyList>
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
-          <value>20</value>
-        </propertyList>   	      
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="organism_name"/>
-	      
+
       </table>
-      
+
+      <table name="Countries"
+             displayName="Countries"
+             queryRef="DatasetTables.Countries">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="country" displayName="Country"/>
+      </table>
+
+      <table name="Species"
+             displayName="Species"
+             queryRef="DatasetTables.Species">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="species" displayName="Species"/>
+      </table>
+
+      <table name="Diseases"
+             displayName="Diseases"
+             queryRef="DatasetTables.Diseases">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="disease" displayName="Disease"/>
+      </table>
+
+      <table name="AssociatedFactors"
+             displayName="Associated factors"
+             queryRef="DatasetTables.AssociatedFactors">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="factor" displayName="Factor"/>
+      </table>
+
+      <table name="DOIs"
+             displayName="DOIs"
+             queryRef="DatasetTables.DOIs">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="doi" displayName="DOI"/>
+        <columnAttribute name="description" displayName="Description"/>
+      </table>
+
+      <table name="BioprojectIds"
+             displayName="Bioproject IDs"
+             queryRef="DatasetTables.BioprojectIds">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="bioproject_id" displayName="Bioproject ID"/>
+        <columnAttribute name="description" displayName="Description"/>
+      </table>
+
+      <table name="FundingAwards"
+             displayName="Funding awards"
+             queryRef="DatasetTables.FundingAwards">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="agency" displayName="Agency"/>
+        <columnAttribute name="award_number" displayName="Award number"/>
+      </table>
+
 
     </recordClass>
     
