@@ -1,9 +1,5 @@
 <wdkModel>
 
-  <constant name="datasetRecordName" includeProjects="ClinEpiDB">Study Name</constant>
-  <constant name="datasetRecordName" excludeProjects="ClinEpiDB">Name</constant>
-
-
   <recordClassSet name="datasetRecordClasses">
 
     <!-- ################################################################### -->
@@ -19,16 +15,7 @@
         <columnRef>dataset_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="%%datasetRecordName%%" excludeProjects="ClinEpiDB">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[ $$display_name$$ ]]>
-        </text>
-      </idAttribute>
-
-      <idAttribute name="primary_key" displayName="Study Name" includeProjects="ClinEpiDB">
+      <idAttribute name="primary_key" displayName="Dataset Name">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
@@ -42,18 +29,17 @@
                 scopes=""
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
-      <!-- for ClinEpi and mbio, boost all fields in dataset record, so that Studies generally come out on top of search results -->	    
       <attributeQueryRef ref="DatasetAttributes.All">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="display_name" internal="true"/>
         <columnAttribute name="description" displayName="Description">
-          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <propertyList name="boost"> 
             <value>20</value>
           </propertyList>
 	</columnAttribute>
         <columnAttribute name="acknowledgement" displayName="Acknowledgement">
-          <propertyList name="boost" includeProjects="MicrobiomeDB">
+          <propertyList name="boost">
             <value>20</value>
           </propertyList>
 	</columnAttribute>		
@@ -61,12 +47,12 @@
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
-          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">  
+          <propertyList name="boost">  
             <value>20</value>
           </propertyList>
 	</columnAttribute>		
         <columnAttribute name="newcategory" displayName="Category">
-          <propertyList name="boost" includeProjects="ClinEpiDB">
+          <propertyList name="boost">
             <value>20</value>
           </propertyList>
 	</columnAttribute>				
@@ -75,7 +61,7 @@
       <table name="Contacts"
              displayName="Principal Investigator and Collaborators"
              queryRef="DatasetTables.Contacts">
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+        <propertyList name="boost"> 
           <value>20</value>
         </propertyList>   	      
         <columnAttribute name="dataset_id"/>
@@ -86,7 +72,7 @@
       <table name="Publications"
              displayName="Associated publications"
              queryRef="DatasetTables.Publications">
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+        <propertyList name="boost"> 
           <value>20</value>
         </propertyList>   	      
         <columnAttribute name="dataset_id"/>
@@ -112,9 +98,6 @@
           <value>AmoebaDB</value>
           <value>UniDB</value>
         </propertyList>
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
-          <value>20</value>
-        </propertyList>   	      
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="organism"/>
 	      
