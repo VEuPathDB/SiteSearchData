@@ -77,6 +77,7 @@ process recreateCache {
 }
 
 process createMetadataBatches {
+  errorStrategy 'finish'
   containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
 
   input:
@@ -136,6 +137,7 @@ process createMetadataBatches {
 }
 
 process runSiteSearchData {
+  errorStrategy 'finish'
   containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
 
   input:
