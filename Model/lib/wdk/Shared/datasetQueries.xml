@@ -352,7 +352,7 @@
           select dh.dataset_presenter_id as dataset_id,
                  replace(replace(replace(url, '/', ' '), '=', ' '), '?', ' ') as url
           from apidbTuning.DatasetHyperlink dh, apidbTuning.DatasetDatasource dd
-            where dh.dataset_id = dd.dataset_presenter_id
+            where dh.dataset_presenter_id = dd.dataset_presenter_id
             and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
 
         ]]>
