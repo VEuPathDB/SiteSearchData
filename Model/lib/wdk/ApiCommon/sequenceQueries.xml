@@ -138,7 +138,7 @@
       <column name="comment_content"/>
       <sql>
         <![CDATA[
-          select tsc.stable_id as source_id, tsc.cntnt
+          select tsc.stable_id as source_id, tsc.content
           from @REMOTE_COMMENT_SCHEMA@MappedComment mc,
 	  (select stable_id, comment_target_id, c.comment_id,
 	   concat(headline, '|', content, '|', first_name, ' ', last_name, '(', organization, ')', authors) as content
