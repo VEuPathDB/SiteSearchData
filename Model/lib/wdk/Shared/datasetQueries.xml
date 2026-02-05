@@ -37,14 +37,13 @@
                  display_name, display_name as hyperlinkName, description, summary, acknowledgement,
                  newcategory
           from apidbTuning.DatasetPresenter dp,
-	    (select dataset_presenter_id, string_agg(category, ', ') as newcategory
+	  left join  (select dataset_presenter_id, string_agg(category, ', ') as newcategory
              from apidbtuning.datasetdatasource dd
              where (category is null OR category != 'Link outs')
              and (project_id = '@PROJECT_ID@'
              or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))   
-	     group by dataset_presenter_id) cat
-	   where dp.dataset_presenter_id = cat.dataset_presenter_id
-            and dp.dataset_presenter_id
+	     group by dataset_presenter_id) cat ON dp.dataset_presenter_id = cat.dataset_presenter_id
+            WHERE dp.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
                         where property = 'isPublic' and value = 'false')
