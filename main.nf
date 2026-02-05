@@ -50,29 +50,37 @@ workflow {
   )
 
   // Recreate WDK cache (runs once at the start)
-  recreateCache(params.envFile)
+  cacheComplete = recreateCache(params.envFile)
 
-  // Create metadata batches for each cohort (runs in parallel with project dumps)
-  createMetadataBatches(metadataCohorts, params.envFile)
+  // Create metadata batches for each cohort (runs in parallel with project dumps, but after cache)
+  createMetadataBatches(metadataCohorts, params.envFile, cacheComplete)
 
-  // Run the workflow for each project
-  results = runSiteSearchData(projects, params.envFile)
+  // Run the workflow for each project (after cache is complete)
+  results = runSiteSearchData(projects, params.envFile, cacheComplete)
 }
 
 process recreateCache {
+  errorStrategy 'terminate'
   containerOptions "--env-file ${params.envFile} -e COHORT=ApiCommon -e PROJECT_ID=PlasmoDB"
+
+  publishDir "${params.outputDir}", mode: 'copy'
 
   input:
     path(envFile)
 
   output:
-    val true
+    path 'cache.done'
 
   script:
   """
+  set -euo pipefail
+
   echo "Recreating WDK cache..."
   wdkCache -model SiteSearchData -recreate
   echo "WDK cache recreated successfully"
+
+  # Create sentinel file to track completion
+  touch cache.done
   """
 }
 
@@ -83,6 +91,7 @@ process createMetadataBatches {
   input:
     tuple val(cohort), val(projectId)
     path(envFile)
+    path(cacheDone)
 
   output:
     val cohort
@@ -143,6 +152,7 @@ process runSiteSearchData {
   input:
     tuple val(cohort), val(projectId)
     path(envFile)
+    path(cacheDone)
 
   output:
     val projectId

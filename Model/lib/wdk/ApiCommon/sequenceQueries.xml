@@ -141,7 +141,7 @@
           select tsc.stable_id as source_id, tsc.cntnt
           from @REMOTE_COMMENT_SCHEMA@MappedComment mc,
 	  (select stable_id, comment_target_id, c.comment_id,
-	   concat(headline, '|', content, '|', first_name, ' ', last_name, '(', organization, ')', authors) as cntnt
+	   concat(headline, '|', content, '|', first_name, ' ', last_name, '(', organization, ')', authors) as content
 	   from @REMOTE_COMMENT_SCHEMA@comments c
 	   left join @REMOTE_COMMENT_SCHEMA@comment_users u on  c.user_id = u.user_id
 	   left join (select comment_id, string_agg(source_id, ', ' order by source_id) as authors
