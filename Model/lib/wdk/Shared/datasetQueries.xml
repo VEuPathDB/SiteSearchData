@@ -36,7 +36,7 @@
                  dataset_id, '@PROJECT_ID@' as project,
                  display_name, display_name as hyperlinkName, description, summary, acknowledgement,
                  newcategory
-          from apidbTuning.DatasetPresenter dp,
+          from apidbTuning.DatasetPresenter dp
 	  left join  (select dataset_presenter_id, string_agg(category, ', ') as newcategory
              from apidbtuning.datasetdatasource dd
              where (category is null OR category != 'Link outs')
