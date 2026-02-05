@@ -238,7 +238,7 @@ join webready.geneorthologgroup gog1 on ga.source_id = gog1.gene_id
 join webready.geneorthologgroup gog2 on gog1.group_id = gog2.group_id
 join apidbtuning.geneattributes ga2 on gog2.gene_id = ga2.source_id
 where ga.org_abbrev in (%%PARTITION_KEYS%%)
-and (ga2.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
+and (ga2.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and ga2.project_id != 'ClinEpiDB'))
 and ga.source_id != gog2.gene_id
         ]]>
       </sql>
