@@ -22,12 +22,8 @@ if(!params.numberOfOrganisms) {
 //--------------------------------------------------------------------------
 
 workflow {
-  // UniDB is by far the largest project (cardinality = sum of all others)
-  // Ensure it grabs a slot first, then run others in parallel
-  unidbProject = Channel.of(['ApiCommon', 'UniDB'])
-
-  // Other projects (order doesn't matter)
-  otherProjects = Channel.of(
+  projects = Channel.of(
+    ['Portal', 'UniDB'],
     ['ApiCommon', 'FungiDB'],
     ['ApiCommon', 'TriTrypDB'],
     ['ApiCommon', 'PlasmoDB'],
@@ -58,9 +54,7 @@ workflow {
   // Create metadata batches for each cohort (runs in parallel with project dumps, but after cache)
   createMetadataBatches(metadataCohorts, params.envFile, cacheComplete)
 
-  // Start UniDB first, then other projects (using concat to ensure order)
-  allProjects = unidbProject.concat(otherProjects)
-  results = runSiteSearchData(allProjects, params.envFile, cacheComplete)
+  runSiteSearchData(projects, params.envFile, cacheComplete)
 }
 
 process recreateCache {
