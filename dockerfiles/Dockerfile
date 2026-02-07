@@ -97,6 +97,7 @@ RUN apk add -u --no-cache \
     perl-dbi \
     perl-dbd-pg \
     wget \
+    tzdata \
     bash
 
 COPY --from=build ${GUS_HOME} ${GUS_HOME}
