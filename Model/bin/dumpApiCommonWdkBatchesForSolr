@@ -8,15 +8,17 @@ use SiteSearchData::Model::Utils;
 
 my $BATCH_DIR_PREFIX = "solr-json-batch";
 
-my $ORG_ABBREV_SQL = "select distinct abbrev AS internal from apidb.Organism order by abbrev";
-
-my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
+my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose, $projectId);
 &GetOptions("targetDir=s" => \$targetDir,
             "wdkServiceUrl=s" => \$wdkServiceUrl,
+            "projectId" => \$projectId,
             "numberOfOrganisms=i" => \$numberOfOrganisms,
 	    "verbose!" => \$verbose);
 
 $| = 1;
+
+my $ORG_ABBREV_SQL =
+  "select distinct internal_abbrev from apidbtuning.OrganismAttributes where project_id = '$projectId' order by internal_abbrev";
 
 &usage unless ($targetDir && $wdkServiceUrl);
 

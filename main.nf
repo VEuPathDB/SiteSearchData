@@ -22,10 +22,12 @@ if(!params.numberOfOrganisms) {
 //--------------------------------------------------------------------------
 
 workflow {
-  // Define projects grouped by cohort
-  // Each tuple is: [cohort, projectId]
-  projects = Channel.of(
-    ['ApiCommon', 'UniDB'],
+  // UniDB is by far the largest project (cardinality = sum of all others)
+  // Ensure it grabs a slot first, then run others in parallel
+  unidbProject = Channel.of(['ApiCommon', 'UniDB'])
+
+  // Other projects (order doesn't matter)
+  otherProjects = Channel.of(
     ['ApiCommon', 'FungiDB'],
     ['ApiCommon', 'TriTrypDB'],
     ['ApiCommon', 'PlasmoDB'],
@@ -56,8 +58,9 @@ workflow {
   // Create metadata batches for each cohort (runs in parallel with project dumps, but after cache)
   createMetadataBatches(metadataCohorts, params.envFile, cacheComplete)
 
-  // Run the workflow for each project (after cache is complete)
-  results = runSiteSearchData(projects, params.envFile, cacheComplete)
+  // Start UniDB first, then other projects (using concat to ensure order)
+  allProjects = unidbProject.concat(otherProjects)
+  results = runSiteSearchData(allProjects, params.envFile, cacheComplete)
 }
 
 process recreateCache {
@@ -167,7 +170,7 @@ process runSiteSearchData {
   def dumpArgs
   if (cohort == 'ApiCommon') {
     dumpScript = "dumpApiCommonWdkBatchesForSolr"
-    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId} --numberOfOrganisms ${params.numberOfOrganisms}"
+    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId} --projectId ${projectId} --numberOfOrganisms ${params.numberOfOrganisms}"
   } else if (cohort == 'OrthoMCL') {
     dumpScript = "dumpOrthomclWdkBatchesForSolr"
     dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId}"
