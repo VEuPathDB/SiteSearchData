@@ -11,7 +11,7 @@ my $BATCH_DIR_PREFIX = "solr-json-batch";
 my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose, $projectId);
 &GetOptions("targetDir=s" => \$targetDir,
             "wdkServiceUrl=s" => \$wdkServiceUrl,
-            "projectId" => \$projectId,
+            "projectId=s" => \$projectId,
             "numberOfOrganisms=i" => \$numberOfOrganisms,
 	    "verbose!" => \$verbose);
 
