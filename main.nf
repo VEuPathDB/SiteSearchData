@@ -25,18 +25,19 @@ workflow {
   // Define projects grouped by cohort
   // Each tuple is: [cohort, projectId]
   projects = Channel.of(
+    ['ApiCommon', 'UniDB'],
+    ['ApiCommon', 'FungiDB'],
+    ['ApiCommon', 'TriTrypDB'],
     ['ApiCommon', 'PlasmoDB'],
+    ['ApiCommon', 'VectorBase'],
     ['ApiCommon', 'ToxoDB'],
     ['ApiCommon', 'HostDB'],
     ['ApiCommon', 'AmoebaDB'],
     ['ApiCommon', 'CryptoDB'],
-    ['ApiCommon', 'FungiDB'],
     ['ApiCommon', 'GiardiaDB'],
     ['ApiCommon', 'MicrosporidiaDB'],
     ['ApiCommon', 'PiroplasmaDB'],
-    ['ApiCommon', 'TriTrypDB'],
     ['ApiCommon', 'TrichDB'],
-    ['ApiCommon', 'VectorBase'],
     ['OrthoMCL', 'OrthoMCL']
 //    ['EDA', 'ClinEpiDB'],
 //    ['EDA', 'MicrobiomeDB']
