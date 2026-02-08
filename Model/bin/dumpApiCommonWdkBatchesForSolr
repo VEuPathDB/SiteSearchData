@@ -18,7 +18,7 @@ my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose, $projectId);
 $| = 1;
 
 my $ORG_ABBREV_SQL =
-  "select distinct internal_abbrev from apidbtuning.OrganismAttributes where (project_id = '$projectId' or 'UniDB' = '$projectId') order by internal_abbrev";
+  "select distinct internal_abbrev from apidbtuning.OrganismAttributes where project_id = '$projectId' order by internal_abbrev";
 
 &usage unless ($targetDir && $wdkServiceUrl);
 
