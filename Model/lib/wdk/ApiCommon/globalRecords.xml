@@ -4,12 +4,12 @@
 
     <question name="Pathways" displayName="dontcare"
               queryRef="PathwayIdQueries.AllPathways"
-              recordClassRef="recordClasses.pathway">
+              recordClassRef="globalRecordClasses.pathway">
     </question>
 
     <question name="Compounds" displayName="dontcare"
               queryRef="CompoundIdQueries.AllCompounds"
-              recordClassRef="recordClasses.compound">
+              recordClassRef="globalRecordClasses.compound">
     </question>
 
   </questionSet>
