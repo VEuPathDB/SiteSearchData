@@ -232,7 +232,7 @@
       <column name="ortho_name"/>
       <sql>
         <![CDATA[
-select ga.source_id, gog2.gene_id as ortho_name, ga2.product as ortho_product
+select distinct ga.source_id, ga2.name as ortho_name, ga2.product as ortho_product
 from webready.geneattributes_p ga
 join webready.geneorthologgroup gog1 on ga.source_id = gog1.gene_id
 join webready.geneorthologgroup gog2 on gog1.group_id = gog2.group_id
