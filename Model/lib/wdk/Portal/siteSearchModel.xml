@@ -15,19 +15,11 @@
               recordClassRef="datasetRecordClasses.dataset">
     </question>
 
-    <question name="Pathways" displayName="dontcare"
-              queryRef="PathwayIdQueries.AllPathways"
-              recordClassRef="recordClasses.pathway">
-    </question>
-
-    <question name="Compounds" displayName="dontcare"
-              queryRef="CompoundIdQueries.AllCompounds"
-              recordClassRef="recordClasses.compound">
-    </question>
   </questionSet>
 
   <import file="Shared/datasetRecord.xml"/>
   <import file="Shared/datasetQueries.xml"/>
+  <import file="ApiCommon/globalRecords.xml"/>
   <import file="ApiCommon/pathwayQueries.xml"/>
   <import file="ApiCommon/compoundQueries.xml"/>
 

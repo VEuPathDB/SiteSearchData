@@ -1,0 +1,176 @@
+<wdkModel>
+
+  <questionSet name="GlobalQuestions" displayName="dontcare">
+
+    <question name="Pathways" displayName="dontcare"
+              queryRef="PathwayIdQueries.AllPathways"
+              recordClassRef="recordClasses.pathway">
+    </question>
+
+    <question name="Compounds" displayName="dontcare"
+              queryRef="CompoundIdQueries.AllCompounds"
+              recordClassRef="recordClasses.compound">
+    </question>
+
+  </questionSet>
+
+  <recordClassSet name="globalRecordClasses">
+
+    <!-- ################################################################### -->
+    <!-- ########################  Pathway Record  ######################### -->
+    <!-- ################################################################### -->
+
+    <recordClass name="pathway" urlName="pathway" displayName="Metabolic pathway">
+      <propertyList name="batch">
+        <value>pathway</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="PathwayAttributes.PathwayAlias">
+        <columnRef>pathway_source</columnRef>
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="Pathway ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[
+               $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <textAttribute name="pathway_source_text" displayName="Pathway source">
+        <text>
+          <![CDATA[
+               $$pathway_source$$
+          ]]>
+        </text>
+      </textAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="PathwayAttributes.Bfmv">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="name" displayName="Pathway">
+          <propertyList name="isSubtitle">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="boost">
+            <value>1.5</value>
+          </propertyList>
+        </columnAttribute>
+      </attributeQueryRef>
+
+      <table name="Compounds"
+             displayName="Associated compounds"
+             queryRef="PathwayTables.CompoundsFromMetabolicPathways">
+        <columnAttribute name="ec_number"/>
+        <columnAttribute name="enzyme_description"/>
+        <columnAttribute name="substrates_text"/>
+        <columnAttribute name="products_text"/>
+        <columnAttribute name="compound_source_id"/>
+        <columnAttribute name="chebi_accession"/>
+        <columnAttribute name="compound_other_id"/>
+      </table>
+
+    </recordClass>
+
+    <!-- ################################################################### -->
+    <!-- ########################  Compound Record  ######################## -->
+    <!-- ################################################################### -->
+
+    <recordClass name="compound" urlName="compound" displayName="Compound">
+      <propertyList name="batch">
+        <value>compound</value>
+      </propertyList>
+
+      <primaryKey aliasQueryRef="CompoundAttributes.CompoundAlias">
+        <columnRef>source_id</columnRef>
+      </primaryKey>
+
+      <idAttribute name="primary_key" displayName="ChEBI ID">
+        <propertyList name="boost">
+          <value>100</value>
+        </propertyList>
+        <text>
+          <![CDATA[
+                   $$source_id$$
+          ]]>
+        </text>
+      </idAttribute>
+
+      <reporter name="solrjson"
+                displayName="solr json: choose from columns and/or tables"
+                scopes=""
+                implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
+
+      <attributeQueryRef ref="CompoundAttributes.Bfmv">
+        <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
+        <columnAttribute name="definition" displayName="Definition" >
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+        </columnAttribute>
+        <columnAttribute name="formula" displayName="Molecular formula"/>
+        <columnAttribute name="compound_name" displayName="Name" >
+          <propertyList name="isSubtitle">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="isSummary">
+            <value>true</value>
+          </propertyList>
+          <propertyList name="boost">
+            <value>1.5</value>
+          </propertyList>
+        </columnAttribute>
+      </attributeQueryRef>
+
+      <table name="Properties" displayName="Properties"
+             queryRef="CompoundTables.Properties">
+        <columnAttribute name="value"/>
+      </table>
+
+      <table name="IupacNames" displayName="IUPAC names"
+             queryRef="CompoundTables.IupacNames">
+        <columnAttribute name="value"/>
+      </table>
+
+      <table name="Synonyms" displayName="Synonyms"
+             queryRef="CompoundTables.Synonyms">
+        <columnAttribute name="value"/>
+      </table>
+
+      <table name="MetabolicPathwaysReactions"
+             displayName="Metabolic pathway reactions"
+             queryRef="CompoundTables.CompoundsFromMetabolicPathways">
+        <columnAttribute name="ec_number"/>
+        <columnAttribute name="substrates_text"/>
+        <columnAttribute name="products_text"/>
+      </table>
+
+      <table name="MetabolicPathways"
+             displayName="Associated metabolic pathways"
+             queryRef="CompoundTables.PathwaysFromCompounds">
+        <columnAttribute name="pathway_name"/>
+      </table>
+
+      <table name="SecondaryIds"
+             displayName="Secondary IDs"
+             queryRef="CompoundTables.SecondaryIds">
+        <columnAttribute name="child_id"/>
+      </table>
+
+    </recordClass>
+
+
+  </recordClassSet>
+
+</wdkModel>
