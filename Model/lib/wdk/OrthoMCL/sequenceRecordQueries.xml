@@ -21,17 +21,6 @@
     -->
 
     <querySet name="SequenceId" queryType="id" isCacheable="true">
-
-      <sqlQuery name="AllSequences">
-        <column name="full_id"/>
-        <sql>
-          <![CDATA[
-            select full_id
-            from apidbTuning.SequenceAttributes
-          ]]>
-        </sql>
-      </sqlQuery>
-
       <!-- an id query that returns sequences starting with a given letter, as an easy way to segment the sequences, so that we don't generate massive JSON files -->
       <sqlQuery name="SequencesByAlphabet">
       <paramRef ref="sequenceParams.alphabetLetter"/>
@@ -40,7 +29,7 @@
           <![CDATA[
             select full_id
             from apidbTuning.SequenceAttributes
-            where full_id like $$alphabetLetter$$ || '%'
+            where lower(full_id) like $$alphabetLetter$$ || '%'
           ]]>
         </sql>
       </sqlQuery>
@@ -103,17 +92,6 @@ from apidbTuning.SequenceAttributes
                FROM ApidbTuning.SequenceAttributes sa
              ]]>
            </sql>
-        </sqlQuery>
-
-        <sqlQuery name="SequenceSequence">
-            <column name="full_id"/>
-            <column name="sequence"/>
-            <sql>
-			<![CDATA[
-            SELECT eas.secondary_identifier AS full_id, eas.sequence 
-            FROM dots.ExternalAaSequence eas
- 			]]>
-            </sql>
         </sqlQuery>
 
     </querySet>
@@ -188,61 +166,6 @@ from apidbTuning.SequenceAttributes
             </sql>
         </sqlQuery>
 
-        <!-- tables for text search -->
-
-        <sqlQuery name="Product">
-            <column name="full_id"/>
-            <column name="product"/>
-            <column name="id_string"/>
-            <sql>
-		<![CDATA[
-                  SELECT eas.secondary_identifier AS full_id,
-                         eas.description AS product,
-                         eas.secondary_identifier AS id_string
-                  FROM dots.ExternalAaSequence eas
- 		]]>
-            </sql>
-        </sqlQuery>
-
-        <sqlQuery name="Taxon">
-            <column name="full_id"/>
-            <column name="taxon"/>
-            <column name="abbreviation"/>
-            <sql>
-		<![CDATA[
-                  SELECT eas.secondary_identifier AS full_id,
-                         ot.three_letter_abbrev AS abbreviation,
-                         ot.name AS taxon
-                  FROM dots.ExternalAaSequence eas, apidb.orthomcltaxon ot
-                  WHERE COALESCE(SUBSTRING(eas.secondary_identifier, 1, POSITION('|' IN eas.secondary_identifier)-1), eas.secondary_identifier) = ot.three_letter_abbrev
- 		]]>
-            </sql>
-        </sqlQuery>
-
-        <sqlQuery name="OrthologGroupId">
-            <column name="full_id"/>
-            <column name="group_name"/>
-            <sql>
-                <![CDATA[
-                    with sequences as
-                         (select full_id, group_name, aa_sequence_id
-                          from ApidbTuning.SequenceAttributes)
-                      select s.full_id, s.group_name
-                      from sequences s
-                      where s.group_name is not null
-                    union
-                      select s.full_id, ref.primary_identifier AS group_name
-                      from sequences s, 
-                           dots.AaSequenceDbRef seqref, Sres.DbRef ref,
-                           sres.ExternalDatabase db, Sres.ExternalDatabaseRelease dbr
-                      where s.aa_sequence_id = seqref.aa_sequence_id
-                        and seqref.db_ref_id = ref.db_ref_id
-                        and ref.external_database_release_id = dbr.external_database_release_id
-                        and dbr.external_database_id = db.external_database_id
-                        and db.name = 'OrthoMCL Old Groups'
- 		]]>
-            </sql>
-        </sqlQuery>
 
     </querySet>
 
