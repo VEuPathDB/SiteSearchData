@@ -99,10 +99,10 @@ process createMetadataBatches {
   // task.index assigns unique port per parallel execution slot
   def port = 8900 + task.index
   """
-  mkdir -p /output/metadata/${cohort}
+  mkdir -p /output/${cohort}/metadata
 
   # Start WDK server on dedicated port in the background
-  wdkServer SiteSearchData http://0.0.0.0:${port} &> /output/metadata/${cohort}/server.log &
+  wdkServer SiteSearchData http://0.0.0.0:${port} &> /output/${cohort}/metadata/server.log &
   SERVER_PID=\$!
 
   # Wait for server to be ready
@@ -121,21 +121,21 @@ process createMetadataBatches {
   done
 
   # Create document categories batch if not already complete
-  CAT_BATCH=\$(ls -d /output/metadata/${cohort}/solr-json-batch_document-categories_all_* 2>/dev/null | tail -1)
+  CAT_BATCH=\$(ls -d /output/${cohort}/metadata/solr-json-batch_document-categories_all_* 2>/dev/null | tail -1)
   if [ -n "\$CAT_BATCH" ] && [ -f "\$CAT_BATCH/DONE" ]; then
     echo "Document categories batch already exists and is complete for ${cohort}, skipping"
   else
     echo "Creating document categories batch for ${cohort}"
-    ssCreateDocumentCategoriesBatch ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docCat.log
+    ssCreateDocumentCategoriesBatch ${cohort} /output/${cohort}/metadata &> /output/${cohort}/metadata/docCat.log
   fi
 
   # Create document fields batch if not already complete
-  FIELD_BATCH=\$(ls -d /output/metadata/${cohort}/solr-json-batch_document-fields_all_* 2>/dev/null | tail -1)
+  FIELD_BATCH=\$(ls -d /output/${cohort}/metadata/solr-json-batch_document-fields_all_* 2>/dev/null | tail -1)
   if [ -n "\$FIELD_BATCH" ] && [ -f "\$FIELD_BATCH/DONE" ]; then
     echo "Document fields batch already exists and is complete for ${cohort}, skipping"
   else
     echo "Creating document fields batch for ${cohort}"
-    ssCreateDocumentFieldsBatch http://localhost:${port} ${cohort} /output/metadata/${cohort} &> /output/metadata/${cohort}/docField.log
+    ssCreateDocumentFieldsBatch http://localhost:${port} ${cohort} /output/${cohort}/metadata &> /output/${cohort}/metadata/docField.log
   fi
 
   # Stop the server
@@ -159,25 +159,28 @@ process runSiteSearchData {
   // Assign port based on parallel execution slot (task.index ranges from 0 to maxForks-1)
   def port = 9000 + task.index
 
+  // Portal cohort outputs go under ApiCommon directory
+  def outputCohort = (cohort == 'Portal') ? 'ApiCommon' : cohort
+
   // Select appropriate dump script and arguments based on cohort
   def dumpScript
   def dumpArgs
-  if (cohort == 'ApiCommon') {
+  if (cohort == 'ApiCommon' || cohort == 'Portal') {
     dumpScript = "dumpApiCommonWdkBatchesForSolr"
-    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId} --projectId ${projectId} --numberOfOrganisms ${params.numberOfOrganisms}"
+    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${outputCohort}/${projectId} --projectId ${projectId} --numberOfOrganisms ${params.numberOfOrganisms}"
   } else if (cohort == 'OrthoMCL') {
     dumpScript = "dumpOrthomclWdkBatchesForSolr"
-    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId}"
+    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${outputCohort}/${projectId}"
   } else if (cohort == 'EDA') {
     dumpScript = "dumpEdaWdkBatchesForSolr"
-    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${projectId}"
+    dumpArgs = "--wdkServiceUrl \"http://localhost:${port}\" --targetDir /output/${outputCohort}/${projectId}"
   }
 
   """
-  mkdir -p /output/${projectId}
+  mkdir -p /output/${outputCohort}/${projectId}
 
   # Start WDK server on dedicated port in the background, logging to output dir
-  wdkServer SiteSearchData http://0.0.0.0:${port}  &> /output/${projectId}/server.log &
+  wdkServer SiteSearchData http://0.0.0.0:${port}  &> /output/${outputCohort}/${projectId}/server.log &
   SERVER_PID=\$!
 
   # Wait for server to be ready
@@ -197,12 +200,12 @@ process runSiteSearchData {
 
   # Run the appropriate dump script(s) based on cohort
   echo "Running ${dumpScript} for ${cohort} cohort, project ${projectId}"
-  ${dumpScript} ${dumpArgs} &>> /output/${projectId}/dumper.log
+  ${dumpScript} ${dumpArgs} &>> /output/${outputCohort}/${projectId}/dumper.log
 
   # For ApiCommon, also run EDA dump script
   if [ "${cohort}" = "ApiCommon" ]; then
     echo "Running dumpEdaWdkBatchesForSolr for ${cohort} cohort, project ${projectId}"
-    dumpEdaWdkBatchesForSolr --wdkServiceUrl "http://localhost:${port}" --targetDir /output/${projectId} &>> /output/${projectId}/dumper.log
+    dumpEdaWdkBatchesForSolr --wdkServiceUrl "http://localhost:${port}" --targetDir /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/dumper.log
   fi
 
   # Stop the server
