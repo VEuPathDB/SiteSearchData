@@ -1,4 +1,4 @@
-<wdkModel>
+re<wdkModel>
 
   <querySet name="OrganismIdQueries" queryType="id" isCacheable="false">
 
@@ -25,7 +25,7 @@
         <![CDATA[
           select source_id, source_id as old_source_id
           from apidbTuning.OrganismAttributes oa
-           and (oa.project_id = '@PROJECT_ID@' or 'UniDB' = '@PROJECT_ID@')
+           and oa.project_id = '@PROJECT_ID@'
         ]]>
       </sql>
     </sqlQuery>
@@ -53,7 +53,7 @@
                        where dd.category = 'Genomes'
                          and dsp.dataset_presenter_id = dd.dataset_presenter_id
                          and oa.component_taxon_id = dd.taxon_id) genome_dataset on genome_dataset.source_id = oa.source_id
-                         and (oa.project_id = '@PROJECT_ID@' or 'UniDB' = '@PROJECT_ID@')
+                         and oa.project_id = '@PROJECT_ID@'
         ]]>
       </sql>
     </sqlQuery>
@@ -69,7 +69,7 @@
         <![CDATA[
           select source_id, organism_name AS organism
           from apidbTuning.OrganismAttributes oa
-           and (oa.project_id = '@PROJECT_ID@' or 'UniDB' = '@PROJECT_ID@')
+          where oa.project_id = '@PROJECT_ID@'
         ]]>
       </sql>
     </sqlQuery>
@@ -85,7 +85,7 @@
           where dd.category = 'Genomes'
             and dsp.dataset_presenter_id = dd.dataset_presenter_id
             and oa.component_taxon_id = dd.taxon_id
-            and (oa.project_id = '@PROJECT_ID@' or 'UniDB' = '@PROJECT_ID@')
+            and oa.project_id = '@PROJECT_ID@'
         ]]>
       </sql>
     </sqlQuery>
@@ -104,7 +104,7 @@
             and dsh.dataset_presenter_id = dd.dataset_presenter_id
             and oa.component_taxon_id = dd.taxon_id
             and dsh.genome_version like 'GC%'
-            and (oa.project_id = '@PROJECT_ID@' or 'UniDB' = '@PROJECT_ID@')
+            and oa.project_id = '@PROJECT_ID@'
         ]]>
       </sql>
     </sqlQuery>
