@@ -1,4 +1,4 @@
-re<wdkModel>
+<wdkModel>
 
   <querySet name="OrganismIdQueries" queryType="id" isCacheable="false">
 
