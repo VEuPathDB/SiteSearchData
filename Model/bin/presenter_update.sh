@@ -30,7 +30,7 @@ echo "$(date -u) server available"
 
 mkdir $DESTINATION_DIRECTORY &&\
 echo "$(date -u) starting ssCreateWdkRecordsBatch" &&\
-ssCreateWdkRecordsBatch dataset-presenter $PROJECT_ID http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY &&\
+ssCreateWdkRecordsBatch dataset-presenter $PROJECT_ID http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY --paramName projectId --paramValue $PROJECT_ID &&\
 echo "$(date -u) starting ssCreateWdkMetaBatch" &&\
 ssCreateWdkMetaBatch $SITE_BASE_URL/service/ $PROJECT_ID $DESTINATION_DIRECTORY
 
