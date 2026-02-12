@@ -108,7 +108,6 @@
     </sqlQuery>
 
     <sqlQuery name="Organisms"  isCacheable='false'>
-      <paramRef ref="datasetParams.projectId"/>  <!-- included just to avoid cache hits in comm datasets -->
       <column name="dataset_id"/>
       <column name="organism"/>
       <sql>
