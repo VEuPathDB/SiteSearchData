@@ -14,13 +14,13 @@ sub checkPrevBatchDir {
 }
 
 sub runWdkReport {
-  my ($wdkServiceUrl, $targetDir, $batchDirPrefix, $batchType, $batchName, $organismAbbrev) = @_;
+  my ($wdkServiceUrl, $targetDir, $batchDirPrefix, $batchType, $batchName, $paramName, $paramValue) = @_;
   my @temp = glob("$targetDir/${batchDirPrefix}_${batchType}_${batchName}*");
 
   return 0 if checkPrevBatchDir($temp[0], $batchType, $batchName);
 
   my $cmd = "ssCreateWdkRecordsBatch $batchType $batchName $wdkServiceUrl $targetDir";
-  $cmd .= " --paramName organismAbbrev --paramValue $organismAbbrev" if $organismAbbrev;
+  $cmd .= " --paramName $paramName --paramValue $paramValue" if $paramName;
   runCmd($cmd);
   return 1;
 }

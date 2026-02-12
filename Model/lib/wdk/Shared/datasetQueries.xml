@@ -2,6 +2,7 @@
 
   <querySet name="DatasetIdQueries" queryType="id" isCacheable="false">
     <sqlQuery name="AllDatasets">
+      <paramRef ref="datasetParams.projectId"/>  <!-- included just to avoid cache hits in comm datasets -->
       <column name="dataset_id"/>
       <sql>
         <![CDATA[
@@ -19,6 +20,13 @@
       </sql>
     </sqlQuery>
   </querySet>
+
+  <paramSet name="datasetParams">
+    <stringParam name="projectId"
+                 prompt="Project ID"
+                 number="false"
+                 visible="true"/>
+  </paramSet>
 
   <querySet name="DatasetAttributes" queryType="attribute" isCacheable="false">
     <sqlQuery name="All">
