@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="PopsetIds" queryType="id" isCacheable="true">
+  <querySet name="PopsetIds" queryType="id" isCacheable="false">
 
     <!-- we can't dump popset isolates per organism because they are loaded at the family level.
          A given isolate might be associated with multiple reference organisms -->

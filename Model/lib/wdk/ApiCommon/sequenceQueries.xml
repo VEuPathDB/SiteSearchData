@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="SequenceIdQueries" queryType="id" isCacheable="true">
+  <querySet name="SequenceIdQueries" queryType="id" isCacheable="false">
 
     <sqlQuery name="SequencesByOrganismAbbrev">
       <paramRef ref="sequenceParams.organismAbbrev"/>
