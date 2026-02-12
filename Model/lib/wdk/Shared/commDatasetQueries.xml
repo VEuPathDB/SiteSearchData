@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="CommunityDatasetIdQueries" queryType="id" isCacheable="true">
+  <querySet name="CommunityDatasetIdQueries" queryType="id" isCacheable="false">
 
     <processQuery name="AllCommunityDatasets"
         processName="org.eupathdb.sitesearch.wsfplugin.CommunityStudyIdsPlugin">

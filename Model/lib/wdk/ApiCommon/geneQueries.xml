@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="GeneIdQueries" queryType="id" isCacheable="true">
+  <querySet name="GeneIdQueries" queryType="id" isCacheable="false">
     <sqlQuery name="GenesByOrganismAbbrev">
       <paramRef ref="geneParams.organismAbbrev"/>
       <column name="source_id"/>
