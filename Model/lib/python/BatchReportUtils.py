@@ -28,8 +28,8 @@ def httpGet(url, params):
 def validateWebServiceUrl(wdkServiceUrl):
     try:
         requests.get(url=wdkServiceUrl, params={})
-    except:
-        error("It looks like you are not running the SiteSearchModel WDK service at url " + wdkServiceUrl)
+    except Exception as e:
+        error(f"Failed to connect to WDK service at {wdkServiceUrl}. Reason: {type(e).__name__}: {str(e)}")
 
 
 def validateParentDir(parentDir):
