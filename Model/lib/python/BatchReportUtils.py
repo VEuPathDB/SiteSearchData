@@ -27,7 +27,7 @@ def httpGet(url, params):
              
 def validateWebServiceUrl(wdkServiceUrl):
     try:
-        requests.get(url=wdkServiceUrl, params={})
+        requests.get(url=wdkServiceUrl + '/record-types', params={})
     except Exception as e:
         error(f"Failed to connect to WDK service at {wdkServiceUrl}. Reason: {type(e).__name__}: {str(e)}")
 
