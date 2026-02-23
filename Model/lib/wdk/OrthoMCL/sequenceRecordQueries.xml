@@ -153,14 +153,14 @@ from apidbTuning.SequenceAttributes
             <column name="expasy_url"/>
             <sql>
                 <![CDATA[
-                    SELECT eas.secondary_identifier as full_id, ec.ec_number, ec.description,
+                    SELECT sa.full_id, ec.ec_number, ec.description,
                                  'http://enzyme.expasy.org/cgi-bin/enzyme/enzyme-search-ec?field1=' || ec.ec_number_1
                                  || chr(38) || 'field2=' || ec.ec_number_2
                                  || chr(38) || 'field3=' || ec.ec_number_3
                                  || chr(38) || 'field4=' || ec.ec_number_4 as expasy_url
-                    FROM dots.ExternalAaSequence eas,
+                    FROM apidbtuning.sequenceattributes sa,
                          dots.AaSequenceEnzymeClass asec, sres.enzymeClass ec
-                    WHERE eas.aa_sequence_id = asec.aa_sequence_id
+                    WHERE sa.aa_sequence_id = asec.aa_sequence_id
                       AND asec.enzyme_class_id = ec.enzyme_class_id
  		]]>
             </sql>
