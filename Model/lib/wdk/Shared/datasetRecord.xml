@@ -10,7 +10,7 @@
     <!-- #########################  Dataset Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="dataset" urlName="dataset" displayName="Data set">
+    <recordClass name="dataset" urlName="dataset" displayName="Dataset">
       <propertyList name="batch">
         <value>dataset-presenter</value>
       </propertyList>
