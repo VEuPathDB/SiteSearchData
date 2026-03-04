@@ -366,6 +366,37 @@
       </sql>
     </sqlQuery>
 
+
+    <sqlQuery name="CategoricalValues">
+      <column name="dataset_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+        select v.dataset_id, 
+               variable_display_name || ': ' || value as value
+        from apidbtuning.datasetcategoricalvalue v,
+	     apidbtuning.datasetdatasource dd
+	where dd.dataset_presenter_id = v.dataset_id
+          and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
+       ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="NonCategoricalVariables">
+      <column name="dataset_id"/>
+      <column name="name"/>
+      <sql>
+        <![CDATA[
+        select v.dataset_id, 
+               variable_display_name 
+        from apidbtuning.datasetnoncategoricalvariable v,
+	     apidbtuning.datasetdatasource dd
+	where dd.dataset_presenter_id = v.dataset_id
+          and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
+       ]]>
+      </sql>
+    </sqlQuery>
+
   </querySet>
 
 </wdkModel>

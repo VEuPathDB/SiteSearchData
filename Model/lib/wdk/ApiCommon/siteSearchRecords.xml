@@ -428,12 +428,18 @@
         <columnAttribute name="image_type"/>
       </table>
 
-<!--      <table name="GeneModelCharacteristics"
+      <table name="GeneModelCharacteristics"
              displayName="GeneModel Characteristics"
              queryRef="GeneTables.GeneModelCharacteristics">
         <columnAttribute name="characteristic_value"/>
       </table>
--->
+
+      <table name="PhenotypeCategoricalValues"
+             displayName="Phenotype values"
+             queryRef="GeneTables.PhenotypeCategoricalValues">
+        <columnAttribute name="value"/>
+      </table>
+
     </recordClass>
 
   </recordClassSet>
