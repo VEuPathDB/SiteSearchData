@@ -52,9 +52,12 @@ workflow {
   cacheComplete = recreateCache(params.envFile)
 
   // Create metadata batches for each cohort (runs in parallel with project dumps, but after cache)
-  createMetadataBatches(metadataCohorts, params.envFile, cacheComplete)
+  metadataComplete = createMetadataBatches(metadataCohorts, params.envFile, cacheComplete)
 
-  runSiteSearchData(projects, params.envFile, cacheComplete)
+  projectsComplete = runSiteSearchData(projects, params.envFile, cacheComplete)
+
+  // Drop the cache after all data dumps complete
+  dropCache(params.envFile, metadataComplete.collect(), projectsComplete.collect())
 }
 
 process recreateCache {
@@ -210,5 +213,32 @@ process runSiteSearchData {
 
   # Stop the server
   kill \$SERVER_PID || true
+  """
+}
+
+process dropCache {
+  errorStrategy 'terminate'
+  containerOptions "--env-file ${params.envFile} -e COHORT=ApiCommon -e PROJECT_ID=PlasmoDB"
+
+  publishDir "${params.outputDir}", mode: 'copy'
+
+  input:
+    path(envFile)
+    val(metadataComplete)
+    val(projectsComplete)
+
+  output:
+    path 'cache-drop.done'
+
+  script:
+  """
+  set -euo pipefail
+
+  echo "Dropping WDK cache..."
+  wdkCache -model SiteSearchData -drop
+  echo "WDK cache dropped successfully"
+
+  # Create sentinel file to track completion
+  touch cache-drop.done
   """
 }
