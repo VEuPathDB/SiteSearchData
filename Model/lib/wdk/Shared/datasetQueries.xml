@@ -388,7 +388,7 @@
       <sql>
         <![CDATA[
         select v.dataset_id, 
-               variable_display_name 
+               variable_display_name as name
         from apidbtuning.datasetnoncategoricalvariable v,
 	     apidbtuning.datasetdatasource dd
 	where dd.dataset_presenter_id = v.dataset_id
