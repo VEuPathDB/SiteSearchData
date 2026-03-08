@@ -219,7 +219,7 @@
       </table>
       
       <table name="CategoricalValues"
-             displayName="Variable names & values"
+             displayName="Variable names &amp; values"
              queryRef="DatasetTables.CategoricalValues">
         <columnAttribute name="value"/>
       </table>
