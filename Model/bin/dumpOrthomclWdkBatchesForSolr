@@ -31,6 +31,11 @@ for my $letter (@alphabet) {
 
 my @numerals = ('0' .. '9');
 
+# a few seq IDs start with numbers.
+for my $numeral (@numerals) {
+  SiteSearchData::Model::Utils::runWdkReportParam($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "sequence", $numeral, "alphabetLetter", $numeral);
+}
+
 for my $numeral (@numerals) {
   SiteSearchData::Model::Utils::runWdkReportParam($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "group", $numeral, "numeral", $numeral);
 }
