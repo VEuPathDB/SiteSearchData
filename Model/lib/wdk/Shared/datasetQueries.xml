@@ -1,7 +1,8 @@
-<wdkModel>
+<wdkModel> 
 
-  <querySet name="DatasetIdQueries" queryType="id" isCacheable="true">
+  <querySet name="DatasetIdQueries" queryType="id" isCacheable="false">
     <sqlQuery name="AllDatasets">
+      <paramRef ref="datasetParams.projectId"/>  <!-- included just to avoid cache hits in comm datasets -->
       <column name="dataset_id"/>
       <sql>
         <![CDATA[
@@ -20,6 +21,13 @@
     </sqlQuery>
   </querySet>
 
+  <paramSet name="datasetParams">
+    <stringParam name="projectId"
+                 prompt="Project ID"
+                 number="false"
+                 visible="true"/>
+  </paramSet>
+
   <querySet name="DatasetAttributes" queryType="attribute" isCacheable="false">
     <sqlQuery name="All">
       <column name="hyperlinkName"/>
@@ -36,15 +44,14 @@
                  dataset_id, '@PROJECT_ID@' as project,
                  display_name, display_name as hyperlinkName, description, summary, acknowledgement,
                  newcategory
-          from apidbTuning.DatasetPresenter dp,
-	    (select dataset_presenter_id, string_agg(category, ', ') as newcategory
+          from apidbTuning.DatasetPresenter dp
+	  left join  (select dataset_presenter_id, string_agg(category, ', ') as newcategory
              from apidbtuning.datasetdatasource dd
              where (category is null OR category != 'Link outs')
              and (project_id = '@PROJECT_ID@'
              or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))   
-	     group by dataset_presenter_id) cat
-	   where dp.dataset_presenter_id = cat.dataset_presenter_id
-            and dp.dataset_presenter_id
+	     group by dataset_presenter_id) cat ON dp.dataset_presenter_id = cat.dataset_presenter_id
+            WHERE dp.dataset_presenter_id
                 not in (select dataset_presenter_id
                         from apidbTuning.DatasetProperty
                         where property = 'isPublic' and value = 'false')
@@ -352,10 +359,41 @@
           select dh.dataset_presenter_id as dataset_id,
                  replace(replace(replace(url, '/', ' '), '=', ' '), '?', ' ') as url
           from apidbTuning.DatasetHyperlink dh, apidbTuning.DatasetDatasource dd
-            where dh.dataset_id = dd.dataset_presenter_id
+            where dh.dataset_presenter_id = dd.dataset_presenter_id
             and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
 
         ]]>
+      </sql>
+    </sqlQuery>
+
+
+    <sqlQuery name="CategoricalValues">
+      <column name="dataset_id"/>
+      <column name="value"/>
+      <sql>
+        <![CDATA[
+        select v.dataset_id, 
+               variable_display_name || ': ' || value as value
+        from apidbtuning.datasetcategoricalvalue v,
+	     apidbtuning.datasetdatasource dd
+	where dd.dataset_presenter_id = v.dataset_id
+          and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
+       ]]>
+      </sql>
+    </sqlQuery>
+
+    <sqlQuery name="NonCategoricalVariables">
+      <column name="dataset_id"/>
+      <column name="name"/>
+      <sql>
+        <![CDATA[
+        select v.dataset_id, 
+               variable_display_name as name
+        from apidbtuning.datasetnoncategoricalvariable v,
+	     apidbtuning.datasetdatasource dd
+	where dd.dataset_presenter_id = v.dataset_id
+          and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
+       ]]>
       </sql>
     </sqlQuery>
 

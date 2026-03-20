@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="VariableValueIdQueries" queryType="id" isCacheable="true">
+  <querySet name="VariableValueIdQueries" queryType="id" isCacheable="false">
 
     <sqlQuery name="AllVariableValues">
       <column name="value"/>

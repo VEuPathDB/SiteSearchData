@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="CompoundIdQueries" queryType="id" isCacheable="true">
+  <querySet name="CompoundIdQueries" queryType="id" isCacheable="false">
 
     <sqlQuery name="AllCompounds">
       <column name="source_id"/>

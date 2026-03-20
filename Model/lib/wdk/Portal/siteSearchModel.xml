@@ -14,10 +14,14 @@
               queryRef="DatasetIdQueries.AllDatasets"
               recordClassRef="datasetRecordClasses.dataset">
     </question>
+
   </questionSet>
 
   <import file="Shared/datasetRecord.xml"/>
   <import file="Shared/datasetQueries.xml"/>
-
+  <import file="ApiCommon/globalRecords.xml"/>
+  <import file="ApiCommon/pathwayQueries.xml"/>
+  <import file="ApiCommon/compoundQueries.xml"/>
 
 </wdkModel>
+

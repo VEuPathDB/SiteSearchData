@@ -8,15 +8,17 @@ use SiteSearchData::Model::Utils;
 
 my $BATCH_DIR_PREFIX = "solr-json-batch";
 
-my $ORG_ABBREV_SQL = "select distinct abbrev AS internal from apidb.Organism order by abbrev";
-
-my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose);
+my ($wdkServiceUrl, $targetDir, $numberOfOrganisms, $verbose, $projectId);
 &GetOptions("targetDir=s" => \$targetDir,
             "wdkServiceUrl=s" => \$wdkServiceUrl,
+            "projectId=s" => \$projectId,
             "numberOfOrganisms=i" => \$numberOfOrganisms,
 	    "verbose!" => \$verbose);
 
 $| = 1;
+
+my $ORG_ABBREV_SQL =
+  "select distinct internal_abbrev from apidbtuning.OrganismAttributes where project_id = '$projectId' order by internal_abbrev";
 
 &usage unless ($targetDir && $wdkServiceUrl);
 
@@ -30,7 +32,7 @@ my $dbh = SiteSearchData::Model::Utils::getDbh($gusProps);
 SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "pathway", $modelProps->{PROJECT_ID});
 #SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "popset-isolate", $modelProps->{PROJECT_ID});
 SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "compound", $modelProps->{PROJECT_ID});
-SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "dataset-presenter", $modelProps->{PROJECT_ID});
+SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "dataset-presenter", $modelProps->{PROJECT_ID}, 'projectId', $modelProps->{PROJECT_ID});
 
 my $organismCount = 0;
 foreach my $organismAbbrev (getOrganisms($dbh)) {
@@ -38,7 +40,7 @@ foreach my $organismAbbrev (getOrganisms($dbh)) {
     print STDOUT "Reached $numberOfOrganisms organisms.  Quitting\n";
     last;
   }
-  $organismCount += SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "organism", $organismAbbrev, $organismAbbrev);
+  $organismCount += SiteSearchData::Model::Utils::runWdkReport($wdkServiceUrl, $targetDir, $BATCH_DIR_PREFIX, "organism", $organismAbbrev, 'organismAbbrev', $organismAbbrev);
 }
 print STDOUT "Done.\n";
 exit 0;

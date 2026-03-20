@@ -6,7 +6,7 @@
     <!-- #########################  Dataset Record  ######################## -->
     <!-- ################################################################### -->
 
-    <recordClass name="dataset" urlName="dataset" displayName="Data set">
+    <recordClass name="dataset" urlName="dataset" displayName="Dataset">
       <propertyList name="batch">
         <value>dataset-presenter</value>
       </propertyList>
@@ -201,6 +201,17 @@
         <columnAttribute name="url"/>
       </table>
       
+      <table name="CategoricalValues"
+             displayName="Variable names &amp; values"
+             queryRef="DatasetTables.CategoricalValues">
+        <columnAttribute name="value"/>
+      </table>
+      
+      <table name="NonCategoricalVariables"
+             displayName="Variable names"
+             queryRef="DatasetTables.NonCategoricalVariables">
+        <columnAttribute name="name"/>
+      </table>
     </recordClass>
 
   </recordClassSet>
