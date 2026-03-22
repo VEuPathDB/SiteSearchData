@@ -48,9 +48,14 @@
 	</columnAttribute>		
       </attributeQueryRef>
 
+      <attributeQueryRef ref="CommunityDatasetAttributes.OwnerInfo">
+        <columnAttribute name="owner_name"/>
+        <columnAttribute name="owner_organization"/>
+      </attributeQueryRef>
+
       <table name="Contacts"
              displayName="Principal Investigator and Collaborators"
-             queryRef="DatasetTables.Contacts">
+             queryRef="CommunityDatasetTables.contacts">
         <propertyList name="boost"> 
           <value>20</value>
         </propertyList>   	      
@@ -61,18 +66,18 @@
 
       <table name="Publications"
              displayName="Associated publications"
-             queryRef="DatasetTables.Publications">
+             queryRef="CommunityDatasetTables.publications">
         <propertyList name="boost">
           <value>20</value>
         </propertyList>
         <columnAttribute name="dataset_id"/>
-        <columnAttribute name="pmid" displayName="Pubmed ID"/>
+        <columnAttribute name="pubmed_id" displayName="Pubmed ID"/>
         <columnAttribute name="citation" displayName="Citation"/>
       </table>
 
       <table name="Hyperlinks"
              displayName="Related links"
-             queryRef="DatasetTables.Hyperlinks">
+             queryRef="CommunityDatasetTables.hyperlinks">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="text" displayName="Link text"/>
         <columnAttribute name="description" displayName="Description"/>
@@ -80,7 +85,7 @@
 
       <table name="Organisms"
              displayName="Organisms"
-             queryRef="DatasetTables.Organisms">
+             queryRef="CommunityDatasetTables.organisms">
         <propertyList name="includeProjects">
           <value>MicrosporidiaDB</value>
           <value>TrichDB</value>
@@ -103,35 +108,35 @@
 
       <table name="Countries"
              displayName="Countries"
-             queryRef="DatasetTables.Countries">
+             queryRef="CommunityDatasetTables.countries">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="country" displayName="Country"/>
       </table>
 
       <table name="Species"
              displayName="Species"
-             queryRef="DatasetTables.Species">
+             queryRef="CommunityDatasetTables.species">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="species" displayName="Species"/>
       </table>
 
       <table name="Diseases"
              displayName="Diseases"
-             queryRef="DatasetTables.Diseases">
+             queryRef="CommunityDatasetTables.diseases">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="disease" displayName="Disease"/>
       </table>
 
       <table name="AssociatedFactors"
              displayName="Associated factors"
-             queryRef="DatasetTables.AssociatedFactors">
+             queryRef="CommunityDatasetTables.associatedFactors">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="factor" displayName="Factor"/>
       </table>
 
       <table name="DOIs"
              displayName="DOIs"
-             queryRef="DatasetTables.DOIs">
+             queryRef="CommunityDatasetTables.dois">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="doi" displayName="DOI"/>
         <columnAttribute name="description" displayName="Description"/>
@@ -139,7 +144,7 @@
 
       <table name="BioprojectIds"
              displayName="Bioproject IDs"
-             queryRef="DatasetTables.BioprojectIds">
+             queryRef="CommunityDatasetTables.bioprojectIds">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="bioproject_id" displayName="Bioproject ID"/>
         <columnAttribute name="description" displayName="Description"/>
@@ -147,10 +152,39 @@
 
       <table name="FundingAwards"
              displayName="Funding awards"
-             queryRef="DatasetTables.FundingAwards">
+             queryRef="CommunityDatasetTables.fundingAwards">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="agency" displayName="Agency"/>
         <columnAttribute name="award_number" displayName="Award number"/>
+      </table>
+
+      <table name="Outcomes"
+             displayName="Outcomes"
+             queryRef="CommunityDatasetTables.outcomes">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="outcome" displayName="Outcome"/>
+      </table>
+
+      <table name="Characteristics"
+             displayName="Study characteristics"
+             queryRef="CommunityDatasetTables.characteristics">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="study_design" displayName="Study design"/>
+        <columnAttribute name="study_type" displayName="Study type"/>
+      </table>
+
+      <table name="SampleTypes"
+             displayName="Sample types"
+             queryRef="CommunityDatasetTables.sampleTypes">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="sample_type" displayName="Sample type"/>
+      </table>
+
+      <table name="LinkedDatasets"
+             displayName="Linked datasets"
+             queryRef="CommunityDatasetTables.LinkedDatasets">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="linked_dataset_id" displayName="Linked dataset ID"/>
       </table>
 
 
