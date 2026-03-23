@@ -1,9 +1,5 @@
 <wdkModel>
 
-  <constant name="datasetRecordName" includeProjects="ClinEpiDB">Study Name</constant>
-  <constant name="datasetRecordName" excludeProjects="ClinEpiDB">Name</constant>
-
-
   <recordClassSet name="communityDatasetRecordClasses">
 
     <!-- ################################################################### -->
@@ -12,23 +8,14 @@
 
     <recordClass name="communityDataset" urlName="community-dataset" displayName="Community Study">
       <propertyList name="batch">
-        <value>community-datasets</value>
+        <value>dataset-presenter</value>
       </propertyList>
 
       <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
         <columnRef>dataset_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="%%datasetRecordName%%" excludeProjects="ClinEpiDB">
-        <propertyList name="boost">
-          <value>100</value>
-        </propertyList>
-        <text>
-          <![CDATA[ $$display_name$$ ]]>
-        </text>
-      </idAttribute>
-
-      <idAttribute name="primary_key" displayName="Study Name" includeProjects="ClinEpiDB">
+      <idAttribute name="primary_key" displayName="Dataset Name">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
@@ -42,13 +29,12 @@
                 scopes=""
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
-      <!-- for ClinEpi and mbio, boost all fields in dataset record, so that Studies generally come out on top of search results -->	    
       <attributeQueryRef ref="CommunityDatasetAttributes.All">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
         <columnAttribute name="display_name" internal="true"/>
         <columnAttribute name="description" displayName="Description">
-          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+          <propertyList name="boost"> 
             <value>20</value>
           </propertyList>
 	</columnAttribute>
@@ -56,16 +42,21 @@
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
-          <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB">  
+          <propertyList name="boost">  
             <value>20</value>
           </propertyList>
 	</columnAttribute>		
       </attributeQueryRef>
 
+      <attributeQueryRef ref="CommunityDatasetAttributes.OwnerInfo">
+        <columnAttribute name="owner_name"/>
+        <columnAttribute name="owner_organization"/>
+      </attributeQueryRef>
+
       <table name="Contacts"
              displayName="Principal Investigator and Collaborators"
-             queryRef="DatasetTables.Contacts">
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+             queryRef="CommunityDatasetTables.contacts">
+        <propertyList name="boost"> 
           <value>20</value>
         </propertyList>   	      
         <columnAttribute name="dataset_id"/>
@@ -75,18 +66,26 @@
 
       <table name="Publications"
              displayName="Associated publications"
-             queryRef="DatasetTables.Publications">
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
+             queryRef="CommunityDatasetTables.publications">
+        <propertyList name="boost">
           <value>20</value>
-        </propertyList>   	      
+        </propertyList>
         <columnAttribute name="dataset_id"/>
-        <columnAttribute name="pmid" displayName="Pubmed ID"/>
-        <columnAttribute name="citation" displayName="Citation"/> 
+        <columnAttribute name="publication_id" displayName="Publication ID"/>
+        <columnAttribute name="citation" displayName="Citation"/>
+      </table>
+
+      <table name="Hyperlinks"
+             displayName="Related links"
+             queryRef="CommunityDatasetTables.hyperlinks">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="text" displayName="Link text"/>
+        <columnAttribute name="description" displayName="Description"/>
       </table>
 
       <table name="Organisms"
              displayName="Organisms"
-             queryRef="DatasetTables.Organisms">
+             queryRef="CommunityDatasetTables.organisms">
         <propertyList name="includeProjects">
           <value>MicrosporidiaDB</value>
           <value>TrichDB</value>
@@ -102,14 +101,85 @@
           <value>AmoebaDB</value>
           <value>UniDB</value>
         </propertyList>
-        <propertyList name="boost" includeProjects="ClinEpiDB, MicrobiomeDB"> 
-          <value>20</value>
-        </propertyList>   	      
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="organism_name"/>
-	      
+
       </table>
-      
+
+      <table name="Countries"
+             displayName="Countries"
+             queryRef="CommunityDatasetTables.countries">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="country" displayName="Country"/>
+      </table>
+
+      <table name="Species"
+             displayName="Species"
+             queryRef="CommunityDatasetTables.species">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="species" displayName="Species"/>
+      </table>
+
+      <table name="AssociatedFactors"
+             displayName="Associated factors"
+             queryRef="CommunityDatasetTables.associatedFactors">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="factor" displayName="Factor"/>
+      </table>
+
+      <table name="DOIs"
+             displayName="DOIs"
+             queryRef="CommunityDatasetTables.dois">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="doi" displayName="DOI"/>
+        <columnAttribute name="description" displayName="Description"/>
+      </table>
+
+      <table name="BioprojectIds"
+             displayName="Bioproject IDs"
+             queryRef="CommunityDatasetTables.bioprojectIds">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="bioproject_id" displayName="Bioproject ID"/>
+        <columnAttribute name="description" displayName="Description"/>
+      </table>
+
+      <table name="FundingAwards"
+             displayName="Funding awards"
+             queryRef="CommunityDatasetTables.fundingAwards">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="agency" displayName="Agency"/>
+        <columnAttribute name="award_number" displayName="Award number"/>
+      </table>
+
+      <table name="Outcomes"
+             displayName="Outcomes"
+             queryRef="CommunityDatasetTables.outcomes">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="outcome" displayName="Outcome"/>
+      </table>
+
+      <table name="Characteristics"
+             displayName="Study characteristics"
+             queryRef="CommunityDatasetTables.characteristics">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="study_design" displayName="Study design"/>
+        <columnAttribute name="study_type" displayName="Study type"/>
+      </table>
+
+      <table name="SampleTypes"
+             displayName="Sample types"
+             queryRef="CommunityDatasetTables.sampleTypes">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="sample_type" displayName="Sample type"/>
+      </table>
+
+      <table name="LinkedDatasets"
+             displayName="Linked datasets"
+             queryRef="CommunityDatasetTables.LinkedDatasets">
+        <columnAttribute name="dataset_id"/>
+        <columnAttribute name="linked_dataset_id" displayName="Linked dataset ID"/>
+      </table>
+
 
     </recordClass>
     
