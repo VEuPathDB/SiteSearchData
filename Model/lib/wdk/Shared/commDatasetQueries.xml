@@ -7,9 +7,9 @@
       <sql>
         <![CDATA[
             SELECT CONCAT('EDAUD_', user_dataset_id) as dataset_id
-            FROM @VDI_CONTROL_SCHEMA@.AvailableUserDatasets
+            FROM @VDI_CONTROL_SCHEMA@AvailableUserDatasets
             WHERE is_public = true and is_owner = 1            
-            AND (project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' && 'ClinEpiDB' != '@PROJECT_ID@'))
+            AND (project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and 'ClinEpiDB' != '@PROJECT_ID@'))
         ]]>
       </sql>
     </sqlQuery>
@@ -30,8 +30,7 @@
           select CONCAT('EDAUD_', user_dataset_id) as dataset_id, project_id as project, category,
                  name, name as display_name, name as hyperlinkName, description, summary
           from @VDI_CONTROL_SCHEMA@AvailableUserDatasets
-          where project_id = '@PROJECT_ID@'
-          and is_public = true and is_owner = 1            
+	  where is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -42,15 +41,15 @@
       <column name="owner_organization" columnType="string"/>
       <sql>
         <![CDATA[
-	   SELECT d.dataset_id,
+	   SELECT CONCAT('EDAUD_', d.dataset_id) as dataset_id,
 	   TRIM(COALESCE(first_name || ' ', '') || COALESCE(middle_name || ' ', '') || COALESCE(last_name, ''))	as owner_name,
 	   organization as owner_organization
-           from @VDI_CONTROL_SCHEMA@.dataset d,
+           from @VDI_CONTROL_SCHEMA@dataset d, @VDI_CONTROL_SCHEMA@AvailableUserDatasets aud,
 	   (select * from
             public.crosstab(
 	     'select user_id, key, value
-	      from @REMOTE_USERACCOUNTS_SCHEMA@.account_properties
-              where key = in (''first_name'', ''organization'', ''middle_name'', ''last_name'')
+	      from @REMOTE_USERACCOUNTS_SCHEMA@account_properties
+              where key in (''first_name'', ''organization'', ''middle_name'', ''last_name'')
 	      order by user_id, key',
              'SELECT unnest(ARRAY[''first_name'', ''last_name'', ''middle_name'', ''organization''])')
 	      as userinfo (
@@ -60,7 +59,9 @@
 	     middle_name varchar(4000),
 	     organization varchar(4000))
 		 ) userinfo
-	     where d.owner = userinfo.user_id
+             where d.owner = userinfo.user_id
+               and user_dataset_id = d.dataset_id
+               and is_owner = 1	 
         ]]>
       </sql>
     </sqlQuery>
@@ -76,7 +77,9 @@
             CONCAT('EDAUD_', dataset_id) as dataset_id,
             program_name,
             project_name,
-          FROM  @VDI_CONTROL_SCHEMA@.dataset_meta
+          FROM  @VDI_CONTROL_SCHEMA@dataset_meta, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	    and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -86,12 +89,14 @@
   <querySet name="CommunityDatasetTables" queryType="table" isCacheable="false">
     <sqlQuery name="publications">
       <column name="dataset_id"/>
-      <column name="pubmed_id"/>
+      <column name="publication_id"/>
       <column name="citation"/>
       <sql>
         <![CDATA[
-          select CONCAT('EDAUD_', dp.dataset_id) as dataset_id, pubmed_id, citation
-          from @VDI_CONTROL_SCHEMA@dataset_publication dp
+          select CONCAT('EDAUD_', dp.dataset_id) as dataset_id, external_id as publication_id, citation
+          from @VDI_CONTROL_SCHEMA@dataset_publication dp, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	    and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -104,7 +109,9 @@
         <![CDATA[
           select CONCAT('EDAUD_', dc.dataset_id) as dataset_id,
           concat(dc.first_name, ' ', dc.middle_name, ' ', dc.last_name) as contact_name, affiliation
-          from @VDI_CONTROL_SCHEMA@dataset_contact dc
+          from @VDI_CONTROL_SCHEMA@dataset_contact dc, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	    and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -114,10 +121,11 @@
       <column name="organism_name"/>
       <sql>
         <![CDATA[
-          select CONCAT('EDAUD_', do.dataset_id) as dataset_id,
+          select CONCAT('EDAUD_', dorg.dataset_id) as dataset_id,
 	  species || ' ' || strain as organism_name
-          from @VDI_CONTROL_SCHEMA@dataset_organism do, apidbtuning.organismAttributes oa
-	  where do.organism_abbrev = oa.internal_abbrev
+          from @VDI_CONTROL_SCHEMA@dataset_organism dorg, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dorg.dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -127,8 +135,10 @@
       <column name="description"/>
       <sql>
         <![CDATA[
-          select CONCAT('EDAUD_', dh.dataset_id) as dataset_id, description
-          from @VDI_CONTROL_SCHEMA@dataset_hyperlinks dh
+          select CONCAT('EDAUD_', dh.dataset_id) as dataset_id, dh.description
+          from @VDI_CONTROL_SCHEMA@dataset_hyperlink dh, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -139,7 +149,9 @@
       <sql>
         <![CDATA[
           select CONCAT('EDAUD_', daf.dataset_id) as dataset_id, factor
-          from @VDI_CONTROL_SCHEMA@dataset_associated_factor daf
+          from @VDI_CONTROL_SCHEMA@dataset_associated_factor daf, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -151,7 +163,9 @@
       <sql>
         <![CDATA[
           select CONCAT('EDAUD_', dfa.dataset_id) as dataset_id, agency, award_number
-          from @VDI_CONTROL_SCHEMA@dataset_funding_award dfa
+          from @VDI_CONTROL_SCHEMA@dataset_funding_award dfa, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -162,7 +176,9 @@
       <sql>
         <![CDATA[
           select CONCAT('EDAUD_', dc.dataset_id) as dataset_id, country
-          from @VDI_CONTROL_SCHEMA@dataset_country dc
+          from @VDI_CONTROL_SCHEMA@dataset_country dc, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -173,18 +189,9 @@
       <sql>
         <![CDATA[
           select CONCAT('EDAUD_', ds.dataset_id) as dataset_id, species
-          from @VDI_CONTROL_SCHEMA@dataset_species ds
-        ]]>
-      </sql>
-    </sqlQuery>
-
-    <sqlQuery name="diseases">
-      <column name="dataset_id"/>
-      <column name="disease"/>
-      <sql>
-        <![CDATA[
-          select CONCAT('EDAUD_', dd.dataset_id) as dataset_id, disease
-          from @VDI_CONTROL_SCHEMA@dataset_disease dd
+          from @VDI_CONTROL_SCHEMA@dataset_species ds, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -194,8 +201,10 @@
       <column name="outcome"/>
       <sql>
         <![CDATA[
-          select CONCAT('EDAUD_', do.dataset_id) as dataset_id, outcome
-          from @VDI_CONTROL_SCHEMA@dataset_outcome do
+          select CONCAT('EDAUD_', dataset_id) as dataset_id, outcome
+          from @VDI_CONTROL_SCHEMA@dataset_outcome, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -210,7 +219,9 @@
             CONCAT('EDAUD_', dataset_id) as dataset_id,
             study_design,
             study_type
-          FROM  @VDI_CONTROL_SCHEMA@.dataset_characteristics
+          FROM  @VDI_CONTROL_SCHEMA@dataset_characteristics, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -222,9 +233,10 @@
         <![CDATA[
           SELECT
             CONCAT('EDAUD_', dataset_id) as dataset_id,
-            type as sample_type
-          FROM  @VDI_CONTROL_SCHEMA@.dataset_sample_type
-          ORDER BY type
+            st.type as sample_type
+          FROM  @VDI_CONTROL_SCHEMA@dataset_sample_type st, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -235,8 +247,10 @@
       <column name="description"/>
       <sql>
         <![CDATA[
-          select CONCAT('EDAUD_', dd.dataset_id) as dataset_id, doi, description
-          from @VDI_CONTROL_SCHEMA@dataset_doi dd
+          select CONCAT('EDAUD_', dd.dataset_id) as dataset_id, doi, dd.description
+          from @VDI_CONTROL_SCHEMA@dataset_doi dd, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -247,8 +261,10 @@
       <column name="description"/>
       <sql>
         <![CDATA[
-          select CONCAT('EDAUD_', dbi.dataset_id) as dataset_id, bioproject_id, description
-          from @VDI_CONTROL_SCHEMA@dataset_bioproject_id dbi
+          select CONCAT('EDAUD_', dbi.dataset_id) as dataset_id, bioproject_id, dbi.description
+          from @VDI_CONTROL_SCHEMA@dataset_bioproject_id dbi, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>
@@ -261,8 +277,9 @@
           SELECT
             CONCAT('EDAUD_', dataset_id) as dataset_id,
             linked_dataset_id
-          FROM  @VDI_CONTROL_SCHEMA@.dataset_link
-          ORDER BY linked_dataset_id
+          FROM  @VDI_CONTROL_SCHEMA@dataset_link, @VDI_CONTROL_SCHEMA@AvailableUserDatasets
+	  where dataset_id = user_dataset_id
+	  and is_owner = 1
         ]]>
       </sql>
     </sqlQuery>

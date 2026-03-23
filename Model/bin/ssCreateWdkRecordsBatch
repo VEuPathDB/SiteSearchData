@@ -72,7 +72,7 @@ def validateSearchParam(paramName, searchName, searchParamNames):
 def getSearchInfo(recordType, recordTypeName, paramName):
     filteredQuestions = list(filter(lambda search: 'InternalQuestions' not in search['fullName'], recordType['searches']))
     if not len(filteredQuestions) == 1:
-        utils.error("RecordType " + recordTypeName + " has more than a single search")
+        utils.error("RecordType " + recordTypeName + " does not have exactly one search")
     search = filteredQuestions[0]
     dynAttrs = []
     for dynAttr in search['dynamicAttributes']:

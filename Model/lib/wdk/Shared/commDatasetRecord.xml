@@ -8,7 +8,7 @@
 
     <recordClass name="communityDataset" urlName="community-dataset" displayName="Community Study">
       <propertyList name="batch">
-        <value>community-datasets</value>
+        <value>dataset-presenter</value>
       </propertyList>
 
       <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
@@ -71,7 +71,7 @@
           <value>20</value>
         </propertyList>
         <columnAttribute name="dataset_id"/>
-        <columnAttribute name="pubmed_id" displayName="Pubmed ID"/>
+        <columnAttribute name="publication_id" displayName="Publication ID"/>
         <columnAttribute name="citation" displayName="Citation"/>
       </table>
 
@@ -118,13 +118,6 @@
              queryRef="CommunityDatasetTables.species">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="species" displayName="Species"/>
-      </table>
-
-      <table name="Diseases"
-             displayName="Diseases"
-             queryRef="CommunityDatasetTables.diseases">
-        <columnAttribute name="dataset_id"/>
-        <columnAttribute name="disease" displayName="Disease"/>
       </table>
 
       <table name="AssociatedFactors"
