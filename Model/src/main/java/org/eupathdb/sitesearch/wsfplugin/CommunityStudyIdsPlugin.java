@@ -83,7 +83,7 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
         if (! wdkModel.getProperties().containsKey(PROJECT_ID_PROP_KEY))
             throw new PluginModelException("Can't find property'" + PROJECT_ID_PROP_KEY + "' in model.prop file");
 
-        String project_id = wdkModel.getProperties().get(PROJECT_ID_PROP_KEY);
+        String projectId = wdkModel.getProperties().get(PROJECT_ID_PROP_KEY);
 
         DataSource appDs = wdkModel.getAppDb().getDataSource();
         String sql = "select distinct user_dataset_id, user_id " +

@@ -3,7 +3,6 @@
   <querySet name="OrganismIdQueries" queryType="id" isCacheable="false">
 
     <sqlQuery name="Organisms">
-      <paramRef ref="datasetParams.projectId"/>  <!-- included just to avoid cache hits in comm datasets -->
       <column name="source_id"/>
       <sql>
         <![CDATA[
