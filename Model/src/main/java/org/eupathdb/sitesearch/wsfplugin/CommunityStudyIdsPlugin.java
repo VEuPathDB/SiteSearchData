@@ -31,7 +31,7 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
 
     private static final Logger LOG = Logger.getLogger(CommunityStudyIdsPlugin.class);
 
-    static final String PROJECT_ID_PROPLIST = "projectId";  // this is a <propertyList> used in the model xml
+    static final String PROJECT_ID_PROP_KEY = "projectId";  // this is in model.prop
     static final String VDI_CONTROL_SCHEMA_PROP_KEY = "VDI_CONTROL_SCHEMA";  // this is in model.prop
     static final String OAUTH_SERVICE_URL_PROP_KEY = "OAUTH_SERVICE_URL";  // this is in model.prop
 
@@ -80,12 +80,10 @@ public class CommunityStudyIdsPlugin extends AbstractPlugin {
 
         String vdiControlSchema = wdkModel.getProperties().get(VDI_CONTROL_SCHEMA_PROP_KEY);
 
-        String[] projectsPropList = question.getPropertyList(PROJECT_ID_PROPLIST);
-        if (projectsPropList == null)
-            throw new PluginModelException("Can't find <propertyList> '" + PROJECT_ID_PROPLIST + "' in ID question for community datasets");
-        if (projectsPropList.length != 1)
-            throw new PluginModelException("Error: require a single value in <propertyList> '" + PROJECT_ID_PROPLIST + "' in ID question for community datasets");
-        String projectId = projectsPropList[0];
+        if (! wdkModel.getProperties().containsKey(PROJECT_ID_PROP_KEY))
+            throw new PluginModelException("Can't find property'" + PROJECT_ID_PROP_KEY + "' in model.prop file");
+
+        String projectId = wdkModel.getProperties().get(PROJECT_ID_PROP_KEY);
 
         DataSource appDs = wdkModel.getAppDb().getDataSource();
         String sql = "select distinct user_dataset_id, user_id " +
