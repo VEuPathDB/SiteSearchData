@@ -165,10 +165,9 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       }
       for (String tableName: tableNames) {
         TableField tableField = recordClass.getTableFieldMap().get(tableName);
-	String prefix = isAutoCompleteField(urlSegment, attr)? TABLE_PREFIX : TABLE_PREFIX_NOAC;
-	String autoCompletePrefix = isAutoCompleteField(urlSegment, tableField)? AUTOCOMPLETE_PREFIX : "";
+	String prefix = isAutoCompleteField(urlSegment, tableField)? TABLE_PREFIX : TABLE_PREFIX_NOAC;
         String name = tableField.isInternal()?
-            tableName : prefix + autoCompletePrefix + urlSegment + "_" + tableName;
+            tableName : prefix + urlSegment + "_" + tableName;
         obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
       }
       obj.put(JsonKeys.ID, idValuesString); // unique across all docs
