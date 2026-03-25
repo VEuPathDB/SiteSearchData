@@ -70,7 +70,9 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
 
   private static final String ATTR_PREFIX = "TEXT__";
   private static final String TABLE_PREFIX = "MULTITEXT__";
+  private static final String AUTOCOMPLETE_PREFIX = "AC__";
   private static final String PROJECT_ID_PROP = "PROJECT_ID";
+  private static final String AUTOCOMPLETE_PROPLIST = "autocomplete";
 
   @Override
   public Reporter configure(JSONObject config) throws ReporterConfigException, WdkModelException {
@@ -152,16 +154,19 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
         if (attributeName.equals("wdk_weight")) continue;
         if (!question.getAttributeFieldMap().containsKey(attributeName))
           throw new WdkModelException ("Invalid attribute name '" + attributeName + "'");
-        String name = question.getAttributeFieldMap().get(attributeName).isInternal()?
-              attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
+        AttributeField attr = question.getAttributeFieldMap().get(attributeName);
+	String autoCompletePrefix = isAutoCompleteField(urlSegment, attr)? AUTOCOMPLETE_PREFIX : "";
+        String name = attr.isInternal()?
+              attributeName : ATTR_PREFIX + autoCompletePrefix + urlSegment + "_" + attributeName;
         String value = record.getAttributeValue(attributeName).getValue();
         obj.put(name, value);
         if (name.equals("project")) idValuesString += "_" + value; // append project id, if we have one
       }
       for (String tableName: tableNames) {
         TableField tableField = recordClass.getTableFieldMap().get(tableName);
+	String autoCompletePrefix = isAutoCompleteField(urlSegment, tableField)? AUTOCOMPLETE_PREFIX : "";
         String name = tableField.isInternal()?
-            tableName : TABLE_PREFIX + urlSegment + "_" + tableName;
+            tableName : TABLE_PREFIX + autoCompletePrefix + urlSegment + "_" + tableName;
         obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
       }
       obj.put(JsonKeys.ID, idValuesString); // unique across all docs
@@ -172,6 +177,23 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     }
   }
   
+    private static boolean isAutoCompleteField(String urlSegment, Field field) throws WdkModelException {
+	String[] propList = field.getPropertyList(AUTOCOMPLETE_PROPLIST);
+
+        if (propList == null) return false;
+
+	String errInfo = " '" + AUTOCOMPLETE_PROPLIST +  "' in field " + urlSegment + "." + field.getName();
+	
+        if (propList.length != 1)
+            throw new WdkModelException("Error: require a single value in <propertyList>" + errInfo);
+
+        String autocomp = propList[0];
+
+        if (!autocomp.equals("true") && !autocomp.equals("false"))
+            throw new WdkModelException("Error: require either 'true' or 'false' in <propertyList>" + errInfo);
+	return autocomp.equals("true");
+    }
+    
   private static JSONArray aggregateTableValueJson(TableValue table) {
     JSONArray jsonarray = new JSONArray();
     toStream(table)
