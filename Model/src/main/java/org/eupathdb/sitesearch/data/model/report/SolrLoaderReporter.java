@@ -71,10 +71,9 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
 
   private static final String ATTR_PREFIX = "TEXT__";
   private static final String TABLE_PREFIX = "MULTITEXT__";
-  private static final String ATTR_PREFIX_NOAC = "TEXT_NO_AC__";
-  private static final String TABLE_PREFIX_NOAC = "MULTITEXT_NO_AC__";
   private static final String PROJECT_ID_PROP = "PROJECT_ID";
   private static final String AUTOCOMPLETE_PROPLIST = "autocomplete";
+  private static final String AUTOCOMPLETE_FIELD_NAME = "autocomplete";
 
   @Override
   public Reporter configure(JSONObject config) throws ReporterConfigException, WdkModelException {
@@ -142,7 +141,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       idValues.add(urlSegment);
       idValues.addAll(pkValues);
       String idValuesString = idValues.stream().collect(Collectors.joining("__"));
-      
+
       var obj = new JSONObject();
       obj.put("document-type", urlSegment);
       obj.put("primaryKey", pkValues); // multi string field. for forming record URLs
@@ -152,25 +151,45 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
 
+      List<String> autocompleteValues = new ArrayList<>();
+
       for (String attributeName: attributeNames) {
         if (attributeName.equals("wdk_weight")) continue;
         if (!question.getAttributeFieldMap().containsKey(attributeName))
           throw new WdkModelException ("Invalid attribute name '" + attributeName + "'");
         AttributeField attr = question.getAttributeFieldMap().get(attributeName);
-	String prefix = isAutoCompleteField(urlSegment, attr)? ATTR_PREFIX : ATTR_PREFIX_NOAC;
         String name = attr.isInternal()?
-              attributeName : prefix + urlSegment + "_" + attributeName;
+              attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
         String value = record.getAttributeValue(attributeName).getValue();
         obj.put(name, value);
         if (name.equals("project")) idValuesString += "_" + value; // append project id, if we have one
+
+        if (isAutoCompleteField(urlSegment, attr)) {
+          autocompleteValues.add(value);
+        }
       }
       for (String tableName: tableNames) {
         TableField tableField = recordClass.getTableFieldMap().get(tableName);
-	String prefix = isAutoCompleteField(urlSegment, tableField)? TABLE_PREFIX : TABLE_PREFIX_NOAC;
         String name = tableField.isInternal()?
-            tableName : prefix + urlSegment + "_" + tableName;
-        obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
+            tableName : TABLE_PREFIX + urlSegment + "_" + tableName;
+        obj.put(name, aggregateTableValueJson(record.getTableValue(tableName), field -> true));
+
+        JSONArray tableAutocompleteValues = aggregateTableValueJson(
+          record.getTableValue(tableName),
+          field -> {
+            try {
+              return isAutoCompleteField(urlSegment, field);
+            } catch (WdkModelException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        );
+        for (int i = 0; i < tableAutocompleteValues.length(); i++) {
+          autocompleteValues.add(tableAutocompleteValues.getString(i));
+        }
       }
+
+      obj.put(AUTOCOMPLETE_FIELD_NAME, new JSONArray(autocompleteValues));
       obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       return obj;
     }
@@ -198,10 +217,11 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
 	return autocomp.equals("true");
     }
     
-  private static JSONArray aggregateTableValueJson(TableValue table) {
+  private static JSONArray aggregateTableValueJson(TableValue table, Predicate<AttributeField> filter) {
     JSONArray jsonarray = new JSONArray();
     toStream(table)
       .forEach(row -> row.values().stream()
+        .filter(cell -> filter.test(cell.getAttributeField()))	       
         .forEach(cell -> {
           try {
             jsonarray.put(cell.getValue());
