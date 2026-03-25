@@ -12,26 +12,35 @@ wdkServer SiteSearchData $SERVER_PORT -cleanCacheAtStartup &
 
 echo "waiting for server to be available"
 
+SERVER_AVAILABLE=false
 start=$(date +%s)
 while [ $(($(date +%s) - $start)) -lt 180 ]
 # while true
 do
   echo "checking port $SERVER_PORT..."
-  if nc -zv localhost:$SERVER_PORT 
+  if nc -zv localhost:$SERVER_PORT
     then
      echo 'server available'
+     SERVER_AVAILABLE=true
      break
   fi
   sleep 1
 done
+
+if [ "$SERVER_AVAILABLE" = false ]; then
+  echo "ERROR: Server on port $SERVER_PORT failed to become available after 180 seconds" >&2
+  kill %1 2>/dev/null
+  exit 1
+fi
+
 echo "$(date -u) server available"
   
 # make output dir and run commands to produce output
 
-mkdir $DESTINATION_DIRECTORY &&\
-echo "$(date -u) starting ssCreateWdkRecordsBatch" &&\
-ssCreateWdkRecordsBatch dataset-presenter $PROJECT_ID http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY --paramName projectId --paramValue $PROJECT_ID &&\
-echo "$(date -u) starting ssCreateWdkMetaBatch" &&\
+mkdir $DESTINATION_DIRECTORY
+echo "$(date -u) starting ssCreateWdkRecordsBatch"
+ssCreateWdkRecordsBatch dataset-presenter $PROJECT_ID http://localhost:$SERVER_PORT $DESTINATION_DIRECTORY --paramName projectId --paramValue $PROJECT_ID
+echo "$(date -u) starting ssCreateWdkMetaBatch"
 ssCreateWdkMetaBatch $SITE_BASE_URL/service/ $PROJECT_ID $DESTINATION_DIRECTORY
 
 echo "produced files:"
