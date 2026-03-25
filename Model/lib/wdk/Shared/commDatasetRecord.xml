@@ -141,7 +141,6 @@
             <value>true</value>
 	  </propertyList>
 	</columnAttribute>
-
       </table>
 
       <table name="Countries"
@@ -194,11 +193,15 @@
              queryRef="CommunityDatasetTables.bioprojectIds">
         <columnAttribute name="dataset_id"/>
         <columnAttribute name="bioproject_id" displayName="Bioproject ID"/>
+<<<<<<< HEAD
         <columnAttribute name="description" displayName="Description">
           <propertyList name="autocomplete">
             <value>true</value>
 	  </propertyList>
 	</columnAttribute>
+=======
+        <columnAttribute name="description" displayName="Description"/>
+>>>>>>> master
       </table>
 
       <table name="FundingAwards"
