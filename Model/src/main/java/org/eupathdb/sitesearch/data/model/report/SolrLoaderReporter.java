@@ -70,7 +70,8 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
 
   private static final String ATTR_PREFIX = "TEXT__";
   private static final String TABLE_PREFIX = "MULTITEXT__";
-  private static final String AUTOCOMPLETE_PREFIX = "AC__";
+  private static final String ATTR_PREFIX_NOAC = "TEXT_NO_AC__";
+  private static final String TABLE_PREFIX_NOAC = "MULTITEXT_NO_AC__";
   private static final String PROJECT_ID_PROP = "PROJECT_ID";
   private static final String AUTOCOMPLETE_PROPLIST = "autocomplete";
 
@@ -155,18 +156,19 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
         if (!question.getAttributeFieldMap().containsKey(attributeName))
           throw new WdkModelException ("Invalid attribute name '" + attributeName + "'");
         AttributeField attr = question.getAttributeFieldMap().get(attributeName);
-	String autoCompletePrefix = isAutoCompleteField(urlSegment, attr)? AUTOCOMPLETE_PREFIX : "";
+	String prefix = isAutoCompleteField(urlSegment, attr)? ATTR_PREFIX : ATTR_PREFIX_NOAC;
         String name = attr.isInternal()?
-              attributeName : ATTR_PREFIX + autoCompletePrefix + urlSegment + "_" + attributeName;
+              attributeName : prefix + urlSegment + "_" + attributeName;
         String value = record.getAttributeValue(attributeName).getValue();
         obj.put(name, value);
         if (name.equals("project")) idValuesString += "_" + value; // append project id, if we have one
       }
       for (String tableName: tableNames) {
         TableField tableField = recordClass.getTableFieldMap().get(tableName);
+	String prefix = isAutoCompleteField(urlSegment, attr)? TABLE_PREFIX : TABLE_PREFIX_NOAC;
 	String autoCompletePrefix = isAutoCompleteField(urlSegment, tableField)? AUTOCOMPLETE_PREFIX : "";
         String name = tableField.isInternal()?
-            tableName : TABLE_PREFIX + autoCompletePrefix + urlSegment + "_" + tableName;
+            tableName : prefix + autoCompletePrefix + urlSegment + "_" + tableName;
         obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
       }
       obj.put(JsonKeys.ID, idValuesString); // unique across all docs
