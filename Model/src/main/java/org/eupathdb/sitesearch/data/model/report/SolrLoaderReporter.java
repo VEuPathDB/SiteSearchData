@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.log4j.Logger;
 
 import org.gusdb.fgputil.functional.FunctionalInterfaces.Procedure;
 import org.gusdb.fgputil.json.JsonWriter;
@@ -61,7 +62,7 @@ import org.json.JSONObject;
  */
 public class SolrLoaderReporter extends AnswerDetailsReporter {
 
-  //private static final Logger LOG = Logger.getLogger(SolrLoaderReporter.class);
+  private static final Logger LOG = Logger.getLogger(SolrLoaderReporter.class);
 
   private String _batchType; // eg "organism"
   private int _batchTimestamp;
@@ -181,7 +182,8 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     private static boolean isAutoCompleteField(String urlSegment, Field field) throws WdkModelException {
 	String[] propList = field.getPropertyList(AUTOCOMPLETE_PROPLIST);
 
-        if (propList == null) return false;
+	
+        if (propList == null || propList.length == 0) return false;
 
 	String errInfo = " '" + AUTOCOMPLETE_PROPLIST +  "' in field " + urlSegment + "." + field.getName();
 	
@@ -192,6 +194,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
 
         if (!autocomp.equals("true") && !autocomp.equals("false"))
             throw new WdkModelException("Error: require either 'true' or 'false' in <propertyList>" + errInfo);
+
 	return autocomp.equals("true");
     }
     
