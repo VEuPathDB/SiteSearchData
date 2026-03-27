@@ -7,4 +7,4 @@ target/
 .nextflow*
 env.sh
 work/
-
+.pydevproject
