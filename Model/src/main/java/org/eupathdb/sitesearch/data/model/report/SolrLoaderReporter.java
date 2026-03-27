@@ -186,6 +186,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
             }
           }
         );
+
         for (int i = 0; i < tableAutocompleteValues.length(); i++) {
           filterAutocompleteWords(tableAutocompleteValues.getString(i)).forEach(autocompleteValues::add);
         }
@@ -229,6 +230,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
             return Stream.empty();
         }
         return Arrays.stream(text.split("\\s+"))
+            .map(word -> word.replaceAll("^\\(+|\\)+$", ""))
             .filter(word -> word.length() > 3)
             .filter(word -> word.chars().anyMatch(Character::isLetter));
     }
@@ -240,7 +242,10 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
         .filter(cell -> filter.test(cell.getAttributeField()))
         .forEach(cell -> {
           try {
-            jsonarray.put(cell.getValue());
+            String value = cell.getValue();
+            if (value != null && !value.trim().isEmpty()) {
+              jsonarray.put(value);
+            }
           }
           catch (WdkUserException | WdkModelException e) {
             throw new RuntimeException(e);

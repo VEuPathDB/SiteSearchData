@@ -105,11 +105,6 @@
              displayName="Related links"
              queryRef="CommunityDatasetTables.hyperlinks">
         <columnAttribute name="dataset_id"/>
-        <columnAttribute name="text" displayName="Link text">
-          <propertyList name="autocomplete">
-            <value>true</value>
-	  </propertyList>
-	</columnAttribute>
         <columnAttribute name="description" displayName="Description">
           <propertyList name="autocomplete">
             <value>true</value>
