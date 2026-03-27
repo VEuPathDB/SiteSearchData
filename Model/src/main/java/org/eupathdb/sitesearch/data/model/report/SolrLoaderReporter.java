@@ -7,12 +7,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 
 import org.gusdb.fgputil.functional.FunctionalInterfaces.Procedure;
@@ -151,7 +153,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
 
-      List<String> autocompleteValues = new ArrayList<>();
+      Set<String> autocompleteValues = new HashSet<>();
 
       for (String attributeName: attributeNames) {
         if (attributeName.equals("wdk_weight")) continue;
@@ -165,7 +167,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
         if (name.equals("project")) idValuesString += "_" + value; // append project id, if we have one
 
         if (isAutoCompleteField(urlSegment, attr)) {
-          autocompleteValues.add(value);
+          filterAutocompleteWords(value).forEach(autocompleteValues::add);
         }
       }
       for (String tableName: tableNames) {
@@ -185,7 +187,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
           }
         );
         for (int i = 0; i < tableAutocompleteValues.length(); i++) {
-          autocompleteValues.add(tableAutocompleteValues.getString(i));
+          filterAutocompleteWords(tableAutocompleteValues.getString(i)).forEach(autocompleteValues::add);
         }
       }
 
@@ -201,11 +203,11 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     private static boolean isAutoCompleteField(String urlSegment, Field field) throws WdkModelException {
 	String[] propList = field.getPropertyList(AUTOCOMPLETE_PROPLIST);
 
-	
+
         if (propList == null || propList.length == 0) return false;
 
 	String errInfo = " '" + AUTOCOMPLETE_PROPLIST +  "' in field " + urlSegment + "." + field.getName();
-	
+
         if (propList.length != 1)
             throw new WdkModelException("Error: require a single value in <propertyList>" + errInfo);
 
@@ -216,12 +218,26 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
 
 	return autocomp.equals("true");
     }
+
+    /**
+     * Filters words from text for autocomplete:
+     * - Only words longer than 3 characters
+     * - Only words containing at least one letter
+     */
+    private static Stream<String> filterAutocompleteWords(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return Stream.empty();
+        }
+        return Arrays.stream(text.split("\\s+"))
+            .filter(word -> word.length() > 3)
+            .filter(word -> word.chars().anyMatch(Character::isLetter));
+    }
     
   private static JSONArray aggregateTableValueJson(TableValue table, Predicate<AttributeField> filter) {
     JSONArray jsonarray = new JSONArray();
     toStream(table)
       .forEach(row -> row.values().stream()
-        .filter(cell -> filter.test(cell.getAttributeField()))	       
+        .filter(cell -> filter.test(cell.getAttributeField()))
         .forEach(cell -> {
           try {
             jsonarray.put(cell.getValue());

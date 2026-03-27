@@ -135,7 +135,7 @@
 
     <sqlQuery name="UserCommentContent">
       <column name="source_id"/>
-      <column name="comment_content"/>
+      <column name="content"/>
       <sql>
         <![CDATA[
           select tsc.stable_id as source_id, tsc.content
