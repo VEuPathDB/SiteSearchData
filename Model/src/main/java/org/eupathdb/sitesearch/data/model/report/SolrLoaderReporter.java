@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.log4j.Logger;
 
 import org.gusdb.fgputil.functional.FunctionalInterfaces.Procedure;
 import org.gusdb.fgputil.json.JsonWriter;
@@ -63,8 +62,6 @@ import org.json.JSONObject;
  * @author rdoherty, sfischer
  */
 public class SolrLoaderReporter extends AnswerDetailsReporter {
-
-  private static final Logger LOG = Logger.getLogger(SolrLoaderReporter.class);
 
   private String _batchType; // eg "organism"
   private int _batchTimestamp;
