@@ -227,7 +227,8 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
             return Stream.empty();
         }
         return Arrays.stream(text.split("\\s+"))
-            .map(word -> word.replaceAll("^\\(+|\\)+$", ""))
+            .map(word -> word.replaceAll("<[^>]*>", ""))  // Remove HTML tags
+            .map(word -> word.replaceAll("^\\(+|\\)+$", ""))  // Remove leading/trailing parentheses
             .filter(word -> word.length() > 3)
             .filter(word -> word.chars().anyMatch(Character::isLetter));
     }
