@@ -37,7 +37,7 @@ workflow {
     ['ApiCommon', 'PiroplasmaDB'],
     ['ApiCommon', 'TrichDB'],
     ['OrthoMCL', 'OrthoMCL']
-//    ['EDA', 'ClinEpiDB'],
+    ['EDA', 'ClinEpiDB'],
 //    ['EDA', 'MicrobiomeDB']
   )
 
