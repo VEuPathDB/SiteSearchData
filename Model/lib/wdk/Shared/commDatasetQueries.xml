@@ -133,7 +133,7 @@
     <sqlQuery name="hyperlinks">
       <column name="dataset_id"/>
       <column name="description"/>
-      <sql>
+        <sql>
         <![CDATA[
           select CONCAT('EDAUD_', dh.dataset_id) as dataset_id, dh.description
           from @VDI_CONTROL_SCHEMA@dataset_hyperlink dh, @VDI_CONTROL_SCHEMA@AvailableUserDatasets

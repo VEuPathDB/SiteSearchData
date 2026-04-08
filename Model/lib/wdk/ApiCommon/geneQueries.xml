@@ -391,8 +391,7 @@ and ga.source_id != gog2.gene_id
 
     <sqlQuery name="gene_dbrefs">
       <column name="source_id"/>
-      <column name="dataset"/>
-      <column name="link_url"/>
+      <column name="ext_id"/>
 
       <sql>
         <![CDATA[

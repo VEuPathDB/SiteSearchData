@@ -7,12 +7,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.gusdb.fgputil.functional.FunctionalInterfaces.Procedure;
 import org.gusdb.fgputil.json.JsonWriter;
@@ -61,8 +63,6 @@ import org.json.JSONObject;
  */
 public class SolrLoaderReporter extends AnswerDetailsReporter {
 
-  //private static final Logger LOG = Logger.getLogger(SolrLoaderReporter.class);
-
   private String _batchType; // eg "organism"
   private int _batchTimestamp;
   private String _batchId;
@@ -71,6 +71,8 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
   private static final String ATTR_PREFIX = "TEXT__";
   private static final String TABLE_PREFIX = "MULTITEXT__";
   private static final String PROJECT_ID_PROP = "PROJECT_ID";
+  private static final String AUTOCOMPLETE_PROPLIST = "autocomplete";
+  private static final String AUTOCOMPLETE_FIELD_NAME = "autocomplete";
 
   @Override
   public Reporter configure(JSONObject config) throws ReporterConfigException, WdkModelException {
@@ -138,7 +140,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       idValues.add(urlSegment);
       idValues.addAll(pkValues);
       String idValuesString = idValues.stream().collect(Collectors.joining("__"));
-      
+
       var obj = new JSONObject();
       obj.put("document-type", urlSegment);
       obj.put("primaryKey", pkValues); // multi string field. for forming record URLs
@@ -148,22 +150,46 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
       obj.put("batch-name", batchName);
       obj.put("batch-timestamp", batchTimestamp);
 
+      Set<String> autocompleteValues = new HashSet<>();
+
       for (String attributeName: attributeNames) {
         if (attributeName.equals("wdk_weight")) continue;
         if (!question.getAttributeFieldMap().containsKey(attributeName))
           throw new WdkModelException ("Invalid attribute name '" + attributeName + "'");
-        String name = question.getAttributeFieldMap().get(attributeName).isInternal()?
+        AttributeField attr = question.getAttributeFieldMap().get(attributeName);
+        String name = attr.isInternal()?
               attributeName : ATTR_PREFIX + urlSegment + "_" + attributeName;
         String value = record.getAttributeValue(attributeName).getValue();
         obj.put(name, value);
         if (name.equals("project")) idValuesString += "_" + value; // append project id, if we have one
+
+        if (isAutoCompleteField(urlSegment, attr)) {
+          filterAutocompleteWords(value).forEach(autocompleteValues::add);
+        }
       }
       for (String tableName: tableNames) {
         TableField tableField = recordClass.getTableFieldMap().get(tableName);
         String name = tableField.isInternal()?
             tableName : TABLE_PREFIX + urlSegment + "_" + tableName;
-        obj.put(name, aggregateTableValueJson(record.getTableValue(tableName)));
+        obj.put(name, aggregateTableValueJson(record.getTableValue(tableName), field -> true));
+
+        JSONArray tableAutocompleteValues = aggregateTableValueJson(
+          record.getTableValue(tableName),
+          field -> {
+            try {
+              return isAutoCompleteField(urlSegment, field);
+            } catch (WdkModelException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        );
+
+        for (int i = 0; i < tableAutocompleteValues.length(); i++) {
+          filterAutocompleteWords(tableAutocompleteValues.getString(i)).forEach(autocompleteValues::add);
+        }
       }
+
+      obj.put(AUTOCOMPLETE_FIELD_NAME, new JSONArray(autocompleteValues));
       obj.put(JsonKeys.ID, idValuesString); // unique across all docs
       return obj;
     }
@@ -172,13 +198,52 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     }
   }
   
-  private static JSONArray aggregateTableValueJson(TableValue table) {
+    private static boolean isAutoCompleteField(String urlSegment, Field field) throws WdkModelException {
+	String[] propList = field.getPropertyList(AUTOCOMPLETE_PROPLIST);
+
+
+        if (propList == null || propList.length == 0) return false;
+
+	String errInfo = " '" + AUTOCOMPLETE_PROPLIST +  "' in field " + urlSegment + "." + field.getName();
+
+        if (propList.length != 1)
+            throw new WdkModelException("Error: require a single value in <propertyList>" + errInfo);
+
+        String autocomp = propList[0];
+
+        if (!autocomp.equals("true") && !autocomp.equals("false"))
+            throw new WdkModelException("Error: require either 'true' or 'false' in <propertyList>" + errInfo);
+
+	return autocomp.equals("true");
+    }
+
+    /**
+     * Filters words from text for autocomplete:
+     * - Only words longer than 3 characters
+     * - Only words containing at least one letter
+     */
+    private static Stream<String> filterAutocompleteWords(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return Stream.empty();
+        }
+        return Arrays.stream(text.split("\\s+"))
+            .map(word -> word.replaceAll("<[^>]*>", ""))  // Remove HTML tags
+            .map(word -> word.replaceAll("^\\(+|\\)+$", ""))  // Remove leading/trailing parentheses
+            .filter(word -> word.length() > 3)
+            .filter(word -> word.chars().anyMatch(Character::isLetter));
+    }
+    
+  private static JSONArray aggregateTableValueJson(TableValue table, Predicate<AttributeField> filter) {
     JSONArray jsonarray = new JSONArray();
     toStream(table)
       .forEach(row -> row.values().stream()
+        .filter(cell -> filter.test(cell.getAttributeField()))
         .forEach(cell -> {
           try {
-            jsonarray.put(cell.getValue());
+            String value = cell.getValue();
+            if (value != null && !value.trim().isEmpty()) {
+              jsonarray.put(value);
+            }
           }
           catch (WdkUserException | WdkModelException e) {
             throw new RuntimeException(e);

@@ -51,6 +51,9 @@
           </propertyList>
         </columnAttribute>
         <columnAttribute name="product" displayName="Product">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
@@ -75,6 +78,9 @@
 -->
         <columnAttribute name="abbreviation" displayName="Taxon Abbreviation"/>
         <columnAttribute name="taxon_name" displayName="Taxon Name">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -135,6 +141,9 @@
 
       <attributeQueryRef ref="GroupAttributes.Keywords">
         <columnAttribute name="keywords" displayName="Keywords">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -180,13 +189,21 @@
       <table name="ProteinDescription"
              displayName="Protein Description"
              queryRef="GroupTables.Proteins">
-          <columnAttribute name="description" displayName="Protein Description" />
+        <columnAttribute name="description" displayName="Protein Description" >
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="ProteinTaxonName"
              displayName="Protein Taxon Name"
              queryRef="GroupTables.Proteins">
-          <columnAttribute name="taxon_name" displayName="Protein Taxon Name" />
+        <columnAttribute name="taxon_name" displayName="Protein Taxon Name" >
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
 <!--
@@ -202,7 +219,11 @@
              queryRef="GroupTables.PFams">
           <columnAttribute name="accession" displayName="Accession Number" />
     <!--  <columnAttribute name="symbol" displayName="Symbol" /> -->
-          <columnAttribute name="description" displayName="Description" />
+          <columnAttribute name="description" displayName="Description" >
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="EcNumber"
@@ -210,7 +231,11 @@
              queryRef="GroupTables.EcNumber">
         <columnAttribute name="ec_number" />
         <columnAttribute displayName="EC Description"
-                         name="description"/>
+                         name="description">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
 <!--

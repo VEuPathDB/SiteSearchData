@@ -57,6 +57,9 @@
       <attributeQueryRef ref="PathwayAttributes.Bfmv">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="name" displayName="Pathway">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
@@ -73,7 +76,11 @@
              displayName="Associated compounds"
              queryRef="PathwayTables.CompoundsFromMetabolicPathways">
         <columnAttribute name="ec_number"/>
-        <columnAttribute name="enzyme_description"/>
+        <columnAttribute name="enzyme_description">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+        </columnAttribute>
         <columnAttribute name="substrates_text"/>
         <columnAttribute name="products_text"/>
         <columnAttribute name="compound_source_id"/>
@@ -115,12 +122,22 @@
       <attributeQueryRef ref="CompoundAttributes.Bfmv">
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="definition" displayName="Definition" >
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="formula" displayName="Molecular formula"/>
+        <columnAttribute name="formula" displayName="Molecular formula">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+        </columnAttribute>
         <columnAttribute name="compound_name" displayName="Name" >
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
@@ -159,7 +176,11 @@
       <table name="MetabolicPathways"
              displayName="Associated metabolic pathways"
              queryRef="CompoundTables.PathwaysFromCompounds">
-        <columnAttribute name="pathway_name"/>
+        <columnAttribute name="pathway_name">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+        </columnAttribute>
       </table>
 
       <table name="SecondaryIds"
