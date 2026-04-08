@@ -1,5 +1,14 @@
 <wdkModel>
 
+  <questionSet name="DatasetQuestions" displayName="dontcare">
+
+    <question name="Datasets" displayName="dontcare"
+              queryRef="DatasetIdQueries.AllDatasets"
+              recordClassRef="datasetRecordClasses.dataset">
+    </question>
+
+  </questionSet>
+
   <recordClassSet name="datasetRecordClasses">
 
     <!-- ################################################################### -->

@@ -1,5 +1,14 @@
 <wdkModel>
 
+  <questionSet name="CommDatasetQuestions" displayName="dontcare">
+
+    <question name="CommunityDatasets" displayName="dontcare"
+              queryRef="CommunityDatasetIdQueries.AllCommunityDatasets"
+              recordClassRef="communityDatasetRecordClasses.communityDataset">
+    </question>
+
+  </questionSet>
+  
   <recordClassSet name="communityDatasetRecordClasses">
 
     <!-- ################################################################### -->
