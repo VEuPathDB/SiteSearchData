@@ -66,22 +66,42 @@
                 implementation="org.eupathdb.sitesearch.data.model.report.SolrLoaderReporter"/>
 
       <attributeQueryRef ref="OrganismAttributes.organismAttrs">
-        <columnAttribute name="species" displayName="Species"/>
-        <columnAttribute name="organism_full" displayName="Organism"/>
+        <columnAttribute name="species" displayName="Species">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
+        <columnAttribute name="organism_full" displayName="Organism">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
         <columnAttribute name="hyperlinkName" displayName="dontcare" internal="true"/> <!-- used for display in ss results -->
-        <columnAttribute name="data_source" displayName="Data source"/>
+        <columnAttribute name="data_source" displayName="Data source">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
 
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
       <table name="organismsForFilter" displayName="dontcare" queryRef="OrganismTables.Organisms" internal="true">
-	<columnAttribute name="organism"/>  
+	<columnAttribute name="organism">  
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
       
       <table name="GenomeSequencingAndAnnotationAttribution"
              displayName="Genome sequencing and annotation"
              queryRef="OrganismTables.GenomeSequencingAndAnnotation">
-        <columnAttribute name="description"/>
+        <columnAttribute name="description">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="GenomeVersionHistory"
@@ -123,17 +143,27 @@
 
       <attributeQueryRef ref="SequenceAttributes.Bfmv">
         <columnAttribute name="description" displayName="Description">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
         </columnAttribute>
         <columnAttribute name="organism_full" displayName="Organism">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
         </columnAttribute>
         <columnAttribute name="genbank_accession" displayName="GenBank"/>
-        <columnAttribute name="sequence_type" displayName="Sequence type"/>
+        <columnAttribute name="sequence_type" displayName="Sequence type">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </attributeQueryRef>
 
       <!-- special internal field for organism filtering -->
@@ -151,7 +181,11 @@
       <table name="userCommentContent"
              displayName="User Comments"
              queryRef="SequenceTables.UserCommentContent">
-        <columnAttribute name="content"/>
+        <columnAttribute name="content">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="Aliases"
@@ -199,10 +233,21 @@
             <value>true</value>
           </propertyList>
         </columnAttribute>
-        <columnAttribute name="vector" displayName="Vector"/>
-        <columnAttribute name="stage"  displayName="Stage"/>
+        <columnAttribute name="vector" displayName="Vector">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
+        <columnAttribute name="stage"  displayName="Stage">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
         <columnAttribute name="project" displayName="dontcare" internal="true"/>  <!-- special field for project filtering -->
         <columnAttribute name="organism" displayName="Organism" >
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -210,8 +255,16 @@
       </attributeQueryRef>
 
       <table name="ReferenceInfo" displayName="Reference" queryRef="EstTableQueries.Reference">
-        <columnAttribute name="author" displayName="Author"/>
-        <columnAttribute name="affiliation" displayName="Affiliation"/>
+        <columnAttribute name="author" displayName="Author">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
+        <columnAttribute name="affiliation" displayName="Affiliation">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
     </recordClass>
 
@@ -248,6 +301,9 @@
         <columnAttribute displayName="Genomic sequence ID" name="sequence_id"/>
 
         <columnAttribute name="product" displayName="Product description">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSubtitle">
             <value>true</value>
           </propertyList>
@@ -263,6 +319,9 @@
         </columnAttribute>
 
         <columnAttribute name="gene_type" displayName="Gene type">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -276,7 +335,11 @@
             <value>2</value>
           </propertyList>
         </columnAttribute>
+
         <columnAttribute name="organism_full" displayName="Organism" >
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
           <propertyList name="isSummary">
             <value>true</value>
           </propertyList>
@@ -297,10 +360,18 @@
              displayName="Apollo Annotations"
              queryRef="ApolloTables.Apollo">
         <columnAttribute name="apollo_transcript_id"/>
-        <columnAttribute name="apollo_owner"/>
+        <columnAttribute name="apollo_owner">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
         <columnAttribute name="apollo_dbxref"/>
         <columnAttribute name="apollo_symbol"/>
-        <columnAttribute name="apollo_description"/>
+        <columnAttribute name="apollo_description">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
         <columnAttribute name="apollo_go_term"/>
         <columnAttribute name="apollo_owner_details"/>
       </table>
@@ -319,7 +390,11 @@
       <table name="InterPro"
              displayName="InterPro domains"
              queryRef="GeneTables.InterPro">
-        <columnAttribute name="interpro_name"/>
+        <columnAttribute name="interpro_name">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
         <columnAttribute name="interpro_family_id"/>
         <columnAttribute name="interpro_primary_id"/>
         <columnAttribute name="interpro_secondary_id"/>
@@ -329,7 +404,11 @@
       <table name="Notes"
              displayName="Notes from annotators"
              queryRef="GeneTables.Notes">
-        <columnAttribute name="comment_string"/>
+        <columnAttribute name="comment_string">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <!-- needed for the user comment updater. -->
@@ -342,21 +421,33 @@
       <table name="UserCommentContent"
              displayName="User comments"
              queryRef="GeneTables.UserCommentContent">
-        <columnAttribute name="content"/>
+        <columnAttribute name="content">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="ECNumbers"
              displayName="EC descriptions and numbers"
              queryRef="GeneTables.ECNumbers">
         <columnAttribute name="ec_number"/>
-        <columnAttribute name="ec_description"/>
+        <columnAttribute name="ec_description">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="GOTerms"
              displayName="GO terms"
              queryRef="GeneTables.GOTerms">
         <columnAttribute name="go_id"/>
-        <columnAttribute name="go_term_name"/>
+        <columnAttribute name="go_term_name">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
         <columnAttribute name="reference"/>
       </table>
 
@@ -364,7 +455,11 @@
              displayName="Metabolic pathways"
              queryRef="GeneTables.MetabolicPathways">
         <columnAttribute name="pathway_source_id"/>
-        <columnAttribute name="pathway_name"/>
+        <columnAttribute name="pathway_name">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="Alias"
@@ -379,8 +474,16 @@
              queryRef="GeneTables.PubMed">
         <columnAttribute name="pubmed_id"/>
         <columnAttribute name="doi"/>
-        <columnAttribute name="title"/>
-        <columnAttribute name="authors"/>
+        <columnAttribute name="title">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
+        <columnAttribute name="authors">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="GeneLinkouts"
@@ -394,7 +497,11 @@
              queryRef="GeneTables.PdbSimilarities">
         <columnAttribute name="pdb_chain"/>
         <columnAttribute name="pdb_id"/>
-        <columnAttribute name="pdb_title"/>
+        <columnAttribute name="pdb_title">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="Epitopes"
@@ -407,7 +514,11 @@
       <table name="Orthologs"
              displayName="Orthologs"
              queryRef="GeneTables.Orthologs">
-        <columnAttribute name="ortho_product"/>
+        <columnAttribute name="ortho_product">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
         <columnAttribute name="ortho_name"/>  <!-- gene name -->
       </table>
 
@@ -417,7 +528,11 @@
           <propertyList name="boost">
             <value>1.5</value>
           </propertyList>
-        <columnAttribute name="product"/>
+        <columnAttribute name="product">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
 
@@ -429,20 +544,36 @@
           <value>TriTrypDB</value>
           <value>UniDB</value>
         </propertyList>
-        <columnAttribute name="note"/>
-        <columnAttribute name="image_type"/>
+        <columnAttribute name="note">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
+        <columnAttribute name="image_type">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="GeneModelCharacteristics"
              displayName="GeneModel Characteristics"
              queryRef="GeneTables.GeneModelCharacteristics">
-        <columnAttribute name="characteristic_value"/>
+        <columnAttribute name="characteristic_value">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
       <table name="PhenotypeCategoricalValues"
              displayName="Phenotype values"
              queryRef="GeneTables.PhenotypeCategoricalValues">
-        <columnAttribute name="value"/>
+        <columnAttribute name="value">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
+	</columnAttribute>
       </table>
 
     </recordClass>
