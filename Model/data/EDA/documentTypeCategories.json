@@ -1,9 +1,9 @@
 [
-  { "name": "Study",
+  { "name": "Dataset",
     "documentTypes": [
       { "id": "dataset",
-        "displayName": "Curated Study",
-        "displayNamePlural": "Curated Studies",
+        "displayName": "Curated Dataset",
+        "displayNamePlural": "Curated Datasets",
         "hasOrganismField": false
       },
       { "id": "community-dataset",
@@ -11,20 +11,6 @@
         "displayNamePlural": "Community Studies",
         "hasOrganismField": false
       }	
-    ]
-  },
-  { "name": "Variable",
-    "documentTypes": [
-      { "id": "variable",
-        "displayName": "Variable",
-        "displayNamePlural": "Variables",
-        "hasOrganismField": false
-      },
-      { "id": "variableValue",
-        "displayName": "Value",
-        "displayNamePlural": "Values",
-        "hasOrganismField": false
-      }      
     ]
   }
 ]

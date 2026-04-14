@@ -70,8 +70,8 @@
   { "name": "Data access",
     "documentTypes": [
       { "id": "dataset",
-        "displayName": "Data set",
-        "displayNamePlural": "Data sets",
+        "displayName": "Curated dataset",
+        "displayNamePlural": "Curated datasets",
         "wdkSearchUrlName": "DatasetsByText",
         "hasOrganismField": true
       },
