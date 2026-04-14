@@ -238,6 +238,10 @@ process dropCache {
   wdkCache -model SiteSearchData -drop
   echo "WDK cache dropped successfully"
 
+  echo "Creating empty WDK cache..."
+  wdkCache -model SiteSearchData -new
+  echo "Empty WDK made successfully"
+
   # Create sentinel file to track completion
   touch cache-drop.done
   """
