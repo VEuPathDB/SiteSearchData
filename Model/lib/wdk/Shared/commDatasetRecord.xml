@@ -15,9 +15,9 @@
     <!-- #####################  Community Dataset Record ################### -->
     <!-- ################################################################### -->
 
-    <recordClass name="communityDataset" urlName="community-dataset" displayName="Community Study">
+    <recordClass name="communityDataset" urlName="community-dataset" displayName="Community Dataset">
       <propertyList name="batch">
-        <value>dataset-presenter</value>
+        <value>community-datasets</value>
       </propertyList>
 
       <primaryKey aliasPluginClassName="org.gusdb.wdk.model.record.GenericRecordPrimaryKeyAliasPlugin">
@@ -64,12 +64,12 @@
       </attributeQueryRef>
 
       <attributeQueryRef ref="CommunityDatasetAttributes.OwnerInfo">
-        <columnAttribute name="owner_name">
+        <columnAttribute name="owner_name" displayName="Owner name">
           <propertyList name="autocomplete">
             <value>true</value>
 	  </propertyList>
 	</columnAttribute>
-        <columnAttribute name="owner_organization">
+        <columnAttribute name="owner_organization" displayName="Owner organization">
           <propertyList name="autocomplete">
             <value>true</value>
 	  </propertyList>
@@ -77,7 +77,7 @@
       </attributeQueryRef>
 
       <table name="Contacts"
-             displayName="Principal Investigator and Collaborators"
+             displayName="Principal investigator and collaborators"
              queryRef="CommunityDatasetTables.contacts">
         <propertyList name="boost"> 
           <value>20</value>
@@ -232,15 +232,15 @@
       </table>
 
       <table name="Characteristics"
-             displayName="Study characteristics"
+             displayName="Dataset characteristics"
              queryRef="CommunityDatasetTables.characteristics">
         <columnAttribute name="dataset_id"/>
-        <columnAttribute name="study_design" displayName="Study design">
+        <columnAttribute name="study_design" displayName="Dataset design">
           <propertyList name="autocomplete">
             <value>true</value>
 	  </propertyList>
 	</columnAttribute>
-        <columnAttribute name="study_type" displayName="Study type">
+        <columnAttribute name="study_type" displayName="Dataset type">
           <propertyList name="autocomplete">
             <value>true</value>
 	  </propertyList>
