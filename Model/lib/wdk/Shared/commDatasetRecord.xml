@@ -24,7 +24,7 @@
         <columnRef>dataset_id</columnRef>
       </primaryKey>
 
-      <idAttribute name="primary_key" displayName="Dataset Name">
+      <idAttribute name="primary_key" displayName="Dataset name">
         <propertyList name="boost">
           <value>100</value>
         </propertyList>
@@ -49,6 +49,11 @@
           <propertyList name="boost"> 
             <value>20</value>
           </propertyList>
+	</columnAttribute>
+        <columnAttribute name="disclaimer" displayName="Disclaimer">
+          <propertyList name="autocomplete">
+            <value>true</value>
+	  </propertyList>
 	</columnAttribute>
         <columnAttribute name="summary" displayName="Summary">
           <propertyList name="autocomplete">
