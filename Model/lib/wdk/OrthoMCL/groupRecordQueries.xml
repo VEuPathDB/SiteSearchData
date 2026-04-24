@@ -5,7 +5,7 @@
     Group ID Queries
     -->
 
-    <querySet name="GroupIdQueries" queryType="id" isCacheable="true">
+    <querySet name="GroupIdQueries" queryType="id" isCacheable="false">
 
       <!-- an id query that returns groups ending with the provided numeral.  This is easy way to divide groups into chunks, to avoid massive JSON files -->
       <sqlQuery name="GroupsByLastNumeral">

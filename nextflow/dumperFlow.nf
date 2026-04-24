@@ -52,12 +52,12 @@ workflow {
   cacheComplete = recreateCache(params.envFile)
 
   // Create metadata batches for each cohort (runs in parallel with project dumps, but after cache)
-  metadataComplete = createMetadataBatches(metadataCohorts, params.envFile, cacheComplete)
+  metadataComplete = dumpDocumentMetadataBatches(metadataCohorts, params.envFile, cacheComplete)
 
-  projectsComplete = runSiteSearchData(projects, params.envFile, cacheComplete)
+  projectsComplete = dumpWdkDataBatches(projects, params.envFile, cacheComplete)
 
-  // Drop the cache after all data dumps complete
-  dropCache(params.envFile, metadataComplete.collect(), projectsComplete.collect())
+  // Drop the cache after all data dumps complete (recreate=true creates new empty cache)
+  dropCache(params.envFile, [metadataComplete.collect(), projectsComplete.collect()])
 }
 
 process recreateCache {
@@ -85,7 +85,7 @@ process recreateCache {
   """
 }
 
-process createMetadataBatches {
+process dumpDocumentMetadataBatches {
   errorStrategy 'finish'
   containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
 
@@ -104,24 +104,7 @@ process createMetadataBatches {
   """
   mkdir -p /output/${cohort}/metadata
 
-  # Start WDK server on dedicated port in the background
-  wdkServer SiteSearchData http://0.0.0.0:${port} &> /output/${cohort}/metadata/server.log &
-  SERVER_PID=\$!
-
-  # Wait for server to be ready
-  echo "Waiting for WDK server to start on port ${port} for ${cohort} metadata..."
-  for i in {1..60}; do
-    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${port} || echo "000")
-    echo "Attempt \$i: HTTP_CODE=\$HTTP_CODE"
-    if [ "\$HTTP_CODE" -ge 200 ] && [ "\$HTTP_CODE" -lt 300 ]; then
-      echo "Server is ready on port ${port}"
-      break
-    elif [ "\$HTTP_CODE" -ge 400 ] && [ "\$HTTP_CODE" -lt 600 ]; then
-      echo "Server returned error \$HTTP_CODE on port ${port}"
-      exit 1
-    fi
-    sleep 2
-  done
+  ${WdkUtils.startWdkServer(port, "/output/${cohort}/metadata/server.log", "for ${cohort} metadata")}
 
   # Create document categories batch if not already complete
   CAT_BATCH=\$(ls -d /output/${cohort}/metadata/solr-json-batch_document-categories_all_* 2>/dev/null | tail -1)
@@ -141,12 +124,11 @@ process createMetadataBatches {
     ssCreateDocumentFieldsBatch http://localhost:${port} ${cohort} /output/${cohort}/metadata &> /output/${cohort}/metadata/docField.log
   fi
 
-  # Stop the server
-  kill \$SERVER_PID || true
+  ${WdkUtils.stopWdkServer()}
   """
 }
 
-process runSiteSearchData {
+process dumpWdkDataBatches {
   errorStrategy 'finish'
   containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
 
@@ -182,24 +164,7 @@ process runSiteSearchData {
   """
   mkdir -p /output/${outputCohort}/${projectId}
 
-  # Start WDK server on dedicated port in the background, logging to output dir
-  wdkServer SiteSearchData http://0.0.0.0:${port}  &> /output/${outputCohort}/${projectId}/server.log &
-  SERVER_PID=\$!
-
-  # Wait for server to be ready
-  echo "Waiting for WDK server to start on port ${port}..."
-  for i in {1..60}; do
-    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${port} || echo "000")
-    echo "Attempt \$i: HTTP_CODE=\$HTTP_CODE"
-    if [ "\$HTTP_CODE" -ge 200 ] && [ "\$HTTP_CODE" -lt 300 ]; then
-      echo "Server is ready on port ${port}"
-      break
-    elif [ "\$HTTP_CODE" -ge 400 ] && [ "\$HTTP_CODE" -lt 600 ]; then
-      echo "Server returned error \$HTTP_CODE on port ${port}"
-      exit 1
-    fi
-    sleep 2
-  done
+  ${WdkUtils.startWdkServer(port, "/output/${outputCohort}/${projectId}/server.log")}
 
   # Run the appropriate dump script(s) based on cohort
   echo "Running ${dumpScript} for ${cohort} cohort, project ${projectId}"
@@ -211,8 +176,7 @@ process runSiteSearchData {
     dumpEdaWdkBatchesForSolr --wdkServiceUrl "http://localhost:${port}" --targetDir /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/dumper.log
   fi
 
-  # Stop the server
-  kill \$SERVER_PID || true
+  ${WdkUtils.stopWdkServer()}
   """
 }
 
@@ -224,8 +188,7 @@ process dropCache {
 
   input:
     path(envFile)
-    val(metadataComplete)
-    val(projectsComplete)
+    val(dependencies)  // Can accept single value or list of completion values
 
   output:
     path 'cache-drop.done'
@@ -240,7 +203,7 @@ process dropCache {
 
   echo "Creating empty WDK cache..."
   wdkCache -model SiteSearchData -new
-  echo "Empty WDK made successfully"
+  echo "Empty WDK made successfully"  
 
   # Create sentinel file to track completion
   touch cache-drop.done
