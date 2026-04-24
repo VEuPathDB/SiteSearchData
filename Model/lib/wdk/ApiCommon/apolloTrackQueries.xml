@@ -1,6 +1,6 @@
 <wdkModel>
 
-  <querySet name="ApolloTables" queryType="table" isCacheable="true">
+  <querySet name="ApolloTables" queryType="table" isCacheable="false">
 
     <sqlQuery name="Apollo">
       <column name="source_id"/>
