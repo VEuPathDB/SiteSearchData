@@ -101,7 +101,7 @@ process dumpBatches {
 
   # Create dataset-presenter batch for this project
   echo "Creating dataset-presenter batch for ${projectId}"
-  ssCreateWdkRecordsBatch dataset-presenter ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} --paramName projectId --paramValue ${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
+  ssCreateWdkRecordsBatch dataset-presenter ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
 
   # Create WDK metadata batch for this project
   echo "Creating WDK meta batch for ${projectId}"

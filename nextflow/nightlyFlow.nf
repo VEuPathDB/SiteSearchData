@@ -82,7 +82,7 @@ process dumpBatches {
   ${WdkUtils.startWdkServer(port, "/output/${outputCohort}/${projectId}/server.log")}
 
   echo "Creating community-datasets batch for ${projectId}"
-  ssCreateWdkRecordsBatch community-datasets ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} --paramName projectId --paramValue ${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
+  ssCreateWdkRecordsBatch community-datasets ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
 
   ${WdkUtils.stopWdkServer()}
   """
