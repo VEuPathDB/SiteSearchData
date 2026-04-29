@@ -49,7 +49,7 @@
 	   (select * from
             public.crosstab(
 	     'select user_id, key, value
-	      from @REMOTE_USERACCOUNTS_SCHEMA@.account_properties
+	      from @REMOTE_USERACCOUNTS_SCHEMA@account_properties
               where key in (''first_name'', ''organization'', ''middle_name'', ''last_name'')
 	      order by user_id, key',
              'SELECT unnest(ARRAY[''first_name'', ''last_name'', ''middle_name'', ''organization''])')
