@@ -75,6 +75,14 @@ workflow {
   loadBatchesToSolr(dumpComplete, params.envFile)
 }
 
+workflow.onError {
+  println "\n" + "=" * 80
+  println "ERROR: Workflow execution failed!"
+  println "=" * 80
+
+  ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA', 'OrthoMCL'])
+}
+
 process dumpBatches {
   errorStrategy 'finish'
   containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
@@ -104,9 +112,11 @@ process dumpBatches {
   ssCreateWdkRecordsBatch dataset-presenter ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
 
   # Create WDK metadata batch for this project
-  echo "Creating WDK meta batch for ${projectId}"
-  ssCreateWdkMetaBatch ${params.siteBaseUrl}/service/ ${projectId} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
-
+  if [${outputCohort} != 'EDA']; then
+    echo "Creating WDK meta batch for ${projectId}"
+    ssCreateWdkMetaBatch ${params.siteBaseUrl}/service/ ${projectId} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/wdkmeta.log
+  fi
+  
   ${WdkUtils.stopWdkServer()}
   """
 }
