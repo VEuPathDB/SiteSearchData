@@ -50,7 +50,7 @@ workflow {
   // Create batches for all projects
   dumpComplete = dumpBatches(projects, params.envFile)
 
-//  loadBatchesToSolr(dumpComplete, params.envFile)
+  loadBatchesToSolr(dumpComplete, params.envFile)
 }
 
 workflow.onError {
