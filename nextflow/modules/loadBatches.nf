@@ -40,17 +40,17 @@ process loadBatchesToSolr {
   ssLoadMultipleBatches ${solrCoreUrl} /output/${outputCohort}/${projectId} --replace &> /output/${outputCohort}/${projectId}/load.log
 
   # Validate that batches were loaded successfully
-  LOAD_RESULT=\$(tail -20 /output/${outputCohort}/${projectId}/load.log | grep -E "DONE\\.\\s+Loaded [0-9]+ batches\\." || echo "")
+  LOAD_RESULT=\$(tail -20 /output/${outputCohort}/${projectId}/load.log | grep -E "DONE\\.  Loaded [0-9]+ batches" || echo "")
   if [ -z "\$LOAD_RESULT" ]; then
     echo "ERROR: unexpected end of loader log file"
-    tail -50 /output/${outputCohort}/${projectId}/load.log
+    tail -5 /output/${outputCohort}/${projectId}/load.log
     exit 1
   fi
 
   BATCH_COUNT=\$(echo "\$LOAD_RESULT" | grep -oE "[0-9]+" | head -1)
   if [ "\$BATCH_COUNT" -eq 0 ]; then
     echo "ERROR: No batches were loaded (count: 0)"
-    tail -50 /output/${outputCohort}/${projectId}/load.log
+    tail -5 /output/${outputCohort}/${projectId}/load.log
     exit 1
   fi
 
