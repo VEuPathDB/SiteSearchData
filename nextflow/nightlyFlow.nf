@@ -81,6 +81,8 @@ process dumpBatches {
   def outputCohort = (cohort == 'Portal') ? 'ApiCommon' : cohort
 
   """
+  set -euo pipefail
+
   mkdir -p /output/${outputCohort}/${projectId}
 
   ${WdkUtils.startWdkServer(port, "/output/${outputCohort}/${projectId}/server.log")}

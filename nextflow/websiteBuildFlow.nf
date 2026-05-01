@@ -94,16 +94,20 @@ process dumpBatches {
   def outputCohort = (cohort == 'Portal') ? 'ApiCommon' : cohort
 
   """
+  set -euo pipefail
+
   mkdir -p /output/${outputCohort}/${projectId}
 
   ${WdkUtils.startWdkServer(port, "/output/${outputCohort}/${projectId}/server.log")}
 
   # Create dataset-presenter batch for this project
-  echo "Creating dataset-presenter batch for ${projectId}"
-  ssCreateWdkRecordsBatch dataset-presenter ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
+  if [ "${outputCohort}" != 'OrthoMCL' ]; then
+    echo "Creating dataset-presenter batch for ${projectId}"
+    ssCreateWdkRecordsBatch dataset-presenter ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
+  fi
 
   # Create WDK metadata batch for this project
-  if [${outputCohort} != 'EDA']; then
+  if [ "${outputCohort}" != 'EDA' ]; then
     echo "Creating WDK meta batch for ${projectId}"
     ssCreateWdkMetaBatch ${params.siteBaseUrl}/service/ ${projectId} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/wdkmeta.log
   fi
