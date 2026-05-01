@@ -57,6 +57,23 @@ workflow.onError {
   ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA', 'OrthoMCL'])
 }
 
+workflow.onComplete {
+  println "---------------------------"
+  println "Pipeline execution summary"
+  println "---------------------------"
+  println "Completed at: ${workflow.complete}"
+  println "Duration    : ${workflow.duration}"
+  println "Success     : ${workflow.success ? 'OK' : 'FAIL'}"
+
+  println "\nCleaning up outputDir: ${params.outputDir}"
+
+  def outputDir = new File(params.outputDir)
+  if (outputDir.exists()) {
+    outputDir.deleteDir()
+    println "Deleted: ${params.outputDir}"
+  }
+}
+
 process dumpBatches {
   errorStrategy 'finish'
   containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e COHORT=${cohort} -e PROJECT_ID=${projectId}"
