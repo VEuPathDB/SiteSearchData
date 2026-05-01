@@ -23,6 +23,10 @@ if(!params.siteBaseUrl) {
   throw new Exception("Missing params.siteBaseUrl (e.g., https://plasmodb.org)")
 }
 
+if(!params.cohort) {
+  throw new Exception("Missing params.cohort (e.g., ApiCommon)")
+}
+
 if(!params.projectId) {
   throw new Exception("Missing params.projectId (e.g., PlasmoDB, FungiDB, UniDB)")
 }
@@ -31,35 +35,6 @@ if(!params.solrUrl) {
   throw new Exception("Missing params.solrUrl (e.g., http://localhost:8983/solr)")
 }
 
-//--------------------------------------------------------------------------
-// Helper Functions
-//--------------------------------------------------------------------------
-
-// Map projectId to cohort
-def getCohort(projectId) {
-  // Project to cohort mapping
-  def projectToCohort = [
-    'UniDB': 'Portal',
-    'FungiDB': 'ApiCommon',
-    'TriTrypDB': 'ApiCommon',
-    'PlasmoDB': 'ApiCommon',
-    'VectorBase': 'ApiCommon',
-    'ToxoDB': 'ApiCommon',
-    'HostDB': 'ApiCommon',
-    'AmoebaDB': 'ApiCommon',
-    'CryptoDB': 'ApiCommon',
-    'GiardiaDB': 'ApiCommon',
-    'MicrosporidiaDB': 'ApiCommon',
-    'PiroplasmaDB': 'ApiCommon',
-    'TrichDB': 'ApiCommon'
-  ]
-
-  def cohort = projectToCohort[projectId]
-  if (!cohort) {
-    throw new Exception("Unknown projectId: ${projectId}. Must be one of: ${projectToCohort.keySet().join(', ')}")
-  }
-  return cohort
-}
 
 //--------------------------------------------------------------------------
 // Main Workflow
@@ -67,8 +42,7 @@ def getCohort(projectId) {
 
 workflow {
   // Create single-project channel based on parameter
-  def cohort = getCohort(params.projectId)
-  project = Channel.of([cohort, params.projectId])
+  project = Channel.of([params.cohort, params.projectId])
 
   dumpComplete = dumpBatches(project, params.envFile)
 
