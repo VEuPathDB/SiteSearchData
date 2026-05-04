@@ -31,5 +31,7 @@ ENV CONTAINER_HOST=unix:///run/podman/podman.sock
 ENV NXF_DISABLE_CHECK_LATEST=true
 ENV NXF_OFFLINE=true
 
+ENV PATH="$PATH:/home/podman/bin:/nextflow"
+
 COPY --chown=podman nextflow /nextflow
 WORKDIR /nextflow
