@@ -19,8 +19,8 @@ if(!params.envFile) {
   throw new Exception("Missing params.envFile")
 }
 
-if(!params.solrUrl) {
-  throw new Exception("Missing params.solrUrl (e.g., http://localhost:8983/solr)")
+if(!params.solrBaseUrl) {
+  throw new Exception("Missing params.solrBaseUrl (e.g., http://localhost:8983/solr)")
 }
 
 //--------------------------------------------------------------------------
