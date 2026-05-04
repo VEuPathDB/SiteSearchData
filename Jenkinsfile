@@ -6,6 +6,7 @@ node ('centos8') {
 
   builder.gitClone()
   builder.buildContainers([
-    [ name: 'site-search-data', dockerfile: 'dockerfiles/Dockerfile' ]
+    [ name: 'site-search-data', dockerfile: 'dockerfiles/Dockerfile', publishBranches: true ],
+    [ name: 'site-search-nextflow', dockerfile: 'dockerfiles/Dockerfile-nextflow', publishBranches: true ]
   ])
 }
