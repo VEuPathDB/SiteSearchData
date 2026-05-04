@@ -25,7 +25,7 @@ process loadBatchesToSolr {
 
   // Get Solr core name for this cohort and append to base URL
   def coreName = WdkUtils.getSolrCoreName(cohort)
-  def solrCoreUrl = "${params.solrUrl}/${coreName}"
+  def solrCoreUrl = "${params.solrBaseUrl}/${coreName}"
 
   """
   set -euo pipefail
