@@ -65,12 +65,13 @@ workflow.onComplete {
   println "Duration    : ${workflow.duration}"
   println "Success     : ${workflow.success ? 'OK' : 'FAIL'}"
 
-  println "\nCleaning up outputDir: ${params.outputDir}"
-
-  def outputDir = new File(params.outputDir)
-  if (outputDir.exists()) {
-    outputDir.deleteDir()
-    println "Deleted: ${params.outputDir}"
+  if (params.cleanupOnExit){
+    def outputDir = new File(params.outputDir)
+    if (outputDir.exists()) {
+      println "\nCleaning up outputDir: ${params.outputDir}"
+      outputDir.deleteDir()
+      println "Deleted: ${params.outputDir}"
+    }
   }
 }
 
