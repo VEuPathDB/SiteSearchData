@@ -36,6 +36,18 @@ process loadBatchesToSolr {
   echo "Solr URL: ${solrCoreUrl}"
   echo "Batch directory: /output/${outputCohort}/${projectId}"
 
+  # Check if Solr URL is reachable
+  echo "Checking Solr connectivity..."
+  if ! curl -f -s -o /dev/null --connect-timeout 10 --max-time 30 "${solrCoreUrl}/admin/ping"; then
+    echo "ERROR: Unable to reach Solr at ${solrCoreUrl}"
+    echo "Please verify that:"
+    echo "  1. Solr is running"
+    echo "  2. The URL is correct"
+    echo "  3. Network connectivity is available"
+    exit 1
+  fi
+  echo "Solr is reachable"
+
   # Load batches into Solr
   ssLoadMultipleBatches ${solrCoreUrl} /output/${outputCohort}/${projectId} --replace &> /output/${outputCohort}/${projectId}/load.log
 

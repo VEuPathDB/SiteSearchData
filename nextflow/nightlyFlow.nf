@@ -64,7 +64,7 @@ workflow.onError {
   println "ERROR: Workflow execution failed!"
   println "=" * 80
 
-  ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA'])
+  ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA'], params.cleanupOnExit)
 }
 
 workflow.onComplete {

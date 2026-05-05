@@ -37,8 +37,8 @@ class WorkflowSummary {
       println "Total batches loaded: ${totalBatches}"
     }
 
-    // Handle cleanup if requested
-    if (params.cleanupOnExit) {
+    // Only cleanup on success (so onError has access to outputDir) and only if requested
+    if (workflow.success && params.cleanupOnExit) {
       def outputDir = new File(params.outputDir)
       if (outputDir.exists()) {
         println "\nCleaning up outputDir: ${params.outputDir}"
