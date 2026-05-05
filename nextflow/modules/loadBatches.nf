@@ -17,7 +17,7 @@ process loadBatchesToSolr {
     path(envFile)
 
   output:
-    val projectId
+    tuple val(projectId), env(BATCH_COUNT)
 
   script:
   // Portal cohort outputs go under ApiCommon directory
@@ -47,7 +47,7 @@ process loadBatchesToSolr {
     exit 1
   fi
 
-  BATCH_COUNT=\$(echo "\$LOAD_RESULT" | grep -oE "[0-9]+" | head -1)
+  export BATCH_COUNT=\$(echo "\$LOAD_RESULT" | grep -oE "[0-9]+" | head -1)
   if [ "\$BATCH_COUNT" -eq 0 ]; then
     echo "ERROR: No batches were loaded (count: 0)"
     tail -5 /output/${outputCohort}/${projectId}/load.log

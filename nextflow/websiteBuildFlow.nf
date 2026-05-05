@@ -40,13 +40,19 @@ if(!(params.solrUrl || params.solrBaseUrl)) {
 // Main Workflow
 //--------------------------------------------------------------------------
 
+// Global variable to collect load results for summary
+loadResults = []
+
 workflow {
   // Create single-project channel based on parameter
   project = Channel.of([params.cohort, params.projectId])
 
   dumpComplete = dumpBatches(project, params.envFile)
 
-  loadBatchesToSolr(dumpComplete, params.envFile)
+  // Load batches and collect results
+  loadBatchesToSolr(dumpComplete, params.envFile).subscribe { result ->
+    loadResults << result
+  }
 }
 
 workflow.onError {
@@ -58,21 +64,7 @@ workflow.onError {
 }
 
 workflow.onComplete {
-  println "---------------------------"
-  println "Pipeline execution summary"
-  println "---------------------------"
-  println "Completed at: ${workflow.complete}"
-  println "Duration    : ${workflow.duration}"
-  println "Success     : ${workflow.success ? 'OK' : 'FAIL'}"
-
-  if (params.cleanupOnExit){
-    def outputDir = new File(params.outputDir)
-    if (outputDir.exists()) {
-      println "\nCleaning up outputDir: ${params.outputDir}"
-      outputDir.deleteDir()
-      println "Deleted: ${params.outputDir}"
-    }
-  }
+  WorkflowSummary.printCompletionSummary(workflow, params, loadResults)
 }
 
 process dumpBatches {
