@@ -27,6 +27,9 @@ if(!params.solrBaseUrl)) {
 // Main Workflow
 //--------------------------------------------------------------------------
 
+// Global variable to collect load results for summary
+loadResults = []
+
 workflow {
   projects = Channel.of(
     ['Portal', 'UniDB'],
@@ -50,7 +53,10 @@ workflow {
   // Create batches for all projects
   dumpComplete = dumpBatches(projects, params.envFile)
 
-  loadBatchesToSolr(dumpComplete, params.envFile)
+  // Load batches and collect results
+  loadBatchesToSolr(dumpComplete, params.envFile).subscribe { result ->
+    loadResults << result
+  }
 }
 
 workflow.onError {
@@ -59,6 +65,10 @@ workflow.onError {
   println "=" * 80
 
   ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA'])
+}
+
+workflow.onComplete {
+  WorkflowSummary.printCompletionSummary(workflow, params, loadResults)
 }
 
 process dumpBatches {
