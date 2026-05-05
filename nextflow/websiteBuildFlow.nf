@@ -31,8 +31,8 @@ if(!params.projectId) {
   throw new Exception("Missing params.projectId (e.g., PlasmoDB, FungiDB, UniDB)")
 }
 
-if(!params.solrUrl) {
-  throw new Exception("Missing params.solrUrl (e.g., http://localhost:8983/solr)")
+if(!(params.solrUrl || params.solrBaseUrl)) {
+  throw new Exception("Missing params.solrUrl (e.g., http://localhost:8983/solr/site_search) or params.solrBaseUrl (e.g., http://localhost:8983/solr)")
 }
 
 
