@@ -6,6 +6,11 @@ if [[ "${PROJECT_ID}" == "UniDB" ]]; then
   EFFECTIVE_COHORT="Portal"
 fi
 
+CLEANUP_ARG=""
+if [[ -n "${CLEANUP:-}" ]]; then
+  CLEANUP_ARG="--cleanupOnExit $CLEANUP"
+fi
+
 nextflow run websiteBuildFlow.nf \
   --containerImage "docker.io/veupathdb/site-search-data:$IMAGE_BRANCH" \
   --envFile "$ENV_FILE" \
@@ -14,5 +19,6 @@ nextflow run websiteBuildFlow.nf \
   --siteBaseUrl "$SITE_BASE_URL" \
   --cohort "$EFFECTIVE_COHORT" \
   --projectId "$PROJECT_ID" \
-  --solrUrl "$SOLR_URL"
+  --solrUrl "$SOLR_URL" \
+  $CLEANUP_ARG
 
