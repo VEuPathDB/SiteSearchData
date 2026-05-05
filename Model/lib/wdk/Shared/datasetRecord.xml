@@ -248,9 +248,9 @@
 	</columnAttribute>
       </table>
       
-      <table name="NonCategoricalVariables"
+      <table name="Variables"
              displayName="Variable names"
-             queryRef="DatasetTables.NonCategoricalVariables">
+             queryRef="DatasetTables.DatasetVariables">
         <columnAttribute name="name">
           <propertyList name="autocomplete">
             <value>true</value>

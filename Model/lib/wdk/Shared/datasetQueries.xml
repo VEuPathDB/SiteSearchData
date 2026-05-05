@@ -365,23 +365,25 @@
       <sql>
         <![CDATA[
         select v.dataset_id, 
-               variable_display_name || ': ' || value as value
+               var.variable_display_name || ': ' || v.value as value
         from apidbtuning.datasetcategoricalvalue v,
+             apidbtuning.datasetvariable var,
 	     apidbtuning.datasetdatasource dd
-	where dd.dataset_presenter_id = v.dataset_id
+         where dd.dataset_presenter_id = v.dataset_id
+	  and v.variable_source_id = var.variable_source_id
           and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
        ]]>
       </sql>
     </sqlQuery>
 
-    <sqlQuery name="NonCategoricalVariables">
+    <sqlQuery name="DatasetVariables">
       <column name="dataset_id"/>
       <column name="name"/>
       <sql>
         <![CDATA[
         select v.dataset_id, 
                variable_display_name as name
-        from apidbtuning.datasetnoncategoricalvariable v,
+        from apidbtuning.datasetvariable v,
 	     apidbtuning.datasetdatasource dd
 	where dd.dataset_presenter_id = v.dataset_id
           and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
