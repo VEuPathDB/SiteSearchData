@@ -1,7 +1,7 @@
 @Library('pipelib')
 import org.veupathdb.lib.Builder
 
-node ('centos8') {
+node ('podbuild') {
   def builder = new Builder(this)
 
   builder.gitClone()
