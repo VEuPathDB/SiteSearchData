@@ -38,7 +38,7 @@ process loadBatchesToSolr {
 
   # Check if Solr URL is reachable
   echo "Checking Solr connectivity..."
-  if ! curl -f -s -o /dev/null --connect-timeout 10 --max-time 30 "${solrCoreUrl}"; then
+  if ! curl -f -s -o /dev/null --connect-timeout 10 --max-time 30 "${solrCoreUrl}/select?q=*:*&rows=0"; then
     echo "ERROR: Unable to reach Solr at ${solrCoreUrl}"
     echo "Please verify that:"
     echo "  1. Solr is running"
