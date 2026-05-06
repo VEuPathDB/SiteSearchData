@@ -102,6 +102,8 @@ process dumpDocumentMetadataBatches {
   // task.index assigns unique port per parallel execution slot
   def port = 8900 + task.index
   """
+  set -euo pipefail
+
   mkdir -p /output/${cohort}/metadata
 
   ${WdkUtils.startWdkServer(port, "/output/${cohort}/metadata/server.log", "for ${cohort} metadata")}
@@ -162,6 +164,8 @@ process dumpWdkDataBatches {
   }
 
   """
+  set -euo pipefail
+
   mkdir -p /output/${outputCohort}/${projectId}
 
   ${WdkUtils.startWdkServer(port, "/output/${outputCohort}/${projectId}/server.log")}
