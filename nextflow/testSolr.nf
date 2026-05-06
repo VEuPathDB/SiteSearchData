@@ -8,6 +8,8 @@
 
       script:
       """
+      set -euo pipefail
+
       curl "https://solr-sitesearch-load.local.apidb.org:8443/solr/site_search/select?q=batch-name:all&fq=document-type:(document-categories)&rows=50"
       """
   }

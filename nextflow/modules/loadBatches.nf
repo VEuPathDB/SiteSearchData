@@ -17,7 +17,7 @@ process loadBatchesToSolr {
     path(envFile)
 
   output:
-    val projectId
+    tuple val(projectId), env(BATCH_COUNT)
 
   script:
   // Portal cohort outputs go under ApiCommon directory
@@ -25,7 +25,7 @@ process loadBatchesToSolr {
 
   // Get Solr core name for this cohort and append to base URL
   def coreName = WdkUtils.getSolrCoreName(cohort)
-  def solrCoreUrl = "${params.solrUrl}/${coreName}"
+  def solrCoreUrl = params.solrUrl ?: "${params.solrBaseUrl}/${coreName}"
 
   """
   set -euo pipefail
@@ -36,9 +36,36 @@ process loadBatchesToSolr {
   echo "Solr URL: ${solrCoreUrl}"
   echo "Batch directory: /output/${outputCohort}/${projectId}"
 
+  # Check if Solr URL is reachable
+  echo "Checking Solr connectivity..."
+  if ! curl -f -s -o /dev/null --connect-timeout 10 --max-time 30 "${solrCoreUrl}/select?q=*:*&rows=0"; then
+    echo "ERROR: Unable to reach Solr at ${solrCoreUrl}"
+    echo "Please verify that:"
+    echo "  1. Solr is running"
+    echo "  2. The URL is correct"
+    echo "  3. Network connectivity is available"
+    exit 1
+  fi
+  echo "Solr is reachable"
+
   # Load batches into Solr
   ssLoadMultipleBatches ${solrCoreUrl} /output/${outputCohort}/${projectId} --replace &> /output/${outputCohort}/${projectId}/load.log
 
-  echo "Batches loaded successfully for ${projectId}"
+  # Validate that batches were loaded successfully
+  LOAD_RESULT=\$(tail -20 /output/${outputCohort}/${projectId}/load.log | grep -E "DONE\\.  Loaded [0-9]+ batches" || echo "")
+  if [ -z "\$LOAD_RESULT" ]; then
+    echo "ERROR: unexpected end of loader log file"
+    tail -5 /output/${outputCohort}/${projectId}/load.log
+    exit 1
+  fi
+
+  export BATCH_COUNT=\$(echo "\$LOAD_RESULT" | grep -oE "[0-9]+" | head -1)
+  if [ "\$BATCH_COUNT" -eq 0 ]; then
+    echo "ERROR: No batches were loaded (count: 0)"
+    tail -5 /output/${outputCohort}/${projectId}/load.log
+    exit 1
+  fi
+
+  echo "Batches loaded successfully for ${projectId}: \$BATCH_COUNT batches"
   """
 }

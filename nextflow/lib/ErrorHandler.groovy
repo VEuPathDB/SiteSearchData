@@ -12,7 +12,7 @@ class ErrorHandler {
    * @param outputDir The base output directory
    * @param cohorts List of cohort names (e.g., ['ApiCommon', 'EDA', 'OrthoMCL'])
    */
-  static void printCohortLogs(String outputDir, List<String> cohorts) {
+  static void printCohortLogs(String outputDir, List<String> cohorts, cleanupOnExit) {
     def output = new File(outputDir)
 
     if (!output.exists()) {
@@ -57,5 +57,12 @@ class ErrorHandler {
     println "\n" + "=" * 80
     println "End of error logs"
     println "=" * 80 + "\n"
+
+    // force cleanup of outputdir after we are done reading it
+    if (output.exists() && cleanupOnExit) {
+      println "\nCleaning up outputDir: ${output}"
+      output.deleteDir()
+      println "Deleted: ${output}"
+    }
   }
 }

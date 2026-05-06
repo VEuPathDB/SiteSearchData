@@ -23,56 +23,36 @@ if(!params.siteBaseUrl) {
   throw new Exception("Missing params.siteBaseUrl (e.g., https://plasmodb.org)")
 }
 
+if(!params.cohort) {
+  throw new Exception("Missing params.cohort (e.g., ApiCommon)")
+}
+
 if(!params.projectId) {
   throw new Exception("Missing params.projectId (e.g., PlasmoDB, FungiDB, UniDB)")
 }
 
-if(!params.solrUrl) {
-  throw new Exception("Missing params.solrUrl (e.g., http://localhost:8983/solr)")
+if(!(params.solrUrl || params.solrBaseUrl)) {
+  throw new Exception("Missing params.solrUrl (e.g., http://localhost:8983/solr/site_search) or params.solrBaseUrl (e.g., http://localhost:8983/solr)")
 }
 
-//--------------------------------------------------------------------------
-// Helper Functions
-//--------------------------------------------------------------------------
-
-// Map projectId to cohort
-def getCohort(projectId) {
-  // Project to cohort mapping
-  def projectToCohort = [
-    'UniDB': 'Portal',
-    'FungiDB': 'ApiCommon',
-    'TriTrypDB': 'ApiCommon',
-    'PlasmoDB': 'ApiCommon',
-    'VectorBase': 'ApiCommon',
-    'ToxoDB': 'ApiCommon',
-    'HostDB': 'ApiCommon',
-    'AmoebaDB': 'ApiCommon',
-    'CryptoDB': 'ApiCommon',
-    'GiardiaDB': 'ApiCommon',
-    'MicrosporidiaDB': 'ApiCommon',
-    'PiroplasmaDB': 'ApiCommon',
-    'TrichDB': 'ApiCommon'
-  ]
-
-  def cohort = projectToCohort[projectId]
-  if (!cohort) {
-    throw new Exception("Unknown projectId: ${projectId}. Must be one of: ${projectToCohort.keySet().join(', ')}")
-  }
-  return cohort
-}
 
 //--------------------------------------------------------------------------
 // Main Workflow
 //--------------------------------------------------------------------------
 
+// Global variable to collect load results for summary
+loadResults = []
+
 workflow {
   // Create single-project channel based on parameter
-  def cohort = getCohort(params.projectId)
-  project = Channel.of([cohort, params.projectId])
+  project = Channel.of([params.cohort, params.projectId])
 
   dumpComplete = dumpBatches(project, params.envFile)
 
-  loadBatchesToSolr(dumpComplete, params.envFile)
+  // Load batches and collect results
+  loadBatchesToSolr(dumpComplete, params.envFile).subscribe { result ->
+    loadResults << result
+  }
 }
 
 workflow.onError {
@@ -80,7 +60,11 @@ workflow.onError {
   println "ERROR: Workflow execution failed!"
   println "=" * 80
 
-  ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA', 'OrthoMCL'])
+  ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA', 'OrthoMCL'], params.cleanupOnExit)
+}
+
+workflow.onComplete {
+  WorkflowSummary.printCompletionSummary(workflow, params, loadResults)
 }
 
 process dumpBatches {
@@ -103,16 +87,20 @@ process dumpBatches {
   def outputCohort = (cohort == 'Portal') ? 'ApiCommon' : cohort
 
   """
+  set -euo pipefail
+
   mkdir -p /output/${outputCohort}/${projectId}
 
   ${WdkUtils.startWdkServer(port, "/output/${outputCohort}/${projectId}/server.log")}
 
   # Create dataset-presenter batch for this project
-  echo "Creating dataset-presenter batch for ${projectId}"
-  ssCreateWdkRecordsBatch dataset-presenter ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
+  if [ "${outputCohort}" != 'OrthoMCL' ]; then
+    echo "Creating dataset-presenter batch for ${projectId}"
+    ssCreateWdkRecordsBatch dataset-presenter ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/presenter.log
+  fi
 
   # Create WDK metadata batch for this project
-  if [${outputCohort} != 'EDA']; then
+  if [ "${outputCohort}" != 'EDA' ]; then
     echo "Creating WDK meta batch for ${projectId}"
     ssCreateWdkMetaBatch ${params.siteBaseUrl}/service/ ${projectId} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/wdkmeta.log
   fi
