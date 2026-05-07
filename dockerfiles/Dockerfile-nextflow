@@ -16,7 +16,7 @@ RUN dnf -y makecache && \
 
 USER podman
 WORKDIR /home/podman
-RUN mkdir bin &&  curl -s https://www.nextflow.io/releases/v25.10.4/nextflow?a=install -o bin/nextflow && chmod +x bin/nextflow && bin/nextflow info
+RUN mkdir bin &&  curl -s https://www.nextflow.io/releases/v26.04.0/nextflow?a=install -o bin/nextflow && chmod +x bin/nextflow && bin/nextflow info
 
 # Let nextflow launch containers with the socket instead of libpod. We will also need to bind mount the user socket on the host to this path.
 # This way nextflow containers will be able to use the host image cache instead of pulling the container images inside the nextflow container
@@ -30,6 +30,10 @@ ENV CONTAINER_HOST=unix:///run/podman/podman.sock
 # use whatever version is installed in the container.
 ENV NXF_DISABLE_CHECK_LATEST=true
 ENV NXF_OFFLINE=true
+
+# disable interactive output
+ENV NXF_AGENT_MODE=true
+ENV NXF_SYNTAX_PARSER=v1
 
 ENV PATH="$PATH:/home/podman/bin:/nextflow"
 
