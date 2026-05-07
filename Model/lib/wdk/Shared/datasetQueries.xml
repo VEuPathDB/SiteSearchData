@@ -121,6 +121,7 @@
       </sql>
     </sqlQuery>
 
+    <!--
     <sqlQuery name="AttributeValues"  isCacheable='false'>
       <column name="dataset_id"/>
       <column name="value"/>
@@ -159,28 +160,20 @@
         ]]>
       </sql>
     </sqlQuery>
-
-    <sqlQuery name="AttributeNames"  isCacheable='false'>
+-->
+    <sqlQuery name="Variables"  isCacheable="false">
       <column name="dataset_id"/>
       <column name="name"/>
-      <column name="provider_label"/>
+      <column name="definition"/>
       <sql>
         <![CDATA[
-          select distinct sd.dataset_id, ag.display_name as name, ag.provider_label
-          from eda.AttributeGraph ag, eda.Attribute a, eda.EntityTypeGraph etg,
-               apidbTuning.StudyIdDatasetId sd
-          where ag.stable_id = a.stable_id
-            and a.entity_type_id = etg.entity_type_id
-            and etg.study_stable_id = sd.study_stable_id
-            and sd.dataset_id
-                in (select dataset_presenter_id
-                    from apidbTuning.DatasetDatasource
-                    where project_id = '@PROJECT_ID@'
-                       or ('@PROJECT_ID@' = 'UniDB' and project_id != 'ClinEpiDB'))
-            and sd.dataset_id
-                not in (select dataset_presenter_id
-                        from apidbTuning.DatasetProperty
-                        where property = 'isPublic' and value = 'false')
+          SELECT dataset_id
+            , variable_display_name as name
+            , variable_definition as definition
+          FROM ApidbTuning.DatasetVariable dv
+            JOIN ApidbTuning.DatasetDatasource dd ON dv.dataset_id = dd.dataset_presenter_id
+          WHERE (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and 'ClinEpiDB' != '@PROJECT_ID@'))
+          ORDER BY variable_display_name
         ]]>
       </sql>
     </sqlQuery>

@@ -285,6 +285,19 @@
       </sql>
     </sqlQuery>
 
+    <sqlQuery name="Variables"  isCacheable="false">
+      <column name="dataset_id"/>
+      <column name="name"/>
+      <column name="definition"/>
+      <sql>
+        <![CDATA[
+          SELECT CONCAT('EDAUD_', study_stable_id) as dataset_id
+            , display_name as name
+            , definition 
+          FROM @VDI_DATASETS_SCHEMA@.AttributeGraph
+        ]]>
+      </sql>
+    </sqlQuery>
   </querySet>
 
 </wdkModel>
