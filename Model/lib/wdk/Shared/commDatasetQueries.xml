@@ -291,7 +291,7 @@
       <column name="definition"/>
       <sql>
         <![CDATA[
-          SELECT CONCAT('EDAUD_', user_dataset_id_id) as dataset_id
+          SELECT CONCAT('EDAUD_', user_dataset_id) as dataset_id
             , display_name as name
             , definition 
           FROM @VDI_DATASETS_SCHEMA@.AttributeGraph ag
