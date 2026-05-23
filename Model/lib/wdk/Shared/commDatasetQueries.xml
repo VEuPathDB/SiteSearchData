@@ -291,11 +291,10 @@
       <column name="definition"/>
       <sql>
         <![CDATA[
-          SELECT CONCAT('EDAUD_', user_dataset_id) as dataset_id
+          SELECT CONCAT('EDAUD_', v.dataset_id) as dataset_id
             , display_name as name
             , definition 
-          FROM @VDI_DATASETS_SCHEMA@.AttributeGraph ag
-	  JOIN @VDI_DATASETS_SCHEMA@.Study s on ag.study_stable_id = s.stable_id	  
+          FROM @VDI_DATASETS_SCHEMA@.variable v
         ]]>
       </sql>
     </sqlQuery>
