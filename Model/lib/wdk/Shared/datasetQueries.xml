@@ -168,12 +168,12 @@
       <sql>
         <![CDATA[
           SELECT dataset_id
-            , variable_display_name as name
-            , variable_definition as definition
+            , display_name as name
+            , definition
           FROM ApidbTuning.DatasetVariable dv
             JOIN ApidbTuning.DatasetDatasource dd ON dv.dataset_id = dd.dataset_presenter_id
           WHERE (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and 'ClinEpiDB' != '@PROJECT_ID@'))
-          ORDER BY variable_display_name
+          ORDER BY display_name
         ]]>
       </sql>
     </sqlQuery>
@@ -364,21 +364,6 @@
 	     apidbtuning.datasetdatasource dd
          where dd.dataset_presenter_id = v.dataset_id
 	  and v.variable_source_id = var.variable_source_id
-          and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
-       ]]>
-      </sql>
-    </sqlQuery>
-
-    <sqlQuery name="DatasetVariables">
-      <column name="dataset_id"/>
-      <column name="name"/>
-      <sql>
-        <![CDATA[
-        select v.dataset_id, 
-               variable_display_name as name
-        from apidbtuning.datasetvariable v,
-	     apidbtuning.datasetdatasource dd
-	where dd.dataset_presenter_id = v.dataset_id
           and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
        ]]>
       </sql>
