@@ -358,12 +358,12 @@
       <sql>
         <![CDATA[
         select v.dataset_id, 
-               var.variable_display_name || ': ' || v.value as value
+               var.display_name || ': ' || v.value as value
         from apidbtuning.datasetcategoricalvalue v,
              apidbtuning.datasetvariable var,
 	     apidbtuning.datasetdatasource dd
          where dd.dataset_presenter_id = v.dataset_id
-	  and v.variable_source_id = var.variable_source_id
+	  and v.stable_id = var.stable_id
           and (dd.project_id = '@PROJECT_ID@' or ('UniDB' = '@PROJECT_ID@' and project_id != 'ClinEpiDB'))
        ]]>
       </sql>
