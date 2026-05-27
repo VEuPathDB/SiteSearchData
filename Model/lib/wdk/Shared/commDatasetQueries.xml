@@ -287,12 +287,14 @@
 
     <sqlQuery name="Variables"  isCacheable="false">
       <column name="dataset_id"/>
-      <column name="name"/>
+      <column name="provider_label"/>
       <column name="definition"/>
+      <column name="display_name"/>
       <sql>
         <![CDATA[
           SELECT CONCAT('EDAUD_', v.dataset_id) as dataset_id
-            , display_name as name
+            , array_to_string(ARRAY(SELECT jsonb_array_elements_text(provider_label::jsonb)), '; ') as provider_label
+            , display_name
             , definition 
           FROM @VDI_DATASETS_SCHEMA@.variable v
         ]]>
