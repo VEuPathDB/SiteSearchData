@@ -275,8 +275,9 @@
              displayName="Variables"
              queryRef="CommunityDatasetTables.Variables">
         <columnAttribute name="dataset_id"/>
-        <columnAttribute name="name" displayName="Variable name"/>
+        <columnAttribute name="provider_name" displayName="Variable name"/>
         <columnAttribute name="definition" displayName="Definition"/>
+        <columnAttribute name="display_name" displayName="Label"/>
       </table>
     </recordClass>
     
