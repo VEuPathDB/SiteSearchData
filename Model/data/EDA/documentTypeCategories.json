@@ -7,8 +7,8 @@
         "hasOrganismField": false
       },
       { "id": "community-dataset",
-        "displayName": "Community Dataset",
-        "displayNamePlural": "Community Datasets",
+        "displayName": "Public Dataset",
+        "displayNamePlural": "Public Datasets",
         "hasOrganismField": false
       }	
     ]
