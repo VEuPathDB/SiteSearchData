@@ -81,8 +81,8 @@
         "hasOrganismField": false
       },
       { "id": "community-dataset",
-        "displayName": "Community Dataset",
-        "displayNamePlural": "Community Datasets",
+        "displayName": "Public User Dataset",
+        "displayNamePlural": "Public User Datasets",
         "hasOrganismField": true
       }		
     ]
