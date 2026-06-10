@@ -69,12 +69,12 @@
       </attributeQueryRef>
 
       <attributeQueryRef ref="CommunityDatasetAttributes.OwnerInfo">
-        <columnAttribute name="owner_name" displayName="Owner name">
+        <columnAttribute name="owner_name" displayName="Uploader name">
           <propertyList name="autocomplete">
             <value>true</value>
 	  </propertyList>
 	</columnAttribute>
-        <columnAttribute name="owner_organization" displayName="Owner organization">
+        <columnAttribute name="owner_organization" displayName="Uploader organization">
           <propertyList name="autocomplete">
             <value>true</value>
 	  </propertyList>
