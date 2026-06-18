@@ -57,7 +57,7 @@ workflow {
   projectsComplete = dumpWdkDataBatches(projects, params.envFile, cacheComplete)
 
   // Drop the cache after all data dumps complete (recreate=true creates new empty cache)
-  dropCache(params.envFile, [metadataComplete.collect(), projectsComplete.collect()])
+  dropCache(params.envFile, metadataComplete.collect(), projectsComplete.collect())
 }
 
 process recreateCache {
@@ -109,7 +109,7 @@ process dumpDocumentMetadataBatches {
   ${WdkUtils.startWdkServer(port, "/output/${cohort}/metadata/server.log", "for ${cohort} metadata")}
 
   # Create document categories batch if not already complete
-  CAT_BATCH=\$(ls -d /output/${cohort}/metadata/solr-json-batch_document-categories_all_* 2>/dev/null | tail -1)
+  CAT_BATCH=\$(ls -d /output/${cohort}/metadata/solr-json-batch_document-categories_all_* 2>/dev/null | tail -1 || true)
   if [ -n "\$CAT_BATCH" ] && [ -f "\$CAT_BATCH/DONE" ]; then
     echo "Document categories batch already exists and is complete for ${cohort}, skipping"
   else
@@ -118,7 +118,7 @@ process dumpDocumentMetadataBatches {
   fi
 
   # Create document fields batch if not already complete
-  FIELD_BATCH=\$(ls -d /output/${cohort}/metadata/solr-json-batch_document-fields_all_* 2>/dev/null | tail -1)
+  FIELD_BATCH=\$(ls -d /output/${cohort}/metadata/solr-json-batch_document-fields_all_* 2>/dev/null | tail -1 || true)
   if [ -n "\$FIELD_BATCH" ] && [ -f "\$FIELD_BATCH/DONE" ]; then
     echo "Document fields batch already exists and is complete for ${cohort}, skipping"
   else
@@ -192,7 +192,8 @@ process dropCache {
 
   input:
     path(envFile)
-    val(dependencies)  // Can accept single value or list of completion values
+    val(meta)
+    val(projects)
 
   output:
     path 'cache-drop.done'
