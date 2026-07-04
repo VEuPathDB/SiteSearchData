@@ -67,5 +67,9 @@ process loadBatchesToSolr {
   fi
 
   echo "Batches loaded successfully for ${projectId}: \$BATCH_COUNT batches"
+
+  echo "running: curl -f -s \"${solrCoreUrl}/suggest?suggest.build=true\""
+  curl -f -s "${solrCoreUrl}/suggest?suggest.build=true" || { echo "ERROR: Failed to build suggester index"; exit 1; }
+
   """
 }

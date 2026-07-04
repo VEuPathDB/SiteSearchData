@@ -6,5 +6,6 @@ target/
 \#*
 .nextflow*
 env.sh
+*-env.sh
 work/
 .pydevproject
