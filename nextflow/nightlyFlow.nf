@@ -6,6 +6,7 @@ nextflow.enable.dsl=2
 //--------------------------------------------------------------------------
 
 include { loadBatchesToSolr } from './modules/loadBatches'
+//include { buildSuggester } from './modules/buildSuggester'
 
 //--------------------------------------------------------------------------
 // Param Checking
@@ -54,9 +55,20 @@ workflow {
   dumpComplete = dumpBatches(projects, params.envFile)
 
   // Load batches and collect results
-  loadBatchesToSolr(dumpComplete, params.envFile).subscribe { result ->
-    loadResults << result
-  }
+  loadBatchesToSolr(dumpComplete, params.envFile)
+    .map { cohort, projectId, batchCount ->
+      // Collect results for summary
+      loadResults << [projectId, batchCount]
+
+      // Note: Portal uses ApiCommon Solr core, so map Portal -> ApiCommon
+      def solrCohort = (cohort == 'Portal') ? 'ApiCommon' : cohort
+      [solrCohort, projectId, batchCount]
+    }
+    .groupTuple(by: 0)
+    .set { cohortGroups }
+
+  // Build suggester once per cohort
+  buildSuggester(cohortGroups)
 }
 
 workflow.onError {
@@ -101,5 +113,26 @@ process dumpBatches {
   ssCreateWdkRecordsBatch community-datasets ${projectId} http://localhost:${port} /output/${outputCohort}/${projectId} &>> /output/${outputCohort}/${projectId}/dump.log
 
   ${WdkUtils.stopWdkServer()}
+  """
+}
+
+process buildSuggester {
+  errorStrategy 'terminate'
+
+  input:
+    tuple val(cohort), val(projectIds), val(batchCounts)
+
+  script:
+  def coreName = WdkUtils.getSolrCoreName(cohort)
+  def solrCoreUrl = params.solrUrl ?: "${params.solrBaseUrl}/${coreName}"
+  def projectList = projectIds.join(', ')
+
+  """
+  set -euo pipefail
+
+  echo "Building suggester index for ${cohort} cohort (${projectList})"
+  echo "Solr URL: ${solrCoreUrl}"
+  curl -f -s "${solrCoreUrl}/suggest?suggest.build=true" || { echo "ERROR: Failed to build suggester index"; exit 1; }
+  echo "Suggester index built successfully for ${cohort}"
   """
 }

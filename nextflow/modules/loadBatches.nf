@@ -17,7 +17,7 @@ process loadBatchesToSolr {
     path(envFile)
 
   output:
-    tuple val(projectId), env(BATCH_COUNT)
+    tuple val(cohort), val(projectId), env(BATCH_COUNT)
 
   script:
   // Portal cohort outputs go under ApiCommon directory
@@ -67,9 +67,5 @@ process loadBatchesToSolr {
   fi
 
   echo "Batches loaded successfully for ${projectId}: \$BATCH_COUNT batches"
-
-  echo "running: curl -f -s \"${solrCoreUrl}/suggest?suggest.build=true\""
-  curl -f -s "${solrCoreUrl}/suggest?suggest.build=true" || { echo "ERROR: Failed to build suggester index"; exit 1; }
-
   """
 }
