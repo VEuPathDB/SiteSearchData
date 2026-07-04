@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
+// Note: rely on nightlyFlow.nf to build suggester index per cohort
+
 //--------------------------------------------------------------------------
 // Module Imports
 //--------------------------------------------------------------------------
