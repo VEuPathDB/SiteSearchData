@@ -168,7 +168,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
         }
       }
       for (String tableName: tableNames) {
-        TableField tableField = recordClass.getTableFieldMap().get(tableName);
+        TableField tableField = recordClass.getTableFieldMap(false).get(tableName);
         String name = tableField.isInternal()?
             tableName : TABLE_PREFIX + urlSegment + "_" + tableName;
         obj.put(name, aggregateTableValueJson(record.getTableValue(tableName), field -> true));
