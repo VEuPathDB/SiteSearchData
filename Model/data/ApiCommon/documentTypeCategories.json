@@ -80,7 +80,7 @@
         "displayNamePlural": "Searches",
         "hasOrganismField": false
       },
-      { "id": "community-dataset",
+      { "id": "userdataset",
         "displayName": "Public User Dataset",
         "displayNamePlural": "Public User Datasets",
         "hasOrganismField": true
