@@ -15,7 +15,7 @@
     <!-- #####################  Community Dataset Record ################### -->
     <!-- ################################################################### -->
 
-    <recordClass name="communityDataset" urlName="community-dataset" displayName="Community Dataset">
+    <recordClass name="communityDataset" urlName="userdataset" displayName="Public User Dataset">
       <propertyList name="batch">
         <value>community-datasets</value>
       </propertyList>
