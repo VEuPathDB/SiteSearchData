@@ -6,7 +6,7 @@
         "displayNamePlural": "Curated Datasets",
         "hasOrganismField": false
       },
-      { "id": "community-dataset",
+      { "id": "userdataset",
         "displayName": "Public Dataset",
         "displayNamePlural": "Public Datasets",
         "hasOrganismField": false
