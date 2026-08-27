@@ -12,7 +12,6 @@ import os
 import sys
 import traceback
 import time
-import pathlib
 
 import requests
 
@@ -25,19 +24,30 @@ USER = os.environ['SOLR_USER'] if ('SOLR_USER' in os.environ) else ''
 PASS = os.environ['SOLR_PASSWORD'] if ('SOLR_PASSWORD' in os.environ) else ''
 AUTH = (USER, PASS)
 
+# Whether the current run has staged any add/delete against Solr, so run()
+# knows whether an end-of-run commit is actually needed. Solr has no
+# per-request/per-client transaction scope, so this can only ever answer
+# "did this run stage anything" - not "is anything staged in the core" -
+# see the preemptive rollback in run() for how that gap is closed.
+_staged = False
+
 # Parse the arguments
 def parse_args():
     help = """
 Add, update, or remove batches from Solr's index.
 
-Commits on success. If an error occurs, the script exits with a nonzero exit
-code. If changes were staged before the script failed, they may still be staged
-or they may have been already committed. For the former case, use the rollback
-subcommand to rollback changes. For the latter case, use the provided delete
-command to delete the corrupted batch.
+IMPORTANT: Each subcommand (index, delete, rollback) has its own options.
+Run 'ssLoadBatch SOLR_URL SUBCOMMAND -h' (ex: ssLoadBatch SOLR_URL index -h)
+to see them - this top-level help does not list them.
+
+Rolls back any stale staged changes before starting, then commits on success.
+If an error occurs, changes staged by this run are rolled back and the script
+exits with a nonzero exit code. If a corrupted batch already exists in Solr
+from an earlier run, use the provided delete command to delete it.
 
 Examples:
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH
+  siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH --replace
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-type-name BATCH_TYPE BATCH_NAME
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search delete --batch-id BATCH_ID_1 [BATCH_ID_2 ...]
 """
@@ -98,65 +108,48 @@ def run(func, solr_url, **kwargs):
     # If func is rollback, just do it
     if func is rollback:
         func(solr_url)
+        return
 
-    # Otherwise, execute func with safeguards
-    else:
-        try:
-            # Run the command
-            func(solr_url, **kwargs)
-            exit_code = 0
+    global _staged
 
-        except Exception as e:
-            print(traceback.format_exc(), file=sys.stderr)
-            error_text = \
-"""An error has occurred. It's possible that this has resulted in either
-staged (uncommitted) changes or a corrupted batch existing in Solr.
+    # Roll back any changes left staged by a previous failed run, so we start
+    # from a known-clean, committed baseline. Assumes single-loader-at-a-time
+    # per core, since Solr commit/rollback are core-wide, not scoped to us.
+    print('Rolling back any stale staged changes before starting', flush=True)
+    solr_request('POST', solr_url + '/update', data='<rollback/>', auth=AUTH, headers={'content-type':'application/xml'})
+    _staged = False
 
-If you think there are uncommitted changes staged in Solr, use the
-rollback function to drop these changes.
+    try:
+        # Run the command
+        func(solr_url, **kwargs)
 
-If you think there is a corrupted batch in Solr, you'll need to purge
-the corrupted batch."""
-            print(error_text, file=sys.stderr, flush=True)
+    except Exception:
+        print(traceback.format_exc(), file=sys.stderr)
 
-            if func is index:
-                try:
-                    # Attempt to get the batch info
-                    batch_json_path = kwargs['batch_dir'] + '/batch.json'
-
-                    with open(batch_json_path) as batch_json_file:
-                        batch_json = json.load(batch_json_file)[0]
-
-                    batch_type = batch_json['batch-type']
-                    batch_name = batch_json['batch-name']
-                    script_path = pathlib.Path(__file__)
-
-                    # Build the delete command
-                    cmd = f'./{script_path} {solr_url} delete --batch-type-name {batch_type} {batch_name}'
-
-                    print(f'Use the following command to do so:\n{cmd}\n', file=sys.stderr, flush=True)
-
-                # If batch.json is missing, nothing was staged anyway, so we're good
-                except FileNotFoundError:
-                    pass
-
-            elif func is delete:
-                print('To do so, successfully rerun the original delete command.', file=sys.stderr, flush=True)
-
-            exit_code = 1
-
-        finally:
-            # Commit
-            print('Committing', flush=True)
-            solr_request('POST', solr_url + '/update', data='<commit/>', auth=AUTH, headers={'content-type':'application/xml'})
-            print('Commit successful', flush=True)
-
+        # Only roll back if this run actually staged something.
+        if _staged:
+            print('Rolling back changes staged by this failed run', flush=True)
             try:
-                sys.exit(exit_code)
-            except UnboundLocalError:
-                # If exit_code hasn't been set, then Houston, we've had a problem
-                print('Error: exit code has not been set', flush=True)
-                sys.exit(1)
+                solr_request('POST', solr_url + '/update', data='<rollback/>', auth=AUTH, headers={'content-type':'application/xml'})
+                _staged = False
+                print('An error has occurred. Any changes staged by this run have been rolled back.', file=sys.stderr, flush=True)
+            except Exception:
+                # Don't let a failed rollback swallow the original error's
+                # traceback/message above - warn and keep going.
+                print('WARNING: rollback failed - changes may still be staged in Solr. Run the rollback subcommand.', file=sys.stderr, flush=True)
+        else:
+            print('An error has occurred. Nothing was staged, so there is nothing to roll back.', file=sys.stderr, flush=True)
+
+        sys.exit(1)
+
+    # Only commit if this run staged something - a no-op run (e.g. batch
+    # already loaded) has nothing to commit.
+    if _staged:
+        print('Committing', flush=True)
+        solr_request('POST', solr_url + '/update', data='<commit/>', auth=AUTH, headers={'content-type':'application/xml'})
+        print('Commit successful', flush=True)
+    else:
+        print('Nothing staged, skipping commit', flush=True)
 
 def index(solr_url, batch_dir=None, replace=False, validate_only=False):
     """Index a batch.
@@ -208,7 +201,7 @@ def index(solr_url, batch_dir=None, replace=False, validate_only=False):
                         index_batch(batch_dir, solr_url)
                     # If we're not, throw an error
                     else:
-                        sys.exit(f"Error: Another version of batch '{batch_type} {batch_name}' already exists in Solr. Add --replace to replace it.")
+                        raise RuntimeError(f"Another version of batch '{batch_type} {batch_name}' already exists in Solr. Add --replace to replace it.")
 
             # If no matching batch-meta exists in Solr
             else:
@@ -218,7 +211,7 @@ def index(solr_url, batch_dir=None, replace=False, validate_only=False):
                 response = solr_request('GET', url, auth=AUTH)
 
                 if response.json()['response']['numFound']:
-                    sys.exit(f"Error: Documents with batch-type '{batch_type}' and batch-name '{batch_name}' exist in Solr, but there is no batch-meta document signifying the existence of the batch. Delete the existing documents before loading this batch.")
+                    raise RuntimeError(f"Documents with batch-type '{batch_type}' and batch-name '{batch_name}' exist in Solr, but there is no batch-meta document signifying the existence of the batch. Delete the existing documents before loading this batch.")
 
                 # Index the batch
                 index_batch(batch_dir, solr_url)
@@ -322,10 +315,12 @@ def index_file(path_like, solr_url):
         path_like (path-like): The path to the file.
         solr_url (str): The URL to the Solr core.
     """
+    global _staged
     with open(path_like) as f:
         print('Indexing file ' + f.name, flush=True)
         data = f.read()
         solr_request('POST', solr_url + '/update', data=data, auth=AUTH, headers={'content-type':'application/json'})
+        _staged = True
 
 def index_batch(batch_dir, solr_url):
     """Index a batch.
@@ -360,6 +355,7 @@ def delete_batch(query_text, solr_url, batch_text):
         batch_text (str): The text that will be printed to refer to the
             batch.
     """
+    global _staged
     url = solr_url + '/update'
 
     # First, check for the existence of matching batch documents
@@ -370,11 +366,13 @@ def delete_batch(query_text, solr_url, batch_text):
         print('Deleting batch-meta document for batch ' + batch_text, flush=True)
         data = f'<delete><query>{query_text} AND document-type:batch-meta</query></delete>'
         solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+        _staged = True
 
         # Then delete the data documents
         print('Deleting batch ' + batch_text, flush=True)
         data = f'<delete><query>{query_text}</query></delete>'
         solr_request('POST', url, data=data, auth=AUTH, headers={'content-type':'application/xml'})
+        _staged = True
 
     else:
         print(f'No matching documents for batch {batch_text}', flush=True)
