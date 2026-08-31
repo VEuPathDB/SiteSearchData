@@ -10,6 +10,8 @@
   
   <import file="Shared/datasetRecord.xml"/>
   <import file="Shared/datasetQueries.xml"/>
+  <import file="Shared/commDatasetRecord.xml"/>
+  <import file="Shared/commDatasetQueries.xml"/>
   <import file="ApiCommon/globalRecords.xml"/>
   <import file="ApiCommon/pathwayQueries.xml"/>
   <import file="ApiCommon/compoundQueries.xml"/>
