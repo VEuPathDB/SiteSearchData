@@ -33,7 +33,7 @@ loadResults = []
 
 workflow {
   projects = Channel.of(
-    ['Portal', 'UniDB'],
+    ['ApiCommon', 'UniDB'],
     ['ApiCommon', 'FungiDB'],
     ['ApiCommon', 'TriTrypDB'],
     ['ApiCommon', 'PlasmoDB'],
