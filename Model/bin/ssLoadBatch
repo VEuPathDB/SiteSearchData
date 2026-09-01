@@ -25,10 +25,12 @@ PASS = os.environ['SOLR_PASSWORD'] if ('SOLR_PASSWORD' in os.environ) else ''
 AUTH = (USER, PASS)
 
 # Whether the current run has staged any add/delete against Solr, so run()
-# knows whether an end-of-run commit is actually needed. Solr has no
-# per-request/per-client transaction scope, so this can only ever answer
-# "did this run stage anything" - not "is anything staged in the core" -
-# see the preemptive rollback in run() for how that gap is closed.
+# can skip the end-of-run commit (and say so) when this run did nothing - the
+# 'batch already loaded in Solr' path is a common no-op. Solr has no
+# per-request/per-client transaction scope, so this only ever answers "did
+# this run stage anything", NOT "is anything staged in the core": another
+# concurrent loader may have staged work we know nothing about. Nothing may
+# roll back based on this flag - see run() for why.
 _staged = False
 
 # Parse the arguments
@@ -40,10 +42,16 @@ IMPORTANT: Each subcommand (index, delete, rollback) has its own options.
 Run 'ssLoadBatch SOLR_URL SUBCOMMAND -h' (ex: ssLoadBatch SOLR_URL index -h)
 to see them - this top-level help does not list them.
 
-Rolls back any stale staged changes before starting, then commits on success.
-If an error occurs, changes staged by this run are rolled back and the script
-exits with a nonzero exit code. If a corrupted batch already exists in Solr
-from an earlier run, use the provided delete command to delete it.
+Commits on success. If an error occurs, the script exits with a nonzero exit
+code without committing, so a failed batch never gets its batch-meta document
+and is not considered loaded.
+
+This script does not roll back automatically, since Solr's rollback is
+core-wide and would discard work staged by other concurrent loaders. If a
+failed run left documents in Solr, use the delete subcommand to remove them
+(the error message suggests the exact command). The rollback subcommand
+remains available for manual use, but note that it unstages ALL uncommitted
+changes in the core, including any staged by other runs.
 
 Examples:
   siteSearchLoadBatch https://solr.local.apidb.org:8443/solr/site_search index --batch-dir DIR_PATH
@@ -72,7 +80,7 @@ Examples:
     parser_delete.add_argument('--batch-id', nargs='+', metavar='BATCH_ID', dest='batch_ids', help='Delete a batch of documents by batch ID.')
 
     # Rollback subparser
-    parser_rollback = subparsers.add_parser('rollback', help='Rollback Solr. This unstages any staged (uncommitted) changes that may exist in Solr.')
+    parser_rollback = subparsers.add_parser('rollback', help='Rollback Solr. This unstages any staged (uncommitted) changes that may exist in Solr. WARNING: rollback is core-wide, not scoped to a single batch or run - if other loaders are running against this core, it will discard their staged work too. Only use this when no other load is in progress.')
     parser_rollback.set_defaults(func=rollback)
 
     args = parser.parse_args()
@@ -110,35 +118,44 @@ def run(func, solr_url, **kwargs):
         func(solr_url)
         return
 
-    global _staged
-
-    # Roll back any changes left staged by a previous failed run, so we start
-    # from a known-clean, committed baseline. Assumes single-loader-at-a-time
-    # per core, since Solr commit/rollback are core-wide, not scoped to us.
-    print('Rolling back any stale staged changes before starting', flush=True)
-    solr_request('POST', solr_url + '/update', data='<rollback/>', auth=AUTH, headers={'content-type':'application/xml'})
-    _staged = False
-
+    # This script does NOT roll back automatically, by design. Multiple
+    # ssLoadBatch runs may share a core, and Solr's commit and rollback are
+    # core-wide rather than scoped to one client, so any rollback we issued
+    # would discard whatever a concurrent loader had staged - silently losing
+    # another run's work. Solr's <rollback/> also closes the core's
+    # IndexWriter and re-creates it lazily, so a short run could index and
+    # then commit against the closed writer, failing with
+    # AlreadyClosedException ('this IndexWriter is closed') out of
+    # openNewSearcher.
+    #
+    # Atomicity comes from document ordering instead: index_batch() writes the
+    # data files first and batch.json (the batch-meta doc) last, so a batch
+    # counts as loaded only once its batch-meta doc is present. A failed run
+    # leaves data documents with no batch-meta doc, which index() detects and
+    # refuses to load over; clean them up with the delete subcommand.
     try:
         # Run the command
         func(solr_url, **kwargs)
 
     except Exception:
         print(traceback.format_exc(), file=sys.stderr)
+        print('An error has occurred. This run made no commit, so any documents'
+              ' it staged remain uncommitted and no batch-meta document was'
+              ' written for the batch.', file=sys.stderr, flush=True)
 
-        # Only roll back if this run actually staged something.
-        if _staged:
-            print('Rolling back changes staged by this failed run', flush=True)
+        # Partial data may already have been committed by a concurrent loader's
+        # commit, so point at the cleanup command for the affected batch.
+        if func is index and kwargs.get('batch_dir'):
             try:
-                solr_request('POST', solr_url + '/update', data='<rollback/>', auth=AUTH, headers={'content-type':'application/xml'})
-                _staged = False
-                print('An error has occurred. Any changes staged by this run have been rolled back.', file=sys.stderr, flush=True)
-            except Exception:
-                # Don't let a failed rollback swallow the original error's
-                # traceback/message above - warn and keep going.
-                print('WARNING: rollback failed - changes may still be staged in Solr. Run the rollback subcommand.', file=sys.stderr, flush=True)
-        else:
-            print('An error has occurred. Nothing was staged, so there is nothing to roll back.', file=sys.stderr, flush=True)
+                with open(kwargs['batch_dir'] + '/batch.json') as batch_json_file:
+                    batch_json = json.load(batch_json_file)[0]
+
+                cmd = f"ssLoadBatch {solr_url} delete --batch-type-name {batch_json['batch-type']} {batch_json['batch-name']}"
+                print(f'If documents from this batch were left in Solr, delete them with:\n{cmd}\n', file=sys.stderr, flush=True)
+
+            # If batch.json is unreadable we never got far enough to stage anything
+            except (FileNotFoundError, KeyError, ValueError, IndexError):
+                pass
 
         sys.exit(1)
 

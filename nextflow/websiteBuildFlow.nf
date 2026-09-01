@@ -51,9 +51,11 @@ workflow {
 
   dumpComplete = dumpBatches(project, params.envFile)
 
-  // Load batches and collect results
+  // Load batches and collect results. loadBatchesToSolr emits
+  // [cohort, projectId, batchCount] but WorkflowSummary expects
+  // [projectId, batchCount], so drop the cohort - same as nightlyFlow.nf.
   loadBatchesToSolr(dumpComplete, params.envFile).subscribe { result ->
-    loadResults << result
+    loadResults << [result[1], result[2]]
   }
 }
 

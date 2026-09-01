@@ -285,14 +285,16 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         # Check Solr state
         self.check_solr_against(test_dir_path + '/test_data/output/pathway_batch-name_1000000000.json')
 
-    def test_batch_discards_stale_staged_changes(self):
+    def test_batch_preserves_other_staged_changes(self):
         """
-        Test that a stale, uncommitted change left staged in Solr (e.g. by a
-        previous run that crashed) is rolled back before indexing starts,
-        rather than being committed alongside the new batch.
+        Test that documents staged in Solr by someone else (e.g. a concurrent
+        loader mid-batch) are not discarded by this run. Multiple ssLoadBatch
+        runs may share a core, and Solr's rollback is core-wide, so this
+        script must never roll back automatically - doing so would silently
+        destroy another run's in-flight work.
         """
-        # Stage a file directly, without committing - simulates leftover
-        # staged state from a previous failed run
+        # Stage a file directly, without committing - simulates another loader
+        # partway through its own batch
         url = self.core_url + '/update'
         file_path = test_dir_path + '/test_data/input/valid_batches/pathway_batch-name_1000000000/data_file_0.json'
 
@@ -308,9 +310,16 @@ class IndexTestCase(SiteSearchLoadBatchTestCase):
         process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(process.returncode, 0, process.stderr)
 
-        # Check Solr state - only the indexed batch should be present; the
-        # stale staged pathway docs should have been rolled back, not committed
-        self.check_solr_against(test_dir_path + '/test_data/output/organism_batch-name_1000000000.json')
+        # The other run's staged docs must still be there. Our commit is
+        # core-wide, so they are now committed and visible - that is expected
+        # and harmless: they carry no batch-meta doc, so that batch is not
+        # considered loaded until its own run finishes.
+        staged_ids = {doc['id'] for doc in json.loads(data)}
+        present_ids = {doc['id'] for doc in self.get_solr_state()['docs']}
+
+        self.assertTrue(staged_ids <= present_ids,
+                        'documents staged by another run were discarded: '
+                        + str(sorted(staged_ids - present_ids)))
 
     def test_batch_fail_batch_docs_exist(self):
         """
