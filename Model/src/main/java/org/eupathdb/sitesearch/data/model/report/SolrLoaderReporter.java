@@ -234,7 +234,7 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
     }
     
   private static JSONArray aggregateTableValueJson(TableValue table, Predicate<AttributeField> filter) {
-    JSONArray jsonarray = new JSONArray();
+    Set<String> uniqueValues = new HashSet<>();
     toStream(table)
       .forEach(row -> row.values().stream()
         .filter(cell -> filter.test(cell.getAttributeField()))
@@ -242,14 +242,21 @@ public class SolrLoaderReporter extends AnswerDetailsReporter {
           try {
             String value = cell.getValue();
             if (value != null && !value.trim().isEmpty()) {
-              jsonarray.put(value);
+              // Normalize value to catch duplicates that differ only in HTML tags, whitespace, or punctuation
+              String normalizedValue = value
+                  .replaceAll("<[^>]*>", "")  // Remove HTML tags
+                  .replaceAll("^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$", "")  // Remove leading/trailing non-alphanumerics
+                  .trim();
+              if (!normalizedValue.isEmpty()) {
+                uniqueValues.add(normalizedValue);
+              }
             }
           }
           catch (WdkUserException | WdkModelException e) {
             throw new RuntimeException(e);
           }
         }));
-    return jsonarray;
+    return new JSONArray(uniqueValues);
   }
 
 }
