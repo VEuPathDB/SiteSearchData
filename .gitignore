@@ -10,3 +10,4 @@ env.sh
 env-*.sh
 work/
 .pydevproject
+__pycache__

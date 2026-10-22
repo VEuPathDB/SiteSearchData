@@ -4,7 +4,7 @@
 #
 ############################################################
 
-FROM veupathdb/alpine-dev-base:jdk-21-gradle-8.7 AS build
+FROM docker.io/veupathdb/alpine-dev-base:jdk-21-gradle-8.7 AS build
 
 ARG GITHUB_USERNAME
 ARG GITHUB_TOKEN
@@ -33,6 +33,7 @@ RUN apk add -u --no-cache \
     git \
     perl \
     bash \
+    curl \
     maven
 
 
@@ -71,13 +72,14 @@ RUN mkdir -p ${GUS_HOME}/config \
  && /bin/bash bld SiteSearchData
 
 
+
 ############################################################
 #
 #  Runtime Environment
 #
 ############################################################
 
-FROM amazoncorretto:21-alpine3.23
+FROM docker.io/library/amazoncorretto:21-alpine3.23
 
 ENV BASE_GUS=/tmp/base_gus 
 ENV GUS_HOME=${BASE_GUS}/gus_home

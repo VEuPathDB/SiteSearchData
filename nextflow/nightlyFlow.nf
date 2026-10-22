@@ -67,14 +67,19 @@ workflow {
     .groupTuple(by: 0)
     .set { cohortGroups }
 
+  // Update user and apollo comments.
+  commentsComplete = commentUpdater(params.envFile)
+
   // Build suggester once per cohort
-  buildSuggester(cohortGroups)
+  // combine pairs every cohort with the single comments-done signal
+  buildSuggester(cohortGroups.combine(commentsComplete))
 }
 
 workflow.onError {
   println "\n" + "=" * 80
   println "ERROR: Workflow execution failed!"
   println "=" * 80
+  
 
   ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA'], params.cleanupOnExit)
 }
@@ -120,11 +125,11 @@ process buildSuggester {
   errorStrategy 'terminate'
 
   input:
-    tuple val(cohort), val(projectIds), val(batchCounts)
+    tuple val(cohort), val(projectIds), val(batchCounts), val(complete)
 
   script:
   def coreName = WdkUtils.getSolrCoreName(cohort)
-  def solrCoreUrl = params.solrUrl ?: "${params.solrBaseUrl}/${coreName}"
+  def solrCoreUrl = "${params.solrBaseUrl}/${coreName}"
   def projectList = projectIds.join(', ')
 
   """
@@ -134,5 +139,29 @@ process buildSuggester {
   echo "Solr URL: ${solrCoreUrl}"
   curl -f -s "${solrCoreUrl}/suggest?suggest.build=true" || { echo "ERROR: Failed to build suggester index"; exit 1; }
   echo "Suggester index built successfully for ${cohort}"
+  """
+}
+
+process commentUpdater {
+  errorStrategy 'terminate'
+  containerOptions "-v ${params.outputDir}:/output --env-file ${params.envFile} -e SOLR_URL=${params.solrBaseUrl}/${WdkUtils.getSolrCoreName('ApiCommon')}"
+
+  input:
+    path(envFile)
+
+  output:
+    val('commentsDone')
+
+  script:
+  """
+  set -euo pipefail
+
+  echo "Running user comment updater"
+  fgpJava org.veupathdb.sitesearch.usercomments.UserCommentUpdaterCli --doUpdate  &> /output/usercomment.log
+  echo "Done user comment updater"
+
+  echo "Running apollo comment updater"
+  fgpJava org.veupathdb.sitesearch.usercomments.ApolloCommentUpdaterCli --doUpdate  &> /output/apollocomment.log
+  echo "Done apollo comment updater"
   """
 }
