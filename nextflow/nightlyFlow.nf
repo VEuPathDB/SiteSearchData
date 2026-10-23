@@ -31,6 +31,10 @@ if(!params.solrBaseUrl) {
 // Global variable to collect load results for summary
 loadResults = []
 
+// Log files (written under params.outputDir) by the comment updater process
+USER_COMMENT_LOG = 'usercomment.log'
+APOLLO_COMMENT_LOG = 'apollocomment.log'
+
 workflow {
   projects = Channel.of(
     ['ApiCommon', 'UniDB'],
@@ -81,7 +85,7 @@ workflow.onError {
   println "=" * 80
   
 
-  ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA'], params.cleanupOnExit)
+  ErrorHandler.printCohortLogs(params.outputDir, ['ApiCommon', 'EDA'], params.cleanupOnExit, [USER_COMMENT_LOG, APOLLO_COMMENT_LOG])
 }
 
 workflow.onComplete {
@@ -157,11 +161,11 @@ process commentUpdater {
   set -euo pipefail
 
   echo "Running user comment updater"
-  fgpJava org.veupathdb.sitesearch.usercomments.UserCommentUpdaterCli --doUpdate  &> /output/usercomment.log
+  fgpJava org.veupathdb.sitesearch.usercomments.UserCommentUpdaterCli --doUpdate  &> /output/${USER_COMMENT_LOG}
   echo "Done user comment updater"
 
   echo "Running apollo comment updater"
-  fgpJava org.veupathdb.sitesearch.usercomments.ApolloCommentUpdaterCli --doUpdate  &> /output/apollocomment.log
+  fgpJava org.veupathdb.sitesearch.usercomments.ApolloCommentUpdaterCli --doUpdate  &> /output/${APOLLO_COMMENT_LOG}
   echo "Done apollo comment updater"
   """
 }

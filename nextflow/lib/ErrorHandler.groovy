@@ -11,8 +11,10 @@ class ErrorHandler {
    *
    * @param outputDir The base output directory
    * @param cohorts List of cohort names (e.g., ['ApiCommon', 'EDA', 'OrthoMCL'])
+   * @param cleanupOnExit Whether to delete outputDir after printing
+   * @param extraLogNames Names of log files directly under outputDir to print if they exist
    */
-  static void printCohortLogs(String outputDir, List<String> cohorts, cleanupOnExit) {
+  static void printCohortLogs(String outputDir, List<String> cohorts, cleanupOnExit, List<String> extraLogNames = []) {
     def output = new File(outputDir)
 
     if (!output.exists()) {
@@ -33,14 +35,7 @@ class ErrorHandler {
           if (file.name.endsWith('.log')) {
             logCount++
             totalLogCount++
-            println "\n" + "=" * 80
-            println "LOG FILE: ${file.path}"
-            println "=" * 80
-            try {
-              println file.text
-            } catch (Exception e) {
-              println "Error reading file: ${e.message}"
-            }
+            printLogFile(file)
           }
         }
         if (logCount == 0) {
@@ -50,6 +45,14 @@ class ErrorHandler {
         }
       } else {
         println "\n>> ${cohort} directory not found: ${cohortDir.path}"
+      }
+    }
+
+    extraLogNames.each { name ->
+      def file = new File(outputDir, name)
+      if (file.exists()) {
+        totalLogCount++
+        printLogFile(file)
       }
     }
 
@@ -63,6 +66,20 @@ class ErrorHandler {
       println "\nCleaning up outputDir: ${output}"
       output.deleteDir()
       println "Deleted: ${output}"
+    }
+  }
+
+  /**
+   * Prints a single log file's contents under a header
+   */
+  static void printLogFile(File file) {
+    println "\n" + "=" * 80
+    println "LOG FILE: ${file.path}"
+    println "=" * 80
+    try {
+      println file.text
+    } catch (Exception e) {
+      println "Error reading file: ${e.message}"
     }
   }
 }
